@@ -13,7 +13,7 @@ Quantum-powered actuarial tools for Python that dramatically accelerate risk cal
   - Basic Reserving Methods
   - Mack Method
 - Generalized Linear Models
-- Risk-of-Ruin Collective Risk Models
 - Quantum Copula
+- Risk-of-Ruin Collective Risk Models
 - VaR and TVaR
 - Tail Risk and Risk Margin Estimation

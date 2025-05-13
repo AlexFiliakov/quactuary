@@ -45,20 +45,44 @@ An actuary wants to calculate the expected excess loss for a portfolio, above a 
 
 ```python
 import quactuary as qa
-from quactuary.pricing import ExcessLossModel
+from quactuary.distributions.frequency import Poisson, DeterministicFreq
+from quactuary.distributions.severity  import Lognormal, ConstantSev
+from quactuary.entities import PolicyTerms, Inforce, Portfolio
+from quactuary.pricing.excess_loss_model import ExcessLossModel
 
+# --- General Liability Bucket ---------------------------------------------
+gl_terms = PolicyTerms(per_occ_deductible=200_000, coinsurance=0.10)
+gl_freq  = Poisson(mu=0.25)
+gl_sev   = Lognormal(mu=11.5, sigma=1.2)
+gl_inforce = Inforce(n_policies=10_000,
+                     freq=gl_freq,
+                     sev=gl_sev,
+                     terms=gl_terms,
+                     name="General Liability")
 
-# Define loss distribution (lognormal with mean=203k, sd=364k)
-loss_model = ExcessLossModel(dist='lognormal', params={'mu': 11.5, 'sigma': 1.2}, 
-                              per_occ_deductible=200_000, coinsurance=0.10,
-                              per_occ_limit=None, agg_limit=None)
-# Compute expected excess loss using quantum amplitude estimation
-quantum_excess = loss_model.compute_excess_loss(confidence=0.95)  
-print("Quantum Expected Excess Loss:", quantum_excess)
+# --- Workers’ Comp Bucket ---------------------------------------------------
+wc_terms = PolicyTerms(per_occ_deductible=0, per_occ_limit=1_000_000)
+wc_freq  = DeterministicFreq(k=1)  # exactly 1 claim each year
+wc_sev   = ConstantSev(amount=80_000)
+wc_inforce = Inforce(n_policies=5_000,
+                     freq=wc_freq,
+                     sev=wc_sev,
+                     terms=wc_terms,
+                     name="Workers Comp")
 
-# (Optional) Compare to classical Monte Carlo for verification
-classical_excess = loss_model.compute_excess_loss(classical=_samples=1_000_000)
-print("Classical Expected Excess Loss:", classical_excess)
+# --- Book of Business -------------------------------------------------------
+portfolio = Portfolio([gl_inforce, wc_inforce])
+
+# --- Quantum Excess Loss layer ---------------------------------------------
+layer = ExcessLossModel(portfolio, deductible=1_000_000, limit=4_000_000)
+
+# Test using Classical Monte Carlo
+mc_loss = layer.compute_excess_loss(classical_samples=1_000_000)
+print("Classical Expected Excess Loss:", mc_loss)
+
+# When ready, run a quantum session
+q_layer_loss = layer.compute_excess_loss(confidence=0.95)
+print("Quantum layer expected loss:", q_layer_loss)
 ```
 
-In this example, `ExcessLossModel` loads the specified distribution into a quantum state (using an n-qubit discrete approximation) and builds the circuit needed for the excess loss algorithm. The user is not expected to be proficient in quantum circuit design.
+In this example, `ExcessLossModel` loads the specified distributions into a quantum state (using an n-qubit discrete approximation) and builds the circuit needed for the excess loss algorithm on a book of business. The user is not expected to be proficient in quantum circuit design.

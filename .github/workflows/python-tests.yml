@@ -24,7 +24,7 @@ jobs:
           pytest --cov=quactuary --cov-report=xml --cov-report=term
       - name: Convert coverage XML to JSON badge
         run: |
-          python scripts/coverage_to_json.py coverage.xml > coverage.json
+          python ./scripts/coverage_to_json.py coverage.xml > coverage.json
       - name: Commit coverage badge JSON
         uses: stefanzweifel/git-auto-commit-action@v4
         with:

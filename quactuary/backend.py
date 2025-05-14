@@ -27,7 +27,7 @@ def get_backend():
     return _backend
 
 
-def set_backend(backend_type, provider=None, **kwargs):
+def set_backend(mode, provider=None, **kwargs):
     """
     Set the global backend configuration.
 
@@ -45,7 +45,7 @@ def set_backend(backend_type, provider=None, **kwargs):
     """
     backend = get_backend()
 
-    if backend_type.lower() == 'quantum':
+    if mode.lower() == 'quantum':
         if provider is None or provider.lower() == 'aersimulator':
             # Use Qiskit Aer simulator
             backend = Aer.get_backend('aer_simulator')
@@ -65,14 +65,11 @@ def set_backend(backend_type, provider=None, **kwargs):
         else:
             # Handle other providers as needed
             raise ValueError(f"Unsupported quantum provider: {provider}")
-    elif backend_type.lower() == 'classical':
-        # Implement classical simulation backend options
-        import numpy as np
-
+    elif mode.lower() == 'classical':
         # This is a placeholder - implement actual classical simulation backend
         backend = kwargs.get('backend', 'numpy')
     else:
-        raise ValueError(f"Unsupported backend type: {backend_type}")
+        raise ValueError(f"Unsupported backend type: {mode}")
 
     backend.set_backend(backend)
     return backend

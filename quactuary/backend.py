@@ -1,6 +1,9 @@
 """
 This module provides the plumbing for selecting quantum vs classical execution
 and interfacing with Qiskit or other quantum frameworks.
+
+Provides both global and per-model mechanisms to select the backend,
+defaulting to classical execution unless explicitly turned on or available.
 """
 
 from qiskit_aer import Aer

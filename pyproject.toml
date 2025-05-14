@@ -8,7 +8,8 @@ write_to = "quactuary/_version.py"
 name = "quactuary"
 description = "Quantum-powered actuarial tools"
 readme = "README.md"
-license = { file = "LICENSE" }
+license = "BSD-3-Clause"
+license-files = ["LICENSE"]
 authors = [ { name = "Alex Filiakov" } ]
 requires-python = ">=3.8"
 dynamic = ["version", "dependencies"]
@@ -18,5 +19,5 @@ Homepage = "https://github.com/AlexFiliakov/quactuary"
 Repository = "https://github.com/AlexFiliakov/quactuary.git"
 
 [tool.setuptools.packages.find]
-where = ["."]
+where = ["quactuary"]
 include = ["quactuary", "quactuary.*"]

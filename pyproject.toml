@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel", "setuptools_scm"]
+build-backend = "setuptools.build_meta"
+[tool.setuptools_scm]
+write_to = "quactuary/_version.py"
+
+[project]
+name = "quactuary"
+description = "Quantum-powered actuarial tools"
+readme = "README.md"
+license = { file = "LICENSE" }
+authors = [ { name = "Alex Filiakov" } ]
+requires-python = ">=3.8"
+dynamic = ["version", "dependencies"]
+
+[project.urls]
+Homepage = "https://github.com/AlexFiliakov/quactuary"
+Repository = "https://github.com/AlexFiliakov/quactuary.git"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["quactuary", "quactuary.*"]

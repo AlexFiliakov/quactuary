@@ -6,6 +6,7 @@ A high-level, **pandas**-integrated actuarial framework with optional quantum ac
 _**This package is not ready for use** because it's still under preliminary development. We are presently focused on Property & Casualty (non-life) techniques._
 
 ### Continuous Integration
+[![version](https://img.shields.io/github/v/tag/AlexFiliakov/quactuary?label=version&sort=semver)](https://github.com/AlexFiliakov/quactuary/releases)
 [![Tests](https://img.shields.io/github/actions/workflow/status/AlexFiliakov/quactuary/.github/workflows/python-tests.yml?branch=main)](https://github.com/AlexFiliakov/quactuary/actions)
 [![Coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/AlexFiliakov/quactuary/main/coverage.json)](https://github.com/AlexFiliakov/quactuary/actions)
 

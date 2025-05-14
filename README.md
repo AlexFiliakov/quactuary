@@ -13,6 +13,9 @@ The design leverages existing actuarial Python libraries (e.g. **chainladder-pyt
 
 The API will feel familiar to actuaries (pandas data structures, common actuarial terminology) while hiding quantum mechanics details. Default model outputs will be provided as pandas `Series` or `DataFrame` for seamless downstream analysis.
 
+### Quantum Ready, but Not Quantum Required
+Actuaries can reap quantum speedups in tasks like Monte Carlo simulation without changing how they solve problems. By making quantum optional (opt-in via parameters, context managers, or global config), we avoid alienating users who are not ready for it; they can continue to use all features classically. This dual capability also helps in validation: results from quantum runs can be checked against classical computations for consistency, which will be important in building trust in the quantum approach.
+
 ![Duck resting on a panda](images/panda-duck.png)
 
 ## Key Goals
@@ -47,16 +50,16 @@ By meeting these goals, quActuary will let actuaries harness quantum computing�
 
 ### Excess Severity Pricing
 
-An actuary wants to calculate the expected excess loss for a portfolio, above a retention *L* with a given coinsurance  *c*. They have fitted a loss severity distribution (such as a lognormal with parameters μ, σ). Using **quActuary**:
+An actuary wants to calculate the expected excess loss for a portfolio above a $1M retention with a limit of $4M. Using **quActuary**:
 
 ```python
 import quactuary as qa
 from quactuary.distributions.frequency import Poisson, DeterministicFreq
 from quactuary.distributions.severity  import Lognormal, ConstantSev
 from quactuary.entities import PolicyTerms, Inforce, Portfolio
-from quactuary.pricing.excess_loss_model import ExcessLossModel
+from quactuary.pricing import ExcessLossModel
 
-# --- General Liability Bucket ---------------------------------------------
+# General Liability Bucket
 gl_terms = PolicyTerms(per_occ_deductible=200_000, coinsurance=0.10)
 gl_freq  = Poisson(mu=0.25)
 gl_sev   = Lognormal(mu=11.5, sigma=1.2)
@@ -66,7 +69,7 @@ gl_inforce = Inforce(n_policies=10_000,
                      terms=gl_terms,
                      name="General Liability")
 
-# --- Workers’ Comp Bucket ---------------------------------------------------
+# Workers’ Comp Bucket
 wc_terms = PolicyTerms(per_occ_deductible=0, per_occ_limit=1_000_000)
 wc_freq  = DeterministicFreq(k=1)  # exactly 1 claim each year
 wc_sev   = ConstantSev(amount=80_000)
@@ -76,19 +79,44 @@ wc_inforce = Inforce(n_policies=5_000,
                      terms=wc_terms,
                      name="Workers Comp")
 
-# --- Book of Business -------------------------------------------------------
+# Book of Business
 portfolio = Portfolio([gl_inforce, wc_inforce])
 
-# --- Quantum Excess Loss layer ---------------------------------------------
+# Excess Loss layer
 layer = ExcessLossModel(portfolio, deductible=1_000_000, limit=4_000_000)
 
 # Test using Classical Monte Carlo
-mc_loss = layer.compute_excess_loss(classical_samples=1_000_000)
-print("Classical Expected Excess Loss:", mc_loss)
+mc_layer_loss = layer.compute_excess_loss(backend('classical', num_simulations=1_000_000))
+print(f"Classical layer expected loss: {mc_layer_loss}")
 
 # When ready, run a quantum session
-q_layer_loss = layer.compute_excess_loss(confidence=0.95)
-print("Quantum layer expected loss:", q_layer_loss)
+q_layer_loss = layer.compute_excess_loss(backend('quantum', confidence=0.95))
+print(f"Quantum layer expected loss: {q_layer_loss}")
 ```
 
 In this example, `ExcessLossModel` loads the specified distributions into a quantum state (using an n-qubit discrete approximation) and builds the circuit needed for the excess loss algorithm on a book of business. The user is not expected to be proficient in quantum circuit design.
+
+### Risk Measures
+
+Continuing with the prior Portfolio, an actuary wants to calculate risk measures for this portfolio:
+
+```python
+# Risk Measures
+layer_risk_metrics = RiskMeasureModel(portfolio, deductible=1_000_000, limit=4_000_000)
+
+# Test using Classical Monte Carlo
+with qa.use_backend('classical', num_simulations=1_000_000):
+  mc_layer_var = layer_risk_metrics.value_at_risk(0.95)
+  mc_layer_tvar = layer_risk_metrics.tail_value_at_risk(0.95)
+  print(f"Classical layer VaR: {mc_layer_var}")
+  print(f"Classical layer TVaR: {mc_layer_tvar}")
+
+# Test using Classical Monte Carlo
+with qa.use_backend('quantum', confidence=0.95):
+  q_layer_var = layer_risk_metrics.value_at_risk(0.95)
+  q_layer_tvar = layer_risk_metrics.tail_value_at_risk(0.95)
+  print(f"Quantum layer VaR: {q_layer_var}")
+  print(f"Quantum layer TVaR: {q_layer_tvar}")
+```
+
+In this example, `RiskMeasureModel` loads the specified distributions into a quantum state (using an n-qubit discrete approximation) and builds the circuit needed for the risk measures on the book of business. Again, no knowledge of quantum computing is needed and the interface integrates seamlessly into business workflows.

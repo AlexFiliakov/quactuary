@@ -7,6 +7,8 @@ quActuary library, which is a Python library for actuarial science and insurance
 
 from typing import Protocol
 
+import numpy as np
+
 
 class SeverityModel(Protocol):
     def pdf(self, x: float) -> float: ...
@@ -28,6 +30,14 @@ class ChiSquared(SeverityModel):
     pass
 
 
+class ConstantSev(SeverityModel):
+    pass
+
+
+class EmpiricalSev(SeverityModel):
+    pass
+
+
 class Exponential(SeverityModel):
     pass
 
@@ -40,23 +50,19 @@ class Lognormal(SeverityModel):
     pass
 
 
+class MixSev(SeverityModel):
+    pass
+
+
 class Pareto(SeverityModel):
     pass
 
 
-class SeverityEmpirical(SeverityModel):
+class TriangularSev(SeverityModel):
     pass
 
 
-class SeverityMix(SeverityModel):
-    pass
-
-
-class SeverityTriangular(SeverityModel):
-    pass
-
-
-class SeverityUniform(SeverityModel):
+class UniformSev(SeverityModel):
     pass
 
 

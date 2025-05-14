@@ -1,1 +1,1 @@
-from .core.quantum import get_backend, set_backend
+from .backend import get_backend, set_backend

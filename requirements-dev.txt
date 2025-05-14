@@ -3,3 +3,9 @@ pandas==2.2.3
 pytest
 pytest-cov
 pytest-mock
+qiskit-aer==0.17.0
+qiskit-algorithms==0.3.1
+qiskit-ibm-provider==0.11.0
+qiskit-ibm-runtime==0.38.0
+qiskit-qasm3-import==0.5.1
+qiskit==1.4.2

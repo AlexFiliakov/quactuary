@@ -6,7 +6,7 @@ Notes:
 The focus is on using classical methods (Monte Carlo, FFT) by calling external libs, with an option to accelerate via quantum algorithms.
 """
 
-from quactuary.core.quantum import QuantumActuarialModel
+from quactuary.quantum import QuantumActuarialModel
 
 
 class ExcessLossModel(QuantumActuarialModel):

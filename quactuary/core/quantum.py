@@ -7,11 +7,19 @@ from quactuary.entities import Inforce, Portfolio
 
 
 class QuantumActuarialModel():
-    def __init__(self, obj, deductible=None, limit=None, **kw):
-        if isinstance(obj, Inforce):
-            self.portfolio = Portfolio([obj])
-        elif isinstance(obj, Portfolio):
-            self.portfolio = obj
+    def __init__(self, inforce, deductible=None, limit=None, **kw):
+        """
+        Initialize the Quantum Actuarial Model.
+        Parameters:
+        ----------
+        - `inforce`: An Inforce object or a Portfolio object.
+        - `deductible`: Optional deductible for the layer.
+        - `limit`: Optional limit for the layer.
+        """
+        if isinstance(inforce, Inforce):
+            self.portfolio = Portfolio([inforce])
+        elif isinstance(inforce, Portfolio):
+            self.portfolio = inforce
         else:
             raise TypeError("Need Inforce or Portfolio")
 

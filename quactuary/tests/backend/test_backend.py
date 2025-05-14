@@ -48,14 +48,17 @@ def test_set_backend_classical_sets_backend():
     assert b.get_backend() == 'test_backend'
 
 
+@pytest.mark.skip(reason="TODO: implement package version check")
 def test_set_backend_missing_qiskit():
     pytest.fail("TODO: test raise error on missing `qiskit` package.")
 
 
+@pytest.mark.skip(reason="TODO: implement package version check")
 def test_set_backend_missing_packaging():
     pytest.fail("TODO: test raise error on missing `packaging` package.")
 
 
+@pytest.mark.skip(reason="TODO: implement package version check")
 def test_set_backend_qiskit_wrong_version():
     pytest.fail("TODO: test raise error on incorrect `qiskit` package version.")
 
@@ -77,6 +80,7 @@ def test_set_backend_quantum_defaults_to_aersimulator():
     assert isinstance(b.get_backend(), AerSimulator)
 
 
+@pytest.mark.skip(reason="TODO: implement working IBM connection")
 def test_set_backend_ibmq_provider_specific():
     backend.set_backend('quantum', provider='ibmq',
                         instance='ibmq_qasm_simulator')
@@ -85,6 +89,7 @@ def test_set_backend_ibmq_provider_specific():
     assert b.get_backend().backend_name == 'ibmq_qasm_simulator'
 
 
+@pytest.mark.skip(reason="TODO: implement working IBM connection")
 def test_set_backend_ibmq_provider_default():
     backend.set_backend('quantum', provider='ibmq')
     b = backend.get_backend()

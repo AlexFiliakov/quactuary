@@ -7,6 +7,8 @@ quActuary library, which is a Python library for actuarial science and insurance
 
 from typing import Protocol
 
+import numpy as np
+
 
 class SeverityModel(Protocol):
     def pdf(self, x: float) -> float: ...

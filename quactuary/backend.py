@@ -87,36 +87,50 @@ def set_backend(mode, provider=None, **kwargs):
     >>> quactuary.set_backend('quantum', provider='AerSimulator')
     >>> quactuary.set_backend('quantum', provider='IBMQ', hub='ibm-q', token='my-token')
     """
-    backend = get_backend()
+    backend_manager = get_backend()
 
     if mode.lower() == 'quantum':
+        # Lazy import: Only require Qiskit when quantum mode is used.
+        try:
+            import qiskit
+        except ImportError:
+            raise ImportError("Qiskit is required for quantum backend. "
+                                "Please install it with:\n\npip install qiskit==1.4.2.")
+
+        # Ensure the installed version meets our requirements.
+        try:
+            from packaging import version
+        except ImportError:
+            raise ImportError("Please install the 'packaging' package to check Qiskit version with:"
+                            "\n\npip install packaging")
+        
+        if version.parse(qiskit.__version__) != version.parse("1.4.2"):
+            raise ImportError("Quantum mode requires Qiskit version 1.4.2 exactly. "
+                                "Please upgrade it with:\n\npip install qiskit==1.4.2 --force-reinstall")
+
         if provider is None or provider.lower() == 'aersimulator':
             # Use Qiskit Aer simulator
-            backend = Aer.get_backend('aer_simulator')
+            new_backend = Aer.get_backend('aer_simulator')
         elif provider.lower() == 'ibmq':
-            # Handle IBMQ provider
-
-            # Initialize the IBMQ provider with credentials from kwargs
+            # Use IBM's quantum provider.
+            from qiskit_ibm_provider import IBMProvider
             ibmq_provider = IBMProvider(**kwargs)
-            # Get the least busy backend or specific backend if specified
             backend_name = kwargs.get('backend_name', None)
             if backend_name:
-                backend = ibmq_provider.get_backend(backend_name)
+                new_backend = ibmq_provider.get_backend(backend_name)
             else:
-                backend = None
-                # backend = ibmq_provider.least_busy(
-                #     filters=kwargs.get('filters', None))
+                new_backend = None
+                # Optionally, you could set new_backend to the provider's least_busy backend.
         else:
-            # Handle other providers as needed
             raise ValueError(f"Unsupported quantum provider: {provider}")
     elif mode.lower() == 'classical':
         # This is a placeholder - implement actual classical simulation backend
-        backend = kwargs.get('backend', 'numpy')
+        new_backend = kwargs.get('backend', 'numpy')
     else:
         raise ValueError(f"Unsupported backend type: {mode}")
 
-    backend.set_backend(backend)
-    return backend
+    backend_manager.set_backend(new_backend)
+    return new_backend
 
 
 @contextmanager

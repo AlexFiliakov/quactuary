@@ -8,8 +8,6 @@ Centralize the quantum computing integration so that each model can invoke quant
 
 from dataclasses import dataclass
 
-from qiskit import QuantumCircuit
-
 
 @dataclass
 class QuantumResult():
@@ -35,11 +33,22 @@ def __init__(self):
     pass
 
     def build_circuit(self):
+        """
+        Build a quantum circuit by composing state-preparation routines from portfolio buckets.
+        This method lazily imports Qiskit so that it is only required if quantum mode is used.
+        """
+        try:
+            from qiskit import QuantumCircuit
+        except ImportError:
+            raise ImportError("Quantum backend is requested but Qiskit is not installed. "
+                                "Please install Qiskit==1.4.2 to use quantum functionality:"
+                                "\n\npip install qiskit==1.4.2")
         qc = QuantumCircuit()
-        # call each bucket's state‑prep routine and ripple‑add payouts
-        for bucket in self.portfolio:
+        # Ensure self.portfolio exists and each bucket implements _quantum_state()
+        for bucket in getattr(self, 'portfolio', []):
+            # It is assumed that each bucket's _quantum_state method returns a QuantumCircuit
             qc.compose(bucket._quantum_state(), inplace=True)
-        # apply layer deductible/limit truncation oracle if needed …
+        # Optionally add layer deductible/limit truncation oracle if needed.
         return qc
 
     def run(self):

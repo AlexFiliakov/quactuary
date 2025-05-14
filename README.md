@@ -5,6 +5,9 @@ A high-level, **pandas**-integrated actuarial framework with optional quantum ac
 
 *This package is still under development, presently focused on Property & Casualty (non-life) techniques.*
 
+[![Tests](https://img.shields.io/github/actions/workflow/status/AlexFiliakov/quactuary/.github/workflows/python-tests.yml?branch=main)](https://github.com/AlexFiliakov/quactuary/actions)
+[![Coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/AlexFiliakov/quactuary/main/coverage.json)](https://github.com/AlexFiliakov/quactuary/actions)
+
 ## Introduction
 
 Actuarial computations often involve heavy simulation and complex models for pricing and reserving. **quActuary** aims to empower actuaries with quantum computing speedups (e.g., quadratic Monte Carlo gains) without requiring quantum expertise. The package will wrap IBM’s Qiskit v1.4.2 (including `qiskit_algorithms` and `qiskit_aer`) to abstract away the design of quantum circuits.
@@ -120,3 +123,26 @@ with qa.use_backend('quantum', confidence=0.95):
 ```
 
 In this example, `RiskMeasureModel` loads the specified distributions into a quantum state (using an n-qubit discrete approximation) and builds the circuit needed for the risk measures on the book of business. Again, no knowledge of quantum computing is needed and the interface integrates seamlessly into business workflows.
+
+## Continuous Integration
+
+We use GitHub Actions to run tests and generate coverage. After each successful run, we convert the `coverage.xml` report to JSON for Shields.io.
+
+```yaml
+# .github/workflows/python-tests.yml additions
+- name: Convert coverage XML to JSON badge
+  run: |
+    python scripts/coverage_to_json.py coverage.xml > coverage.json
+- name: Commit coverage badge JSON
+  uses: stefanzweifel/git-auto-commit-action@v4
+  with:
+    commit_message: "Update coverage badge"
+    file_pattern: coverage.json
+    branch: main
+```
+
+Add this badge to the top of your README:
+
+```markdown
+[![Coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/AlexFiliakov/quactuary/main/coverage.json)](https://github.com/AlexFiliakov/quactuary/actions)
+```

@@ -53,5 +53,11 @@ class Portfolio(list):
     (using the distributions module or calling out to the `aggregate` library for convolution).
     """
 
-    def total_policies(self) -> int: ...
-    def __add__(self, other): ...      # combine portfolios
+    def total_policies(self) -> int:
+        pass
+
+    def __add__(self, other):
+        """
+        Combine two portfolios into one.
+        """
+        pass

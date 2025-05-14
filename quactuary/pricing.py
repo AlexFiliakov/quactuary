@@ -10,8 +10,18 @@ from quactuary.core.quantum import QuantumActuarialModel
 
 
 class ExcessLossModel(QuantumActuarialModel):
-    def __init__(self, obj, deductible=None, limit=None, **kw):
-        super().__init__(obj, deductible, limit, **kw)
+    """
+    Excess Loss Model for pricing.
+    This model is designed to compute excess loss for a portfolio.
+
+    Parameters:
+    ----------
+    - `inforce`: An Inforce object or a Portfolio object.
+    - `deductible`: Optional deductible for the layer.
+    - `limit`: Optional limit for the layer.
+    """
+    def __init__(self, inforce, deductible=None, limit=None, **kw):
+        super().__init__(inforce, deductible, limit, **kw)
 
     def compute_excess_loss(self):
         """
@@ -20,22 +30,31 @@ class ExcessLossModel(QuantumActuarialModel):
         pass
 
 
-class VaRModel(QuantumActuarialModel):
-    def __init__(self, obj, deductible=None, limit=None, **kw):
-        super().__init__(obj, deductible, limit, **kw)
+class RiskMeasureModel(QuantumActuarialModel):
+    """
+    Risk Measure Model for pricing.
+    This model is designed to compute risk measures such as Value at Risk (VaR)
+    and Tail Value at Risk (TVaR) using quantum simulation.
 
-    def value_at_risk(self):
+    It extends the QuantumActuarialModel class to provide specific implementations for these risk measures.
+
+    Parameters:
+    ----------
+    - `inforce`: An Inforce object or a Portfolio object.
+    - `deductible`: Optional deductible for the layer.
+    - `limit`: Optional limit for the layer.
+    """
+
+    def __init__(self, inforce, deductible=None, limit=None, **kw):
+        super().__init__(inforce, deductible, limit, **kw)
+
+    def value_at_risk(self, alpha=0.95):
         """
         Compute the Value at Risk (VaR) for the portfolio using quantum simulation.
         """
         pass
 
-
-class TVaRModel(QuantumActuarialModel):
-    def __init__(self, obj, deductible=None, limit=None, **kw):
-        super().__init__(obj, deductible, limit, **kw)
-
-    def tail_value_at_risk(self):
+    def tail_value_at_risk(self, alpha=0.95):
         """
         Compute the Tail Value at Risk (TVaR) for the portfolio using quantum simulation.
         """

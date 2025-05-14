@@ -4,10 +4,12 @@ with open("quactuary/requirements.txt") as f:
     reqs = f.read().splitlines()
 
 setup(
-    name="quactuary",
-    version="0.0.1",
-    description="Quantum-powered actuarial tools",
+    use_scm_version={
+        "write_to": "quactuary/_version.py"
+    },
+    setup_requires=["setuptools_scm"],
     packages=find_packages("quactuary"),
     package_dir={"": "quactuary"},
+    description="Quantum-powered actuarial tools",
     install_requires=reqs,
 )

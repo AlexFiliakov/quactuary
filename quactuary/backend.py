@@ -86,6 +86,7 @@ def set_backend(mode, provider=None, **kwargs):
     >>> import quactuary
     >>> quactuary.set_backend('quantum', provider='AerSimulator')
     >>> quactuary.set_backend('quantum', provider='IBMQ', hub='ibm-q', token='my-token')
+    >>> quactuary.set_backend('classical', num_simulations=1_000_000)
     """
     backend_manager = get_backend()
 

@@ -29,19 +29,11 @@ class Binomial(FrequencyModel):
     pass
 
 
-class FrequencyEmpirical(FrequencyModel):
+class DeterministicFreq(FrequencyModel):
     pass
 
 
-class FrequencyMix(FrequencyModel):
-    pass
-
-
-class FrequencyTriangular(FrequencyModel):
-    pass
-
-
-class FrequencyUniform(FrequencyModel):
+class EmpiricalFreq(FrequencyModel):
     pass
 
 
@@ -53,9 +45,21 @@ class Hypergeometric(FrequencyModel):
     pass
 
 
+class MixFreq(FrequencyModel):
+    pass
+
+
 class NegativeBinomial(FrequencyModel):
     pass
 
 
 class Poisson(FrequencyModel):
+    pass
+
+
+class TriangularFreq(FrequencyModel):
+    pass
+
+
+class UniformFreq(FrequencyModel):
     pass

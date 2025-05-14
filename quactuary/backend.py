@@ -4,13 +4,57 @@ and interfacing with Qiskit or other quantum frameworks.
 
 Provides both global and per-model mechanisms to select the backend,
 defaulting to classical execution unless explicitly turned on or available.
+
+Even if the backend is quantum, the output format and type remains the same:
+the user gets Python/numeric results, not quantum objects.
 """
+
+from contextlib import contextmanager
 
 from qiskit_aer import Aer
 from qiskit_ibm_provider import IBMProvider
 
 # Global backend manager instance
 _backend = None
+
+
+class BackendManager():
+    def __init__(self, backend):
+        """
+        Initialize the Backend Manager.
+        Parameters:
+        ----------
+        - `backend`: The quantum backend to use.
+        """
+        self.backend = backend
+
+    def set_backend(self, backend):
+        """
+        Set the quantum backend.
+        Parameters:
+        ----------
+        - `backend`: The quantum backend to use.
+        """
+        self.backend = backend
+
+    def get_backend(self):
+        """
+        Get the current quantum backend.
+        Returns:
+        -------
+        - `backend`: The current quantum backend.
+        """
+        return self.backend
+
+    def run(self, circuit):
+        """
+        Run the quantum circuit on the specified backend.
+        Parameters:
+        ----------
+        - `circuit`: The quantum circuit to run.
+        """
+        job = self.backend.run(circuit)
+        return job.result()
 
 
 def get_backend():
@@ -75,40 +119,24 @@ def set_backend(mode, provider=None, **kwargs):
     return backend
 
 
-class BackendManager():
-    def __init__(self, backend):
-        """
-        Initialize the Backend Manager.
-        Parameters:
-        ----------
-        - `backend`: The quantum backend to use.
-        """
-        self.backend = backend
+@contextmanager
+def use_backend(mode, provider=None, **kwargs):
+    """
+    Context manager to temporarily set a backend.
 
-    def set_backend(self, backend):
-        """
-        Set the quantum backend.
-        Parameters:
-        ----------
-        - `backend`: The quantum backend to use.
-        """
-        self.backend = backend
-
-    def get_backend(self):
-        """
-        Get the current quantum backend.
-        Returns:
-        -------
-        - `backend`: The current quantum backend.
-        """
-        return self.backend
-
-    def run(self, circuit):
-        """
-        Run the quantum circuit on the specified backend.
-        Parameters:
-        ----------
-        - `circuit`: The quantum circuit to run.
-        """
-        job = self.backend.run(circuit)
-        return job.result()
+    Usage:
+    ------
+    with use_backend('quantum', provider='AerSimulator'):
+        # computations here use the temporary backend
+        res = layer.compute_excess_loss()
+    """
+    global _backend
+    # Store the original backend manager instance
+    original_backend = _backend
+    try:
+        # Set the temporary backend
+        set_backend(mode, provider, **kwargs)
+        yield get_backend()
+    finally:
+        # Restore the original backend manager instance
+        _backend = original_backend

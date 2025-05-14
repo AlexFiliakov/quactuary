@@ -9,9 +9,6 @@ Centralize the quantum computing integration so that each model can invoke quant
 from dataclasses import dataclass
 
 from qiskit import QuantumCircuit
-from quactuary.entities import Inforce, Portfolio
-
-from quactuary import get_backend
 
 
 @dataclass
@@ -22,29 +19,20 @@ class QuantumResult():
     pass
 
 
-class QuantumActuarialModel():
-    def __init__(self, inforce, deductible=None, limit=None, **kw):
-        """
-        Initialize the Quantum Actuarial Model.
-        Parameters:
-        ----------
-        - `inforce`: An Inforce object or a Portfolio object.
-        - `deductible`: Optional deductible for the layer.
-        - `limit`: Optional limit for the layer.
-        """
-        if isinstance(inforce, Inforce):
-            self.portfolio = Portfolio([inforce])
-        elif isinstance(inforce, Portfolio):
-            self.portfolio = inforce
-        else:
-            raise TypeError("Need Inforce or Portfolio")
+class QuantumModelMixin ():
+    """
+    Mixin class for quantum models.
 
-        # optional layer terms that sit above policy terms
-        self.layer_deductible = deductible
-        self.layer_limit = limit
+    This mixin is designed to be used with other classes to provide quantum functionality.
+    """
+    pass
 
-        # Use the global backend manager
-        self.backend = get_backend()
+
+def __init__(self):
+    """
+    Initialize the Quantum Model Mixin.
+    """
+    pass
 
     def build_circuit(self):
         qc = QuantumCircuit()
@@ -64,22 +52,6 @@ class QuantumActuarialModel():
         """
         circuit = self.build_circuit()
         return self.backend.run(circuit)
-
-
-class QuantumModelMixin ():
-    """
-    Mixin class for quantum models.
-
-    This mixin is designed to be used with other classes to provide quantum functionality.
-    """
-    pass
-
-
-def __init__(self):
-    """
-    Initialize the Quantum Model Mixin.
-    """
-    pass
 
 
 def _run_amplitude_estimation(circuit, confidence):

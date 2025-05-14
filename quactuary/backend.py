@@ -115,9 +115,9 @@ def set_backend(mode, provider=None, **kwargs):
         elif provider.lower() == 'ibmq':
             # Use IBM's quantum provider.
             from qiskit_ibm_provider import IBMProvider
-            ibmq_provider = IBMProvider(**kwargs)
-            backend_name = kwargs.get('backend_name', None)
+            backend_name = kwargs.get('instance', None)
             if backend_name:
+                ibmq_provider = IBMProvider(**kwargs)
                 new_backend = ibmq_provider.get_backend(backend_name)
             else:
                 new_backend = None
@@ -126,7 +126,7 @@ def set_backend(mode, provider=None, **kwargs):
             raise ValueError(f"Unsupported quantum provider: {provider}")
     elif mode.lower() == 'classical':
         # This is a placeholder - implement actual classical simulation backend
-        new_backend = kwargs.get('backend', 'numpy')
+        new_backend = kwargs.get('backend', provider)
     else:
         raise ValueError(f"Unsupported backend type: {mode}")
 

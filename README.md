@@ -1,13 +1,19 @@
 ![QuActuary header image](images/qc-header.jpg)
 # *qu*Actuary: quantum-powered actuarial tools
 
-Quantum-powered actuarial tools for Python that dramatically accelerate risk calculations without requiring quantum programming expertise.
+A high-level, **pandas**-integrated actuarial framework with optional quantum acceleration without requiring quantum programming expertise.
 
 *This package is still under development, presently focused on Property & Casualty (non-life) techniques.*
 
 ## Introduction
 
 Actuarial computations often involve heavy simulation and complex models for pricing and reserving. **quActuary** aims to empower actuaries with quantum computing speedups (e.g., quadratic Monte Carlo gains) without requiring quantum expertise. The package will wrap IBM’s Qiskit v1.4.2 (including `qiskit_algorithms` and `qiskit_aer`) to abstract away the design of quantum circuits.
+
+The design leverages existing actuarial Python libraries (e.g. **chainladder-python** for reserving, **aggregate** for FFT-based aggregate loss distributions, **gemact** for collective risk models and copulas) to minimize new implementations. Each model class (e.g. for pricing or risk) will embed quantum computing as a pluggable backend, so users can toggle between classical and quantum execution without needing quantum expertise.
+
+The API will feel familiar to actuaries (pandas data structures, common actuarial terminology) while hiding quantum mechanics details. Default model outputs will be provided as pandas `Series` or `DataFrame` for seamless downstream analysis.
+
+![Duck resting on a panda](images/panda-duck.png)
 
 ## Key Goals
 

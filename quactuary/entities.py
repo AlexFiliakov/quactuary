@@ -1,8 +1,21 @@
 from dataclasses import dataclass
+from typing import Optional
 
-from quactuary.core.policy import PolicyTerms
 from quactuary.distributions.frequency import FrequencyModel
 from quactuary.distributions.severity import SeverityModel
+
+
+@dataclass(frozen=True, slots=True)
+class PolicyTerms:
+    per_occ_deductible: float = 0.0
+    coinsurance:        float = 1.00          # 1 → 100% insurer share
+    per_occ_limit:      Optional[float] = None
+    agg_limit:          Optional[float] = None
+    attachment:         float = 0.0         # for XoL layers
+    coverage:           str = "OCC"       # OCC / CLAIMS‑MADE / etc.
+    # TODO: policy dates, reinstatements, etc.
+    # TODO: corridors
+    # TODO: LoB
 
 
 @dataclass(slots=True)
@@ -33,6 +46,11 @@ class Portfolio(list):
     Usage:
     --------
     `portfolio = qa.Portfolio([wc_inforce, gl_inforce])`
+
+    Notes:
+    -------
+    Portfolio implements methods to aggregate all segments’ loss distributions
+    (using the distributions module or calling out to the `aggregate` library for convolution).
     """
 
     def total_policies(self) -> int: ...

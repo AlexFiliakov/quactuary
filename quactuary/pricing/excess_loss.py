@@ -1,6 +1,6 @@
 from qiskit import QuantumCircuit
+from quactuary.core.quantum import QuantumActuarialModel
 from quactuary.entities import Inforce, Portfolio
-from quactuary.pricing.quantum_actuarial import QuantumActuarialModel
 
 
 class ExcessLossModel(QuantumActuarialModel):

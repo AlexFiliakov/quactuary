@@ -3,9 +3,15 @@ Frequency distributions for the number of claims per year.
 This module provides a set of frequency distributions that can be used to model the
 number of claims in a given period. The distributions are designed to be used with the
 quActuary library, which is a Python library for actuarial science and insurance modeling.
+
+Notes:
+-------
+gemact provides support for (a,b,0) and (a,b,1) distributions not in SciPy.
 """
 
 from typing import Protocol
+
+import numpy as np
 
 
 class FrequencyModel(Protocol):

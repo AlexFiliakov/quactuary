@@ -49,10 +49,14 @@ jobs:
             exit 1
           fi
 
+      - name: Pull remote main
+        run: git pull origin main
+
       - name: Commit coverage badge JSON
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          pull: true
           commit_message: "CI: update coverage badge"
           file_pattern: coverage.json
           branch: main

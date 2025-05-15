@@ -1,0 +1,113 @@
+{"header" : {
+  "cloc_url"           : "github.com/AlDanial/cloc",
+  "cloc_version"       : "1.98",
+  "elapsed_seconds"    : 0.0205459594726562,
+  "n_files"            : 20,
+  "n_lines"            : 2014,
+  "files_per_second"   : 973.42740438173,
+  "lines_per_second"   : 98024.1396212402},
+"./quactuary/distributions/severity.py" :{
+  "blank": 140,
+  "comment": 227,
+  "code": 159,
+  "language": "Python"},
+"./quactuary/distributions/frequency.py" :{
+  "blank": 126,
+  "comment": 227,
+  "code": 137,
+  "language": "Python"},
+"./quactuary/backend.py" :{
+  "blank": 36,
+  "comment": 81,
+  "code": 62,
+  "language": "Python"},
+"./quactuary/core/quantum.py" :{
+  "blank": 40,
+  "comment": 94,
+  "code": 60,
+  "language": "Python"},
+"./quactuary/pricing.py" :{
+  "blank": 35,
+  "comment": 93,
+  "code": 29,
+  "language": "Python"},
+"./quactuary/entities.py" :{
+  "blank": 26,
+  "comment": 92,
+  "code": 26,
+  "language": "Python"},
+"./scripts/coverage_to_json.py" :{
+  "blank": 3,
+  "comment": 1,
+  "code": 26,
+  "language": "Python"},
+"./quactuary/quantum.py" :{
+  "blank": 28,
+  "comment": 58,
+  "code": 24,
+  "language": "Python"},
+"./pyproject.toml" :{
+  "blank": 3,
+  "comment": 0,
+  "code": 20,
+  "language": "TOML"},
+"./setup.py" :{
+  "blank": 2,
+  "comment": 0,
+  "code": 17,
+  "language": "Python"},
+"./requirements-dev.txt" :{
+  "blank": 0,
+  "comment": 0,
+  "code": 16,
+  "language": "Text"},
+"./quactuary/__init__.py" :{
+  "blank": 1,
+  "comment": 1,
+  "code": 9,
+  "language": "Python"},
+"./quactuary/requirements.txt" :{
+  "blank": 0,
+  "comment": 0,
+  "code": 8,
+  "language": "Text"},
+"./coverage.json" :{
+  "blank": 0,
+  "comment": 0,
+  "code": 1,
+  "language": "JSON"},
+"./quactuary/future/dependence.py" :{
+  "blank": 2,
+  "comment": 9,
+  "code": 0,
+  "language": "Python"},
+"./quactuary/future/life.py" :{
+  "blank": 2,
+  "comment": 10,
+  "code": 0,
+  "language": "Python"},
+"./quactuary/future/machine_learning.py" :{
+  "blank": 2,
+  "comment": 10,
+  "code": 0,
+  "language": "Python"},
+"./quactuary/future/portfolio_optimization.py" :{
+  "blank": 2,
+  "comment": 9,
+  "code": 0,
+  "language": "Python"},
+"./quactuary/future/reserving.py" :{
+  "blank": 7,
+  "comment": 47,
+  "code": 0,
+  "language": "Python"},
+"./quactuary/utils.py" :{
+  "blank": 1,
+  "comment": 5,
+  "code": 0,
+  "language": "Python"},
+"SUM": {
+  "blank": 456,
+  "comment": 964,
+  "code": 594,
+  "nFiles": 20} }

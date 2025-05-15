@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>quactuary.future package &#8212; quActuary v0.0.3 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="_static/nature.css?v=279e0f84" />
+    <script src="_static/documentation_options.js?v=bc6a6d3b"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="quactuary.utils module" href="quactuary.utils.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="quactuary.utils.html" title="quactuary.utils module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">quActuary v0.0.3 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">quactuary.future package</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="quactuary-future-package">
+<h1>quactuary.future package<a class="headerlink" href="#quactuary-future-package" title="Link to this heading">¶</a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">¶</a></h2>
+</section>
+<section id="module-quactuary.future.dependence">
+<span id="quactuary-future-dependence-module"></span><h2>quactuary.future.dependence module<a class="headerlink" href="#module-quactuary.future.dependence" title="Link to this heading">¶</a></h2>
+<p>Dependence and copula modeling (Phase 2 features).</p>
+<p>This module provides tools for modeling dependencies between insurance risks,
+including copula-based simulations and correlation structures.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">quactuary.future.dependence</span><span class="w"> </span><span class="kn">import</span> <span class="n">CopulaModel</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">copula</span> <span class="o">=</span> <span class="n">CopulaModel</span><span class="p">(</span><span class="s1">&#39;t&#39;</span><span class="p">,</span> <span class="n">df</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">rho</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">samples</span> <span class="o">=</span> <span class="n">copula</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="module-quactuary.future.life">
+<span id="quactuary-future-life-module"></span><h2>quactuary.future.life module<a class="headerlink" href="#module-quactuary.future.life" title="Link to this heading">¶</a></h2>
+<p>Life insurance actuarial module (Phase 4 features).</p>
+<p>This subpackage supports life contingency calculations, such as present value of benefits,
+survival models, and policy projections. It may integrate standard mortality tables and
+use libraries like <cite>lifelib</cite> for mortality data.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">quactuary.future.life</span><span class="w"> </span><span class="kn">import</span> <span class="n">LifeTable</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">lt</span> <span class="o">=</span> <span class="n">LifeTable</span><span class="p">(</span><span class="n">tx</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">table</span><span class="o">=</span><span class="s1">&#39;US_1990&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">px</span> <span class="o">=</span> <span class="n">lt</span><span class="o">.</span><span class="n">probability_of_survival</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="module-quactuary.future.machine_learning">
+<span id="quactuary-future-machine-learning-module"></span><h2>quactuary.future.machine_learning module<a class="headerlink" href="#module-quactuary.future.machine_learning" title="Link to this heading">¶</a></h2>
+<p>Machine learning models for predictive actuarial modeling (Phase 3 features).</p>
+<p>This module integrates GLM and other ML algorithms (via statsmodels or scikit-learn) for
+frequency and severity predictive modeling. Supports fit/predict API compatible with scikit-learn.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">quactuary.future.machine_learning</span><span class="w"> </span><span class="kn">import</span> <span class="n">GLMModel</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">glm</span> <span class="o">=</span> <span class="n">GLMModel</span><span class="p">(</span><span class="n">distribution</span><span class="o">=</span><span class="s1">&#39;Poisson&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">glm</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">preds</span> <span class="o">=</span> <span class="n">glm</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="module-quactuary.future.portfolio_optimization">
+<span id="quactuary-future-portfolio-optimization-module"></span><h2>quactuary.future.portfolio_optimization module<a class="headerlink" href="#module-quactuary.future.portfolio_optimization" title="Link to this heading">¶</a></h2>
+<p>Portfolio optimization tools (Phase 3 features).</p>
+<p>This module provides interfaces for optimizing risk portfolios using classical solvers (e.g., PyPortfolioOpt)
+and optional quantum optimization backends (e.g. QAOA).</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">quactuary.future.portfolio_optimization</span><span class="w"> </span><span class="kn">import</span> <span class="n">PortfolioOptimization</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">opt</span> <span class="o">=</span> <span class="n">PortfolioOptimization</span><span class="p">(</span><span class="n">portfolio</span><span class="p">,</span> <span class="n">constraints</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">solution</span> <span class="o">=</span> <span class="n">opt</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s1">&#39;classical&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="module-quactuary.future.reserving">
+<span id="quactuary-future-reserving-module"></span><h2>quactuary.future.reserving module<a class="headerlink" href="#module-quactuary.future.reserving" title="Link to this heading">¶</a></h2>
+<p>Claims reserving models (Phase 2 features).</p>
+<p>This module provides deterministic and stochastic reserving methods by wrapping the <cite>chainladder</cite> library.
+Supports loss triangle analysis, IBNR calculations, and reserve risk measures with familiarity to scikit-learn style API.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">quactuary.future.reserving</span><span class="w"> </span><span class="kn">import</span> <span class="n">ChainLadderReserve</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">ChainLadderReserve</span><span class="p">(</span><span class="n">loss_triangle_df</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ultimates</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">ultimates_</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">quactuary.future.reserving</span><span class="w"> </span><span class="kn">import</span> <span class="n">MackChainLadder</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mack</span> <span class="o">=</span> <span class="n">MackChainLadder</span><span class="p">(</span><span class="n">loss_triangle_df</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mack</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">reserves</span> <span class="o">=</span> <span class="n">mack</span><span class="o">.</span><span class="n">reserves_</span>
+</pre></div>
+</div>
+</section>
+<section id="module-quactuary.future">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-quactuary.future" title="Link to this heading">¶</a></h2>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">quactuary.future package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-quactuary.future.dependence">quactuary.future.dependence module</a></li>
+<li><a class="reference internal" href="#module-quactuary.future.life">quactuary.future.life module</a></li>
+<li><a class="reference internal" href="#module-quactuary.future.machine_learning">quactuary.future.machine_learning module</a></li>
+<li><a class="reference internal" href="#module-quactuary.future.portfolio_optimization">quactuary.future.portfolio_optimization module</a></li>
+<li><a class="reference internal" href="#module-quactuary.future.reserving">quactuary.future.reserving module</a></li>
+<li><a class="reference internal" href="#module-quactuary.future">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="quactuary.utils.html"
+                          title="previous chapter">quactuary.utils module</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/quactuary.future.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="quactuary.utils.html" title="quactuary.utils module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">quActuary v0.0.3 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">quactuary.future package</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2025, Alex Filiakov, ACAS.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    </div>
+  </body>
+</html>

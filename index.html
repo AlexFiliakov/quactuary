@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>quActuary Documentation &#8212; quActuary v0.0.3 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="_static/nature.css?v=279e0f84" />
+    <script src="_static/documentation_options.js?v=bc6a6d3b"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="quactuary.entities module" href="quactuary.entities.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="quactuary.entities.html" title="quactuary.entities module"
+             accesskey="N">next</a> |</li>
+        <li class="nav-item nav-item-0"><a href="#">quActuary v0.0.3 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">quActuary Documentation</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="quactuary-documentation">
+<h1>quActuary Documentation<a class="headerlink" href="#quactuary-documentation" title="Link to this heading">¶</a></h1>
+<p>quActuary is a Python library for classical and Quantum-accelerated actuarial loss modeling. It provides frequency and severity distribution models, excess-loss and risk measure pricing, and integration with Qiskit for quantum-enhanced simulations.</p>
+<section id="features">
+<h2>Features<a class="headerlink" href="#features" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Extensive frequency distributions: Poisson, Binomial, Negative Binomial, etc.</p></li>
+<li><p>Flexible severity distributions: Exponential, Gamma, Lognormal, Pareto, etc.</p></li>
+<li><p>Mixture models and empirical distributions.</p></li>
+<li><p>Pricing models for excess loss, Value at Risk (VaR), and Tail Value at Risk (TVaR).</p></li>
+<li><p>Quantum acceleration via Qiskit backends.</p></li>
+<li><p>Comprehensive testing and Sphinx-based documentation.</p></li>
+</ul>
+</section>
+<section id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Link to this heading">¶</a></h2>
+<div class="highlight-powershell notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">quactuary</span>
+</pre></div>
+</div>
+</section>
+<section id="getting-started">
+<h2>Getting Started<a class="headerlink" href="#getting-started" title="Link to this heading">¶</a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">quactuary.distributions.frequency</span><span class="w"> </span><span class="kn">import</span> <span class="n">Poisson</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">quactuary.distributions.severity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Exponential</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">quactuary.pricing</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExcessLossModel</span>
+
+<span class="c1"># Frequency model example</span>
+<span class="n">freq</span> <span class="o">=</span> <span class="n">Poisson</span><span class="p">(</span><span class="n">mu</span><span class="o">=</span><span class="mf">3.5</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">freq</span><span class="o">.</span><span class="n">pmf</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+
+<span class="c1"># Severity model example</span>
+<span class="n">sev</span> <span class="o">=</span> <span class="n">Exponential</span><span class="p">(</span><span class="n">scale</span><span class="o">=</span><span class="mf">1000.0</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">sev</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="mf">500.0</span><span class="p">))</span>
+
+<span class="c1"># Pricing model example (requires valid Inforce data)</span>
+<span class="c1"># pricing = ExcessLossModel(inforce, deductible=1000, limit=10000)</span>
+<span class="c1"># result = pricing.compute_excess_loss()</span>
+</pre></div>
+</div>
+</section>
+<section id="actuarial-modules">
+<h2>Actuarial Modules<a class="headerlink" href="#actuarial-modules" title="Link to this heading">¶</a></h2>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Actuarial Modules:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="quactuary.entities.html">quactuary.entities module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="quactuary.entities.html#quactuary.entities.Inforce"><code class="docutils literal notranslate"><span class="pre">Inforce</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="quactuary.entities.html#quactuary.entities.PolicyTerms"><code class="docutils literal notranslate"><span class="pre">PolicyTerms</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="quactuary.entities.html#quactuary.entities.Portfolio"><code class="docutils literal notranslate"><span class="pre">Portfolio</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="quactuary.pricing.html">quactuary.pricing module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="quactuary.pricing.html#quactuary.pricing.ActuarialModel"><code class="docutils literal notranslate"><span class="pre">ActuarialModel</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="quactuary.pricing.html#quactuary.pricing.ExcessLossModel"><code class="docutils literal notranslate"><span class="pre">ExcessLossModel</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="quactuary.pricing.html#quactuary.pricing.RiskMeasureModel"><code class="docutils literal notranslate"><span class="pre">RiskMeasureModel</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="quactuary.distributions.html">quactuary.distributions package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="quactuary.distributions.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quactuary.distributions.html#module-quactuary.distributions.frequency">quactuary.distributions.frequency module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quactuary.distributions.html#module-quactuary.distributions.severity">quactuary.distributions.severity module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quactuary.distributions.html#module-quactuary.distributions">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="quactuary.quantum.html">quactuary.quantum module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="quactuary.quantum.html#quactuary.quantum.QuantumModelMixin"><code class="docutils literal notranslate"><span class="pre">QuantumModelMixin</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="quactuary.quantum.html#quactuary.quantum.QuantumResult"><code class="docutils literal notranslate"><span class="pre">QuantumResult</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="quactuary.quantum.html#quactuary.quantum.__init__"><code class="docutils literal notranslate"><span class="pre">__init__()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="quactuary.backend.html">quactuary.backend module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="quactuary.backend.html#quactuary.backend.BackendManager"><code class="docutils literal notranslate"><span class="pre">BackendManager</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="quactuary.backend.html#quactuary.backend.get_backend"><code class="docutils literal notranslate"><span class="pre">get_backend()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="quactuary.backend.html#quactuary.backend.set_backend"><code class="docutils literal notranslate"><span class="pre">set_backend()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="quactuary.backend.html#quactuary.backend.use_backend"><code class="docutils literal notranslate"><span class="pre">use_backend()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="quactuary.utils.html">quactuary.utils module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quactuary.future.html">quactuary.future package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="quactuary.future.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quactuary.future.html#module-quactuary.future.dependence">quactuary.future.dependence module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quactuary.future.html#module-quactuary.future.life">quactuary.future.life module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quactuary.future.html#module-quactuary.future.machine_learning">quactuary.future.machine_learning module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quactuary.future.html#module-quactuary.future.portfolio_optimization">quactuary.future.portfolio_optimization module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quactuary.future.html#module-quactuary.future.reserving">quactuary.future.reserving module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quactuary.future.html#module-quactuary.future">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="indices-and-tables">
+<h2>Indices and Tables<a class="headerlink" href="#indices-and-tables" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+</ul>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="#">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">quActuary Documentation</a><ul>
+<li><a class="reference internal" href="#features">Features</a></li>
+<li><a class="reference internal" href="#installation">Installation</a></li>
+<li><a class="reference internal" href="#getting-started">Getting Started</a></li>
+<li><a class="reference internal" href="#actuarial-modules">Actuarial Modules</a></li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and Tables</a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="quactuary.entities.html"
+                          title="next chapter">quactuary.entities module</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/index.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="quactuary.entities.html" title="quactuary.entities module"
+             >next</a> |</li>
+        <li class="nav-item nav-item-0"><a href="#">quActuary v0.0.3 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">quActuary Documentation</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2025, Alex Filiakov, ACAS.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    </div>
+  </body>
+</html>

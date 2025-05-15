@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>quactuary.entities module &#8212; quActuary v0.0.3 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="_static/nature.css?v=279e0f84" />
+    <script src="_static/documentation_options.js?v=bc6a6d3b"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="quactuary.pricing module" href="quactuary.pricing.html" />
+    <link rel="prev" title="quActuary Documentation" href="index.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="quactuary.pricing.html" title="quactuary.pricing module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="quActuary Documentation"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">quActuary v0.0.3 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">quactuary.entities module</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="module-quactuary.entities">
+<span id="quactuary-entities-module"></span><h1>quactuary.entities module<a class="headerlink" href="#module-quactuary.entities" title="Link to this heading">¶</a></h1>
+<p>Insurance entity models for policy terms, inforce buckets, and portfolios.</p>
+<p>This module defines the core business objects for representing insurance policy
+terms (<cite>PolicyTerms</cite>), aggregation buckets (<cite>Inforce</cite>), and collections of buckets (<cite>Portfolio</cite>).</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">quactuary.entities</span><span class="w"> </span><span class="kn">import</span> <span class="n">PolicyTerms</span><span class="p">,</span> <span class="n">Inforce</span><span class="p">,</span> <span class="n">Portfolio</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">terms</span> <span class="o">=</span> <span class="n">PolicyTerms</span><span class="p">(</span><span class="n">per_occ_deductible</span><span class="o">=</span><span class="mf">100.0</span><span class="p">,</span> <span class="n">coinsurance</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bucket</span> <span class="o">=</span> <span class="n">Inforce</span><span class="p">(</span><span class="n">n_policies</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="n">freq_model</span><span class="p">,</span> <span class="n">sev</span><span class="o">=</span><span class="n">sev_model</span><span class="p">,</span> <span class="n">terms</span><span class="o">=</span><span class="n">terms</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">portfolio</span> <span class="o">=</span> <span class="n">Portfolio</span><span class="p">([</span><span class="n">bucket</span><span class="p">])</span>
+</pre></div>
+</div>
+<dl class="py class">
+<dt class="sig sig-object py" id="quactuary.entities.Inforce">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">quactuary.entities.</span></span><span class="sig-name descname"><span class="pre">Inforce</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_policies</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">freq</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="quactuary.distributions.html#quactuary.distributions.frequency.FrequencyModel" title="quactuary.distributions.frequency.FrequencyModel"><span class="pre">FrequencyModel</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">sev</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="quactuary.distributions.html#quactuary.distributions.severity.SeverityModel" title="quactuary.distributions.severity.SeverityModel"><span class="pre">SeverityModel</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">terms</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#quactuary.entities.PolicyTerms" title="quactuary.entities.PolicyTerms"><span class="pre">PolicyTerms</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Unnamed</span> <span class="pre">Bucket'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quactuary.entities.Inforce" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Bucket of policies sharing frequency and severity characteristics.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_policies</strong> (<em>int</em>) – Number of policies in this bucket.</p></li>
+<li><p><strong>freq</strong> (<a class="reference internal" href="quactuary.distributions.html#quactuary.distributions.frequency.FrequencyModel" title="quactuary.distributions.frequency.FrequencyModel"><em>FrequencyModel</em></a>) – Claim count distribution.</p></li>
+<li><p><strong>sev</strong> (<a class="reference internal" href="quactuary.distributions.html#quactuary.distributions.severity.SeverityModel" title="quactuary.distributions.severity.SeverityModel"><em>SeverityModel</em></a>) – Claim severity distribution.</p></li>
+<li><p><strong>terms</strong> (<a class="reference internal" href="#quactuary.entities.PolicyTerms" title="quactuary.entities.PolicyTerms"><em>PolicyTerms</em></a>) – Policy terms and layer definitions.</p></li>
+<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – Bucket label. Defaults to “Unnamed Bucket”.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">classical_sample(n_sims</span></span></dt>
+<dd><p>int) -&gt; np.ndarray: Monte Carlo aggregate loss sample.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="quactuary.entities.Inforce.classical_sample">
+<span class="sig-name descname"><span class="pre">classical_sample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_sims</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100000</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quactuary.entities.Inforce.classical_sample" title="Link to this definition">¶</a></dt>
+<dd><p>Generate Monte Carlo aggregate loss samples for the bucket.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>n_sims</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of simulation runs. Defaults to 100000.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Aggregate loss per simulation.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">samples</span> <span class="o">=</span> <span class="n">bucket</span><span class="o">.</span><span class="n">classical_sample</span><span class="p">(</span><span class="n">n_sims</span><span class="o">=</span><span class="mi">50000</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="quactuary.entities.Inforce.freq">
+<span class="sig-name descname"><span class="pre">freq</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="quactuary.distributions.html#quactuary.distributions.frequency.FrequencyModel" title="quactuary.distributions.frequency.FrequencyModel"><span class="pre">FrequencyModel</span></a></em><a class="headerlink" href="#quactuary.entities.Inforce.freq" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="quactuary.entities.Inforce.n_policies">
+<span class="sig-name descname"><span class="pre">n_policies</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#quactuary.entities.Inforce.n_policies" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="quactuary.entities.Inforce.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#quactuary.entities.Inforce.name" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="quactuary.entities.Inforce.sev">
+<span class="sig-name descname"><span class="pre">sev</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="quactuary.distributions.html#quactuary.distributions.severity.SeverityModel" title="quactuary.distributions.severity.SeverityModel"><span class="pre">SeverityModel</span></a></em><a class="headerlink" href="#quactuary.entities.Inforce.sev" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="quactuary.entities.Inforce.terms">
+<span class="sig-name descname"><span class="pre">terms</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#quactuary.entities.PolicyTerms" title="quactuary.entities.PolicyTerms"><span class="pre">PolicyTerms</span></a></em><a class="headerlink" href="#quactuary.entities.Inforce.terms" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="quactuary.entities.PolicyTerms">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">quactuary.entities.</span></span><span class="sig-name descname"><span class="pre">PolicyTerms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">per_occ_deductible</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coinsurance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">per_occ_limit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">agg_limit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attachment</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coverage</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'OCC'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quactuary.entities.PolicyTerms" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Terms defining insurance policy layer details.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="quactuary.entities.PolicyTerms.per_occ_deductible">
+<span class="sig-name descname"><span class="pre">per_occ_deductible</span></span><a class="headerlink" href="#quactuary.entities.PolicyTerms.per_occ_deductible" title="Link to this definition">¶</a></dt>
+<dd><p>Deductible per occurrence.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="quactuary.entities.PolicyTerms.coinsurance">
+<span class="sig-name descname"><span class="pre">coinsurance</span></span><a class="headerlink" href="#quactuary.entities.PolicyTerms.coinsurance" title="Link to this definition">¶</a></dt>
+<dd><p>Insurer share proportion (1.0 = 100%).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="quactuary.entities.PolicyTerms.per_occ_limit">
+<span class="sig-name descname"><span class="pre">per_occ_limit</span></span><a class="headerlink" href="#quactuary.entities.PolicyTerms.per_occ_limit" title="Link to this definition">¶</a></dt>
+<dd><p>Per-occurrence limit.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Optional[float]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="quactuary.entities.PolicyTerms.agg_limit">
+<span class="sig-name descname"><span class="pre">agg_limit</span></span><a class="headerlink" href="#quactuary.entities.PolicyTerms.agg_limit" title="Link to this definition">¶</a></dt>
+<dd><p>Aggregate limit.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Optional[float]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="quactuary.entities.PolicyTerms.attachment">
+<span class="sig-name descname"><span class="pre">attachment</span></span><a class="headerlink" href="#quactuary.entities.PolicyTerms.attachment" title="Link to this definition">¶</a></dt>
+<dd><p>Attachment point for excess-of-loss.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="quactuary.entities.PolicyTerms.coverage">
+<span class="sig-name descname"><span class="pre">coverage</span></span><a class="headerlink" href="#quactuary.entities.PolicyTerms.coverage" title="Link to this definition">¶</a></dt>
+<dd><p>Coverage type (e.g., “OCC”, “CLAIMS-MADE”).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id0">
+<span class="sig-name descname"><span class="pre">agg_limit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#id0" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id1">
+<span class="sig-name descname"><span class="pre">attachment</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#id1" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id2">
+<span class="sig-name descname"><span class="pre">coinsurance</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#id2" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id3">
+<span class="sig-name descname"><span class="pre">coverage</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#id3" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id4">
+<span class="sig-name descname"><span class="pre">per_occ_deductible</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#id4" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id5">
+<span class="sig-name descname"><span class="pre">per_occ_limit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#id5" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="quactuary.entities.Portfolio">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">quactuary.entities.</span></span><span class="sig-name descname"><span class="pre">Portfolio</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">iterable</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quactuary.entities.Portfolio" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></p>
+<p>Portfolio of in-force buckets.</p>
+<p>Extends <cite>list</cite> to include portfolio-level operations.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">p1</span> <span class="o">=</span> <span class="n">Portfolio</span><span class="p">([</span><span class="n">bucket1</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">p2</span> <span class="o">=</span> <span class="n">Portfolio</span><span class="p">([</span><span class="n">bucket2</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">combined</span> <span class="o">=</span> <span class="n">p1</span> <span class="o">+</span> <span class="n">p2</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="quactuary.entities.Portfolio.total_policies">
+<span class="sig-name descname"><span class="pre">total_policies</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#quactuary.entities.Portfolio.total_policies" title="Link to this definition">¶</a></dt>
+<dd><p>Compute the total number of policies in the portfolio.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Sum of <cite>n_policies</cite> across all buckets.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">portfolio</span><span class="o">.</span><span class="n">total_policies</span><span class="p">()</span>
+<span class="go">1500</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">quactuary.entities module</a><ul>
+<li><a class="reference internal" href="#quactuary.entities.Inforce"><code class="docutils literal notranslate"><span class="pre">Inforce</span></code></a><ul>
+<li><a class="reference internal" href="#quactuary.entities.Inforce.classical_sample"><code class="docutils literal notranslate"><span class="pre">Inforce.classical_sample()</span></code></a></li>
+<li><a class="reference internal" href="#quactuary.entities.Inforce.freq"><code class="docutils literal notranslate"><span class="pre">Inforce.freq</span></code></a></li>
+<li><a class="reference internal" href="#quactuary.entities.Inforce.n_policies"><code class="docutils literal notranslate"><span class="pre">Inforce.n_policies</span></code></a></li>
+<li><a class="reference internal" href="#quactuary.entities.Inforce.name"><code class="docutils literal notranslate"><span class="pre">Inforce.name</span></code></a></li>
+<li><a class="reference internal" href="#quactuary.entities.Inforce.sev"><code class="docutils literal notranslate"><span class="pre">Inforce.sev</span></code></a></li>
+<li><a class="reference internal" href="#quactuary.entities.Inforce.terms"><code class="docutils literal notranslate"><span class="pre">Inforce.terms</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#quactuary.entities.PolicyTerms"><code class="docutils literal notranslate"><span class="pre">PolicyTerms</span></code></a><ul>
+<li><a class="reference internal" href="#quactuary.entities.PolicyTerms.per_occ_deductible"><code class="docutils literal notranslate"><span class="pre">PolicyTerms.per_occ_deductible</span></code></a></li>
+<li><a class="reference internal" href="#quactuary.entities.PolicyTerms.coinsurance"><code class="docutils literal notranslate"><span class="pre">PolicyTerms.coinsurance</span></code></a></li>
+<li><a class="reference internal" href="#quactuary.entities.PolicyTerms.per_occ_limit"><code class="docutils literal notranslate"><span class="pre">PolicyTerms.per_occ_limit</span></code></a></li>
+<li><a class="reference internal" href="#quactuary.entities.PolicyTerms.agg_limit"><code class="docutils literal notranslate"><span class="pre">PolicyTerms.agg_limit</span></code></a></li>
+<li><a class="reference internal" href="#quactuary.entities.PolicyTerms.attachment"><code class="docutils literal notranslate"><span class="pre">PolicyTerms.attachment</span></code></a></li>
+<li><a class="reference internal" href="#quactuary.entities.PolicyTerms.coverage"><code class="docutils literal notranslate"><span class="pre">PolicyTerms.coverage</span></code></a></li>
+<li><a class="reference internal" href="#id0"><code class="docutils literal notranslate"><span class="pre">PolicyTerms.agg_limit</span></code></a></li>
+<li><a class="reference internal" href="#id1"><code class="docutils literal notranslate"><span class="pre">PolicyTerms.attachment</span></code></a></li>
+<li><a class="reference internal" href="#id2"><code class="docutils literal notranslate"><span class="pre">PolicyTerms.coinsurance</span></code></a></li>
+<li><a class="reference internal" href="#id3"><code class="docutils literal notranslate"><span class="pre">PolicyTerms.coverage</span></code></a></li>
+<li><a class="reference internal" href="#id4"><code class="docutils literal notranslate"><span class="pre">PolicyTerms.per_occ_deductible</span></code></a></li>
+<li><a class="reference internal" href="#id5"><code class="docutils literal notranslate"><span class="pre">PolicyTerms.per_occ_limit</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#quactuary.entities.Portfolio"><code class="docutils literal notranslate"><span class="pre">Portfolio</span></code></a><ul>
+<li><a class="reference internal" href="#quactuary.entities.Portfolio.total_policies"><code class="docutils literal notranslate"><span class="pre">Portfolio.total_policies()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="index.html"
+                          title="previous chapter">quActuary Documentation</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="quactuary.pricing.html"
+                          title="next chapter">quactuary.pricing module</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/quactuary.entities.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="quactuary.pricing.html" title="quactuary.pricing module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="quActuary Documentation"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">quActuary v0.0.3 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">quactuary.entities module</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2025, Alex Filiakov, ACAS.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    </div>
+  </body>
+</html>

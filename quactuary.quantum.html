@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>quactuary.quantum module &#8212; quActuary v0.0.3 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="_static/nature.css?v=279e0f84" />
+    <script src="_static/documentation_options.js?v=bc6a6d3b"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="quactuary.backend module" href="quactuary.backend.html" />
+    <link rel="prev" title="quactuary.distributions package" href="quactuary.distributions.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="quactuary.backend.html" title="quactuary.backend module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="quactuary.distributions.html" title="quactuary.distributions package"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">quActuary v0.0.3 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">quactuary.quantum module</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="module-quactuary.quantum">
+<span id="quactuary-quantum-module"></span><h1>quactuary.quantum module<a class="headerlink" href="#module-quactuary.quantum" title="Link to this heading">¶</a></h1>
+<p>Quantum actuarial integration module.</p>
+<p>Centralizes quantum computing support across actuarial models, providing consistent
+circuit construction, execution, and result handling.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">quactuary.quantum</span><span class="w"> </span><span class="kn">import</span> <span class="n">QuantumModelMixin</span><span class="p">,</span> <span class="n">QuantumResult</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">class</span><span class="w"> </span><span class="nc">MyModel</span><span class="p">(</span><span class="n">QuantumModelMixin</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">pass</span>
+</pre></div>
+</div>
+<dl class="py class">
+<dt class="sig sig-object py" id="quactuary.quantum.QuantumModelMixin">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">quactuary.quantum.</span></span><span class="sig-name descname"><span class="pre">QuantumModelMixin</span></span><a class="headerlink" href="#quactuary.quantum.QuantumModelMixin" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Mixin providing quantum circuit creation and execution capabilities.</p>
+<p>Include this mixin in model classes to enable quantum algorithms via Qiskit.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="quactuary.quantum.QuantumResult">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">quactuary.quantum.</span></span><span class="sig-name descname"><span class="pre">QuantumResult</span></span><a class="headerlink" href="#quactuary.quantum.QuantumResult" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Container for results from quantum computations.</p>
+<p>Models can convert these results into user-facing formats (e.g., numbers or DataFrames).</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="quactuary.quantum.QuantumResult.intervals">
+<span class="sig-name descname"><span class="pre">intervals</span></span><a class="headerlink" href="#quactuary.quantum.QuantumResult.intervals" title="Link to this definition">¶</a></dt>
+<dd><p>Confidence intervals for estimates.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict[str, tuple[float, float]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="quactuary.quantum.QuantumResult.samples">
+<span class="sig-name descname"><span class="pre">samples</span></span><a class="headerlink" href="#quactuary.quantum.QuantumResult.samples" title="Link to this definition">¶</a></dt>
+<dd><p>Raw samples obtained from quantum execution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Optional[np.ndarray]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="quactuary.quantum.QuantumResult.metadata">
+<span class="sig-name descname"><span class="pre">metadata</span></span><a class="headerlink" href="#quactuary.quantum.QuantumResult.metadata" title="Link to this definition">¶</a></dt>
+<dd><p>Additional run details.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quactuary.quantum.__init__">
+<span class="sig-prename descclassname"><span class="pre">quactuary.quantum.</span></span><span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quactuary.quantum.__init__" title="Link to this definition">¶</a></dt>
+<dd><p>Initialize the QuantumModelMixin.</p>
+<p>This method can perform setup tasks required before building circuits.</p>
+</dd></dl>
+
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">quactuary.quantum module</a><ul>
+<li><a class="reference internal" href="#quactuary.quantum.QuantumModelMixin"><code class="docutils literal notranslate"><span class="pre">QuantumModelMixin</span></code></a></li>
+<li><a class="reference internal" href="#quactuary.quantum.QuantumResult"><code class="docutils literal notranslate"><span class="pre">QuantumResult</span></code></a><ul>
+<li><a class="reference internal" href="#quactuary.quantum.QuantumResult.intervals"><code class="docutils literal notranslate"><span class="pre">QuantumResult.intervals</span></code></a></li>
+<li><a class="reference internal" href="#quactuary.quantum.QuantumResult.samples"><code class="docutils literal notranslate"><span class="pre">QuantumResult.samples</span></code></a></li>
+<li><a class="reference internal" href="#quactuary.quantum.QuantumResult.metadata"><code class="docutils literal notranslate"><span class="pre">QuantumResult.metadata</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#quactuary.quantum.__init__"><code class="docutils literal notranslate"><span class="pre">__init__()</span></code></a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="quactuary.distributions.html"
+                          title="previous chapter">quactuary.distributions package</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="quactuary.backend.html"
+                          title="next chapter">quactuary.backend module</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/quactuary.quantum.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="quactuary.backend.html" title="quactuary.backend module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="quactuary.distributions.html" title="quactuary.distributions package"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">quActuary v0.0.3 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">quactuary.quantum module</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2025, Alex Filiakov, ACAS.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    </div>
+  </body>
+</html>

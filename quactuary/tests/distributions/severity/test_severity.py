@@ -175,6 +175,51 @@ def test_to_severity_model_scalar():
     model = to_severity_model(3.5)
     assert isinstance(model, ConstantSev)
     assert model.pdf(3.5) == 1.0
+    assert model.pdf(4.0) == 0
+
+
+def test_to_severity_model_scalar_npint():
+    from quactuary.distributions.severity import ConstantSev, to_severity_model
+
+    model = to_severity_model(np.float64(3.5))
+    assert isinstance(model, ConstantSev)
+    assert model.pdf(3.5) == 1.0
+    assert model.pdf(4.0) == 0
+
+
+def test_to_severity_model_list():
+    from quactuary.distributions.severity import (EmpiricalSev,
+                                                  to_severity_model)
+
+    model = to_severity_model([1, 3.5])
+    assert isinstance(model, EmpiricalSev)
+    assert model.pdf(1.0) == pytest.approx(1/2)
+    assert model.pdf(3.5) == pytest.approx(1/2)
+    assert model.pdf(4.0) == 0.0
+
+
+def test_to_severity_model_nparray():
+    from quactuary.distributions.severity import (EmpiricalSev,
+                                                  to_severity_model)
+
+    model = to_severity_model(np.array([1, 3.5]))
+    assert isinstance(model, EmpiricalSev)
+    assert model.pdf(1.0) == pytest.approx(1/2)
+    assert model.pdf(3.5) == pytest.approx(1/2)
+    assert model.pdf(4.0) == 0.0
+
+
+def test_to_severity_model_series():
+    import pandas as pd
+
+    from quactuary.distributions.severity import (EmpiricalSev,
+                                                  to_severity_model)
+
+    model = to_severity_model(pd.Series([1, 3.5]))
+    assert isinstance(model, EmpiricalSev)
+    assert model.pdf(1) == pytest.approx(1/2)
+    assert model.pdf(3.5) == pytest.approx(1/2)
+    assert model.pdf(4.0) == 0.0
 
 
 def test_to_severity_model_frozen():

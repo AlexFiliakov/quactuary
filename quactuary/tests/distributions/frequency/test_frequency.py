@@ -124,14 +124,59 @@ def test_triangular_freq():
 
 
 def test_to_frequency_model_scalar():
-    from scipy.stats import poisson
-
     from quactuary.distributions.frequency import (DeterministicFreq,
                                                    to_frequency_model)
 
     model = to_frequency_model(5)
     assert isinstance(model, DeterministicFreq)
     assert model.pmf(5) == 1.0
+
+
+def test_to_frequency_model_scalar_npint():
+    from quactuary.distributions.frequency import (DeterministicFreq,
+                                                   to_frequency_model)
+
+    model = to_frequency_model(np.int64(5))
+    assert isinstance(model, DeterministicFreq)
+    assert model.pmf(5) == 1.0
+
+
+def test_to_frequency_model_list():
+    from quactuary.distributions.frequency import (EmpiricalFreq,
+                                                   to_frequency_model)
+
+    model = to_frequency_model([1, 2, 3])
+    assert isinstance(model, EmpiricalFreq)
+    assert model.pmf(1) == pytest.approx(1/3)
+    assert model.pmf(2) == pytest.approx(1/3)
+    assert model.pmf(3) == pytest.approx(1/3)
+    assert model.pmf(4) == 0.0
+
+
+def test_to_frequency_model_nparray():
+    from quactuary.distributions.frequency import (EmpiricalFreq,
+                                                   to_frequency_model)
+
+    model = to_frequency_model(np.array([1, 2, 3]))
+    assert isinstance(model, EmpiricalFreq)
+    assert model.pmf(1) == pytest.approx(1/3)
+    assert model.pmf(2) == pytest.approx(1/3)
+    assert model.pmf(3) == pytest.approx(1/3)
+    assert model.pmf(4) == 0.0
+
+
+def test_to_frequency_model_series():
+    import pandas as pd
+
+    from quactuary.distributions.frequency import (EmpiricalFreq,
+                                                   to_frequency_model)
+    data = pd.Series([1, 2, 3])
+    model = to_frequency_model(data)
+    assert isinstance(model, EmpiricalFreq)
+    assert model.pmf(1) == pytest.approx(1/3)
+    assert model.pmf(2) == pytest.approx(1/3)
+    assert model.pmf(3) == pytest.approx(1/3)
+    assert model.pmf(4) == 0.0
 
 
 def test_to_frequency_model_frozen():
@@ -170,6 +215,18 @@ def test_to_frequency_model_empty_list_error():
     from quactuary.distributions.frequency import to_frequency_model
     with pytest.raises(ValueError):
         to_frequency_model([])
+
+
+def test_to_frequency_model_float_error():
+    from quactuary.distributions.frequency import to_frequency_model
+    with pytest.raises(TypeError):
+        to_frequency_model(0.5)
+
+
+def test_to_frequency_model_list_with_float_error():
+    from quactuary.distributions.frequency import to_frequency_model
+    with pytest.raises(TypeError):
+        to_frequency_model([1, 2, 3, 0.5])
 
 
 def test_to_frequency_model_invalid_list_error():

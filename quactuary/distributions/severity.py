@@ -9,6 +9,7 @@ from abc import abstractmethod
 from typing import Protocol, runtime_checkable
 
 import numpy as np
+import pandas as pd
 from scipy.stats import beta as sp_beta
 from scipy.stats import chi2, expon
 from scipy.stats import gamma as sp_gamma
@@ -70,7 +71,7 @@ def to_severity_model(obj) -> SeverityModel:
         return obj
     if isinstance(obj, (int, float, np.integer, np.floating)):
         return ConstantSev(float(obj))
-    if isinstance(obj, (list, np.ndarray)):
+    if isinstance(obj, (list, np.ndarray, pd.Series)):
         if len(obj) == 0:
             raise ValueError(
                 "Empty list or array cannot be converted to SeverityModel")

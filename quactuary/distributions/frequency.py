@@ -13,6 +13,7 @@ from abc import abstractmethod
 from typing import Protocol, runtime_checkable
 
 import numpy as np
+import pandas as pd
 from scipy.stats import binom, geom, hypergeom, nbinom
 from scipy.stats import poisson as sp_poisson
 from scipy.stats import randint, triang
@@ -74,7 +75,7 @@ def to_frequency_model(obj) -> FrequencyModel:
         return obj
     if isinstance(obj, (int, np.integer)):
         return DeterministicFreq(int(obj))
-    if isinstance(obj, (list, np.array)):
+    if isinstance(obj, (list, np.ndarray, pd.Series)):
         if len(obj) == 0:
             raise ValueError(
                 "Empty list or array cannot be converted to FrequencyModel")

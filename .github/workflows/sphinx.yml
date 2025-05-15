@@ -5,6 +5,11 @@ on:
     tags:
       - "v*" # any tag like "v1.2.3"
 
+# Explicitly define permissions for the GITHUB_TOKEN
+permissions:
+  contents: write
+  pages: write
+
 jobs:
   docs:
     runs-on: ubuntu-latest

@@ -1,7 +1,11 @@
 from setuptools import find_packages, setup
 
-with open("quactuary/requirements.txt") as f:
-    reqs = f.read().splitlines()
+try:
+    with open("quactuary/requirements.txt") as f:
+        reqs = f.read().splitlines()
+except FileNotFoundError:
+    with open("quactuary/quactuary/requirements.txt") as f:
+        reqs = f.read().splitlines()
 
 setup(
     use_scm_version={

@@ -1,11 +1,11 @@
 {"header" : {
   "cloc_url"           : "github.com/AlDanial/cloc",
   "cloc_version"       : "1.98",
-  "elapsed_seconds"    : 0.0241329669952393,
+  "elapsed_seconds"    : 0.0233829021453857,
   "n_files"            : 32,
   "n_lines"            : 2376,
-  "files_per_second"   : 1325.98697898657,
-  "lines_per_second"   : 98454.5331897531},
+  "files_per_second"   : 1368.52131531991,
+  "lines_per_second"   : 101612.707662503},
 "./quactuary/distributions/frequency.py" :{
   "blank": 143,
   "comment": 289,

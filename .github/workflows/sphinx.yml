@@ -14,6 +14,7 @@ jobs:
         with: { python-version: "3.x" }
       - run: pip install .[docs] # or however you install sphinx & your package
       - run: make html # release is picked up via conf.py
+        working-directory: docs
       - name: Publish to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:

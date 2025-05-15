@@ -5,10 +5,10 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>quactuary.distributions package &#8212; quActuary v0.0.3 documentation</title>
+    <title>quactuary.distributions package &#8212; quActuary v0.0.4 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="_static/nature.css?v=279e0f84" />
-    <script src="_static/documentation_options.js?v=bc6a6d3b"></script>
+    <script src="_static/documentation_options.js?v=77e3fdf6"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -31,7 +31,7 @@
         <li class="right" >
           <a href="quactuary.pricing.html" title="quactuary.pricing module"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">quActuary v0.0.3 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">quActuary v0.0.4 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">quactuary.distributions package</a></li> 
       </ul>
     </div>  
@@ -738,6 +738,103 @@ and random variate sampling.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="quactuary.distributions.frequency.PanjerABk">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">quactuary.distributions.frequency.</span></span><span class="sig-name descname"><span class="pre">PanjerABk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-12</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100000</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quactuary.distributions.frequency.PanjerABk" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#quactuary.distributions.frequency.FrequencyModel" title="quactuary.distributions.frequency.FrequencyModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">FrequencyModel</span></code></a></p>
+<p>Generalized Panjer (a, b, k) distribution class for actuarial applications.</p>
+<p>The (a, b, k) family includes many common actuarial claim count distributions:
+- Poisson(λ): a = λ, b = 1, k = 0
+- Binomial(n, p): a = -q(n+1), b = -q, k = 0 where q = 1-p
+- Negative Binomial(r, p): a = r, b = 0, k = 0</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>a</strong> (<em>float</em>) – First parameter in the recursive formula.</p></li>
+<li><p><strong>b</strong> (<em>float</em>) – Second parameter in the recursive formula.</p></li>
+<li><p><strong>k</strong> (<em>int</em>) – Shift parameter indicating the starting support (typically 0 or 1).</p></li>
+<li><p><strong>tol</strong> (<em>float</em><em>, </em><em>optional</em>) – Tail probability tolerance for stopping recursion. Defaults to 1e-12.</p></li>
+<li><p><strong>max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Maximum number of iterations for recursion. Defaults to 100000.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<p><a class="reference external" href="https://www.casact.org/sites/default/files/old/astin_vol32no2_283.pdf">https://www.casact.org/sites/default/files/old/astin_vol32no2_283.pdf</a></p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">PanjerABk</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span><span class="o">.</span><span class="n">pmf</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="quactuary.distributions.frequency.PanjerABk.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-12</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100000</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quactuary.distributions.frequency.PanjerABk.__init__" title="Link to this definition">¶</a></dt>
+<dd><p>Initialize a PanjerABk distribution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>a</strong> (<em>float</em>) – First parameter in the recursive formula.</p></li>
+<li><p><strong>b</strong> (<em>float</em>) – Second parameter in the recursive formula.</p></li>
+<li><p><strong>k</strong> (<em>int</em>) – Shift parameter indicating the starting support (typically 0 or 1).</p></li>
+<li><p><strong>tol</strong> (<em>float</em><em>, </em><em>optional</em>) – Tail probability tolerance for stopping recursion. Defaults to 1e-12.</p></li>
+<li><p><strong>max_iter</strong> (<em>int</em><em>, </em><em>optional</em>) – Maximum number of iterations for recursion. Defaults to 100000.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="quactuary.distributions.frequency.PanjerABk.cdf">
+<span class="sig-name descname"><span class="pre">cdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#quactuary.distributions.frequency.PanjerABk.cdf" title="Link to this definition">¶</a></dt>
+<dd><p>Compute the cumulative distribution function (CDF) at a given count.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>n</strong> (<em>int</em>) – Count at which to evaluate the CDF.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Cumulative probability P(N &lt;= n).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="quactuary.distributions.frequency.PanjerABk.pmf">
+<span class="sig-name descname"><span class="pre">pmf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#quactuary.distributions.frequency.PanjerABk.pmf" title="Link to this definition">¶</a></dt>
+<dd><p>Compute the probability mass function (PMF) at a given count.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>n</strong> (<em>int</em>) – Count at which to evaluate the PMF.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Probability P(N = n).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="quactuary.distributions.frequency.PanjerABk.rvs">
+<span class="sig-name descname"><span class="pre">rvs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quactuary.distributions.frequency.PanjerABk.rvs" title="Link to this definition">¶</a></dt>
+<dd><p>Draw random samples from the distribution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>size</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of samples to generate. Defaults to 1.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A single sample if size = 1, otherwise an array of sampled counts.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int or np.ndarray</p>
 </dd>
 </dl>
 </dd></dl>
@@ -2001,6 +2098,13 @@ and casualty (P&amp;C) insurance applications.</p>
 <li><a class="reference internal" href="#quactuary.distributions.frequency.NegativeBinomial.rvs"><code class="docutils literal notranslate"><span class="pre">NegativeBinomial.rvs()</span></code></a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#quactuary.distributions.frequency.PanjerABk"><code class="docutils literal notranslate"><span class="pre">PanjerABk</span></code></a><ul>
+<li><a class="reference internal" href="#quactuary.distributions.frequency.PanjerABk.__init__"><code class="docutils literal notranslate"><span class="pre">PanjerABk.__init__()</span></code></a></li>
+<li><a class="reference internal" href="#quactuary.distributions.frequency.PanjerABk.cdf"><code class="docutils literal notranslate"><span class="pre">PanjerABk.cdf()</span></code></a></li>
+<li><a class="reference internal" href="#quactuary.distributions.frequency.PanjerABk.pmf"><code class="docutils literal notranslate"><span class="pre">PanjerABk.pmf()</span></code></a></li>
+<li><a class="reference internal" href="#quactuary.distributions.frequency.PanjerABk.rvs"><code class="docutils literal notranslate"><span class="pre">PanjerABk.rvs()</span></code></a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#quactuary.distributions.frequency.Poisson"><code class="docutils literal notranslate"><span class="pre">Poisson</span></code></a><ul>
 <li><a class="reference internal" href="#quactuary.distributions.frequency.Poisson.__init__"><code class="docutils literal notranslate"><span class="pre">Poisson.__init__()</span></code></a></li>
 <li><a class="reference internal" href="#quactuary.distributions.frequency.Poisson.cdf"><code class="docutils literal notranslate"><span class="pre">Poisson.cdf()</span></code></a></li>
@@ -2155,7 +2259,7 @@ and casualty (P&amp;C) insurance applications.</p>
         <li class="right" >
           <a href="quactuary.pricing.html" title="quactuary.pricing module"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">quActuary v0.0.3 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">quActuary v0.0.4 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">quactuary.distributions package</a></li> 
       </ul>
     </div>

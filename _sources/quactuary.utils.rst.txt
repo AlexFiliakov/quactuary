@@ -1,7 +1,21 @@
 quactuary.utils module
 ======================
 
-.. automodule:: quactuary.utils
+Submodules
+----------
+
+quactuary.utils.validation module
+----------------------------------------
+
+.. automodule:: quactuary.utils.validation
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Module contents
+---------------
+
+.. automodule:: quactuary.validation
    :members:
    :show-inheritance:
    :undoc-members:

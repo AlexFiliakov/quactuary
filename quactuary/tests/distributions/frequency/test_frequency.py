@@ -14,6 +14,41 @@ from quactuary.distributions.frequency import (Binomial, DeterministicFreq,
                                                Hypergeometric, MixFreq,
                                                NegativeBinomial, Poisson,
                                                TriangularFreq)
+from quactuary.distributions.frequency_abc import ABK
+
+
+@pytest.mark.skip(reason="Waiting for correct (a,b,k) implementation.")
+def test_abk():
+    # Test zero-truncated (k=0)
+    zt_model = ABK(a=-1/3, b=2, k=0)
+    for i in range(100):
+        assert zt_model.pmf(i) >= 0
+    assert zt_model.pmf(0) == pytest.approx(243/1024)
+
+    zt_model = ABK(a=-1/4, b=7/4, k=0)
+    assert zt_model.cdf(2) == zt_model.pmf(
+        0) + zt_model.pmf(1) + zt_model.pmf(2)
+    assert zt_model.cdf(2) == pytest.approx(1 - 0.09888)
+
+    # Test zero-modified (k=1)
+    zm_model = ABK(a=5, b=1, k=1)
+    assert zm_model.pmf(0) > 0
+    assert zt_model.cdf(2) == zt_model.pmf(
+        0) + zt_model.pmf(1) + zt_model.pmf(2)
+
+    # Test general functionality
+    model = ABK(a=2, b=3, k=0)
+    samples = model.rvs(size=100)
+    assert isinstance(samples, np.ndarray)
+    assert samples.shape == (100,)
+    assert np.all(samples >= 0)
+
+    # For k=1, values can be 0
+    model2 = ABK(a=2, b=3, k=1)
+    samples2 = model2.rvs(size=100)
+    assert np.all(samples2 >= 0)
+
+    # TODO: Add more specific tests for pmf and cdf
 
 
 def test_binomial():

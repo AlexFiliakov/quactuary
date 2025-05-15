@@ -12,10 +12,17 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with: { python-version: "3.x" }
-      - run: pip install .[docs] # or however you install sphinx & your package
-        working-directory: quactuary
-      - run: make html # release is picked up via conf.py
-        working-directory: quactuary/docs
+      - name: Install package and docs dependencies
+        run: |
+          cd quactuary
+          pip install --upgrade pip
+          pip install .[docs]
+
+      - name: Build Sphinx HTML
+        run: |
+          cd quactuary/docs
+          make html
+
       - name: Publish to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:

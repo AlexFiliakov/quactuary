@@ -1,7 +1,21 @@
 """
-(Phase 2 features)
-Claims reserving models.
+Claims reserving models (Phase 2 features).
 
+This module provides deterministic and stochastic reserving methods by wrapping the `chainladder` library.
+Supports loss triangle analysis, IBNR calculations, and reserve risk measures with familiarity to scikit-learn style API.
+
+Examples:
+    >>> from quactuary.future.reserving import ChainLadderReserve
+    >>> model = ChainLadderReserve(loss_triangle_df)
+    >>> model.fit()
+    >>> ultimates = model.ultimates_
+
+    >>> from quactuary.future.reserving import MackChainLadder
+    >>> mack = MackChainLadder(loss_triangle_df)
+    >>> mack.fit()
+    >>> reserves = mack.reserves_
+"""
+"""
 Purpose: Implement actuarial reserving methods (deterministic and stochastic)
 by wrapping the established chainladder Python library.
 This allows robust functionality for loss triangles, IBNR,

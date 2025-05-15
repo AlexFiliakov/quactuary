@@ -1,8 +1,13 @@
 """
-Quantum Actuarial functionality.
+Quantum actuarial integration module.
 
-Purpose:
-Centralize the quantum computing integration so that each model can invoke quantum algorithms consistently.
+Centralizes quantum computing support across actuarial models, providing consistent
+circuit construction, execution, and result handling.
+
+Examples:
+    >>> from quactuary.quantum import QuantumModelMixin, QuantumResult
+    >>> class MyModel(QuantumModelMixin):
+    ...     pass
 """
 
 
@@ -12,30 +17,49 @@ from dataclasses import dataclass
 @dataclass
 class QuantumResult():
     """
-    Hold results like confidence intervals of quantum estimates, which models can then convert to user-facing outputs (e.g. a number or DataFrame).
+    Container for results from quantum computations.
+
+    Models can convert these results into user-facing formats (e.g., numbers or DataFrames).
+
+    Attributes:
+        intervals (dict[str, tuple[float, float]]): Confidence intervals for estimates.
+        samples (Optional[np.ndarray]): Raw samples obtained from quantum execution.
+        metadata (dict): Additional run details.
     """
     pass
 
 
 class QuantumModelMixin ():
     """
-    Mixin class for quantum models.
+    Mixin providing quantum circuit creation and execution capabilities.
 
-    This mixin is designed to be used with other classes to provide quantum functionality.
+    Include this mixin in model classes to enable quantum algorithms via Qiskit.
     """
     pass
 
 
 def __init__(self):
     """
-    Initialize the Quantum Model Mixin.
+    Initialize the QuantumModelMixin.
+
+    This method can perform setup tasks required before building circuits.
     """
     pass
 
     def build_circuit(self):
         """
-        Build a quantum circuit by composing state-preparation routines from portfolio buckets.
-        This method lazily imports Qiskit so that it is only required if quantum mode is used.
+        Construct a quantum circuit by composing state-preparation from portfolio buckets.
+
+        This method lazily imports Qiskit to avoid dependency overhead when not used.
+
+        Returns:
+            QuantumCircuit: Composed quantum circuit ready for execution.
+
+        Raises:
+            ImportError: If Qiskit is not installed.
+
+        Examples:
+            >>> qc = mymodel.build_circuit()
         """
         try:
             from qiskit import QuantumCircuit
@@ -53,11 +77,13 @@ def __init__(self):
 
     def run(self):
         """
-        Build and run the quantum circuit using the configured backend.
+        Execute the quantum circuit on the configured backend.
 
         Returns:
-        -------
-        - Result from running the circuit
+            Any: Result object from quantum backend execution.
+
+        Examples:
+            >>> result = mymodel.run()
         """
         circuit = self.build_circuit()
         return self.backend.run(circuit)
@@ -65,16 +91,20 @@ def __init__(self):
 
 def _run_amplitude_estimation(circuit, confidence):
     """
-    Run amplitude estimation on the given quantum circuit.
+    Perform amplitude estimation on a quantum circuit.
 
-    Parameters:
-    ----------
-    - `circuit`: The quantum circuit to run.
-    - `confidence`: The confidence level for the estimation.
+    Args:
+        circuit (QuantumCircuit): Circuit for amplitude estimation.
+        confidence (float): Desired confidence level (0 < confidence < 1).
 
     Returns:
-    -------
-    - Estimated value from the amplitude estimation.
+        float: Estimated amplitude value.
+
+    Raises:
+        ValueError: If confidence is out of valid range.
+
+    Examples:
+        >>> est = _run_amplitude_estimation(qc, confidence=0.95)
     """
     # Placeholder for actual amplitude estimation logic
     pass

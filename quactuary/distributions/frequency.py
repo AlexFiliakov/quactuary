@@ -1,12 +1,17 @@
 """
 Frequency distributions for the number of claims per year.
-This module provides a set of frequency distributions that can be used to model the
-number of claims in a given period. The distributions are designed to be used with the
-quActuary library, which is a Python library for actuarial science and insurance modeling.
+
+This module provides frequency distribution models to represent the number of claims
+within a given period for property and casualty (P&C) insurance applications.
 
 Notes:
--------
-gemact provides support for (a,b,0) and (a,b,1) distributions not in SciPy.
+    gemact provides support for (a,b,0) and (a,b,1) distributions not in SciPy.
+
+Examples:
+    >>> from quactuary.distributions.frequency import Poisson
+    >>> model = Poisson(mu=3.5)
+    >>> pmf_2 = model.pmf(2)
+    >>> samples = model.rvs(size=10)
 """
 
 from abc import abstractmethod
@@ -23,43 +28,102 @@ from scipy.stats._distn_infrastructure import rv_frozen
 @runtime_checkable
 class FrequencyModel(Protocol):
     """
-    Frequency distribution protocol for the number of claims per year.
-    This class provides an interface for frequency distributions that can be used
-    to model the number of claims in a given period.
+    Protocol for frequency distributions representing number of claims per period.
+
+    This interface defines methods for probability mass function, cumulative distribution,
+    and random variate sampling.
     """
     @abstractmethod
     def pmf(self, k: int) -> float:
-        """Return the probability mass function (pmf) at k."""
+        """
+        Compute the probability mass function (PMF) at a given count.
+
+        Args:
+            k (int): Number of claims.
+
+        Returns:
+            float: Probability of exactly k claims.
+        """
         raise NotImplementedError
 
     def cdf(self, k: int) -> float:
-        """Return the cumulative distribution function (cdf) at k."""
+        """
+        Compute the cumulative distribution function (CDF) at a given count.
+
+        Args:
+            k (int): Number of claims.
+
+        Returns:
+            float: Probability of at most k claims.
+        """
         # Default implementation for cumulative distribution function
         return sum(self.pmf(i) for i in range(k + 1))
 
     @abstractmethod
     def rvs(self, size: int = 1) -> np.ndarray:
-        """Return random variates from the distribution."""
+        """
+        Draw random samples from the frequency distribution.
+
+        Args:
+            size (int, optional): Number of samples to generate. Defaults to 1.
+
+        Returns:
+            np.ndarray: Array of sampled claim counts.
+        """
         raise NotImplementedError
 
 
 # Adapter for any scipy.stats frozen distribution
 class _ScipyFreqAdapter(FrequencyModel):
     """
-    Adapter for any scipy.stats frozen distribution.
-    This class allows the use of any frozen distribution from scipy.stats
+    Adapter for any frozen SciPy distribution, implementing FrequencyModel.
+
+    Wraps a scipy.stats.rv_frozen instance to provide a uniform interface.
     """
 
     def __init__(self, dist: rv_frozen):
+        """
+        Initialize the adapter with a frozen SciPy distribution.
+
+        Args:
+            dist (rv_frozen): A frozen scipy.stats distribution.
+        """
         self._dist = dist
 
     def pmf(self, k: int) -> float:
+        """
+        Compute the PMF at a given count using the wrapped distribution.
+
+        Args:
+            k (int): Number of claims.
+
+        Returns:
+            float: Probability of exactly k occurrences.
+        """
         return float(self._dist.pmf(k))
 
     def cdf(self, k: int) -> float:
+        """
+        Compute the CDF at a given count using the wrapped distribution.
+
+        Args:
+            k (int): Number of claims.
+
+        Returns:
+            float: Probability of at most k occurrences.
+        """
         return float(self._dist.cdf(k))
 
     def rvs(self, size: int = 1) -> np.ndarray:
+        """
+        Generate random variates from the wrapped distribution.
+
+        Args:
+            size (int, optional): Number of samples. Defaults to 1.
+
+        Returns:
+            np.ndarray: Array of random variates.
+        """
         return self._dist.rvs(size=size)
 
 
@@ -67,9 +131,24 @@ class _ScipyFreqAdapter(FrequencyModel):
 def to_frequency_model(obj) -> FrequencyModel:
     """
     Normalize an input into a FrequencyModel.
-    - int or np.integer -> DeterministicFreq
-    - scipy.stats frozen distribution -> Adapter
-    - Already a FrequencyModel -> returned as-is
+
+    Args:
+        obj: Input object. Supported types:
+            - int or np.integer: returns DeterministicFreq
+            - list, np.ndarray, pd.Series of ints: returns EmpiricalFreq
+            - scipy.stats.rv_frozen: returns _ScipyFreqAdapter
+            - FrequencyModel: returned unchanged
+
+    Returns:
+        FrequencyModel: Equivalent frequency model.
+
+    Raises:
+        ValueError: If sequence input is empty.
+        TypeError: On unsupported input types.
+
+    Examples:
+        >>> to_frequency_model(5)
+        DeterministicFreq(5)
     """
     if isinstance(obj, FrequencyModel):
         return obj
@@ -89,30 +168,84 @@ def to_frequency_model(obj) -> FrequencyModel:
 
 class Binomial(FrequencyModel):
     """
-    Binomial distribution with parameters n and p.
+    Binomial distribution modeling count of claims in fixed trials.
+
+    Args:
+        n (int): Number of trials.
+        p (float): Success probability per trial.
+
+    Examples:
+        >>> model = Binomial(n=10, p=0.3)
+        >>> model.pmf(4)
+        0.200
     """
 
     def __init__(self, n: int, p: float):
-        """Binomial(n, p) with pmf(k) = C(n,k)*p^k*(1-p)^(n-k)."""
+        """
+        Initialize a Binomial distribution.
+
+        Args:
+            n (int): Number of independent Bernoulli trials.
+            p (float): Probability of success on each trial.
+        """
         self._dist = binom(n, p)
 
     def pmf(self, k: int) -> float:
+        """
+        Compute the probability mass at k successes.
+
+        Args:
+            k (int): Number of observed successes.
+
+        Returns:
+            float: PMF value.
+        """
         return float(self._dist.pmf(k))
 
     def cdf(self, k: int) -> float:
+        """
+        Compute cumulative probability of up to k successes.
+
+        Args:
+            k (int): Number of successes.
+
+        Returns:
+            float: CDF value.
+        """
         return float(self._dist.cdf(k))
 
     def rvs(self, size: int = 1) -> np.ndarray:
+        """
+        Draw random samples of success counts.
+
+        Args:
+            size (int, optional): Number of samples. Defaults to 1.
+
+        Returns:
+            np.ndarray: Sampled counts.
+        """
         return self._dist.rvs(size=size)
 
 
 class DeterministicFreq(FrequencyModel):
     """
-    Deterministic frequency distribution. (single value)
+    Deterministic frequency distribution producing a fixed count.
+
+    Args:
+        value (int): Constant number of claims.
+
+    Examples:
+        >>> DeterministicFreq(2).pmf(2)
+        1.0
     """
 
     def __init__(self, value: int):
-        """Always returns 'value'."""
+        """
+        Initialize a deterministic frequency model.
+
+        Args:
+            value (int): Fixed claim count to return.
+        """
         self.value = value
 
     def pmf(self, k: int) -> float:
@@ -127,7 +260,16 @@ class DeterministicFreq(FrequencyModel):
 
 class DiscreteUniformFreq(FrequencyModel):
     """
-    Discrete uniform distribution with parameters loc and scale.
+    Discrete uniform distribution over integer counts.
+
+    Args:
+        low (int, optional): Lower bound (inclusive). Defaults to 0.
+        high (int, optional): Upper bound (exclusive). Defaults to 2.
+
+    Examples:
+        >>> model = DiscreteUniformFreq(1, 5)
+        >>> model.pmf(3)
+        0.25
     """
 
     def __init__(self, low: int = 0, high: int = 2):
@@ -148,9 +290,17 @@ class DiscreteUniformFreq(FrequencyModel):
 
 class EmpiricalFreq(FrequencyModel):
     """
-    Empirical frequency distribution given by a dict of k -> probability.
-    This class allows the use of a dictionary to define the probability mass function (pmf)
-    for a discrete distribution.
+    Empirical frequency distribution defined by discrete probabilities.
+
+    Args:
+        pmf_values (dict[int, float]): Mapping from integer count to probability.
+
+    Raises:
+        ValueError: If probabilities do not sum to 1.
+
+    Examples:
+        >>> EmpiricalFreq({0: 0.2, 1: 0.8}).rvs(size=5)
+        array([0, 1, 1, 1, 0])
     """
 
     def __init__(self, pmf_values: dict[int, float]):
@@ -171,11 +321,20 @@ class EmpiricalFreq(FrequencyModel):
 
 class Geometric(FrequencyModel):
     """
-    Geometric distribution with parameter p.
+    Geometric distribution for count of failures before first success.
+
+    Args:
+        p (float): Success probability on each trial.
+
+    Examples:
+        >>> Geometric(p=0.3).pmf(1)
+        0.3
     """
 
     def __init__(self, p: float):
-        """Geometric(p). pmf(k) = (1-p)^(k-1)*p for k=1,2,3,... in SciPy's parameterization."""
+        """
+        Geometric(p). pmf(k) = (1-p)^(k-1)*p for k=1,2,3,... in SciPy's parameterization.
+        """
         self._dist = geom(p)
 
     def pmf(self, k: int) -> float:
@@ -190,7 +349,15 @@ class Geometric(FrequencyModel):
 
 class Hypergeometric(FrequencyModel):
     """
-    Hypergeometric distribution with parameters M, n, N.
+    Hypergeometric distribution modeling draws without replacement.
+
+    Args:
+        M (int): Total population size.
+        n (int): Number of success states in population.
+        N (int): Number of draws.
+
+    Examples:
+        >>> Hypergeometric(M=50, n=5, N=10).pmf(1)
     """
 
     def __init__(self, M: int, n: int, N: int):
@@ -209,8 +376,15 @@ class Hypergeometric(FrequencyModel):
 
 class MixFreq(FrequencyModel):
     """
-    Mixture of multiple frequency models.
-    This class allows the combination of multiple frequency models with specified weights.
+    Mixture model combining multiple frequency distributions.
+
+    Args:
+        components (list[FrequencyModel]): List of component models.
+        weights (list[float]): Mixing weights summing to 1.
+
+    Examples:
+        >>> mix = MixFreq([Poisson(2), Poisson(5)], [0.4, 0.6])
+        >>> mix.pmf(3)
     """
 
     def __init__(self, components: list[FrequencyModel], weights: list[float]):
@@ -234,7 +408,14 @@ class MixFreq(FrequencyModel):
 
 class NegativeBinomial(FrequencyModel):
     """
-    Negative binomial distribution with parameters r and p.
+    Negative binomial distribution modeling number of failures until r successes.
+
+    Args:
+        r (float): Number of successes to achieve.
+        p (float): Success probability on each trial.
+
+    Examples:
+        >>> NegativeBinomial(r=3, p=0.5).pmf(4)
     """
 
     def __init__(self, r: float, p: float):
@@ -253,7 +434,13 @@ class NegativeBinomial(FrequencyModel):
 
 class Poisson(FrequencyModel):
     """
-    Poisson distribution with parameter mu.
+    Poisson distribution for count of claims per period.
+
+    Args:
+        mu (float): Expected number of occurrences.
+
+    Examples:
+        >>> Poisson(mu=3.5).rvs(size=5)
     """
 
     def __init__(self, mu: float):
@@ -272,7 +459,18 @@ class Poisson(FrequencyModel):
 
 class TriangularFreq(FrequencyModel):
     """
-    Triangular distribution with parameters c, loc, and scale.
+    Triangular distribution for approximate discrete counts.
+
+    Args:
+        c (float): Mode parameter between 0 and 1.
+        loc (float, optional): Lower limit. Defaults to 0.0.
+        scale (float, optional): Width of distribution. Defaults to 1.0.
+
+    Notes:
+        This continuous distribution is rounded to integers for PMF and sampling.
+
+    Examples:
+        >>> TriangularFreq(c=0.5, loc=1, scale=4).rvs(size=3)
     """
 
     def __init__(self, c: float, loc: float = 0.0, scale: float = 1.0):

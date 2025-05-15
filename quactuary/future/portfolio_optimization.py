@@ -1,13 +1,11 @@
 """
-Tools for optimizing risk portfolios (ALM, capital allocation, etc.)
-(Phase 3 features)
+Portfolio optimization tools (Phase 3 features).
 
-A possible implementation is to interface with optimization libraries
-or even formulate problems for quantum optimization algorithms.
-For example, we might use `PyPortfolioOpt` (for classical efficient frontier computation)
-and also allow a quantum annealer or QAOA (Quantum Approximate Optimization Algorithm) backend
-for a strategic asset allocation problem.
+This module provides interfaces for optimizing risk portfolios using classical solvers (e.g., PyPortfolioOpt)
+and optional quantum optimization backends (e.g. QAOA).
 
-The API would remain high-level
-e.g.: `opt = PortfolioOptimization(portfolio, constraints).solve(method='classical') vs `method='quantum'`.
+Examples:
+    >>> from quactuary.future.portfolio_optimization import PortfolioOptimization
+    >>> opt = PortfolioOptimization(portfolio, constraints)
+    >>> solution = opt.solve(method='classical')
 """

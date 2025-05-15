@@ -1,12 +1,14 @@
 """
-This module provides the plumbing for selecting quantum vs classical execution
-and interfacing with Qiskit or other quantum frameworks.
+Backend selection and execution module.
 
-Provides both global and per-model mechanisms to select the backend,
-defaulting to classical execution unless explicitly turned on or available.
+Provides plumbing to choose between quantum (Qiskit) and classical
+execution backends. Abstracts backend management so user-facing models
+receive numeric results regardless of execution mode.
 
-Even if the backend is quantum, the output format and type remains the same:
-the user gets Python/numeric results, not quantum objects.
+Examples:
+    >>> from quactuary.backend import get_backend, set_backend
+    >>> manager = get_backend()
+    >>> set_backend('quantum', provider='AerSimulator')
 """
 
 from contextlib import contextmanager
@@ -19,39 +21,50 @@ _backend = None
 
 
 class BackendManager():
+    """
+    Manager for quantum and classical backends.
+
+    Manages backend assignments and executes quantum circuits or classical simulations.
+    """
     def __init__(self, backend):
         """
-        Initialize the Backend Manager.
-        Parameters:
-        ----------
-        - `backend`: The quantum backend to use.
+        Initialize a BackendManager.
+
+        Args:
+            backend: Backend instance (e.g., Qiskit backend or custom classical engine).
         """
         self.backend = backend
 
     def set_backend(self, backend):
         """
-        Set the quantum backend.
-        Parameters:
-        ----------
-        - `backend`: The quantum backend to use.
+        Override the active backend.
+
+        Args:
+            backend: New backend instance.
         """
         self.backend = backend
 
     def get_backend(self):
         """
-        Get the current quantum backend.
+        Retrieve the active backend.
+
         Returns:
-        -------
-        - `backend`: The current quantum backend.
+            The current backend instance.
         """
         return self.backend
 
     def run(self, circuit):
         """
-        Run the quantum circuit on the specified backend.
-        Parameters:
-        ----------
-        - `circuit`: The quantum circuit to run.
+        Execute a circuit on the active backend.
+
+        Args:
+            circuit: QuantumCircuit or equivalent object to run.
+
+        Returns:
+            Result: Execution result or job output.
+
+        Examples:
+            >>> result = backend_manager.run(qc)
         """
         job = self.backend.run(circuit)
         return job.result()
@@ -59,10 +72,10 @@ class BackendManager():
 
 def get_backend():
     """
-    Get the global backend manager instance.
+    Retrieve or initialize the global BackendManager.
+
     Returns:
-    -------
-    - `BackendManager`: The global backend manager instance.
+        BackendManager: Singleton backend manager instance.
     """
     global _backend
     if _backend is None:
@@ -73,20 +86,23 @@ def get_backend():
 
 def set_backend(mode, provider=None, **kwargs):
     """
-    Set the global backend configuration.
+    Configure the global execution backend.
 
-    Parameters:
-    ----------
-    - `backend_type`: String identifier for the backend type ('quantum', 'classical', etc.)
-    - `provider`: Optional provider name (e.g., 'AerSimulator', 'IBMQ', etc.)
-    - `**kwargs`: Additional keyword arguments for backend configuration
+    Args:
+        mode (str): Type of execution ('quantum' or 'classical').
+        provider (Optional[str]): Quantum provider name ('AerSimulator', 'IBMQ').
+        **kwargs: Additional settings (e.g., backend credentials, simulation parameters).
+
+    Returns:
+        The newly assigned backend instance.
+
+    Raises:
+        ImportError: If Qiskit or packaging dependencies are missing for quantum mode.
+        ValueError: If mode or provider is unsupported.
 
     Examples:
-    --------
-    >>> import quactuary
-    >>> quactuary.set_backend('quantum', provider='AerSimulator')
-    >>> quactuary.set_backend('quantum', provider='IBMQ', hub='ibm-q', token='my-token')
-    >>> quactuary.set_backend('classical', num_simulations=1_000_000)
+        >>> set_backend('quantum', provider='AerSimulator')
+        >>> set_backend('classical', backend='numpy')
     """
     backend_manager = get_backend()
 
@@ -137,13 +153,19 @@ def set_backend(mode, provider=None, **kwargs):
 @contextmanager
 def use_backend(mode, provider=None, **kwargs):
     """
-    Context manager to temporarily set a backend.
+    Context manager for temporary backend configuration.
 
-    Usage:
-    ------
-    with use_backend('quantum', provider='AerSimulator'):
-        # computations here use the temporary backend
-        res = layer.compute_excess_loss()
+    Args:
+        mode (str): Execution mode override ('quantum' or 'classical').
+        provider (Optional[str]): Quantum provider name.
+        **kwargs: Additional backend settings.
+
+    Yields:
+        BackendManager: Manager with temporary backend applied.
+
+    Examples:
+        >>> with use_backend('quantum', provider='AerSimulator') as mgr:
+        ...     result = mgr.run(circuit)
     """
     global _backend
     # Store the original backend manager instance

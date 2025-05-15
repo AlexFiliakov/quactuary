@@ -1,8 +1,14 @@
 """
 Severity distributions for the amount of loss per claim.
-This module provides a set of severity distributions that can be used to model the
-severity of claims in a given period. The distributions are designed to be used with the
-quActuary library, which is a Python library for actuarial science and insurance modeling.
+
+This module provides severity distribution models to represent claim losses in property
+and casualty (P&C) insurance applications.
+
+Examples:
+    >>> from quactuary.distributions.severity import Exponential
+    >>> model = Exponential(scale=1000.0)
+    >>> pdf_500 = model.pdf(500.0)
+    >>> samples = model.rvs(size=5)
 """
 
 from abc import abstractmethod
@@ -20,52 +26,120 @@ from scipy.stats._distn_infrastructure import rv_frozen
 @runtime_checkable
 class SeverityModel(Protocol):
     """
-    Severity distribution protocol for the number of claims per year.
-    This class provides an interface for severity distributions that can be used
-    to model the loss per claim in a given period.
+    Protocol for severity distributions representing loss amounts per claim.
+
+    Defines methods for probability density, cumulative distribution, and sampling.
     """
     @abstractmethod
     def pdf(self, x: float) -> float:
-        """Return the probability density function (pdf) at x."""
+        """
+        Compute probability density at a given loss amount.
+
+        Args:
+            x (float): Loss amount.
+
+        Returns:
+            float: Probability density at x.
+        """
         raise NotImplementedError
 
     @abstractmethod
     def cdf(self, x: float) -> float:
-        """Return the cumulative distribution function (cdf) at x."""
+        """
+        Compute cumulative probability up to a given loss amount.
+
+        Args:
+            x (float): Loss amount.
+
+        Returns:
+            float: Cumulative probability at x.
+        """
         raise NotImplementedError
 
     @abstractmethod
     def rvs(self, size: int = 1) -> np.ndarray:
-        """Return random variates from the distribution."""
+        """
+        Draw random samples of claim losses.
+
+        Args:
+            size (int, optional): Number of samples. Defaults to 1.
+
+        Returns:
+            np.ndarray: Sampled loss values.
+        """
         raise NotImplementedError
 
 
 class _ScipySevAdapter(SeverityModel):
     """
-    Adapter for any scipy.stats frozen distribution.
-    This class allows the use of any frozen distribution from scipy.stats
+    Adapter for a frozen SciPy distribution implementing SeverityModel.
+
+    Wraps scipy.stats.rv_frozen to conform to the SeverityModel interface.
     """
 
     def __init__(self, dist: rv_frozen):
+        """
+        Initialize adapter with a frozen SciPy distribution.
+
+        Args:
+            dist (rv_frozen): Frozen scipy.stats distribution.
+        """
         self._dist = dist
 
     def pdf(self, x: float) -> float:
+        """
+        Compute PDF using the wrapped distribution.
+
+        Args:
+            x (float): Loss amount.
+
+        Returns:
+            float: Probability density at x.
+        """
         return float(self._dist.pdf(x))
 
     def cdf(self, x: float) -> float:
+        """
+        Compute CDF using the wrapped distribution.
+
+        Args:
+            x (float): Loss amount.
+
+        Returns:
+            float: Cumulative probability at x.
+        """
         return float(self._dist.cdf(x))
 
     def rvs(self, size: int = 1) -> np.ndarray:
+        """
+        Generate random variates using the wrapped distribution.
+
+        Args:
+            size (int, optional): Number of samples. Defaults to 1.
+
+        Returns:
+            np.ndarray: Sampled loss values.
+        """
         return self._dist.rvs(size=size)
 
 
 def to_severity_model(obj) -> SeverityModel:
     """
-    Normalize an input into a SeverityModel.
-    - float or int -> ConstantSev
-    - list or np.ndarray of floats -> EmpiricalSev with uniform probs
-    - scipy.stats frozen distribution -> Adapter
-    - Already a SeverityModel -> returned as-is
+    Normalize diverse inputs into a SeverityModel.
+
+    Args:
+        obj: Input to convert. Supported types:
+            - float or int: returns ConstantSev
+            - list, np.ndarray, pd.Series of numeric: returns EmpiricalSev
+            - scipy.stats.rv_frozen: returns _ScipySevAdapter
+            - SeverityModel: returned unchanged
+
+    Returns:
+        SeverityModel: Corresponding severity model.
+
+    Raises:
+        ValueError: If sequence input is empty.
+        TypeError: On unsupported input types.
     """
     if isinstance(obj, SeverityModel):
         return obj
@@ -87,28 +161,89 @@ def to_severity_model(obj) -> SeverityModel:
 
 class Beta(SeverityModel):
     """
-    Beta distribution for the amount of loss per claim.
+    Beta distribution modeling loss proportions.
+
+    Args:
+        a (float): Alpha (shape) parameter.
+        b (float): Beta (shape) parameter.
+        loc (float, optional): Location parameter. Defaults to 0.0.
+        scale (float, optional): Scale parameter. Defaults to 1.0.
+
+    Examples:
+        >>> Beta(a=2, b=5, scale=1000.0).pdf(250.0)
     """
 
     def __init__(self, a: float, b: float, loc: float = 0.0, scale: float = 1.0):
+        """
+        Initialize a Beta severity distribution.
+
+        Args:
+            a (float): Alpha shape parameter.
+            b (float): Beta shape parameter.
+            loc (float): Lower bound of distribution.
+            scale (float): Scale of distribution.
+        """
         self._dist = sp_beta(a, b, loc=loc, scale=scale)
 
     def pdf(self, x: float) -> float:
+        """
+        Compute PDF at a given loss amount.
+
+        Args:
+            x (float): Loss amount.
+
+        Returns:
+            float: Density at x.
+        """
         return float(self._dist.pdf(x))
 
     def cdf(self, x: float) -> float:
+        """
+        Compute CDF at a given loss amount.
+
+        Args:
+            x (float): Loss amount.
+
+        Returns:
+            float: Cumulative probability at x.
+        """
         return float(self._dist.cdf(x))
 
     def rvs(self, size: int = 1) -> np.ndarray:
+        """
+        Generate random loss samples.
+
+        Args:
+            size (int, optional): Number of samples. Defaults to 1.
+
+        Returns:
+            np.ndarray: Sampled values.
+        """
         return self._dist.rvs(size=size)
 
 
 class ChiSquared(SeverityModel):
     """
-    Chi-squared distribution for the amount of loss per claim.
+    Chi-squared distribution for claim severity.
+
+    Args:
+        df (float): Degrees of freedom.
+        loc (float, optional): Location parameter. Defaults to 0.0.
+        scale (float, optional): Scale parameter. Defaults to 1.0.
+
+    Examples:
+        >>> ChiSquared(df=4, scale=500.0).cdf(200.0)
     """
 
     def __init__(self, df: float, loc: float = 0.0, scale: float = 1.0):
+        """
+        Initialize a Chi-squared severity distribution.
+
+        Args:
+            df (float): Degrees of freedom.
+            loc (float): Location parameter.
+            scale (float): Scale parameter.
+        """
         self._dist = chi2(df, loc=loc, scale=scale)
 
     def pdf(self, x: float) -> float:
@@ -123,11 +258,23 @@ class ChiSquared(SeverityModel):
 
 class ConstantSev(SeverityModel):
     """
-    Constant severity distribution for the amount of loss per claim.
-    This class represents a distribution where the loss is always a fixed value.
+    Constant severity distribution producing a fixed loss amount.
+
+    Args:
+        value (float): Fixed loss amount per claim.
+
+    Examples:
+        >>> ConstantSev(100.0).pdf(100.0)
+        1.0
     """
 
     def __init__(self, value: float):
+        """
+        Initialize a constant severity model.
+
+        Args:
+            value (float): Fixed loss amount.
+        """
         self.value = value
 
     def pdf(self, x: float) -> float:
@@ -142,7 +289,14 @@ class ConstantSev(SeverityModel):
 
 class ContinuousUniformSev(SeverityModel):
     """
-    Continous uniform distribution for the amount of loss per claim.
+    Continuous uniform distribution for claim severity.
+
+    Args:
+        loc (float, optional): Lower bound of losses. Defaults to 0.0.
+        scale (float, optional): Width of distribution. Defaults to 1.0.
+
+    Examples:
+        >>> ContinuousUniformSev(loc=100.0, scale=900.0).rvs(size=3)
     """
 
     def __init__(self, loc: float = 0.0, scale: float = 1.0):
@@ -160,10 +314,17 @@ class ContinuousUniformSev(SeverityModel):
 
 class EmpiricalSev(SeverityModel):
     """
-    Empirical severity distribution for the amount of loss per claim.
-    This class represents a distribution where the loss is defined by a set of values
-    and their corresponding probabilities.
-    The probabilities must sum to 1.
+    Empirical severity distribution defined by discrete support and probabilities.
+
+    Args:
+        values (list[float]): Observable loss amounts.
+        probs (list[float]): Corresponding probabilities (must sum to 1).
+
+    Raises:
+        ValueError: If sum(probs) is zero.
+
+    Examples:
+        >>> EmpiricalSev([100, 500], [0.3, 0.7]).cdf(250)
     """
 
     def __init__(self, values: list[float], probs: list[float]):
@@ -183,7 +344,14 @@ class EmpiricalSev(SeverityModel):
 
 class Exponential(SeverityModel):
     """
-    Exponential distribution for the amount of loss per claim.
+    Exponential distribution modeling loss severities.
+
+    Args:
+        scale (float, optional): Scale (mean) of distribution. Defaults to 1.0.
+        loc (float, optional): Location parameter. Defaults to 0.0.
+
+    Examples:
+        >>> Exponential(scale=1000.0).pdf(200.0)
     """
 
     def __init__(self, scale: float = 1.0, loc: float = 0.0):
@@ -201,7 +369,15 @@ class Exponential(SeverityModel):
 
 class Gamma(SeverityModel):
     """
-    Gamma distribution for the amount of loss per claim.
+    Gamma distribution modeling claim losses.
+
+    Args:
+        shape (float): Shape parameter (k).
+        loc (float, optional): Location. Defaults to 0.0.
+        scale (float, optional): Scale (θ). Defaults to 1.0.
+
+    Examples:
+        >>> Gamma(shape=2.0, scale=500.0).rvs(size=4)
     """
 
     def __init__(self, shape: float, loc: float = 0.0, scale: float = 1.0):
@@ -219,7 +395,15 @@ class Gamma(SeverityModel):
 
 class Lognormal(SeverityModel):
     """
-    Lognormal distribution for the amount of loss per claim.
+    Lognormal distribution modeling multiplicative loss processes.
+
+    Args:
+        s (float): Shape parameter (sigma of underlying normal).
+        loc (float, optional): Location (shift). Defaults to 0.0.
+        scale (float, optional): Scale (exp(mu)). Defaults to 1.0.
+
+    Examples:
+        >>> Lognormal(s=0.5, scale=200.0).cdf(150.0)
     """
 
     def __init__(self, s: float, loc: float = 0.0, scale: float = 1.0):
@@ -237,7 +421,15 @@ class Lognormal(SeverityModel):
 
 class MixSev(SeverityModel):
     """
-    Mixture of severity distributions for the amount of loss per claim.
+    Mixture model combining multiple severity distributions.
+
+    Args:
+        components (list[SeverityModel]): List of severity models.
+        weights (list[float]): Mixing weights summing to 1.
+
+    Examples:
+        >>> mix = MixSev([Exponential(1000), Gamma(2)], [0.6, 0.4])
+        >>> mix.pdf(500.0)
     """
 
     def __init__(self, components: list[SeverityModel], weights: list[float]):
@@ -258,7 +450,15 @@ class MixSev(SeverityModel):
 
 class Pareto(SeverityModel):
     """
-    Pareto distribution for the amount of loss per claim.
+    Pareto distribution modeling heavy-tailed losses.
+
+    Args:
+        b (float): Shape parameter (tail index).
+        loc (float, optional): Location. Defaults to 0.0.
+        scale (float, optional): Scale (xmin). Defaults to 1.0.
+
+    Examples:
+        >>> Pareto(b=3.0, scale=100.0).rvs(size=5)
     """
 
     def __init__(self, b: float, loc: float = 0.0, scale: float = 1.0):
@@ -276,7 +476,15 @@ class Pareto(SeverityModel):
 
 class TriangularSev(SeverityModel):
     """
-    Triangular distribution for the amount of loss per claim.
+    Triangular distribution for modeling bounded losses.
+
+    Args:
+        c (float): Mode parameter between 0 and 1.
+        loc (float, optional): Lower limit. Defaults to 0.0.
+        scale (float, optional): Width. Defaults to 1.0.
+
+    Examples:
+        >>> TriangularSev(c=0.5, loc=100, scale=900).cdf(500)
     """
 
     def __init__(self, c: float, loc: float = 0.0, scale: float = 1.0):
@@ -294,7 +502,15 @@ class TriangularSev(SeverityModel):
 
 class Weibull(SeverityModel):
     """
-    Weibull distribution for the amount of loss per claim.
+    Weibull distribution modeling failure-time-like loss processes.
+
+    Args:
+        c (float): Shape parameter.
+        loc (float, optional): Location. Defaults to 0.0.
+        scale (float, optional): Scale. Defaults to 1.0.
+
+    Examples:
+        >>> Weibull(c=1.5, scale=200.0).pdf(150.0)
     """
 
     def __init__(self, c: float, loc: float = 0.0, scale: float = 1.0):

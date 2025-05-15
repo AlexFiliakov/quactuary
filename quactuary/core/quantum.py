@@ -1,10 +1,20 @@
 """
-Quantum Actuarial functionality.
+Quantum actuarial integration module.
+
+Centralizes quantum computing support for actuarial models, including backend management,
+circuit construction, and execution.
+
+Examples:
+    >>> from quactuary.core.quantum import get_backend, QuantumActuarialModel
+    >>> backend = get_backend()
+    >>> model = QuantumActuarialModel(inforce_obj)
+    >>> result = model.run()
 """
 
 from qiskit import QuantumCircuit
 from qiskit_aer import Aer
 from qiskit_ibm_provider import IBMProvider
+
 from quactuary.entities import Inforce, Portfolio
 
 # Global backend manager instance
@@ -13,10 +23,10 @@ _backend = None
 
 def get_backend():
     """
-    Get the global backend manager instance.
+    Retrieve or initialize the global backend manager.
+
     Returns:
-    -------
-    - `BackendManager`: The global backend manager instance.
+        BackendManager: Singleton backend manager for quantum execution.
     """
     global _backend
     if _backend is None:
@@ -27,19 +37,22 @@ def get_backend():
 
 def set_backend(backend_type, provider=None, **kwargs):
     """
-    Set the global backend configuration.
+    Configure the global backend for simulation.
 
-    Parameters:
-    ----------
-    - `backend_type`: String identifier for the backend type ('quantum', 'classical', etc.)
-    - `provider`: Optional provider name (e.g., 'AerSimulator', 'IBMQ', etc.)
-    - `**kwargs`: Additional keyword arguments for backend configuration
+    Args:
+        backend_type (str): Type of backend ('quantum' or 'classical').
+        provider (Optional[str]): Specific quantum provider ('AerSimulator', 'IBMQ').
+        **kwargs: Additional provider-specific settings.
+
+    Returns:
+        BackendManager: Updated backend manager instance.
+
+    Raises:
+        ValueError: If backend_type or provider is unsupported.
 
     Examples:
-    --------
-    >>> import quactuary
-    >>> quactuary.set_backend('quantum', provider='AerSimulator')
-    >>> quactuary.set_backend('quantum', provider='IBMQ', hub='ibm-q', token='my-token')
+        >>> set_backend('quantum', provider='AerSimulator')
+        >>> set_backend('quantum', provider='IBMQ', hub='ibm-q', token='abc')
     """
     backend = get_backend()
 
@@ -77,14 +90,23 @@ def set_backend(backend_type, provider=None, **kwargs):
 
 
 class QuantumActuarialModel():
+    """
+    Quantum Actuarial model integrating classical actuarial data with quantum execution.
+
+    Builds and runs quantum circuits representing claim portfolios.
+    """
     def __init__(self, inforce, deductible=None, limit=None, **kw):
         """
-        Initialize the Quantum Actuarial Model.
-        Parameters:
-        ----------
-        - `inforce`: An Inforce object or a Portfolio object.
-        - `deductible`: Optional deductible for the layer.
-        - `limit`: Optional limit for the layer.
+        Initialize a QuantumActuarialModel.
+
+        Args:
+            inforce (Inforce or Portfolio): Policy inforce data.
+            deductible (Optional[float]): Layer deductible.
+            limit (Optional[float]): Layer limit.
+            **kw: Additional parameters (ignored).
+
+        Raises:
+            TypeError: If inforce is not Inforce or Portfolio.
         """
         if isinstance(inforce, Inforce):
             self.portfolio = Portfolio([inforce])
@@ -121,39 +143,52 @@ class QuantumActuarialModel():
 
 
 class BackendManager():
+    """
+    Manager for quantum and classical simulation backends.
+
+    Handles backend assignment and execution interface.
+    """
     def __init__(self, backend):
         """
-        Initialize the Backend Manager.
-        Parameters:
-        ----------
-        - `backend`: The quantum backend to use.
+        Initialize a BackendManager.
+
+        Args:
+            backend: Qiskit or classical backend instance.
         """
         self.backend = backend
 
     def set_backend(self, backend):
         """
-        Set the quantum backend.
-        Parameters:
-        ----------
-        - `backend`: The quantum backend to use.
+        Update the active backend.
+
+        Args:
+            backend: New quantum or classical backend instance.
         """
         self.backend = backend
 
     def get_backend(self):
         """
-        Get the current quantum backend.
+        Retrieve the current backend.
+
         Returns:
-        -------
-        - `backend`: The current quantum backend.
+            Current quantum or classical backend instance.
         """
         return self.backend
 
     def run(self, circuit):
         """
-        Run the quantum circuit on the specified backend.
-        Parameters:
-        ----------
-        - `circuit`: The quantum circuit to run.
+        Execute a quantum circuit on the active backend.
+
+        Args:
+            circuit (QuantumCircuit): Circuit to execute.
+
+        Returns:
+            Any: Execution result or job output.
+
+        Examples:
+            >>> backend = get_backend()
+            >>> job = backend.run(qc)
+            >>> result = job.result()
         """
         job = self.backend.run(circuit)
         return job.result()

@@ -1,11 +1,11 @@
 {"header" : {
   "cloc_url"           : "github.com/AlDanial/cloc",
   "cloc_version"       : "1.98",
-  "elapsed_seconds"    : 0.0222442150115967,
+  "elapsed_seconds"    : 0.0225090980529785,
   "n_files"            : 32,
   "n_lines"            : 2186,
-  "files_per_second"   : 1438.57627627306,
-  "lines_per_second"   : 98272.7418729033},
+  "files_per_second"   : 1421.64736786357,
+  "lines_per_second"   : 97116.2858171804},
 "./quactuary/distributions/severity.py" :{
   "blank": 140,
   "comment": 227,

@@ -1,11 +1,11 @@
 {"header" : {
   "cloc_url"           : "github.com/AlDanial/cloc",
   "cloc_version"       : "1.98",
-  "elapsed_seconds"    : 0.0230329036712646,
-  "n_files"            : 32,
-  "n_lines"            : 2193,
-  "files_per_second"   : 1389.31679898972,
-  "lines_per_second"   : 95211.6168807643},
+  "elapsed_seconds"    : 0.0233628749847412,
+  "n_files"            : 33,
+  "n_lines"            : 2465,
+  "files_per_second"   : 1412.49739261769,
+  "lines_per_second"   : 105509.274933412},
 "./quactuary/distributions/severity.py" :{
   "blank": 140,
   "comment": 227,
@@ -15,6 +15,11 @@
   "blank": 126,
   "comment": 227,
   "code": 137,
+  "language": "Python"},
+"./quactuary/distributions/frequency_abc.py" :{
+  "blank": 44,
+  "comment": 85,
+  "code": 102,
   "language": "Python"},
 "./quactuary/backend.py" :{
   "blank": 36,
@@ -96,6 +101,11 @@
   "comment": 1,
   "code": 9,
   "language": "Python"},
+"./quactuary/utils/validation.py" :{
+  "blank": 13,
+  "comment": 25,
+  "code": 9,
+  "language": "Python"},
 "./quactuary/requirements.txt" :{
   "blank": 0,
   "comment": 0,
@@ -161,13 +171,8 @@
   "comment": 47,
   "code": 0,
   "language": "Python"},
-"./quactuary/utils.py" :{
-  "blank": 1,
-  "comment": 5,
-  "code": 0,
-  "language": "Python"},
 "SUM": {
-  "blank": 503,
-  "comment": 1007,
-  "code": 683,
-  "nFiles": 32} }
+  "blank": 559,
+  "comment": 1112,
+  "code": 794,
+  "nFiles": 33} }

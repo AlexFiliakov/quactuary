@@ -1,0 +1,21 @@
+name: Build & Publish Docs
+
+on:
+  push:
+    tags:
+      - "v*" # any tag like “v1.2.3”
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with: { python-version: "3.x" }
+      - run: pip install .[docs] # or however you install sphinx & your package
+      - run: make html # release is picked up via conf.py
+      - name: Publish to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: docs/build/html

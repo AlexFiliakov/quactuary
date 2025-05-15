@@ -13,10 +13,11 @@ jobs:
       - uses: actions/setup-python@v4
         with: { python-version: "3.x" }
       - run: pip install .[docs] # or however you install sphinx & your package
+        working-directory: quactuary
       - run: make html # release is picked up via conf.py
-        working-directory: docs
+        working-directory: quactuary/docs
       - name: Publish to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: docs/build/html
+          publish_dir: quactuary/docs/build/html

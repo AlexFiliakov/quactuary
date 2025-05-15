@@ -28,6 +28,10 @@ jobs:
           cd docs
           make html
 
+      - name: Create CNAME file for custom domain
+        run: |
+          echo "quactuary.com" > docs/build/html/CNAME
+
       - name: Publish to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:

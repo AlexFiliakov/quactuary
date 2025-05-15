@@ -12,39 +12,45 @@ from quactuary.distributions.frequency import (Binomial, DeterministicFreq,
                                                DiscreteUniformFreq,
                                                EmpiricalFreq, Geometric,
                                                Hypergeometric, MixFreq,
-                                               NegativeBinomial, Poisson,
-                                               TriangularFreq)
-from quactuary.distributions.frequency_abc import ABK
+                                               NegativeBinomial, PanjerABk,
+                                               Poisson, TriangularFreq)
 
 
-@pytest.mark.skip(reason="Waiting for correct (a,b,k) implementation.")
 def test_abk():
-    # Test zero-truncated (k=0)
-    zt_model = ABK(a=-1/3, b=2, k=0)
+    # Test zero-modified (k=0)
+    zt_model = PanjerABk(a=-1/3, b=2, k=0)
     for i in range(100):
         assert zt_model.pmf(i) >= 0
     assert zt_model.pmf(0) == pytest.approx(243/1024)
 
-    zt_model = ABK(a=-1/4, b=7/4, k=0)
+    zt_model = PanjerABk(a=-1/4, b=7/4, k=0)
     assert zt_model.cdf(2) == zt_model.pmf(
         0) + zt_model.pmf(1) + zt_model.pmf(2)
     assert zt_model.cdf(2) == pytest.approx(1 - 0.09888)
 
-    # Test zero-modified (k=1)
-    zm_model = ABK(a=5, b=1, k=1)
-    assert zm_model.pmf(0) > 0
+    # Test zero-truncated (k=1)
+    zm_model = PanjerABk(a=4/5, b=4/5, k=1)
+    assert zm_model.pmf(0) == 0
+    assert zm_model.pmf(1) == pytest.approx(8/120)
+    assert zm_model.pmf(2) == pytest.approx(48/600)
+    assert zm_model.pmf(3) == pytest.approx(256/3000)
+    assert zm_model.cdf(3) == pytest.approx(
+        zm_model.pmf(1) + zm_model.pmf(2) + zm_model.pmf(3))
+
+    # Test general (k>1)
+    zm_model = PanjerABk(a=3/4, b=2/3, k=2)
     assert zt_model.cdf(2) == zt_model.pmf(
         0) + zt_model.pmf(1) + zt_model.pmf(2)
 
     # Test general functionality
-    model = ABK(a=2, b=3, k=0)
+    model = PanjerABk(a=2, b=3, k=0)
     samples = model.rvs(size=100)
     assert isinstance(samples, np.ndarray)
     assert samples.shape == (100,)
     assert np.all(samples >= 0)
 
     # For k=1, values can be 0
-    model2 = ABK(a=2, b=3, k=1)
+    model2 = PanjerABk(a=3/4, b=2/3, k=1)
     samples2 = model2.rvs(size=100)
     assert np.all(samples2 >= 0)
 

@@ -14,6 +14,7 @@ Examples:
     >>> samples = model.rvs(size=10)
 """
 
+import random
 from abc import abstractmethod
 from typing import Protocol, runtime_checkable
 
@@ -430,6 +431,133 @@ class NegativeBinomial(FrequencyModel):
 
     def rvs(self, size: int = 1) -> np.ndarray:
         return self._dist.rvs(size=size)
+
+
+class PanjerABk(FrequencyModel):
+    """
+    Generalized Panjer (a, b, k) distribution class for actuarial applications.
+
+    The (a, b, k) family includes many common actuarial claim count distributions:
+    - Poisson(λ): a = λ, b = 1, k = 0
+    - Binomial(n, p): a = -q(n+1), b = -q, k = 0 where q = 1-p
+    - Negative Binomial(r, p): a = r, b = 0, k = 0
+
+    Args:
+        a (float): First parameter in the recursive formula.
+        b (float): Second parameter in the recursive formula.
+        k (int): Shift parameter indicating the starting support (typically 0 or 1).
+        tol (float, optional): Tail probability tolerance for stopping recursion. Defaults to 1e-12.
+        max_iter (int, optional): Maximum number of iterations for recursion. Defaults to 100000.
+
+    References:
+        https://www.casact.org/sites/default/files/old/astin_vol32no2_283.pdf
+
+    Examples:
+        >>> model = PanjerABk(a=2, b=1, k=0)
+        >>> model.pmf(3)
+    """
+
+    def __init__(self, a: float, b: float, k: int, tol=1e-12, max_iter=100000):
+        """
+        Initialize a PanjerABk distribution.
+
+        Args:
+            a (float): First parameter in the recursive formula.
+            b (float): Second parameter in the recursive formula.
+            k (int): Shift parameter indicating the starting support (typically 0 or 1).
+            tol (float, optional): Tail probability tolerance for stopping recursion. Defaults to 1e-12.
+            max_iter (int, optional): Maximum number of iterations for recursion. Defaults to 100000.
+        """
+        self.a = a
+        self.b = b
+        self.k = k
+        # Compute pmf values via recursion
+        pmf_vals = []
+        if k > 0:
+            # Fill zero probabilities for n < k
+            pmf_vals = [0.0] * k
+        # Start at n = k
+        pmf_vals.append(1.0)            # provisional P(k) = 1 (unnormalized)
+        current = 1.0                   # current unnormalized P(n)
+        total = 1.0                     # running sum of unnormalized probabilities
+        n = k
+        # Recursive generation for n = k+1, k+2, ...
+        while n < max_iter:
+            n += 1
+            ratio = a + (b / n)
+            if ratio <= 0:
+                # If the recursion factor is 0 or negative, stop (finite support or invalid case)
+                break
+            next_p = current * ratio    # P(n) = (a + b/n) * P(n-1)
+            # If additional probability is negligible, we can stop for infinite support
+            if next_p < tol * total:
+                # The next term is so small that it won't affect sums significantly
+                break
+            pmf_vals.append(next_p)
+            total += next_p
+            current = next_p
+        # Normalize the pmf
+        self.pmf_vals = [p/total for p in pmf_vals]
+        # Precompute the CDF for efficiency
+        self.cdf_vals = []
+        cum = 0.0
+        for p in self.pmf_vals:
+            cum += p
+            self.cdf_vals.append(cum)
+        # (Note: length of pmf list is the highest computed support + 1)
+
+    def pmf(self, n: int) -> float:
+        """
+        Compute the probability mass function (PMF) at a given count.
+
+        Args:
+            n (int): Count at which to evaluate the PMF.
+
+        Returns:
+            float: Probability P(N = n).
+        """
+        if n < 0 or n >= len(self.pmf_vals):
+            return 0.0
+        return self.pmf_vals[n]
+
+    def cdf(self, n: int) -> float:
+        """
+        Compute the cumulative distribution function (CDF) at a given count.
+
+        Args:
+            n (int): Count at which to evaluate the CDF.
+
+        Returns:
+            float: Cumulative probability P(N <= n).
+        """
+        if n < 0:
+            return 0.0
+        if n >= len(self.cdf_vals) - 1:
+            # If n is beyond our computed range, return 1.0 (all mass is within range by design)
+            return 1.0
+        return self.cdf_vals[n]
+
+    def rvs(self, size: int = 1):
+        """
+        Draw random samples from the distribution.
+
+        Args:
+            size (int, optional): Number of samples to generate. Defaults to 1.
+
+        Returns:
+            int or np.ndarray: A single sample if size = 1, otherwise an array of sampled counts.
+        """
+        samples = np.zeros(size, dtype=int)
+        for i in range(size):
+            u = random.random()
+            # Find smallest index where CDF >= u
+            # Since our pmf list starts at index 0 (which could be 0 prob if k>0), we do a linear search.
+            # (For large support, binary search would be better, but linear is okay for moderate size.)
+            for j, F in enumerate(self.cdf_vals):
+                if F >= u:
+                    samples[i] = j
+                    break
+        return samples if size > 1 else samples[0]
 
 
 class Poisson(FrequencyModel):

@@ -48,21 +48,6 @@ def test_set_backend_classical_sets_backend():
     assert b.get_backend() == 'test_backend'
 
 
-@pytest.mark.skip(reason="TODO: implement package version check")
-def test_set_backend_missing_qiskit():
-    pytest.fail("TODO: test raise error on missing `qiskit` package.")
-
-
-@pytest.mark.skip(reason="TODO: implement package version check")
-def test_set_backend_missing_packaging():
-    pytest.fail("TODO: test raise error on missing `packaging` package.")
-
-
-@pytest.mark.skip(reason="TODO: implement package version check")
-def test_set_backend_qiskit_wrong_version():
-    pytest.fail("TODO: test raise error on incorrect `qiskit` package version.")
-
-
 def test_set_backend_invalid_mode():
     with pytest.raises(ValueError):
         backend.set_backend('invalid_mode')

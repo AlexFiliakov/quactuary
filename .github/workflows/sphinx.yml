@@ -3,7 +3,7 @@ name: Build & Publish Docs
 on:
   push:
     tags:
-      - "v*" # any tag like “v1.2.3”
+      - "v*" # any tag like "v1.2.3"
 
 jobs:
   docs:
@@ -14,17 +14,16 @@ jobs:
         with: { python-version: "3.x" }
       - name: Install package and docs dependencies
         run: |
-          cd quactuary
           pip install --upgrade pip
           pip install .[docs]
 
       - name: Build Sphinx HTML
         run: |
-          cd quactuary/docs
+          cd docs
           make html
 
       - name: Publish to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: quactuary/docs/build/html
+          publish_dir: docs/build/html

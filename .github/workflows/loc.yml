@@ -1,0 +1,21 @@
+name: Lines of Code
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  count:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install cloc
+        run: sudo apt-get update && sudo apt-get install -y cloc
+      - name: Count lines of code
+        run: cloc --json --by-file --exclude-ext=md,yml,yaml --exclude-dir=.github,tests,__pycache__,quactuary.egg-info . > loc.json
+      - name: Commit loc.json
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: "chore: update lines-of-code metrics"
+          file_pattern: loc.json

@@ -15,7 +15,8 @@ jobs:
       - name: Install package and docs dependencies
         run: |
           pip install --upgrade pip
-          pip install .[docs]
+          pip install .
+          pip install sphinx sphinx-rtd-theme sphinxcontrib-napoleon
 
       - name: Build Sphinx HTML
         run: |

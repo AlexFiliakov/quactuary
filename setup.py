@@ -16,4 +16,11 @@ setup(
     package_dir={"": "quactuary"},
     description="Quantum-powered actuarial tools",
     install_requires=reqs,
+    extras_require={
+        "docs": [
+            "sphinx>=8.0",
+            "sphinx-rtd-theme",
+            "sphinxcontrib-napoleon"
+        ]
+    },
 )

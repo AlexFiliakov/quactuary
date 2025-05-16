@@ -4,8 +4,12 @@ from scipy.stats import beta as sp_beta
 from scipy.stats import chi2 as sp_chi2
 from scipy.stats import expon as sp_expon
 from scipy.stats import gamma as sp_gamma
+from scipy.stats import invgamma as sp_invgamma
+from scipy.stats import invgauss as sp_invgauss
+from scipy.stats import invweibull as sp_invweibull
 from scipy.stats import lognorm as sp_lognorm
 from scipy.stats import pareto as sp_pareto
+from scipy.stats import t as sp_t
 from scipy.stats import triang as sp_triang
 from scipy.stats import uniform as sp_uniform
 from scipy.stats import weibull_min as sp_weibull
@@ -13,7 +17,9 @@ from scipy.stats import weibull_min as sp_weibull
 from quactuary.distributions.severity import (Beta, ChiSquared, ConstantSev,
                                               ContinuousUniformSev,
                                               EmpiricalSev, Exponential, Gamma,
-                                              Lognormal, MixSev, Pareto,
+                                              InverseGamma, InverseGaussian,
+                                              InverseWeibull, Lognormal,
+                                              MixSev, Pareto, StudentsT,
                                               TriangularSev, Weibull)
 
 
@@ -107,6 +113,45 @@ def test_gamma_severity():
     assert np.all(samples >= loc)
 
 
+def test_inverse_gamma_severity():
+    shape, loc, scale = 2.0, 0.0, 3.0
+    model = InverseGamma(shape, loc=loc, scale=scale)
+    x = 4.0
+    assert model.pdf(x) == pytest.approx(
+        sp_invgamma(shape, loc=loc, scale=scale).pdf(x))
+    assert model.cdf(x) == pytest.approx(
+        sp_invgamma(shape, loc=loc, scale=scale).cdf(x))
+    samples = model.rvs(size=8)
+    assert samples.shape == (8,)
+    assert np.all(samples >= loc)
+
+
+def test_inverse_gaussian_severity():
+    shape, loc, scale = 10.0, 3.0, 1.5
+    model = InverseGaussian(shape, loc=loc, scale=scale)
+    x = 6.0
+    assert model.pdf(x) == pytest.approx(
+        sp_invgauss(shape, loc=loc, scale=scale).pdf(x))
+    assert model.cdf(x) == pytest.approx(
+        sp_invgauss(shape, loc=loc, scale=scale).cdf(x))
+    samples = model.rvs(size=8)
+    assert samples.shape == (8,)
+    assert np.all(samples >= 0)
+
+
+def test_inverse_weibull_severity():
+    shape, loc, scale = 2.0, 0.0, 3.0
+    model = InverseWeibull(shape, loc=loc, scale=scale)
+    x = 4.0
+    assert model.pdf(x) == pytest.approx(
+        sp_invweibull(shape, loc=loc, scale=scale).pdf(x))
+    assert model.cdf(x) == pytest.approx(
+        sp_invweibull(shape, loc=loc, scale=scale).cdf(x))
+    samples = model.rvs(size=8)
+    assert samples.shape == (8,)
+    assert np.all(samples >= loc)
+
+
 def test_lognormal_severity():
     s, loc, scale = 0.9, 0.0, 1.5
     model = Lognormal(s, loc=loc, scale=scale)
@@ -141,6 +186,20 @@ def test_pareto_severity():
     samples = model.rvs(size=7)
     assert samples.shape == (7,)
     assert np.all(samples >= loc)
+
+
+def test_t_severity():
+    df, loc, scale = 5.1, 3.0, 1.5
+    model = StudentsT(df, loc=loc, scale=scale)
+    x = 2.0
+    assert model.pdf(x) == pytest.approx(
+        sp_t(df, loc=loc, scale=scale).pdf(x))
+    assert model.cdf(x) == pytest.approx(
+        sp_t(df, loc=loc, scale=scale).cdf(x))
+    np.random.seed(42)
+    samples = model.rvs(size=10)
+    assert samples.shape == (10,)
+    assert np.all((samples >= loc - 4 * scale) & (samples <= loc + 4 * scale))
 
 
 def test_triangular_severity():

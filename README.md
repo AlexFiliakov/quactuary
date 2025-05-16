@@ -33,6 +33,10 @@ Actuaries can reap quantum speedups in tasks like Monte Carlo simulation without
 
 By meeting these goals, quActuary will let actuaries harness quantum computing’s potential speedups in Monte Carlo simulation and optimization while focusing on actuarial logic and business solutions instead of tinkering with quantum mechanics and quantum circuit engineering.
 
+## Documentation
+
+The official documentation is hosted on [docs.quactuary.com](https://docs.quactuary.com/).
+
 ## Roadmap
 - Phase 1: Core Simulation Functions for Risk Pricing
   - Excess Loss Calculations

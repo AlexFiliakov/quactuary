@@ -19,7 +19,8 @@ import pandas as pd
 from scipy.stats import beta as sp_beta
 from scipy.stats import chi2, expon
 from scipy.stats import gamma as sp_gamma
-from scipy.stats import lognorm, pareto, triang, uniform, weibull_min
+from scipy.stats import (invgamma, invgauss, invweibull, lognorm, pareto, t,
+                         triang, uniform, weibull_min)
 from scipy.stats._distn_infrastructure import rv_frozen
 
 
@@ -393,6 +394,84 @@ class Gamma(SeverityModel):
         return self._dist.rvs(size=size)
 
 
+class InverseGamma(SeverityModel):
+    """
+    Inverse gamma distribution modeling claim losses.
+
+    Args:
+        shape (float): Shape parameter (α).
+        loc (float, optional): Location. Defaults to 0.0.
+        scale (float, optional): Scale (β). Defaults to 1.0.
+
+    Examples:
+        >>> InverseGamma(a=2.0, scale=500.0).pdf(200.0)
+    """
+
+    def __init__(self, shape: float, loc: float = 0.0, scale: float = 1.0):
+        self._dist = invgamma(shape, loc=loc, scale=scale)
+
+    def pdf(self, x: float) -> float:
+        return float(self._dist.pdf(x))
+
+    def cdf(self, x: float) -> float:
+        return float(self._dist.cdf(x))
+
+    def rvs(self, size: int = 1) -> np.ndarray:
+        return self._dist.rvs(size=size)
+
+
+class InverseGaussian(SeverityModel):
+    """
+    Inverse Gaussian distribution for modeling claim losses.
+
+    Args:
+        mu (float): Mean of the distribution.
+        lam (float): Shape parameter.
+
+    Examples:
+        >>> InverseGaussian(mu=500.0, lam=2).pmf(300.0)
+    """
+
+    def __init__(self, shape: float, loc: float, scale: float):
+        """Inverse Gaussian(mu, lam)."""
+        self._dist = invgauss(shape, loc=loc, scale=scale)
+
+    def pdf(self, x: float) -> float:
+        return float(self._dist.pdf(x))
+
+    def cdf(self, x: float) -> float:
+        return float(self._dist.cdf(x))
+
+    def rvs(self, size: int = 1) -> np.ndarray:
+        return self._dist.rvs(size=size)
+
+
+class InverseWeibull(SeverityModel):
+    """
+    Inverse Weibull distribution modeling claim losses.
+
+    Args:
+        shape (float): Shape parameter.
+        loc (float, optional): Location. Defaults to 0.0.
+        scale (float, optional): Scale. Defaults to 1.0.
+
+    Examples:
+        >>> InverseWeibull(c=1.5, scale=200.0).pdf(150.0)
+    """
+
+    def __init__(self, shape: float, loc: float = 0.0, scale: float = 1.0):
+        self._dist = invweibull(shape, loc=loc, scale=scale)
+
+    def pdf(self, x: float) -> float:
+        return float(self._dist.pdf(x))
+
+    def cdf(self, x: float) -> float:
+        return float(self._dist.cdf(x))
+
+    def rvs(self, size: int = 1) -> np.ndarray:
+        return self._dist.rvs(size=size)
+
+
 class Lognormal(SeverityModel):
     """
     Lognormal distribution modeling multiplicative loss processes.
@@ -463,6 +542,32 @@ class Pareto(SeverityModel):
 
     def __init__(self, b: float, loc: float = 0.0, scale: float = 1.0):
         self._dist = pareto(b, loc=loc, scale=scale)
+
+    def pdf(self, x: float) -> float:
+        return float(self._dist.pdf(x))
+
+    def cdf(self, x: float) -> float:
+        return float(self._dist.cdf(x))
+
+    def rvs(self, size: int = 1) -> np.ndarray:
+        return self._dist.rvs(size=size)
+
+
+class StudentsT(SeverityModel):
+    """
+    Student's t-distribution for modeling heavy-tailed losses.
+
+    Args:
+        df (float): Degrees of freedom.
+        loc (float, optional): Location. Defaults to 0.0.
+        scale (float, optional): Scale. Defaults to 1.0.
+
+    Examples:
+        >>> StudentsT(df=5, scale=1000.0).pdf(200.0)
+    """
+
+    def __init__(self, df: float, loc: float = 0.0, scale: float = 1.0):
+        self._dist = t(df, loc=loc, scale=scale)
 
     def pdf(self, x: float) -> float:
         return float(self._dist.pdf(x))

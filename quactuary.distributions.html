@@ -5,12 +5,13 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>quactuary.distributions package &#8212; quActuary v0.0.4 documentation</title>
+    <title>quactuary.distributions package &#8212; quActuary v0.0.5 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="_static/nature.css?v=279e0f84" />
-    <script src="_static/documentation_options.js?v=77e3fdf6"></script>
+    <script src="_static/documentation_options.js?v=d39b79ef"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="canonical" href="https://docs.quactuary.com/quactuary.distributions.html" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="quactuary.quantum module" href="quactuary.quantum.html" />
@@ -31,7 +32,7 @@
         <li class="right" >
           <a href="quactuary.pricing.html" title="quactuary.pricing module"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">quActuary v0.0.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">quActuary v0.0.5 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">quactuary.distributions package</a></li> 
       </ul>
     </div>  
@@ -1363,6 +1364,97 @@ and casualty (P&amp;C) insurance applications.</p>
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="quactuary.distributions.severity.DiscretizedSeverity">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">quactuary.distributions.severity.</span></span><span class="sig-name descname"><span class="pre">DiscretizedSeverity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sev_dist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_val</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_val</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bins</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1000</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quactuary.distributions.severity.DiscretizedSeverity" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Discretized severity distributions. Needed for Quantum Circuits.</p>
+<p>Defines methods for probability mass, cumulative distribution, and sampling.</p>
+<p>We compute the density in each bin directly via:
+∫ x f(x) dx</p>
+<p>Variables:
+sev_dist (SeverityModel): underlying severity distribution.
+step: (float): distance between bin midpoints.
+mid_x_vals: (np.ndarray): midpoint of each bin, serving as the key for <cite>_probs</cite>.
+bin_mean: (np.ndarray): mean value of each bin.
+_probs: (dict): dictionary of probabilities for each bin midpoint.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span>&gt;&gt;&gt; Χ²_dist = ChiSquared(df=4, scale=500.0)
+&gt;&gt;&gt; discretized_Χ² = DiscretizedSeverityModel(Χ²_dist, min_val=0, max_val=8000, bins=100)
+&gt;&gt;&gt; cdf_values = discretized_Χ².cdf(2000.0)
+0.5
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="quactuary.distributions.severity.DiscretizedSeverity.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sev_dist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_val</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_val</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bins</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1000</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quactuary.distributions.severity.DiscretizedSeverity.__init__" title="Link to this definition">¶</a></dt>
+<dd><p>Initialize the discretized severity model, converting it into bins.
+This is required for quantum circuit modeling.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sev_dist</strong> (<em>object</em>) – Underlying severity distribution.</p></li>
+<li><p><strong>min_val</strong> (<em>float</em>) – Minimum value for discretization.</p></li>
+<li><p><strong>max_val</strong> (<em>float</em>) – Maximum value for discretization.</p></li>
+<li><p><strong>bins</strong> (<em>int</em>) – Number of bins for discretization.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="quactuary.distributions.severity.DiscretizedSeverity.cdf">
+<span class="sig-name descname"><span class="pre">cdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#quactuary.distributions.severity.DiscretizedSeverity.cdf" title="Link to this definition">¶</a></dt>
+<dd><p>Compute the cumulative distribution function (CDF) at a given count.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>k</strong> (<em>int</em>) – Number of claims.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Probability of at most k claims.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="quactuary.distributions.severity.DiscretizedSeverity.pmf">
+<span class="sig-name descname"><span class="pre">pmf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#quactuary.distributions.severity.DiscretizedSeverity.pmf" title="Link to this definition">¶</a></dt>
+<dd><p>Compute the probability mass function (PMF) at a given count.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>k</strong> (<em>int</em>) – Number of claims.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Probability of exactly k claims.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="quactuary.distributions.severity.DiscretizedSeverity.rvs">
+<span class="sig-name descname"><span class="pre">rvs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#quactuary.distributions.severity.DiscretizedSeverity.rvs" title="Link to this definition">¶</a></dt>
+<dd><p>Draw random samples from the frequency distribution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>size</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of samples to generate. Defaults to 1.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Array of sampled claim counts.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="quactuary.distributions.severity.EmpiricalSev">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">quactuary.distributions.severity.</span></span><span class="sig-name descname"><span class="pre">EmpiricalSev</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">probs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quactuary.distributions.severity.EmpiricalSev" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#quactuary.distributions.severity.SeverityModel" title="quactuary.distributions.severity.SeverityModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">SeverityModel</span></code></a></p>
@@ -1560,6 +1652,224 @@ and casualty (P&amp;C) insurance applications.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="quactuary.distributions.severity.Gamma.rvs">
 <span class="sig-name descname"><span class="pre">rvs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#quactuary.distributions.severity.Gamma.rvs" title="Link to this definition">¶</a></dt>
+<dd><p>Draw random samples of claim losses.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>size</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of samples. Defaults to 1.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Sampled loss values.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="quactuary.distributions.severity.InverseGamma">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">quactuary.distributions.severity.</span></span><span class="sig-name descname"><span class="pre">InverseGamma</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quactuary.distributions.severity.InverseGamma" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#quactuary.distributions.severity.SeverityModel" title="quactuary.distributions.severity.SeverityModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">SeverityModel</span></code></a></p>
+<p>Inverse gamma distribution modeling claim losses.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>shape</strong> (<em>float</em>) – Shape parameter (α).</p></li>
+<li><p><strong>loc</strong> (<em>float</em><em>, </em><em>optional</em>) – Location. Defaults to 0.0.</p></li>
+<li><p><strong>scale</strong> (<em>float</em><em>, </em><em>optional</em>) – Scale (β). Defaults to 1.0.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">InverseGamma</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">500.0</span><span class="p">)</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="mf">200.0</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="quactuary.distributions.severity.InverseGamma.cdf">
+<span class="sig-name descname"><span class="pre">cdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#quactuary.distributions.severity.InverseGamma.cdf" title="Link to this definition">¶</a></dt>
+<dd><p>Compute cumulative probability up to a given loss amount.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>float</em>) – Loss amount.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Cumulative probability at x.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="quactuary.distributions.severity.InverseGamma.pdf">
+<span class="sig-name descname"><span class="pre">pdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#quactuary.distributions.severity.InverseGamma.pdf" title="Link to this definition">¶</a></dt>
+<dd><p>Compute probability density at a given loss amount.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>float</em>) – Loss amount.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Probability density at x.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="quactuary.distributions.severity.InverseGamma.rvs">
+<span class="sig-name descname"><span class="pre">rvs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#quactuary.distributions.severity.InverseGamma.rvs" title="Link to this definition">¶</a></dt>
+<dd><p>Draw random samples of claim losses.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>size</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of samples. Defaults to 1.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Sampled loss values.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="quactuary.distributions.severity.InverseGaussian">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">quactuary.distributions.severity.</span></span><span class="sig-name descname"><span class="pre">InverseGaussian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quactuary.distributions.severity.InverseGaussian" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#quactuary.distributions.severity.SeverityModel" title="quactuary.distributions.severity.SeverityModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">SeverityModel</span></code></a></p>
+<p>Inverse Gaussian distribution for modeling claim losses.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mu</strong> (<em>float</em>) – Mean of the distribution.</p></li>
+<li><p><strong>lam</strong> (<em>float</em>) – Shape parameter.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">InverseGaussian</span><span class="p">(</span><span class="n">mu</span><span class="o">=</span><span class="mf">500.0</span><span class="p">,</span> <span class="n">lam</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">pmf</span><span class="p">(</span><span class="mf">300.0</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="quactuary.distributions.severity.InverseGaussian.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quactuary.distributions.severity.InverseGaussian.__init__" title="Link to this definition">¶</a></dt>
+<dd><p>Inverse Gaussian(mu, lam).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="quactuary.distributions.severity.InverseGaussian.cdf">
+<span class="sig-name descname"><span class="pre">cdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#quactuary.distributions.severity.InverseGaussian.cdf" title="Link to this definition">¶</a></dt>
+<dd><p>Compute cumulative probability up to a given loss amount.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>float</em>) – Loss amount.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Cumulative probability at x.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="quactuary.distributions.severity.InverseGaussian.pdf">
+<span class="sig-name descname"><span class="pre">pdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#quactuary.distributions.severity.InverseGaussian.pdf" title="Link to this definition">¶</a></dt>
+<dd><p>Compute probability density at a given loss amount.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>float</em>) – Loss amount.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Probability density at x.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="quactuary.distributions.severity.InverseGaussian.rvs">
+<span class="sig-name descname"><span class="pre">rvs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#quactuary.distributions.severity.InverseGaussian.rvs" title="Link to this definition">¶</a></dt>
+<dd><p>Draw random samples of claim losses.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>size</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of samples. Defaults to 1.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Sampled loss values.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="quactuary.distributions.severity.InverseWeibull">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">quactuary.distributions.severity.</span></span><span class="sig-name descname"><span class="pre">InverseWeibull</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quactuary.distributions.severity.InverseWeibull" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#quactuary.distributions.severity.SeverityModel" title="quactuary.distributions.severity.SeverityModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">SeverityModel</span></code></a></p>
+<p>Inverse Weibull distribution modeling claim losses.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>shape</strong> (<em>float</em>) – Shape parameter.</p></li>
+<li><p><strong>loc</strong> (<em>float</em><em>, </em><em>optional</em>) – Location. Defaults to 0.0.</p></li>
+<li><p><strong>scale</strong> (<em>float</em><em>, </em><em>optional</em>) – Scale. Defaults to 1.0.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">InverseWeibull</span><span class="p">(</span><span class="n">c</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">200.0</span><span class="p">)</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="mf">150.0</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="quactuary.distributions.severity.InverseWeibull.cdf">
+<span class="sig-name descname"><span class="pre">cdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#quactuary.distributions.severity.InverseWeibull.cdf" title="Link to this definition">¶</a></dt>
+<dd><p>Compute cumulative probability up to a given loss amount.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>float</em>) – Loss amount.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Cumulative probability at x.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="quactuary.distributions.severity.InverseWeibull.pdf">
+<span class="sig-name descname"><span class="pre">pdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#quactuary.distributions.severity.InverseWeibull.pdf" title="Link to this definition">¶</a></dt>
+<dd><p>Compute probability density at a given loss amount.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>float</em>) – Loss amount.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Probability density at x.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="quactuary.distributions.severity.InverseWeibull.rvs">
+<span class="sig-name descname"><span class="pre">rvs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#quactuary.distributions.severity.InverseWeibull.rvs" title="Link to this definition">¶</a></dt>
 <dd><p>Draw random samples of claim losses.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1832,6 +2142,77 @@ and casualty (P&amp;C) insurance applications.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="quactuary.distributions.severity.SeverityModel.rvs">
 <em class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">rvs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#quactuary.distributions.severity.SeverityModel.rvs" title="Link to this definition">¶</a></dt>
+<dd><p>Draw random samples of claim losses.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>size</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of samples. Defaults to 1.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Sampled loss values.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="quactuary.distributions.severity.StudentsT">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">quactuary.distributions.severity.</span></span><span class="sig-name descname"><span class="pre">StudentsT</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quactuary.distributions.severity.StudentsT" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#quactuary.distributions.severity.SeverityModel" title="quactuary.distributions.severity.SeverityModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">SeverityModel</span></code></a></p>
+<p>Student’s t-distribution for modeling heavy-tailed losses.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>float</em>) – Degrees of freedom.</p></li>
+<li><p><strong>loc</strong> (<em>float</em><em>, </em><em>optional</em>) – Location. Defaults to 0.0.</p></li>
+<li><p><strong>scale</strong> (<em>float</em><em>, </em><em>optional</em>) – Scale. Defaults to 1.0.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">StudentsT</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">1000.0</span><span class="p">)</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="mf">200.0</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="quactuary.distributions.severity.StudentsT.cdf">
+<span class="sig-name descname"><span class="pre">cdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#quactuary.distributions.severity.StudentsT.cdf" title="Link to this definition">¶</a></dt>
+<dd><p>Compute cumulative probability up to a given loss amount.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>float</em>) – Loss amount.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Cumulative probability at x.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="quactuary.distributions.severity.StudentsT.pdf">
+<span class="sig-name descname"><span class="pre">pdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#quactuary.distributions.severity.StudentsT.pdf" title="Link to this definition">¶</a></dt>
+<dd><p>Compute probability density at a given loss amount.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>float</em>) – Loss amount.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Probability density at x.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="quactuary.distributions.severity.StudentsT.rvs">
+<span class="sig-name descname"><span class="pre">rvs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#quactuary.distributions.severity.StudentsT.rvs" title="Link to this definition">¶</a></dt>
 <dd><p>Draw random samples of claim losses.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -2150,6 +2531,13 @@ and casualty (P&amp;C) insurance applications.</p>
 <li><a class="reference internal" href="#quactuary.distributions.severity.ContinuousUniformSev.rvs"><code class="docutils literal notranslate"><span class="pre">ContinuousUniformSev.rvs()</span></code></a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#quactuary.distributions.severity.DiscretizedSeverity"><code class="docutils literal notranslate"><span class="pre">DiscretizedSeverity</span></code></a><ul>
+<li><a class="reference internal" href="#quactuary.distributions.severity.DiscretizedSeverity.__init__"><code class="docutils literal notranslate"><span class="pre">DiscretizedSeverity.__init__()</span></code></a></li>
+<li><a class="reference internal" href="#quactuary.distributions.severity.DiscretizedSeverity.cdf"><code class="docutils literal notranslate"><span class="pre">DiscretizedSeverity.cdf()</span></code></a></li>
+<li><a class="reference internal" href="#quactuary.distributions.severity.DiscretizedSeverity.pmf"><code class="docutils literal notranslate"><span class="pre">DiscretizedSeverity.pmf()</span></code></a></li>
+<li><a class="reference internal" href="#quactuary.distributions.severity.DiscretizedSeverity.rvs"><code class="docutils literal notranslate"><span class="pre">DiscretizedSeverity.rvs()</span></code></a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#quactuary.distributions.severity.EmpiricalSev"><code class="docutils literal notranslate"><span class="pre">EmpiricalSev</span></code></a><ul>
 <li><a class="reference internal" href="#quactuary.distributions.severity.EmpiricalSev.cdf"><code class="docutils literal notranslate"><span class="pre">EmpiricalSev.cdf()</span></code></a></li>
 <li><a class="reference internal" href="#quactuary.distributions.severity.EmpiricalSev.pdf"><code class="docutils literal notranslate"><span class="pre">EmpiricalSev.pdf()</span></code></a></li>
@@ -2166,6 +2554,25 @@ and casualty (P&amp;C) insurance applications.</p>
 <li><a class="reference internal" href="#quactuary.distributions.severity.Gamma.cdf"><code class="docutils literal notranslate"><span class="pre">Gamma.cdf()</span></code></a></li>
 <li><a class="reference internal" href="#quactuary.distributions.severity.Gamma.pdf"><code class="docutils literal notranslate"><span class="pre">Gamma.pdf()</span></code></a></li>
 <li><a class="reference internal" href="#quactuary.distributions.severity.Gamma.rvs"><code class="docutils literal notranslate"><span class="pre">Gamma.rvs()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#quactuary.distributions.severity.InverseGamma"><code class="docutils literal notranslate"><span class="pre">InverseGamma</span></code></a><ul>
+<li><a class="reference internal" href="#quactuary.distributions.severity.InverseGamma.cdf"><code class="docutils literal notranslate"><span class="pre">InverseGamma.cdf()</span></code></a></li>
+<li><a class="reference internal" href="#quactuary.distributions.severity.InverseGamma.pdf"><code class="docutils literal notranslate"><span class="pre">InverseGamma.pdf()</span></code></a></li>
+<li><a class="reference internal" href="#quactuary.distributions.severity.InverseGamma.rvs"><code class="docutils literal notranslate"><span class="pre">InverseGamma.rvs()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#quactuary.distributions.severity.InverseGaussian"><code class="docutils literal notranslate"><span class="pre">InverseGaussian</span></code></a><ul>
+<li><a class="reference internal" href="#quactuary.distributions.severity.InverseGaussian.__init__"><code class="docutils literal notranslate"><span class="pre">InverseGaussian.__init__()</span></code></a></li>
+<li><a class="reference internal" href="#quactuary.distributions.severity.InverseGaussian.cdf"><code class="docutils literal notranslate"><span class="pre">InverseGaussian.cdf()</span></code></a></li>
+<li><a class="reference internal" href="#quactuary.distributions.severity.InverseGaussian.pdf"><code class="docutils literal notranslate"><span class="pre">InverseGaussian.pdf()</span></code></a></li>
+<li><a class="reference internal" href="#quactuary.distributions.severity.InverseGaussian.rvs"><code class="docutils literal notranslate"><span class="pre">InverseGaussian.rvs()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#quactuary.distributions.severity.InverseWeibull"><code class="docutils literal notranslate"><span class="pre">InverseWeibull</span></code></a><ul>
+<li><a class="reference internal" href="#quactuary.distributions.severity.InverseWeibull.cdf"><code class="docutils literal notranslate"><span class="pre">InverseWeibull.cdf()</span></code></a></li>
+<li><a class="reference internal" href="#quactuary.distributions.severity.InverseWeibull.pdf"><code class="docutils literal notranslate"><span class="pre">InverseWeibull.pdf()</span></code></a></li>
+<li><a class="reference internal" href="#quactuary.distributions.severity.InverseWeibull.rvs"><code class="docutils literal notranslate"><span class="pre">InverseWeibull.rvs()</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#quactuary.distributions.severity.Lognormal"><code class="docutils literal notranslate"><span class="pre">Lognormal</span></code></a><ul>
@@ -2190,6 +2597,12 @@ and casualty (P&amp;C) insurance applications.</p>
 <li><a class="reference internal" href="#quactuary.distributions.severity.SeverityModel.cdf"><code class="docutils literal notranslate"><span class="pre">SeverityModel.cdf()</span></code></a></li>
 <li><a class="reference internal" href="#quactuary.distributions.severity.SeverityModel.pdf"><code class="docutils literal notranslate"><span class="pre">SeverityModel.pdf()</span></code></a></li>
 <li><a class="reference internal" href="#quactuary.distributions.severity.SeverityModel.rvs"><code class="docutils literal notranslate"><span class="pre">SeverityModel.rvs()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#quactuary.distributions.severity.StudentsT"><code class="docutils literal notranslate"><span class="pre">StudentsT</span></code></a><ul>
+<li><a class="reference internal" href="#quactuary.distributions.severity.StudentsT.cdf"><code class="docutils literal notranslate"><span class="pre">StudentsT.cdf()</span></code></a></li>
+<li><a class="reference internal" href="#quactuary.distributions.severity.StudentsT.pdf"><code class="docutils literal notranslate"><span class="pre">StudentsT.pdf()</span></code></a></li>
+<li><a class="reference internal" href="#quactuary.distributions.severity.StudentsT.rvs"><code class="docutils literal notranslate"><span class="pre">StudentsT.rvs()</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#quactuary.distributions.severity.TriangularSev"><code class="docutils literal notranslate"><span class="pre">TriangularSev</span></code></a><ul>
@@ -2259,7 +2672,7 @@ and casualty (P&amp;C) insurance applications.</p>
         <li class="right" >
           <a href="quactuary.pricing.html" title="quactuary.pricing module"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">quActuary v0.0.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">quActuary v0.0.5 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">quactuary.distributions package</a></li> 
       </ul>
     </div>

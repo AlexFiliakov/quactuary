@@ -15,7 +15,7 @@ quactuary.utils.validation module
 Module contents
 ---------------
 
-.. automodule:: quactuary.validation
+.. automodule:: quactuary.utils.validation
    :members:
    :show-inheritance:
    :undoc-members:

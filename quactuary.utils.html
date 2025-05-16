@@ -5,12 +5,13 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>quactuary.utils module &#8212; quActuary v0.0.4 documentation</title>
+    <title>quactuary.utils module &#8212; quActuary v0.0.5 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="_static/nature.css?v=279e0f84" />
-    <script src="_static/documentation_options.js?v=77e3fdf6"></script>
+    <script src="_static/documentation_options.js?v=d39b79ef"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="canonical" href="https://docs.quactuary.com/quactuary.utils.html" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="quactuary.future package" href="quactuary.future.html" />
@@ -31,7 +32,7 @@
         <li class="right" >
           <a href="quactuary.backend.html" title="quactuary.backend module"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">quActuary v0.0.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">quActuary v0.0.5 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">quactuary.utils module</a></li> 
       </ul>
     </div>  
@@ -92,8 +93,51 @@
 </dd></dl>
 
 </section>
-<section id="module-contents">
-<h2>Module contents<a class="headerlink" href="#module-contents" title="Link to this heading">¶</a></h2>
+<section id="module-0">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-0" title="Link to this heading">¶</a></h2>
+<p>Utility functions for validating inputs or parameters used throughout the quActuary project.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="id0">
+<span class="sig-prename descclassname"><span class="pre">quactuary.utils.validation.</span></span><span class="sig-name descname"><span class="pre">validate_non_negative_integer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#id0" title="Link to this definition">¶</a></dt>
+<dd><p>Validate that a value is a non-negative integer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>value</strong> (<em>int</em>) – The value to validate.</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If the value is not a non-negative integer.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="id1">
+<span class="sig-prename descclassname"><span class="pre">quactuary.utils.validation.</span></span><span class="sig-name descname"><span class="pre">validate_positive_integer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#id1" title="Link to this definition">¶</a></dt>
+<dd><p>Validate that a value is a positive integer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>value</strong> (<em>int</em>) – The value to validate.</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If the value is not a positive integer.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="id2">
+<span class="sig-prename descclassname"><span class="pre">quactuary.utils.validation.</span></span><span class="sig-name descname"><span class="pre">validate_probability</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#id2" title="Link to this definition">¶</a></dt>
+<dd><p>Validate that a probability value is between 0 and 1.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>value</strong> (<em>float</em>) – The probability value to validate.</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If the probability is not in the range [0, 1].</p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 </section>
 
@@ -115,7 +159,12 @@
 <li><a class="reference internal" href="#quactuary.utils.validation.validate_probability"><code class="docutils literal notranslate"><span class="pre">validate_probability()</span></code></a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#module-contents">Module contents</a></li>
+<li><a class="reference internal" href="#module-0">Module contents</a><ul>
+<li><a class="reference internal" href="#id0"><code class="docutils literal notranslate"><span class="pre">validate_non_negative_integer()</span></code></a></li>
+<li><a class="reference internal" href="#id1"><code class="docutils literal notranslate"><span class="pre">validate_positive_integer()</span></code></a></li>
+<li><a class="reference internal" href="#id2"><code class="docutils literal notranslate"><span class="pre">validate_probability()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -167,7 +216,7 @@
         <li class="right" >
           <a href="quactuary.backend.html" title="quactuary.backend module"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">quActuary v0.0.4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">quActuary v0.0.5 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">quactuary.utils module</a></li> 
       </ul>
     </div>

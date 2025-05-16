@@ -10,11 +10,9 @@ Features
 --------
 
 - Extensive frequency distributions: Poisson, Binomial, Negative Binomial, etc.
-- Flexible severity distributions: Exponential, Gamma, Lognormal, Pareto, etc.
+- Support for the generalized Panjer (a, b, k) frequency distribution class.
+- Comprehensive severity distributions: Exponential, Gamma, Lognormal, Pareto, etc.
 - Mixture models and empirical distributions.
-- Pricing models for excess loss, Value at Risk (VaR), and Tail Value at Risk (TVaR).
-- Quantum acceleration via Qiskit backends.
-- Comprehensive testing and Sphinx-based documentation.
 
 Installation
 ------------

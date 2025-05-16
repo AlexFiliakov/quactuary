@@ -1,35 +1,35 @@
 {"header" : {
   "cloc_url"           : "github.com/AlDanial/cloc",
   "cloc_version"       : "1.98",
-  "elapsed_seconds"    : 0.0233829021453857,
+  "elapsed_seconds"    : 0.0267372131347656,
   "n_files"            : 32,
-  "n_lines"            : 2376,
-  "files_per_second"   : 1368.52131531991,
-  "lines_per_second"   : 101612.707662503},
+  "n_lines"            : 2619,
+  "files_per_second"   : 1196.8337851334,
+  "lines_per_second"   : 97953.3651020117},
+"./quactuary/distributions/severity.py" :{
+  "blank": 204,
+  "comment": 337,
+  "code": 224,
+  "language": "Python"},
 "./quactuary/distributions/frequency.py" :{
   "blank": 143,
   "comment": 289,
   "code": 186,
-  "language": "Python"},
-"./quactuary/distributions/severity.py" :{
-  "blank": 140,
-  "comment": 227,
-  "code": 159,
   "language": "Python"},
 "./quactuary/backend.py" :{
   "blank": 36,
   "comment": 81,
   "code": 62,
   "language": "Python"},
+"./docs/source/conf.py" :{
+  "blank": 14,
+  "comment": 16,
+  "code": 30,
+  "language": "Python"},
 "./quactuary/pricing.py" :{
   "blank": 35,
   "comment": 93,
   "code": 29,
-  "language": "Python"},
-"./docs/source/conf.py" :{
-  "blank": 13,
-  "comment": 15,
-  "code": 28,
   "language": "Python"},
 "./docs/make.bat" :{
   "blank": 8,
@@ -46,20 +46,20 @@
   "comment": 1,
   "code": 26,
   "language": "Python"},
+"./setup.py" :{
+  "blank": 2,
+  "comment": 0,
+  "code": 25,
+  "language": "Python"},
 "./quactuary/quantum.py" :{
   "blank": 28,
   "comment": 58,
   "code": 24,
   "language": "Python"},
-"./setup.py" :{
-  "blank": 2,
-  "comment": 0,
-  "code": 24,
-  "language": "Python"},
 "./docs/source/index.rst" :{
   "blank": 19,
   "comment": 26,
-  "code": 23,
+  "code": 21,
   "language": "reStructuredText"},
 "./pyproject.toml" :{
   "blank": 3,
@@ -71,16 +71,16 @@
   "comment": 29,
   "code": 18,
   "language": "reStructuredText"},
+"./requirements-dev.txt" :{
+  "blank": 0,
+  "comment": 0,
+  "code": 17,
+  "language": "Text"},
 "./docs/source/quactuary.future.rst" :{
   "blank": 13,
   "comment": 24,
   "code": 16,
   "language": "reStructuredText"},
-"./requirements-dev.txt" :{
-  "blank": 0,
-  "comment": 0,
-  "code": 16,
-  "language": "Text"},
 "./docs/source/quactuary.distributions.rst" :{
   "blank": 7,
   "comment": 12,
@@ -167,7 +167,7 @@
   "code": 0,
   "language": "Python"},
 "SUM": {
-  "blank": 536,
-  "comment": 1093,
-  "code": 747,
+  "blank": 601,
+  "comment": 1204,
+  "code": 814,
   "nFiles": 32} }

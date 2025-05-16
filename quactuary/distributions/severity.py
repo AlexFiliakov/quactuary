@@ -16,6 +16,7 @@ from typing import Protocol, runtime_checkable
 
 import numpy as np
 import pandas as pd
+from scipy.integrate import quad
 from scipy.stats import beta as sp_beta
 from scipy.stats import chi2, expon
 from scipy.stats import gamma as sp_gamma
@@ -158,6 +159,139 @@ def to_severity_model(obj) -> SeverityModel:
     if isinstance(obj, rv_frozen):
         return _ScipySevAdapter(obj)
     raise TypeError(f"Cannot convert {obj!r} to SeverityModel")
+
+
+
+class DiscretizedSeverity():
+    """
+    Discretized severity distributions. Needed for Quantum Circuits.
+
+    Defines methods for probability mass, cumulative distribution, and sampling.
+
+    We compute the density in each bin directly via:
+    ∫ x f(x) dx
+
+    Variables:
+    sev_dist (SeverityModel): underlying severity distribution.
+    step: (float): distance between bin midpoints.
+    mid_x_vals: (np.ndarray): midpoint of each bin, serving as the key for `_probs`.
+    bin_mean: (np.ndarray): mean value of each bin.
+    _probs: (dict): dictionary of probabilities for each bin midpoint.
+
+    Examples:
+        >>> Χ²_dist = ChiSquared(df=4, scale=500.0)
+        >>> discretized_Χ² = DiscretizedSeverityModel(Χ²_dist, min_val=0, max_val=8000, bins=100)
+        >>> cdf_values = discretized_Χ².cdf(2000.0)
+        0.5
+    """
+
+    def __init__(self, sev_dist, min_val: float, max_val: float, bins: int = 1000):
+        """
+        Initialize the discretized severity model, converting it into bins.
+        This is required for quantum circuit modeling.
+
+        Args:
+            sev_dist (object): Underlying severity distribution.
+            min_val (float): Minimum value for discretization.
+            max_val (float): Maximum value for discretization.
+            bins (int): Number of bins for discretization.
+        """
+        self.sev_dist = to_severity_model(sev_dist)
+
+        # 1) Compute the bins and midpoints
+        # build N equal‐width bins on [domain_min, domain_max]
+        bin_edges = np.linspace(min_val, max_val, bins + 1)
+        self.step = (max_val - min_val) / bins
+        self.mid_x_vals = 0.5 * (bin_edges[:-1] + bin_edges[1:])
+
+        # 2) Compute the bin probabilities using the analytic function
+        pmf, self.bin_mean = _get_binned_moments(bin_edges, self.sev_dist)
+
+        pmf /= np.sum(pmf)  # Normalize to sum to 1
+
+        self._probs = {x: pmf[i] for i, x in enumerate(self.mid_x_vals)}
+
+    def pmf(self, x: float) -> float:
+        """
+        Compute the probability mass function (PMF) at a given count.
+
+        Args:
+            k (int): Number of claims.
+
+        Returns:
+            float: Probability of exactly k claims.
+        """
+        pmf = self._probs[x] if x in self._probs.keys() else 0.0
+        return pmf
+
+    def cdf(self, x: float) -> float:
+        """
+        Compute the cumulative distribution function (CDF) at a given count.
+
+        Args:
+            k (int): Number of claims.
+
+        Returns:
+            float: Probability of at most k claims.
+        """
+        return sum(self._probs[i] for i in self._probs.keys() if i <= x)
+
+    def rvs(self, size: int = 1) -> np.ndarray:
+        """
+        Draw random samples from the frequency distribution.
+
+        Args:
+            size (int, optional): Number of samples to generate. Defaults to 1.
+
+        Returns:
+            np.ndarray: Array of sampled claim counts.
+        """
+        return np.random.choice(self._probs.keys(), p=self._probs.values(), size=size)
+
+
+def _get_binned_moments(bin_edges, sev_dist: SeverityModel):
+    """
+    This helper function computes for each bin defined by bin_edges:
+    - pmf: Probability mass in the bin
+    - bin_mean: First moment in the bin
+
+    Args:
+        bin_edges (array-like): The edges of the bins.
+        sev_dist (SeverityModel): The underlying severity distribution.
+
+    Returns:
+        pmf (ndarray): Probability mass in each bin.
+        bin_mean (ndarray): Exact first moment (∫ x f(x) dx) over each bin.
+    """
+    edges = np.asarray(bin_edges)
+    a = edges[:-1]
+    b = edges[1:]
+
+    pmf = np.zeros_like(a)
+    bin_mean = np.zeros_like(a)
+    epsilon = 1e-12  # Small shift for discrete distributions
+
+    for i in range(len(a)):
+        pmf[i] = sev_dist.cdf(b[i]) - sev_dist.cdf(a[i] - epsilon)
+        # Numerically integrate x * pdf(x) over [a[i], b[i]]
+        bin_mean[i], _ = quad(lambda x: x * sev_dist.pdf(x), a[i], b[i])
+
+    return pmf, bin_mean
+
+
+"""
+ ██████  ██████  ███    ███ ███    ███  ██████  ███    ██                                      
+██      ██    ██ ████  ████ ████  ████ ██    ██ ████   ██                                      
+██      ██    ██ ██ ████ ██ ██ ████ ██ ██    ██ ██ ██  ██                                      
+██      ██    ██ ██  ██  ██ ██  ██  ██ ██    ██ ██  ██ ██                                      
+ ██████  ██████  ██      ██ ██      ██  ██████  ██   ████                                      
+
+██████  ██ ███████ ████████ ██████  ██ ██████  ██    ██ ████████ ██  ██████  ███    ██ ███████ 
+██   ██ ██ ██         ██    ██   ██ ██ ██   ██ ██    ██    ██    ██ ██    ██ ████   ██ ██      
+██   ██ ██ ███████    ██    ██████  ██ ██████  ██    ██    ██    ██ ██    ██ ██ ██  ██ ███████ 
+██   ██ ██      ██    ██    ██   ██ ██ ██   ██ ██    ██    ██    ██ ██    ██ ██  ██ ██      ██ 
+██████  ██ ███████    ██    ██   ██ ██ ██████   ██████     ██    ██  ██████  ██   ████ ███████ 
+"""
 
 
 class Beta(SeverityModel):

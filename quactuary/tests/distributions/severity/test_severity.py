@@ -16,11 +16,66 @@ from scipy.stats import weibull_min as sp_weibull
 
 from quactuary.distributions.severity import (Beta, ChiSquared, ConstantSev,
                                               ContinuousUniformSev,
+                                              DiscretizedSeverity,
                                               EmpiricalSev, Exponential, Gamma,
                                               InverseGamma, InverseGaussian,
                                               InverseWeibull, Lognormal,
                                               MixSev, Pareto, StudentsT,
                                               TriangularSev, Weibull)
+
+
+def test_discreteized_severity_model():
+    # Test the DiscretizedSeverityModel with a ChiSquared distribution
+    df, loc, scale = 4.0, 0.0, 500.0
+    model = ChiSquared(df, loc=loc, scale=scale)
+    discretized_model = DiscretizedSeverity(
+        model, min_val=0, max_val=8000, bins=100)
+
+    # Check the properties of the discretized model
+    assert isinstance(discretized_model.sev_dist, ChiSquared)
+    assert discretized_model.step > 0
+    assert len(discretized_model.mid_x_vals) == 100
+    assert len(discretized_model.bin_mean) == 100
+    assert len(discretized_model._probs) == 100
+    assert discretized_model.pmf(9000) == pytest.approx(0.0)
+
+    # Test the DiscretizedSeverityModel with an EmpiricalSev distribution
+    values = [0.0, 5.0, 10.0]
+    probs = [0.2, 0.3, 0.5]
+    model = EmpiricalSev(values, probs)
+    discretized_model = DiscretizedSeverity(
+        model, min_val=0, max_val=10, bins=3)
+    # The distribution gets transformed to bin midpoints
+    # and the probabilities are assigned to those midpoints
+    edges = np.linspace(0, 10, 4)
+    midpoints = 0.5 * (edges[:-1] + edges[1:])
+    step = midpoints[1] - midpoints[0]
+    assert discretized_model.step == pytest.approx(step)
+    for i, x in enumerate(midpoints):
+        assert discretized_model.pmf(x) == pytest.approx(
+            probs[i]), f"PMF at {x} should be {probs[i]}, but got {discretized_model.pmf(x)}"
+    assert discretized_model.pmf(0.0) == pytest.approx(0.0)
+    assert discretized_model.pmf(5.0) == pytest.approx(0.3)
+    assert discretized_model.pmf(10.0) == pytest.approx(0.0)
+    assert discretized_model.cdf(0.1) == pytest.approx(0.0)
+    assert discretized_model.cdf(9.5) == pytest.approx(1.0)
+
+    # Test continuous distribution discretization via uniform
+    loc, scale = 2.0, 5.0
+    test_values = [1.0, 2.5, 3.5, 8.0]
+    model = ContinuousUniformSev(loc=loc, scale=scale)
+    discretized_model = DiscretizedSeverity(
+        model, min_val=loc, max_val=loc + scale, bins=5)
+    # Test PMF
+    test_pmf_expected = [0.0, 1.0/5.0, 1.0/5.0, 0.0]
+    for i, x in enumerate(test_values):
+        assert discretized_model.pmf(x) == pytest.approx(
+            test_pmf_expected[i]), f"PMF at {x} should be {test_pmf_expected[i]}, but got {discretized_model.pmf(x)}"
+    # Test CDF
+    test_cdf_expected = [0.0, 1.0/5.0, 2.0/5.0, 1.0]
+    for i, x in enumerate(test_values):
+        assert discretized_model.cdf(x) == pytest.approx(
+            test_cdf_expected[i]), f"CDF at {x} should be {test_cdf_expected[i]}, but got {discretized_model.pmf(x)}"
 
 
 def test_beta_severity():

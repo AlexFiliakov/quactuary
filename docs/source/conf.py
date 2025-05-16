@@ -37,13 +37,17 @@ author = 'Alex Filiakov, ACAS'
 
 extensions = [
     'sphinx.ext.autodoc',
-    'sphinx.ext.napoleon'
+    'sphinx.ext.napoleon',
+    'sphinx_sitemap'
 ]
 
 # Napoleon settings
 napoleon_google_docstring = True
 napoleon_numpy_docstring = False
 napoleon_include_init_with_doc = True
+
+# Sitemap settings
+html_baseurl = 'https://docs.quactuary.com/'
 
 templates_path = ['_templates']
 exclude_patterns = []

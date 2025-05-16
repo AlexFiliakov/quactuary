@@ -20,6 +20,7 @@ setup(
         "docs": [
             "sphinx>=8.0",
             "sphinx-rtd-theme",
+            "sphinx-sitemap",
             "sphinxcontrib-napoleon"
         ]
     },

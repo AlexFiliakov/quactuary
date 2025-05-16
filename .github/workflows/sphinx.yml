@@ -21,7 +21,7 @@ jobs:
         run: |
           pip install --upgrade pip
           pip install .
-          pip install sphinx sphinx-rtd-theme sphinxcontrib-napoleon
+          pip install sphinx sphinx-rtd-theme sphinx-sitemap sphinxcontrib-napoleon
 
       - name: Build Sphinx HTML
         run: |

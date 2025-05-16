@@ -13,4 +13,5 @@ qiskit==1.4.2
 setuptools_scm
 sphinx
 sphinx-rtd-theme
+sphinx-sitemap
 sphinxcontrib-napoleon

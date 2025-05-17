@@ -1,37 +1,41 @@
 ![QuActuary header image](images/qc-header.jpg)
 # *qu*Actuary: quantum-powered actuarial tools
 
-A high-level, **pandas**-integrated actuarial framework with optional quantum acceleration without requiring quantum programming expertise.
+A high-level, **pandas**-integrated actuarial framework that delivers optional quantum acceleration without requiring quantum programming expertise.
 
-_**This package is not ready for use** because it's still under preliminary development. We are presently focused on Property & Casualty (non-life) techniques._
+## 🚀 Launching Soon
 
-### Continuous Integration
+_**Under active development**_ - We're crafting powerful solutions for Property & Casualty professionals that will transform your workflow.
+
+Sign up for our launch notification at [quactuary.com](https://quactuary.com/) and get early access to revolutionary actuarial tools.
+
+## Continuous Integration
+
 [![version](https://img.shields.io/github/v/tag/AlexFiliakov/quactuary?label=version&sort=semver)](https://github.com/AlexFiliakov/quactuary/releases)
 [![Lines of Code](https://img.shields.io/badge/dynamic/json?label=lines%20of%20code&url=https://raw.githubusercontent.com/AlexFiliakov/quactuary/main/loc.json&query=$.SUM.code&color=blue)](https://github.com/AlexFiliakov/quactuary)
 [![Tests](https://img.shields.io/github/actions/workflow/status/AlexFiliakov/quactuary/.github/workflows/python-tests.yml?branch=main)](https://github.com/AlexFiliakov/quactuary/actions)
 [![Coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/AlexFiliakov/quactuary/main/coverage.json)](https://github.com/AlexFiliakov/quactuary/actions)
 
-## Introduction
+## Why *qu*Actuary?
 
-Actuarial computations often involve heavy simulation and complex models for pricing and reserving. **quActuary** aims to empower actuaries with quantum computing speedups (e.g., quadratic Monte Carlo gains) without requiring quantum expertise. The package will wrap IBM’s Qiskit v1.4.2 (including `qiskit_algorithms` and `qiskit_aer`) to abstract away the design of quantum circuits.
+Actuarial work demands intensive simulations and complex models for accurate pricing and reserving. **quActuary** bridges the gap between traditional actuarial science and quantum computing, offering potential quadratic speedups in Monte Carlo simulations without requiring quantum expertise. 
 
-The design leverages existing actuarial Python libraries (e.g. **chainladder-python** for reserving, **aggregate** for FFT-based aggregate loss distributions, **gemact** for collective risk models and copulas) to minimize new implementations. Each model class (e.g. for pricing or risk) will embed quantum computing as a pluggable backend, so users can toggle between classical and quantum execution without needing quantum expertise.
+Built on IBM's Qiskit v1.4.2 framework, quActuary abstracts away the complexity of quantum circuit design while integrating seamlessly with familiar actuarial Python libraries like **chainladder-python**, **aggregate**, and **gemact**.
 
-The API will feel familiar to actuaries (pandas data structures, common actuarial terminology) while hiding quantum mechanics details. Default model outputs will be provided as pandas `Series` or `DataFrame` for seamless downstream analysis.
+Each model class features quantum computing as a pluggable backend, allowing you to toggle between classical and quantum execution with simple parameter changes. The API is designed to feel intuitive to actuaries, using **pandas data structures** and familiar terminology, while keeping quantum mechanics details under the hood.
 
-### Quantum Ready, but Not Quantum Required
-Actuaries can reap quantum speedups in tasks like Monte Carlo simulation without changing how they solve problems. By making quantum optional (opt-in via parameters, context managers, or global config), we avoid alienating users who are not ready for it; they can continue to use all features classically. This dual capability also helps in validation: results from quantum runs can be checked against classical computations for consistency, which will be important in building trust in the quantum approach.
+### Quantum Ready, Not Quantum Required
+
+Get the best of both worlds: leverage quantum speedups when needed, or use the same features classically. This dual capability also serves as a validation mechanism, allowing you to verify quantum results against classical computations as you build confidence in the quantum approach.
 
 ![Duck resting on a panda](images/panda-duck.png)
 
 ## Key Goals
 
-- **Black-Box Ease of Use:** Provide high-level, Pythonic pandas-like interfaces for common tasks (pricing, reserving, risk measures) so that actuaries can call quantum-accelerated computations with minimal code.
-- **Deeper Quantum Access:** Allow advanced users to inspect and tweak quantum circuits/algorithms. For example, users can retrieve underlying Qiskit circuits or adjust algorithm parameters (e.g. change the amplitude estimation method or number of shots).
-- **Seamless Backend Switching:** Enable development on local simulators (Qiskit Aer) and easily switch to IBM Quantum hardware for production runs, without requiring code changes aside from selecting a backend.
-- Actuarial Familiarity: Use terminology and data structures familiar to actuaries (such as DataFrames for loss triangles or exposures) to flatten the learning curve.
-
-By meeting these goals, quActuary will let actuaries harness quantum computing’s potential speedups in Monte Carlo simulation and optimization while focusing on actuarial logic and business solutions instead of tinkering with quantum mechanics and quantum circuit engineering.
+- **Actuarial-First Design:** Work with familiar terminology and data structures that flatten the learning curve for actuarial professionals.
+- **Intuitive Actuarial Interface:** Perform pricing, reserving, and risk analysis using high-level, Pythonic pandas-like interfaces with minimal code.
+- **Flexible Quantum Access:** Run simulations with default settings or dive deeper to inspect and customize quantum circuits and algorithms.
+- **Seamless Environment Switching:** Develop on local simulators and deploy to IBM Quantum hardware with minimal configuration changes.
 
 ## Documentation
 
@@ -42,6 +46,7 @@ The official documentation is hosted on [docs.quactuary.com](https://docs.quactu
   - Excess Loss Calculations
   - VaR and TVaR
   - Quantum Monte Carlo
+  - v0.1.0 Release
 - Phase 2: Reserving
   - IBNR Estimation
   - Basic Reserving Methods
@@ -56,11 +61,11 @@ The official documentation is hosted on [docs.quactuary.com](https://docs.quactu
 - Phase 5: Value-Add
   - Quantum Data Privacy & Security
 
-## Example Usage Patterns
+## Usage Example
 
-### Excess Severity Pricing
+### Example: Excess Severity Pricing
 
-An actuary wants to calculate the expected excess loss for a portfolio above a $1M retention with a limit of $4M. Using **quActuary**:
+Calculate the expected excess loss for a portfolio above a $1M retention with a limit of $4M:
 
 ```python
 import quactuary as qa
@@ -104,13 +109,15 @@ q_layer_loss = layer.compute_excess_loss(backend('quantum', confidence=0.95))
 print(f"Quantum layer expected loss: {q_layer_loss}")
 ```
 
-In this example, `ExcessLossModel` loads the specified distributions into a quantum state (using an n-qubit discrete approximation) and builds the circuit needed for the excess loss algorithm on a book of business. The user is not expected to be proficient in quantum circuit design.
+In this example, `ExcessLossModel` loads the specified distributions into a quantum state (using an n-qubit discrete approximation) and builds the circuit needed for the excess loss algorithm on a book of business. The user is not expected to know anything about quantum circuit design.
 
-### Risk Measures
+### Example: Risk Measures
 
-Continuing with the prior Portfolio, an actuary wants to calculate risk measures for this portfolio:
+Calculate risk measures for the same portfolio:
 
 ```python
+from quactuary.pricing import RiskMeasureModel
+
 # Risk Measures
 layer_risk_metrics = RiskMeasureModel(portfolio, deductible=1_000_000, limit=4_000_000)
 

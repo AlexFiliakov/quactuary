@@ -121,7 +121,7 @@ with qa.use_backend('classical', num_simulations=1_000_000):
   print(f"Classical layer VaR: {mc_layer_var}")
   print(f"Classical layer TVaR: {mc_layer_tvar}")
 
-# Test using Classical Monte Carlo
+# Evaluate Using Quantum Amplitude Estimation
 with qa.use_backend('quantum', confidence=0.95):
   q_layer_var = layer_risk_metrics.value_at_risk(0.95)
   q_layer_tvar = layer_risk_metrics.tail_value_at_risk(0.95)

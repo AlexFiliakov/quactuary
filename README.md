@@ -1,5 +1,5 @@
 ![QuActuary header image](images/qc-header.jpg)
-# *qu*Actuary: quantum-powered actuarial tools
+# *qu*Actuary: Quantum advantage for the actuarial profession
 
 A high-level, **pandas**-integrated actuarial framework that delivers optional quantum acceleration without requiring quantum programming expertise.
 
@@ -68,71 +68,97 @@ Calculate the expected excess loss for a portfolio above a $1M retention with a 
 
 ```python
 import quactuary as qa
-from quactuary.distributions.frequency import Poisson, DeterministicFreq
-from quactuary.distributions.severity  import Lognormal, ConstantSev
-from quactuary.entities import PolicyTerms, Inforce, Portfolio
-from quactuary.pricing import ExcessLossModel
+import quactuary.entities as entities
 
-# General Liability Bucket
-gl_terms = PolicyTerms(per_occ_deductible=200_000, coinsurance=0.10)
-gl_freq  = Poisson(mu=0.25)
-gl_sev   = Lognormal(mu=11.5, sigma=1.2)
-gl_inforce = Inforce(n_policies=10_000,
-                     freq=gl_freq,
-                     sev=gl_sev,
-                     terms=gl_terms,
-                     name="General Liability")
+from quactuary.entities import (
+    ExposureBase, LOB, PolicyTerms, Inforce, Portfolio)
+from quactuary.distributions.frequency import Poisson, NegativeBinomial
+from quactuary.distributions.severity import Pareto, Lognormal
+
 
 # Workers’ Comp Bucket
-wc_terms = PolicyTerms(per_occ_deductible=0, per_occ_limit=1_000_000)
-wc_freq  = DeterministicFreq(k=1)  # exactly 1 claim each year
-wc_sev   = ConstantSev(amount=80_000)
-wc_inforce = Inforce(n_policies=5_000,
-                     freq=wc_freq,
-                     sev=wc_sev,
-                     terms=wc_terms,
-                     name="Workers Comp")
+wc_policy = entities.PolicyTerms(
+    effective_date='2026-01-01',
+    expiration_date='2027-01-01',
+    lob=LOB.WC,
+    exposure_base=entities.PAYROLL,
+    exposure_amount=100_000_000,
+    retention_type="deductible",
+    per_occ_retention=500_000,
+    coverage="occ"
+)
+
+# General Liability Bucket
+glpl_policy = entities.PolicyTerms(
+    effective_date='2026-01-01',
+    expiration_date='2027-01-01',
+    lob=LOB.GLPL,
+    exposure_base=entities.SALES,
+    exposure_amount=10_000_000_000,
+    retention_type="deductible",
+    per_occ_retention=1_000_000,
+    coverage="occ"
+)
+
+# Frequency-Severity Distributions
+wc_freq = Poisson(100)
+wc_sev = Pareto(0, 40_000)
+
+glpl_freq = NegativeBinomial(50, 0.5)
+glpl_sev = Lognormal(2, 0, 100_000)
+
 
 # Book of Business
-portfolio = Portfolio([gl_inforce, wc_inforce])
+wc_inforce = Inforce(
+    n_policies=1000,
+    terms=wc_policy,
+    frequency=wc_freq,
+    severity=wc_sev,
+    name = "WC 2026 Bucket"
+)
 
-# Excess Loss layer
-layer = ExcessLossModel(portfolio, deductible=1_000_000, limit=4_000_000)
+glpl_inforce = Inforce(
+    n_policies=700,
+    terms=glpl_policy,
+    frequency=glpl_freq,
+    severity=glpl_sev,
+    name = "GLPL 2026 Bucket"
+)
+
+portfolio = Portfolio([wc_inforce, glpl_inforce])
+
+# Loss layer
+layer = LossLayer(portfolio, deductible=1_000_000, limit=4_000_000)
 
 # Test using Classical Monte Carlo
-mc_layer_loss = layer.compute_excess_loss(backend('classical', num_simulations=1_000_000))
+mc_layer_loss = layer.compute_excess_loss(qa.backend('classical', num_simulations=1_000_000))
 print(f"Classical layer expected loss: {mc_layer_loss}")
 
 # When ready, run a quantum session
-q_layer_loss = layer.compute_excess_loss(backend('quantum', confidence=0.95))
+q_layer_loss = layer.compute_excess_loss(qa.backend('quantum', confidence=0.95))
 print(f"Quantum layer expected loss: {q_layer_loss}")
 ```
 
-In this example, `ExcessLossModel` loads the specified distributions into a quantum state (using an n-qubit discrete approximation) and builds the circuit needed for the excess loss algorithm on a book of business. The user is not expected to know anything about quantum circuit design.
+In this example, `LossLayer` loads the specified distributions into a quantum state (using an n-qubit discrete approximation) and builds the circuit needed for the excess loss algorithm on a book of business. The user is not expected to know anything about quantum circuit design.
 
 ### Example: Risk Measures
 
-Calculate risk measures for the same portfolio:
+Calculate risk measures for the same portfolio loss layer:
 
 ```python
-from quactuary.pricing import RiskMeasureModel
-
-# Risk Measures
-layer_risk_metrics = RiskMeasureModel(portfolio, deductible=1_000_000, limit=4_000_000)
-
 # Test using Classical Monte Carlo
 with qa.use_backend('classical', num_simulations=1_000_000):
-  mc_layer_var = layer_risk_metrics.value_at_risk(0.95)
-  mc_layer_tvar = layer_risk_metrics.tail_value_at_risk(0.95)
+  mc_layer_var = layer.value_at_risk(0.95)
+  mc_layer_tvar = layer.tail_value_at_risk(0.95)
   print(f"Classical layer VaR: {mc_layer_var}")
   print(f"Classical layer TVaR: {mc_layer_tvar}")
 
 # Evaluate Using Quantum Amplitude Estimation
 with qa.use_backend('quantum', confidence=0.95):
-  q_layer_var = layer_risk_metrics.value_at_risk(0.95)
-  q_layer_tvar = layer_risk_metrics.tail_value_at_risk(0.95)
+  q_layer_var = layer.value_at_risk(0.95)
+  q_layer_tvar = layer.tail_value_at_risk(0.95)
   print(f"Quantum layer VaR: {q_layer_var}")
   print(f"Quantum layer TVaR: {q_layer_tvar}")
 ```
 
-In this example, `RiskMeasureModel` loads the specified distributions into a quantum state (using an n-qubit discrete approximation) and builds the circuit needed for the risk measures on the book of business. Again, no knowledge of quantum computing is needed and the interface integrates seamlessly into business workflows.
+Backends can be called as `ContextManager`s to be used across multiple statements. Again, all quantum circuits are taken care of behind the scenes.

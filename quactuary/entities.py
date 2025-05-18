@@ -12,10 +12,65 @@ Examples:
 """
 
 from dataclasses import dataclass
+from datetime import date
+from enum import Enum
 from typing import Optional
 
 from quactuary.distributions.frequency import FrequencyModel
 from quactuary.distributions.severity import SeverityModel
+
+
+@dataclass(frozen=True, slots=True)
+class ExposureBase:
+    """
+    Base class for exposure definitions.
+
+    Attributes:
+        name (str): Name of the exposure base.
+        description (str): Description of the exposure base.
+    """
+    name: str
+    unit: str
+    description: str
+
+
+# Predefined exposure bases
+PAYROLL = ExposureBase(name="Payroll", unit="USD",
+                       description="Total payroll amount.")
+SALES = ExposureBase(name="Sales", unit="USD",
+                     description="Total sales amount.")
+SQUARE_FOOTAGE = ExposureBase(
+    name="Square Footage", unit="sq ft", description="Total square footage.")
+VEHICLES = ExposureBase(name="Vehicles", unit="count",
+                        description="Total number of vehicles.")
+REPLACEMENT_VALUE = ExposureBase(
+    name="Replacement Value", unit="USD", description="Total replacement value.")
+NON_INFLATIONARY_UNIT = ExposureBase(
+    name="Non-Inflationary Unit", unit="unit", description="Non-inflationary unit of measure.")
+
+
+class LOB(str, Enum):
+    """
+    Enumeration of lines of business (LOB) for insurance policies.
+    """
+    GLPL = "General and Product Liability"
+    GL = "General Liability"
+    PL = "Product Liability"
+    WC = "Workers' Compensation"
+    CAuto = "Auto Liability"
+    EL = "Employers' Liability"
+    D_O = "Directors and Officers Liability"
+    E_O = "Errors and Omissions Liability"
+    CPP = "Commercial Property Package"
+    Cyber = "Cyber Liability"
+    EPLI = "Employment Practices Liability"
+    Umbrella = "Umbrella Liability"
+    PAuto = "Personal Auto"
+    PProperty = "Personal Property"
+    PPL = "Personal Property Liability"
+    PGL = "Personal General Liability"
+    PWC = "Personal Watercraft"
+    PWCPL = "Personal Watercraft Liability"
 
 
 @dataclass(frozen=True, slots=True)
@@ -31,37 +86,38 @@ class PolicyTerms:
         attachment (float): Attachment point for excess-of-loss.
         coverage (str): Coverage type (e.g., "OCC", "CLAIMS-MADE").
     """
-    per_occ_deductible: float = 0.0
-    coinsurance:        float = 1.00          # 1 → 100% insurer share
+    effective_date:     date  # Effective date of the policy
+    expiration_date:    date  # Expiration date of the policy
+    lob:                Optional[LOB] = None  # Line of business (optional)
+    # Exposure base (Payroll, Sales, Square Footage, Vehicles, Replacement Value etc.)
+    exposure_base:      Optional[ExposureBase] = None
+    # Exposure amount (e.g., limit, sum insured)
+    exposure_amount:    float = 0.0
+    retention_type:     str = "deductible"  # deductible / SIR
+    per_occ_retention:  float = 0.0  # retention per occurrence
+    agg_retention:      Optional[float] = None  # aggregate retention
+    corridor_retention: Optional[float] = None  # corridor retention
+    # 0 → 0% insured's share, 1.0 → 100% insured's share
+    coinsurance:        Optional[float] = None
+    # per-occurrence limit (None if unlimited)
     per_occ_limit:      Optional[float] = None
-    agg_limit:          Optional[float] = None
-    attachment:         float = 0.0         # for XoL layers
-    coverage:           str = "OCC"       # OCC / CLAIMS-MADE / etc.
+    agg_limit:          Optional[float] = None  # aggregate limit (Optional)
+    attachment:         float = 0.0  # for XoL layers
+    coverage:           str = "occ"  # occ (occurrence) / cm (claims-made)
+    notes:              str = ""  # Additional notes (ad hoc)
     # ...additional fields defined as needed...
-    # TODO: policy_dates: Dates of the policy (optional).
     # TODO: reinstatements: Reinstatement terms (optional).
     # TODO: corridors: Corridor terms (optional).
-    # TODO: lob: Line of business (optional).
-    # TODO: name: Name of the policy (optional).
-    # TODO: policy_number: Policy number (optional).
-    # TODO: insurer: Insurer name (optional).
-    # TODO: broker: Broker name (optional).
-    # TODO: underwriter: Underwriter name (optional).
-    # TODO: notes: Additional notes (optional).
-    # TODO: status: Status of the policy (e.g., "active", "inactive").
-    # TODO: effective_date: Effective date of the policy (optional).
-    # TODO: expiration_date: Expiration date of the policy (optional).
     # TODO: premium: Premium amount (optional).
     # TODO: commission: Commission percentage (optional).
     # TODO: taxes: Taxes applicable to the policy (optional).
     # TODO: endorsements: Endorsements applicable to the policy (optional).
-    # TODO: limits: Limits applicable to the policy (optional).
-    # TODO: deductibles: Deductibles applicable to the policy (optional).
     # TODO: exclusions: Exclusions applicable to the policy (optional).
     # TODO: endorsements: Endorsements applicable to the policy (optional).
     # TODO: sublimits: Sublimits applicable to the policy (optional).
-    # TODO: endorsements: Endorsements applicable to the policy (optional).
 
+
+# TODO: Add a Reinsurance policy dataclass.
 
 @dataclass(slots=True)
 class Inforce:
@@ -79,27 +135,22 @@ class Inforce:
         classical_sample(n_sims: int) -> np.ndarray: Monte Carlo aggregate loss sample.
     """
     n_policies:       int
-    freq:             FrequencyModel
-    sev:              SeverityModel
     terms:            PolicyTerms
+    frequency:             FrequencyModel
+    severity:              SeverityModel
     name:             str = "Unnamed Bucket"
 
-    # --- helper methods ---
-    def classical_sample(self, n_sims: int = 100_000):
+    def __len__(self):
         """
-        Generate Monte Carlo aggregate loss samples for the bucket.
-
-        Args:
-            n_sims (int, optional): Number of simulation runs. Defaults to 100000.
+        Get the number of policies in this bucket.
 
         Returns:
-            np.ndarray: Aggregate loss per simulation.
+            int: Number of policies in the bucket.
 
         Examples:
-            >>> samples = bucket.classical_sample(n_sims=50000)
+            >>> len(bucket)
         """
-        # Placeholder: implement sampling logic here
-        raise NotImplementedError("classical_sample is not yet implemented.")
+        return self.n_policies
 
 
 class Portfolio(list):
@@ -114,19 +165,17 @@ class Portfolio(list):
         >>> combined = p1 + p2
     """
 
-    def total_policies(self) -> int:
+    def __init__(self, buckets: list[Inforce]):
         """
-        Compute the total number of policies in the portfolio.
+        Initialize the portfolio with a list of in-force buckets.
 
-        Returns:
-            int: Sum of `n_policies` across all buckets.
+        Args:
+            buckets (list[Inforce]): List of `Inforce` objects.
 
         Examples:
-            >>> portfolio.total_policies()
-            1500
+            >>> portfolio = Portfolio([gl_inforce, wc_inforce])
         """
-        # Sum n_policies from each Inforce in the portfolio
-        return sum(bucket.n_policies for bucket in self)
+        super().__init__(buckets)
 
     def __add__(self, other):
         """
@@ -139,6 +188,32 @@ class Portfolio(list):
             Portfolio: New portfolio containing buckets from both.
 
         Examples:
-            >>> combined = p1 + p2
+            >>> combined = portfolio1 + portfolio2
+            >>> len(combined)
         """
         return Portfolio(list(self) + list(other))
+
+    def __len__(self):
+        """
+        Get the number of buckets in the portfolio.
+
+        Returns:
+            int: Number of `Inforce` objects in the portfolio.
+
+        Examples:
+            >>> len(portfolio)
+        """
+        return self.total_policies()
+
+    def total_policies(self) -> int:
+        """
+        Compute the total number of policies in the portfolio.
+
+        Returns:
+            int: Sum of `n_policies` across all buckets.
+
+        Examples:
+            >>> portfolio.total_policies()
+        """
+        # Sum n_policies from each Inforce in the portfolio
+        return sum(bucket.n_policies for bucket in self)

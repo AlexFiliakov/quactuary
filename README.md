@@ -9,12 +9,11 @@ _**Under active development**_ - We're crafting powerful solutions for Property 
 
 Sign up for our launch notification at [quactuary.com](https://quactuary.com/) and get early access to revolutionary actuarial tools.
 
-## Continuous Integration
-
 [![version](https://img.shields.io/github/v/tag/AlexFiliakov/quactuary?label=version&sort=semver)](https://github.com/AlexFiliakov/quactuary/releases)
 [![Lines of Code](https://img.shields.io/badge/dynamic/json?label=lines%20of%20code&url=https://raw.githubusercontent.com/AlexFiliakov/quactuary/main/loc.json&query=$.SUM.code&color=blue)](https://github.com/AlexFiliakov/quactuary)
 [![Tests](https://img.shields.io/github/actions/workflow/status/AlexFiliakov/quactuary/.github/workflows/python-tests.yml?branch=main)](https://github.com/AlexFiliakov/quactuary/actions)
 [![Coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/AlexFiliakov/quactuary/main/coverage.json)](https://github.com/AlexFiliakov/quactuary/actions)
+[![GitHub License](https://img.shields.io/github/license/AlexFiliakov/quactuary)](https://github.com/AlexFiliakov/quactuary/blob/main/LICENSE)
 
 ## Why *qu*Actuary?
 

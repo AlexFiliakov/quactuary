@@ -227,14 +227,15 @@ class Inforce:
             # 1 simulation: one tuple of severity values, one per policy
             freq_samples = [self.frequency.rvs()
                             for _ in range(self.n_policies)]
-            return tuple(self.severity.rvs(count) for count in freq_samples)
+            return tuple(self.severity.rvs(count)  # type: ignore[attr-defined]
+                         for count in freq_samples)
         else:
             # Multiple simulations: a tuple of tuples
             all_sims: list[tuple] = []
             for _ in range(n_sims):
                 freq_samples = [self.frequency.rvs()
                                 for _ in range(self.n_policies)]
-                sev_samples = tuple(self.severity.rvs(count)
+                sev_samples = tuple(self.severity.rvs(count)  # type: ignore[attr-defined]
                                     for count in freq_samples)
                 all_sims.append(sev_samples)
             return tuple(all_sims)
@@ -316,7 +317,7 @@ class Portfolio(list):
         """
         # Sum n_policies from each Inforce in the portfolio
         return sum(bucket.n_policies for bucket in self)
-    
+
     def rvs(self, n_sims: int = 1) -> tuple:
         """
         Generate random variates from all buckets in the portfolio.
@@ -338,5 +339,6 @@ class Portfolio(list):
             # Multiple simulations: a tuple of tuples
             grouped_by_sim = []
             for i in range(n_sims):
-                grouped_by_sim.append(tuple(bucket[i] for bucket in bucket_sims))
+                grouped_by_sim.append(
+                    tuple(bucket[i] for bucket in bucket_sims))
             return tuple(grouped_by_sim)

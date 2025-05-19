@@ -68,20 +68,20 @@ Calculate the expected excess loss for a portfolio above a $1M retention with a 
 
 ```python
 import quactuary as qa
-import quactuary.entities as entities
+import quactuary.book as book
 
-from quactuary.entities import (
+from quactuary.book import (
     ExposureBase, LOB, PolicyTerms, Inforce, Portfolio)
 from quactuary.distributions.frequency import Poisson, NegativeBinomial
 from quactuary.distributions.severity import Pareto, Lognormal
 
 
 # Workers’ Comp Bucket
-wc_policy = entities.PolicyTerms(
+wc_policy = book.PolicyTerms(
     effective_date='2026-01-01',
     expiration_date='2027-01-01',
     lob=LOB.WC,
-    exposure_base=entities.PAYROLL,
+    exposure_base=book.PAYROLL,
     exposure_amount=100_000_000,
     retention_type="deductible",
     per_occ_retention=500_000,
@@ -89,11 +89,11 @@ wc_policy = entities.PolicyTerms(
 )
 
 # General Liability Bucket
-glpl_policy = entities.PolicyTerms(
+glpl_policy = book.PolicyTerms(
     effective_date='2026-01-01',
     expiration_date='2027-01-01',
     lob=LOB.GLPL,
-    exposure_base=entities.SALES,
+    exposure_base=book.SALES,
     exposure_amount=10_000_000_000,
     retention_type="deductible",
     per_occ_retention=1_000_000,
@@ -106,7 +106,6 @@ wc_sev = Pareto(0, 40_000)
 
 glpl_freq = NegativeBinomial(50, 0.5)
 glpl_sev = Lognormal(2, 0, 100_000)
-
 
 # Book of Business
 wc_inforce = Inforce(
@@ -143,7 +142,7 @@ In this example, `LossLayer` loads the specified distributions into a quantum st
 
 ### Example: Risk Measures
 
-Calculate risk measures for the same portfolio loss layer:
+Calculate risk measures for the portfolio loss layer defined above:
 
 ```python
 # Test using Classical Monte Carlo

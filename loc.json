@@ -1,20 +1,20 @@
 {"header" : {
   "cloc_url"           : "github.com/AlDanial/cloc",
   "cloc_version"       : "1.98",
-  "elapsed_seconds"    : 0.0263810157775879,
+  "elapsed_seconds"    : 0.0267400741577148,
   "n_files"            : 34,
-  "n_lines"            : 3022,
-  "files_per_second"   : 1288.80556710348,
-  "lines_per_second"   : 114552.071287845},
+  "n_lines"            : 3138,
+  "files_per_second"   : 1271.49983950926,
+  "lines_per_second"   : 117351.955775884},
 "./quactuary/distributions/severity.py" :{
-  "blank": 204,
+  "blank": 223,
   "comment": 337,
-  "code": 224,
+  "code": 286,
   "language": "Python"},
 "./quactuary/distributions/frequency.py" :{
-  "blank": 143,
+  "blank": 154,
   "comment": 289,
-  "code": 186,
+  "code": 210,
   "language": "Python"},
 "./quactuary/book.py" :{
   "blank": 48,
@@ -177,7 +177,7 @@
   "code": 0,
   "language": "Python"},
 "SUM": {
-  "blank": 623,
+  "blank": 653,
   "comment": 1405,
-  "code": 994,
+  "code": 1080,
   "nFiles": 34} }

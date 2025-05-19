@@ -24,6 +24,8 @@ from scipy.stats import (invgamma, invgauss, invweibull, lognorm, pareto, t,
                          triang, uniform, weibull_min)
 from scipy.stats._distn_infrastructure import rv_frozen
 
+epsilon = 1e-12  # Small shift for discrete distributions
+
 
 @runtime_checkable
 class SeverityModel(Protocol):
@@ -59,7 +61,7 @@ class SeverityModel(Protocol):
         raise NotImplementedError
 
     @abstractmethod
-    def rvs(self, size: int = 1) -> np.ndarray:
+    def rvs(self, size: int = 1) -> pd.Series | float:
         """
         Draw random samples of claim losses.
 
@@ -72,7 +74,7 @@ class SeverityModel(Protocol):
         raise NotImplementedError
 
 
-class _ScipySevAdapter(SeverityModel):
+class _ScipySeverityAdapter(SeverityModel):
     """
     Adapter for a frozen SciPy distribution implementing SeverityModel.
 
@@ -98,7 +100,7 @@ class _ScipySevAdapter(SeverityModel):
         Returns:
             float: Probability density at x.
         """
-        return float(self._dist.pdf(x))
+        return float(self._dist.pdf(x))  # type: ignore[attr-defined]
 
     def cdf(self, x: float) -> float:
         """
@@ -110,9 +112,9 @@ class _ScipySevAdapter(SeverityModel):
         Returns:
             float: Cumulative probability at x.
         """
-        return float(self._dist.cdf(x))
+        return float(self._dist.cdf(x))  # type: ignore[attr-defined]
 
-    def rvs(self, size: int = 1) -> np.ndarray:
+    def rvs(self, size: int = 1) -> pd.Series | float:
         """
         Generate random variates using the wrapped distribution.
 
@@ -122,7 +124,8 @@ class _ScipySevAdapter(SeverityModel):
         Returns:
             np.ndarray: Sampled loss values.
         """
-        return self._dist.rvs(size=size)
+        samples = self._dist.rvs(size=size)
+        return pd.Series(samples) if size > 1 else samples[0]
 
 
 def to_severity_model(obj) -> SeverityModel:
@@ -143,10 +146,19 @@ def to_severity_model(obj) -> SeverityModel:
         ValueError: If sequence input is empty.
         TypeError: On unsupported input types.
     """
+    # 1) If it's a frozen scipy distribution, wrap it
+    if isinstance(obj, rv_frozen):
+        return _ScipySeverityAdapter(obj)
+
+    # 2) Otherwise if it's already one of our SeverityModels, return as‐is
     if isinstance(obj, SeverityModel):
         return obj
+
+    # 3) Scalars → ConstantSev
     if isinstance(obj, (int, float, np.integer, np.floating)):
-        return ConstantSev(float(obj))
+        return ConstantSeverity(float(obj))
+
+    # 4) Lists/arrays → EmpiricalSev
     if isinstance(obj, (list, np.ndarray, pd.Series)):
         if len(obj) == 0:
             raise ValueError(
@@ -156,8 +168,8 @@ def to_severity_model(obj) -> SeverityModel:
             probs = [1.0 / len(values)] * len(values)
             return EmpiricalSev(values, probs)
         raise TypeError(f"Cannot convert {obj!r} to SeverityModel")
-    if isinstance(obj, rv_frozen):
-        return _ScipySevAdapter(obj)
+
+    # 5) Anything else is an error
     raise TypeError(f"Cannot convert {obj!r} to SeverityModel")
 
 
@@ -224,28 +236,14 @@ class DiscretizedSeverity():
         return pmf
 
     def cdf(self, x: float) -> float:
-        """
-        Compute the cumulative distribution function (CDF) at a given count.
-
-        Args:
-            k (int): Number of claims.
-
-        Returns:
-            float: Probability of at most k claims.
-        """
         return sum(self._probs[i] for i in self._probs.keys() if i <= x)
 
-    def rvs(self, size: int = 1) -> np.ndarray:
-        """
-        Draw random samples from the frequency distribution.
-
-        Args:
-            size (int, optional): Number of samples to generate. Defaults to 1.
-
-        Returns:
-            np.ndarray: Array of sampled claim counts.
-        """
-        return np.random.choice(self._probs.keys(), p=self._probs.values(), size=size)
+    def rvs(self, size: int = 1) -> pd.Series | float:
+        samples = np.random.choice(
+            self._probs.keys(),  # type: ignore[attr-defined]
+            p=self._probs.values(),  # type: ignore[attr-defined]
+            size=size)
+        return pd.Series(samples) if size > 1 else samples[0]
 
     def __str__(self):
         return f"DiscretizedSeverityModel({self.sev_dist}, min_val={self.mid_x_vals[0]}, max_val={self.mid_x_vals[-1]}, bins={len(self.mid_x_vals)})"
@@ -271,7 +269,6 @@ def _get_binned_moments(bin_edges, sev_dist: SeverityModel):
 
     pmf = np.zeros_like(a)
     bin_mean = np.zeros_like(a)
-    epsilon = 1e-12  # Small shift for discrete distributions
 
     for i in range(len(a)):
         pmf[i] = sev_dist.cdf(b[i]) - sev_dist.cdf(a[i] - epsilon)
@@ -322,46 +319,20 @@ class Beta(SeverityModel):
         """
         self._dist = sp_beta(a, b, loc=loc, scale=scale)
 
-    def pdf(self, x: float) -> float:
-        """
-        Compute PDF at a given loss amount.
-
-        Args:
-            x (float): Loss amount.
-
-        Returns:
-            float: Density at x.
-        """
-        return float(self._dist.pdf(x))
-
-    def cdf(self, x: float) -> float:
-        """
-        Compute CDF at a given loss amount.
-
-        Args:
-            x (float): Loss amount.
-
-        Returns:
-            float: Cumulative probability at x.
-        """
-        return float(self._dist.cdf(x))
-
-    def rvs(self, size: int = 1) -> np.ndarray:
-        """
-        Generate random loss samples.
-
-        Args:
-            size (int, optional): Number of samples. Defaults to 1.
-
-        Returns:
-            np.ndarray: Sampled values.
-        """
-        return self._dist.rvs(size=size)
-
     def __str__(self):
         loc = self._dist.kwds.get('loc', 0.0)
         scale = self._dist.kwds.get('scale', 1.0)
         return f"Beta(a={self._dist.args[0]}, b={self._dist.args[1]}, loc={loc}, scale={scale})"
+
+    def pdf(self, x: float) -> float:
+        return float(self._dist.pdf(x))  # type: ignore[attr-defined]
+
+    def cdf(self, x: float) -> float:
+        return float(self._dist.cdf(x))  # type: ignore[attr-defined]
+
+    def rvs(self, size: int = 1) -> pd.Series | float:
+        samples = self._dist.rvs(size=size)
+        return pd.Series(samples) if size > 1 else samples[0]
 
 
 class ChiSquared(SeverityModel):
@@ -388,24 +359,25 @@ class ChiSquared(SeverityModel):
         """
         self._dist = chi2(df, loc=loc, scale=scale)
 
-    def pdf(self, x: float) -> float:
-        return float(self._dist.pdf(x))
-
-    def cdf(self, x: float) -> float:
-        return float(self._dist.cdf(x))
-
-    def rvs(self, size: int = 1) -> np.ndarray:
-        return self._dist.rvs(size=size)
-
     def __str__(self):
         loc = self._dist.kwds.get('loc', 0.0)
         scale = self._dist.kwds.get('scale', 1.0)
         return f"ChiSquared(df={self._dist.args[0]}, loc={self._dist.args[1]}, scale={self._dist.args[2]})"
 
+    def pdf(self, x: float) -> float:
+        return float(self._dist.pdf(x))  # type: ignore[attr-defined]
 
-class ConstantSev(SeverityModel):
+    def cdf(self, x: float) -> float:
+        return float(self._dist.cdf(x))  # type: ignore[attr-defined]
+
+    def rvs(self, size: int = 1) -> pd.Series | float:
+        samples = self._dist.rvs(size=size)
+        return pd.Series(samples) if size > 1 else samples[0]
+
+
+class ConstantSeverity(SeverityModel):
     """
-    Constant severity distribution producing a fixed loss amount.
+    Constant severity distribution producing a fixed severity.
 
     Args:
         value (float): Fixed loss amount per claim.
@@ -424,20 +396,23 @@ class ConstantSev(SeverityModel):
         """
         self.value = value
 
+    def __str__(self):
+        return f"ConstantSev(value={self.value})"
+
     def pdf(self, x: float) -> float:
         return 1.0 if x == self.value else 0.0
 
     def cdf(self, x: float) -> float:
         return 1.0 if x >= self.value else 0.0
 
-    def rvs(self, size: int = 1) -> np.ndarray:
-        return np.full(shape=size, fill_value=self.value)
+    def rvs(self, size: int = 1) -> pd.Series | float:
+        if size != 1:
+            return pd.Series([self.value]).repeat(size).reset_index(drop=True)
+        else:
+            return self.value
 
-    def __str__(self):
-        return f"ConstantSev(value={self.value})"
 
-
-class ContinuousUniformSev(SeverityModel):
+class ContinuousUniformSeverity(SeverityModel):
     """
     Continuous uniform distribution for claim severity.
 
@@ -449,22 +424,23 @@ class ContinuousUniformSev(SeverityModel):
         >>> ContinuousUniformSev(loc=100.0, scale=900.0).rvs(size=3)
     """
 
-    def __init__(self, loc: float = 0.0, scale: float = 1.0):
-        self._dist = uniform(loc=loc, scale=scale)
-
-    def pdf(self, x: float) -> float:
-        return float(self._dist.pdf(x))
-
-    def cdf(self, x: float) -> float:
-        return float(self._dist.cdf(x))
-
-    def rvs(self, size: int = 1) -> np.ndarray:
-        return self._dist.rvs(size=size)
-
     def __str__(self):
         loc = self._dist.kwds.get('loc', 0.0)
         scale = self._dist.kwds.get('scale', 1.0)
         return f"ContinuousUniformSev(loc={loc}, scale={scale})"
+
+    def __init__(self, loc: float = 0.0, scale: float = 1.0):
+        self._dist = uniform(loc=loc, scale=scale)
+
+    def pdf(self, x: float) -> float:
+        return float(self._dist.pdf(x))  # type: ignore[attr-defined]
+
+    def cdf(self, x: float) -> float:
+        return float(self._dist.cdf(x))  # type: ignore[attr-defined]
+
+    def rvs(self, size: int = 1) -> pd.Series | float:
+        samples = self._dist.rvs(size=size)
+        return pd.Series(samples) if size > 1 else samples[0]
 
 
 class EmpiricalSev(SeverityModel):
@@ -487,17 +463,20 @@ class EmpiricalSev(SeverityModel):
         self.values = list(values)
         self.probs = np.array(probs) / total
 
+    def __str__(self):
+        return f"EmpiricalSev(values={self.values}, probs={self.probs})"
+
     def pdf(self, x: float) -> float:
         return float(sum(self.probs[i] for i, v in enumerate(self.values) if v == x))
 
     def cdf(self, x: float) -> float:
         return float(sum(self.probs[i] for i, v in enumerate(self.values) if v <= x))
 
-    def rvs(self, size: int = 1) -> np.ndarray:
-        return np.random.choice(self.values, size=size, p=self.probs)
-
-    def __str__(self):
-        return f"EmpiricalSev(values={self.values}, probs={self.probs})"
+    def rvs(self, size: int = 1) -> pd.Series | float:
+        samples = np.random.choice(self.values,
+                                   p=self.probs,  # type: ignore[attr-defined]
+                                   size=size)
+        return pd.Series(samples) if size > 1 else samples[0]
 
 
 class Exponential(SeverityModel):
@@ -515,19 +494,20 @@ class Exponential(SeverityModel):
     def __init__(self, scale: float = 1.0, loc: float = 0.0):
         self._dist = expon(loc=loc, scale=scale)
 
-    def pdf(self, x: float) -> float:
-        return float(self._dist.pdf(x))
-
-    def cdf(self, x: float) -> float:
-        return float(self._dist.cdf(x))
-
-    def rvs(self, size: int = 1) -> np.ndarray:
-        return self._dist.rvs(size=size)
-
     def __str__(self):
         loc = self._dist.kwds.get('loc', 0.0)
         scale = self._dist.kwds.get('scale', 1.0)
         return f"Exponential(loc={loc}, scale={scale})"
+
+    def pdf(self, x: float) -> float:
+        return float(self._dist.pdf(x))  # type: ignore[attr-defined]
+
+    def cdf(self, x: float) -> float:
+        return float(self._dist.cdf(x))  # type: ignore[attr-defined]
+
+    def rvs(self, size: int = 1) -> pd.Series | float:
+        samples = self._dist.rvs(size=size)
+        return pd.Series(samples) if size > 1 else samples[0]
 
 
 class Gamma(SeverityModel):
@@ -546,19 +526,20 @@ class Gamma(SeverityModel):
     def __init__(self, shape: float, loc: float = 0.0, scale: float = 1.0):
         self._dist = sp_gamma(shape, loc=loc, scale=scale)
 
-    def pdf(self, x: float) -> float:
-        return float(self._dist.pdf(x))
-
-    def cdf(self, x: float) -> float:
-        return float(self._dist.cdf(x))
-
-    def rvs(self, size: int = 1) -> np.ndarray:
-        return self._dist.rvs(size=size)
-
     def __str__(self):
         loc = self._dist.kwds.get('loc', 0.0)
         scale = self._dist.kwds.get('scale', 1.0)
         return f"Gamma(shape={self._dist.args[0]}, loc={loc}, scale={scale})"
+
+    def pdf(self, x: float) -> float:
+        return float(self._dist.pdf(x))  # type: ignore[attr-defined]
+
+    def cdf(self, x: float) -> float:
+        return float(self._dist.cdf(x))  # type: ignore[attr-defined]
+
+    def rvs(self, size: int = 1) -> pd.Series | float:
+        samples = self._dist.rvs(size=size)
+        return pd.Series(samples) if size > 1 else samples[0]
 
 
 class InverseGamma(SeverityModel):
@@ -577,19 +558,20 @@ class InverseGamma(SeverityModel):
     def __init__(self, shape: float, loc: float = 0.0, scale: float = 1.0):
         self._dist = invgamma(shape, loc=loc, scale=scale)
 
-    def pdf(self, x: float) -> float:
-        return float(self._dist.pdf(x))
-
-    def cdf(self, x: float) -> float:
-        return float(self._dist.cdf(x))
-
-    def rvs(self, size: int = 1) -> np.ndarray:
-        return self._dist.rvs(size=size)
-
     def __str__(self):
         loc = self._dist.kwds.get('loc', 0.0)
         scale = self._dist.kwds.get('scale', 1.0)
         return f"InverseGamma(shape={self._dist.args[0]}, loc={loc}, scale={scale})"
+
+    def pdf(self, x: float) -> float:
+        return float(self._dist.pdf(x))  # type: ignore[attr-defined]
+
+    def cdf(self, x: float) -> float:
+        return float(self._dist.cdf(x))  # type: ignore[attr-defined]
+
+    def rvs(self, size: int = 1) -> pd.Series | float:
+        samples = self._dist.rvs(size=size)
+        return pd.Series(samples) if size > 1 else samples[0]
 
 
 class InverseGaussian(SeverityModel):
@@ -608,19 +590,20 @@ class InverseGaussian(SeverityModel):
         """Inverse Gaussian(mu, lam)."""
         self._dist = invgauss(shape, loc=loc, scale=scale)
 
-    def pdf(self, x: float) -> float:
-        return float(self._dist.pdf(x))
-
-    def cdf(self, x: float) -> float:
-        return float(self._dist.cdf(x))
-
-    def rvs(self, size: int = 1) -> np.ndarray:
-        return self._dist.rvs(size=size)
-
     def __str__(self):
         loc = self._dist.kwds.get('loc', 0.0)
         scale = self._dist.kwds.get('scale', 1.0)
         return f"InverseGaussian(shape={self._dist.args[0]}, loc={loc}, scale={scale})"
+
+    def pdf(self, x: float) -> float:
+        return float(self._dist.pdf(x))  # type: ignore[attr-defined]
+
+    def cdf(self, x: float) -> float:
+        return float(self._dist.cdf(x))  # type: ignore[attr-defined]
+
+    def rvs(self, size: int = 1) -> pd.Series | float:
+        samples = self._dist.rvs(size=size)
+        return pd.Series(samples) if size > 1 else samples[0]
 
 
 class InverseWeibull(SeverityModel):
@@ -639,19 +622,20 @@ class InverseWeibull(SeverityModel):
     def __init__(self, shape: float, loc: float = 0.0, scale: float = 1.0):
         self._dist = invweibull(shape, loc=loc, scale=scale)
 
-    def pdf(self, x: float) -> float:
-        return float(self._dist.pdf(x))
-
-    def cdf(self, x: float) -> float:
-        return float(self._dist.cdf(x))
-
-    def rvs(self, size: int = 1) -> np.ndarray:
-        return self._dist.rvs(size=size)
-
     def __str__(self):
         loc = self._dist.kwds.get('loc', 0.0)
         scale = self._dist.kwds.get('scale', 1.0)
         return f"InverseWeibull(shape={self._dist.args[0]}, loc={loc}, scale={scale})"
+
+    def pdf(self, x: float) -> float:
+        return float(self._dist.pdf(x))  # type: ignore[attr-defined]
+
+    def cdf(self, x: float) -> float:
+        return float(self._dist.cdf(x))  # type: ignore[attr-defined]
+
+    def rvs(self, size: int = 1) -> pd.Series | float:
+        samples = self._dist.rvs(size=size)
+        return pd.Series(samples) if size > 1 else samples[0]
 
 
 class Lognormal(SeverityModel):
@@ -670,23 +654,23 @@ class Lognormal(SeverityModel):
     def __init__(self, shape: float, loc: float = 0.0, scale: float = 1.0):
         self._dist = lognorm(shape, loc=loc, scale=scale)
 
-    def pdf(self, x: float) -> float:
-        return float(self._dist.pdf(x))
-
-    def cdf(self, x: float) -> float:
-        return float(self._dist.cdf(x))
-
-    def rvs(self, size: int = 1) -> np.ndarray:
-        return self._dist.rvs(size=size)
-
     def __str__(self):
         loc = self._dist.kwds.get('loc', 0.0)
         scale = self._dist.kwds.get('scale', 1.0)
         return f"Lognormal(shape={self._dist.args[0]}, loc={loc}, scale={scale})"
 
+    def pdf(self, x: float) -> float:
+        return float(self._dist.pdf(x))  # type: ignore[attr-defined]
+
+    def cdf(self, x: float) -> float:
+        return float(self._dist.cdf(x))  # type: ignore[attr-defined]
+
+    def rvs(self, size: int = 1) -> pd.Series | float:
+        samples = self._dist.rvs(size=size)
+        return pd.Series(samples) if size > 1 else samples[0]
 
 
-class MixSev(SeverityModel):
+class MixedSeverity(SeverityModel):
     """
     Mixture model combining multiple severity distributions.
 
@@ -701,7 +685,13 @@ class MixSev(SeverityModel):
 
     def __init__(self, components: list[SeverityModel], weights: list[float]):
         self.components = components
-        self.weights = weights
+        # Normalize weights to sum to 1
+        self.weights = weights / np.sum(weights)
+
+    def __str__(self):
+        components_str = ', '.join([str(comp) for comp in self.components])
+        weights_str = ', '.join([str(w) for w in self.weights])
+        return f"MixSev(components=[{components_str}], weights=[{weights_str}])"
 
     def pdf(self, x: float) -> float:
         return sum(w * comp.pdf(x) for comp, w in zip(self.components, self.weights))
@@ -709,15 +699,11 @@ class MixSev(SeverityModel):
     def cdf(self, x: float) -> float:
         return sum(w * comp.cdf(x) for comp, w in zip(self.components, self.weights))
 
-    def rvs(self, size: int = 1) -> np.ndarray:
+    def rvs(self, size: int = 1) -> pd.Series | float:
         choices = np.random.choice(
             len(self.components), size=size, p=self.weights)
-        return np.array([self.components[i].rvs(1)[0] for i in choices])
-
-    def __str__(self):
-        components_str = ', '.join([str(comp) for comp in self.components])
-        weights_str = ', '.join([str(w) for w in self.weights])
-        return f"MixSev(components=[{components_str}], weights=[{weights_str}])"
+        samples = [self.components[i].rvs(1) for i in choices]
+        return pd.Series(samples) if size > 1 else samples[0]
 
 
 class Pareto(SeverityModel):
@@ -736,19 +722,20 @@ class Pareto(SeverityModel):
     def __init__(self, b: float, loc: float = 0.0, scale: float = 1.0):
         self._dist = pareto(b, loc=loc, scale=scale)
 
-    def pdf(self, x: float) -> float:
-        return float(self._dist.pdf(x))
-
-    def cdf(self, x: float) -> float:
-        return float(self._dist.cdf(x))
-
-    def rvs(self, size: int = 1) -> np.ndarray:
-        return self._dist.rvs(size=size)
-
     def __str__(self):
         loc = self._dist.kwds.get('loc', 0.0)
         scale = self._dist.kwds.get('scale', 1.0)
         return f"Pareto(b={self._dist.args[0]}, loc={loc}, scale={scale})"
+
+    def pdf(self, x: float) -> float:
+        return float(self._dist.pdf(x))  # type: ignore[attr-defined]
+
+    def cdf(self, x: float) -> float:
+        return float(self._dist.cdf(x))  # type: ignore[attr-defined]
+
+    def rvs(self, size: int = 1) -> pd.Series | float:
+        samples = self._dist.rvs(size=size)
+        return pd.Series(samples) if size > 1 else samples[0]
 
 
 class StudentsT(SeverityModel):
@@ -767,23 +754,23 @@ class StudentsT(SeverityModel):
     def __init__(self, df: float, loc: float = 0.0, scale: float = 1.0):
         self._dist = t(df, loc=loc, scale=scale)
 
-    def pdf(self, x: float) -> float:
-        return float(self._dist.pdf(x))
-
-    def cdf(self, x: float) -> float:
-        return float(self._dist.cdf(x))
-
-    def rvs(self, size: int = 1) -> np.ndarray:
-        return self._dist.rvs(size=size)
-
     def __str__(self):
         loc = self._dist.kwds.get('loc', 0.0)
         scale = self._dist.kwds.get('scale', 1.0)
         return f"StudentsT(shape={self._dist.args[0]}, loc={loc}, scale={scale})"
 
+    def pdf(self, x: float) -> float:
+        return float(self._dist.pdf(x))  # type: ignore[attr-defined]
+
+    def cdf(self, x: float) -> float:
+        return float(self._dist.cdf(x))  # type: ignore[attr-defined]
+
+    def rvs(self, size: int = 1) -> pd.Series | float:
+        samples = self._dist.rvs(size=size)
+        return pd.Series(samples) if size > 1 else samples[0]
 
 
-class TriangularSev(SeverityModel):
+class TriangularSeverity(SeverityModel):
     """
     Triangular distribution for modeling bounded losses.
 
@@ -799,20 +786,20 @@ class TriangularSev(SeverityModel):
     def __init__(self, c: float, loc: float = 0.0, scale: float = 1.0):
         self._dist = triang(c, loc=loc, scale=scale)
 
-    def pdf(self, x: float) -> float:
-        return float(self._dist.pdf(x))
-
-    def cdf(self, x: float) -> float:
-        return float(self._dist.cdf(x))
-
-    def rvs(self, size: int = 1) -> np.ndarray:
-        return self._dist.rvs(size=size)
-
     def __str__(self):
         loc = self._dist.kwds.get('loc', 0.0)
         scale = self._dist.kwds.get('scale', 1.0)
         return f"TriangularSev(c={self._dist.args[0]}, loc={loc}, scale={scale})"
 
+    def pdf(self, x: float) -> float:
+        return float(self._dist.pdf(x))  # type: ignore[attr-defined]
+
+    def cdf(self, x: float) -> float:
+        return float(self._dist.cdf(x))  # type: ignore[attr-defined]
+
+    def rvs(self, size: int = 1) -> pd.Series | float:
+        samples = self._dist.rvs(size=size)
+        return pd.Series(samples) if size > 1 else samples[0]
 
 
 class Weibull(SeverityModel):
@@ -831,16 +818,17 @@ class Weibull(SeverityModel):
     def __init__(self, shape: float, loc: float = 0.0, scale: float = 1.0):
         self._dist = weibull_min(shape, loc=loc, scale=scale)
 
-    def pdf(self, x: float) -> float:
-        return float(self._dist.pdf(x))
-
-    def cdf(self, x: float) -> float:
-        return float(self._dist.cdf(x))
-
-    def rvs(self, size: int = 1) -> np.ndarray:
-        return self._dist.rvs(size=size)
-
     def __str__(self):
         loc = self._dist.kwds.get('loc', 0.0)
         scale = self._dist.kwds.get('scale', 1.0)
         return f"Weibull(shape={self._dist.args[0]}, loc={loc}, scale={scale})"
+
+    def pdf(self, x: float) -> float:
+        return float(self._dist.pdf(x))  # type: ignore[attr-defined]
+
+    def cdf(self, x: float) -> float:
+        return float(self._dist.cdf(x))  # type: ignore[attr-defined]
+
+    def rvs(self, size: int = 1) -> pd.Series | float:
+        samples = self._dist.rvs(size=size)
+        return pd.Series(samples) if size > 1 else samples[0]

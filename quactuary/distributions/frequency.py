@@ -25,6 +25,8 @@ from scipy.stats import poisson as sp_poisson
 from scipy.stats import randint, triang
 from scipy.stats._distn_infrastructure import rv_frozen
 
+epsilon = 1e-12  # Small shift for discrete distributions
+
 
 @runtime_checkable
 class FrequencyModel(Protocol):
@@ -61,7 +63,7 @@ class FrequencyModel(Protocol):
         return sum(self.pmf(i) for i in range(k + 1))
 
     @abstractmethod
-    def rvs(self, size: int = 1) -> np.ndarray:
+    def rvs(self, size: int = 1) -> pd.Series | np.integer:
         """
         Draw random samples from the frequency distribution.
 
@@ -75,7 +77,7 @@ class FrequencyModel(Protocol):
 
 
 # Adapter for any scipy.stats frozen distribution
-class _ScipyFreqAdapter(FrequencyModel):
+class _ScipyFrequencyAdapter(FrequencyModel):
     """
     Adapter for any frozen SciPy distribution, implementing FrequencyModel.
 
@@ -101,7 +103,7 @@ class _ScipyFreqAdapter(FrequencyModel):
         Returns:
             float: Probability of exactly k occurrences.
         """
-        return float(self._dist.pmf(k))
+        return float(self._dist.pmf(k))  # type: ignore[attr-defined]
 
     def cdf(self, k: int) -> float:
         """
@@ -113,9 +115,9 @@ class _ScipyFreqAdapter(FrequencyModel):
         Returns:
             float: Probability of at most k occurrences.
         """
-        return float(self._dist.cdf(k))
+        return float(self._dist.cdf(k))  # type: ignore[attr-defined]
 
-    def rvs(self, size: int = 1) -> np.ndarray:
+    def rvs(self, size: int = 1) -> pd.Series | np.integer:
         """
         Generate random variates from the wrapped distribution.
 
@@ -125,7 +127,8 @@ class _ScipyFreqAdapter(FrequencyModel):
         Returns:
             np.ndarray: Array of random variates.
         """
-        return self._dist.rvs(size=size)
+        samples = self._dist.rvs(size=size)
+        return pd.Series(self._dist.rvs(size=size)) if size > 1 else samples[0]
 
 
 # Convenience function to convert various inputs into a FrequencyModel
@@ -154,7 +157,7 @@ def to_frequency_model(obj) -> FrequencyModel:
     if isinstance(obj, FrequencyModel):
         return obj
     if isinstance(obj, (int, np.integer)):
-        return DeterministicFreq(int(obj))
+        return DeterministicFrequency(obj)    # type: ignore[attr-defined]
     if isinstance(obj, (list, np.ndarray, pd.Series)):
         if len(obj) == 0:
             raise ValueError(
@@ -163,7 +166,7 @@ def to_frequency_model(obj) -> FrequencyModel:
             return EmpiricalFreq({int(k): 1.0 / len(obj) for k in obj})
         raise TypeError(f"Cannot convert {obj!r} to FrequencyModel")
     if isinstance(obj, rv_frozen):
-        return _ScipyFreqAdapter(obj)
+        return _ScipyFrequencyAdapter(obj)
     raise TypeError(f"Cannot convert {obj!r} to FrequencyModel")
 
 
@@ -191,47 +194,21 @@ class Binomial(FrequencyModel):
         """
         self._dist = binom(n, p)
 
-    def pmf(self, k: int) -> float:
-        """
-        Compute the probability mass at k successes.
-
-        Args:
-            k (int): Number of observed successes.
-
-        Returns:
-            float: PMF value.
-        """
-        return float(self._dist.pmf(k))
-
-    def cdf(self, k: int) -> float:
-        """
-        Compute cumulative probability of up to k successes.
-
-        Args:
-            k (int): Number of successes.
-
-        Returns:
-            float: CDF value.
-        """
-        return float(self._dist.cdf(k))
-
-    def rvs(self, size: int = 1) -> np.ndarray:
-        """
-        Draw random samples of success counts.
-
-        Args:
-            size (int, optional): Number of samples. Defaults to 1.
-
-        Returns:
-            np.ndarray: Sampled counts.
-        """
-        return self._dist.rvs(size=size)
-
     def __str__(self):
         return f"Binomial(n={self._dist.args[0]}, p={self._dist.args[1]})"
 
+    def pmf(self, k: int) -> float:
+        return float(self._dist.pmf(k))  # type: ignore[attr-defined]
 
-class DeterministicFreq(FrequencyModel):
+    def cdf(self, k: int) -> float:
+        return float(self._dist.cdf(k))  # type: ignore[attr-defined]
+
+    def rvs(self, size: int = 1) -> pd.Series | np.integer:
+        samples = self._dist.rvs(size=size)
+        return pd.Series(samples) if size > 1 else samples[0]
+
+
+class DeterministicFrequency(FrequencyModel):
     """
     Deterministic frequency distribution producing a fixed count.
 
@@ -243,14 +220,17 @@ class DeterministicFreq(FrequencyModel):
         1.0
     """
 
-    def __init__(self, value: int):
+    def __init__(self, value: np.integer):
         """
         Initialize a deterministic frequency model.
 
         Args:
-            value (int): Fixed claim count to return.
+            value (np.integer): Fixed claim count to return.
         """
-        self.value = value
+        self.value = np.int64(value)
+
+    def __str__(self):
+        return f"DeterministicFreq(value={self.value})"
 
     def pmf(self, k: int) -> float:
         return 1.0 if k == self.value else 0.0
@@ -258,14 +238,14 @@ class DeterministicFreq(FrequencyModel):
     def cdf(self, k: int) -> float:
         return 1.0 if k >= self.value else 0.0
 
-    def rvs(self, size: int = 1) -> np.ndarray:
-        return np.full(shape=size, fill_value=self.value, dtype=int)
+    def rvs(self, size: int = 1) -> pd.Series | np.integer:
+        if size != 1:
+            return pd.Series([self.value]).repeat(size).reset_index(drop=True)
+        else:
+            return self.value
 
-    def __str__(self):
-        return f"DeterministicFreq(value={self.value})"
 
-
-class DiscreteUniformFreq(FrequencyModel):
+class DiscreteUniformFrequency(FrequencyModel):
     """
     Discrete uniform distribution over integer counts.
 
@@ -285,17 +265,18 @@ class DiscreteUniformFreq(FrequencyModel):
         """
         self._dist = randint(low, high)
 
-    def pmf(self, k: int) -> float:
-        return float(self._dist.pmf(k))
-
-    def cdf(self, k: int) -> float:
-        return float(self._dist.cdf(k))
-
-    def rvs(self, size: int = 1) -> np.ndarray:
-        return self._dist.rvs(size=size)
-
     def __str__(self):
         return f"DiscreteUniformFreq(low={self._dist.args[0]}, high={self._dist.args[1]})"
+
+    def pmf(self, k: int) -> float:
+        return float(self._dist.pmf(k))  # type: ignore[attr-defined]
+
+    def cdf(self, k: int) -> float:
+        return float(self._dist.cdf(k))  # type: ignore[attr-defined]
+
+    def rvs(self, size: int = 1) -> pd.Series | np.integer:
+        samples = self._dist.rvs(size=size)
+        return pd.Series(samples) if size > 1 else samples[0]
 
 
 class EmpiricalFreq(FrequencyModel):
@@ -319,17 +300,18 @@ class EmpiricalFreq(FrequencyModel):
         self._keys = list(pmf_values.keys())
         self._probs = np.array([pmf_values[k] for k in self._keys])
 
+    def __str__(self):
+        return f"EmpiricalFreq(pmf_values={self.pmf_values})"
+
     def pmf(self, k: int) -> float:
         return self.pmf_values.get(k, 0.0)
 
     def cdf(self, k: int) -> float:
         return sum(self.pmf_values.get(i, 0.0) for i in range(k + 1))
 
-    def rvs(self, size: int = 1) -> np.ndarray:
-        return np.random.choice(self._keys, p=self._probs, size=size)
-
-    def __str__(self):
-        return f"EmpiricalFreq(pmf_values={self.pmf_values})"
+    def rvs(self, size: int = 1) -> pd.Series | np.integer:
+        samples = np.random.choice(self._keys, p=self._probs, size=size)
+        return pd.Series(samples) if size > 1 else samples[0]
 
 
 class Geometric(FrequencyModel):
@@ -350,17 +332,18 @@ class Geometric(FrequencyModel):
         """
         self._dist = geom(p)
 
-    def pmf(self, k: int) -> float:
-        return float(self._dist.pmf(k))
-
-    def cdf(self, k: int) -> float:
-        return float(self._dist.cdf(k))
-
-    def rvs(self, size: int = 1) -> np.ndarray:
-        return self._dist.rvs(size=size)
-
     def __str__(self):
         return f"Geometric(p={self._dist.args[0]})"
+
+    def pmf(self, k: int) -> float:
+        return float(self._dist.pmf(k))  # type: ignore[attr-defined]
+
+    def cdf(self, k: int) -> float:
+        return float(self._dist.cdf(k))  # type: ignore[attr-defined]
+
+    def rvs(self, size: int = 1) -> pd.Series | np.integer:
+        samples = self._dist.rvs(size=size)
+        return pd.Series(samples) if size > 1 else samples[0]
 
 
 class Hypergeometric(FrequencyModel):
@@ -380,20 +363,21 @@ class Hypergeometric(FrequencyModel):
         """Hypergeometric(M, n, N)."""
         self._dist = hypergeom(M=M, n=n, N=N)
 
-    def pmf(self, k: int) -> float:
-        return float(self._dist.pmf(k))
-
-    def cdf(self, k: int) -> float:
-        return float(self._dist.cdf(k))
-
-    def rvs(self, size: int = 1) -> np.ndarray:
-        return self._dist.rvs(size=size)
-
     def __str__(self):
         return f"Hypergeometric(M={self._dist.args[0]}, n={self._dist.args[1]}, N={self._dist.args[2]})"
 
+    def pmf(self, k: int) -> float:
+        return float(self._dist.pmf(k))  # type: ignore[attr-defined]
 
-class MixFreq(FrequencyModel):
+    def cdf(self, k: int) -> float:
+        return float(self._dist.cdf(k))  # type: ignore[attr-defined]
+
+    def rvs(self, size: int = 1) -> pd.Series | np.integer:
+        samples = self._dist.rvs(size=size)
+        return pd.Series(samples) if size > 1 else samples[0]
+
+
+class MixedFrequency(FrequencyModel):
     """
     Mixture model combining multiple frequency distributions.
 
@@ -411,7 +395,11 @@ class MixFreq(FrequencyModel):
         Mixture of multiple frequency models, with 'weights' summing to 1.
         """
         self.components = components
-        self.weights = weights
+        # Normalize weights to sum to 1
+        self.weights = weights / np.sum(weights)
+
+    def __str__(self):
+        return f"MixFreq(components={self.components}, weights={self.weights})"
 
     def pmf(self, k: int) -> float:
         return sum(w * comp.pmf(k) for comp, w in zip(self.components, self.weights))
@@ -419,13 +407,11 @@ class MixFreq(FrequencyModel):
     def cdf(self, k: int) -> float:
         return sum(w * comp.cdf(k) for comp, w in zip(self.components, self.weights))
 
-    def rvs(self, size: int = 1) -> np.ndarray:
+    def rvs(self, size: int = 1) -> pd.Series | np.integer:
         choices = np.random.choice(
             len(self.components), size=size, p=self.weights)
-        return np.array([self.components[idx].rvs(1)[0] for idx in choices])
-
-    def __str__(self):
-        return f"MixFreq(components={self.components}, weights={self.weights})"
+        samples = [self.components[idx].rvs(1) for idx in choices]
+        return pd.Series(samples) if size > 1 else samples[0]
 
 
 class NegativeBinomial(FrequencyModel):
@@ -444,17 +430,18 @@ class NegativeBinomial(FrequencyModel):
         """Negative binomial with 'r' failures and success probability 'p'."""
         self._dist = nbinom(r, p)
 
-    def pmf(self, k: int) -> float:
-        return float(self._dist.pmf(k))
-
-    def cdf(self, k: int) -> float:
-        return float(self._dist.cdf(k))
-
-    def rvs(self, size: int = 1) -> np.ndarray:
-        return self._dist.rvs(size=size)
-
     def __str__(self):
         return f"NegativeBinomial(r={self._dist.args[0]}, p={self._dist.args[1]})"
+
+    def pmf(self, k: int) -> float:
+        return float(self._dist.pmf(k))  # type: ignore[attr-defined]
+
+    def cdf(self, k: int) -> float:
+        return float(self._dist.cdf(k))  # type: ignore[attr-defined]
+
+    def rvs(self, size: int = 1) -> pd.Series | np.integer:
+        samples = self._dist.rvs(size=size)
+        return pd.Series(samples) if size > 1 else samples[0]
 
 
 class PanjerABk(FrequencyModel):
@@ -530,48 +517,24 @@ class PanjerABk(FrequencyModel):
             self.cdf_vals.append(cum)
         # (Note: length of pmf list is the highest computed support + 1)
 
-    def pmf(self, n: int) -> float:
-        """
-        Compute the probability mass function (PMF) at a given count.
+    def __str__(self):
+        return f"PanjerABk(a={self.a}, b={self.b}, k={self.k})"
 
-        Args:
-            n (int): Count at which to evaluate the PMF.
-
-        Returns:
-            float: Probability P(N = n).
-        """
-        if n < 0 or n >= len(self.pmf_vals):
+    def pmf(self, k: int) -> float:
+        if k < 0 or k >= len(self.pmf_vals):
             return 0.0
-        return self.pmf_vals[n]
+        return self.pmf_vals[k]
 
-    def cdf(self, n: int) -> float:
-        """
-        Compute the cumulative distribution function (CDF) at a given count.
-
-        Args:
-            n (int): Count at which to evaluate the CDF.
-
-        Returns:
-            float: Cumulative probability P(N <= n).
-        """
-        if n < 0:
+    def cdf(self, k: int) -> float:
+        if k < 0:
             return 0.0
-        if n >= len(self.cdf_vals) - 1:
+        if k >= len(self.cdf_vals) - 1:
             # If n is beyond our computed range, return 1.0 (all mass is within range by design)
             return 1.0
-        return self.cdf_vals[n]
+        return self.cdf_vals[k]
 
-    def rvs(self, size: int = 1):
-        """
-        Draw random samples from the distribution.
-
-        Args:
-            size (int, optional): Number of samples to generate. Defaults to 1.
-
-        Returns:
-            int or np.ndarray: A single sample if size = 1, otherwise an array of sampled counts.
-        """
-        samples = np.zeros(size, dtype=int)
+    def rvs(self, size: int = 1) -> pd.Series | np.integer:
+        samples = pd.Series(np.zeros(size, dtype=int))
         for i in range(size):
             u = random.random()
             # Find smallest index where CDF >= u
@@ -581,10 +544,10 @@ class PanjerABk(FrequencyModel):
                 if F >= u:
                     samples[i] = j
                     break
-        return samples if size > 1 else samples[0]
-
-    def __str__(self):
-        return f"PanjerABk(a={self.a}, b={self.b}, k={self.k})"
+        if size > 1:
+            return samples
+        else:
+            return samples.iloc[0]  # type: ignore[attr-defined]
 
 
 class Poisson(FrequencyModel):
@@ -602,20 +565,21 @@ class Poisson(FrequencyModel):
         """Poisson(mu)."""
         self._dist = sp_poisson(mu)
 
-    def pmf(self, k: int) -> float:
-        return float(self._dist.pmf(k))
-
-    def cdf(self, k: int) -> float:
-        return float(self._dist.cdf(k))
-
-    def rvs(self, size: int = 1) -> np.ndarray:
-        return self._dist.rvs(size=size)
-
     def __str__(self):
         return f"Poisson(mu={self._dist.args[0]})"
 
+    def pmf(self, k: int) -> float:
+        return float(self._dist.pmf(k))  # type: ignore[attr-defined]
 
-class TriangularFreq(FrequencyModel):
+    def cdf(self, k: int) -> float:
+        return float(self._dist.cdf(k))  # type: ignore[attr-defined]
+
+    def rvs(self, size: int = 1) -> pd.Series | np.integer:
+        samples = self._dist.rvs(size=size)
+        return pd.Series(samples) if size > 1 else samples[0]
+
+
+class TriangularFrequency(FrequencyModel):
     """
     Triangular distribution for approximate discrete counts.
 
@@ -638,16 +602,19 @@ class TriangularFreq(FrequencyModel):
         """
         self._dist = triang(c, loc=loc, scale=scale)
 
-    def pmf(self, k: int) -> float:
-        return 0.0  # continuous distribution → no discrete probability mass
-
-    def cdf(self, k: int) -> float:
-        return float(self._dist.cdf(k))
-
-    def rvs(self, size: int = 1) -> np.ndarray:
-        return np.round(self._dist.rvs(size=size)).astype(int)
-
     def __str__(self):
         loc = self._dist.kwds.get('loc', 0.0)
         scale = self._dist.kwds.get('scale', 1.0)
         return f"TriangularFreq(c={self._dist.args[0]}, loc={loc}, scale={scale})"
+
+    def pmf(self, k: int) -> float:
+        return self._dist.cdf(k + 0.5 - epsilon) - self._dist.cdf(k - 0.5)
+        return 0.0  # continuous distribution → no discrete probability mass
+
+    def cdf(self, k: int) -> float:
+        # type: ignore[attr-defined]
+        return float(self._dist.cdf(k + 0.5 - epsilon))
+
+    def rvs(self, size: int = 1) -> pd.Series | np.integer:
+        samples = np.round(self._dist.rvs(size=size)).astype(int)
+        return pd.Series(samples) if size > 1 else samples[0]

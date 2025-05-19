@@ -124,7 +124,7 @@ class PolicyTerms:
 
     def __str__(self) -> str:
         output = f"Effective Date: {self.effective_date}\n" + \
-                 f"Expiration Date: {self.expiration_date}\n"
+            f"Expiration Date: {self.expiration_date}\n"
         if self.lob:
             output += f"LoB: {self.lob}\n"
         if self.exposure_base:
@@ -168,8 +168,8 @@ class Inforce:
     """
     n_policies:       int
     terms:            PolicyTerms
-    frequency:             FrequencyModel
-    severity:              SeverityModel
+    frequency:        FrequencyModel
+    severity:         SeverityModel
     name:             str = "Unnamed Bucket"
 
     def __add__(self, other):
@@ -209,6 +209,35 @@ class Inforce:
         for pol_detail in str(self.terms).splitlines():
             output += f"  - {pol_detail}\n"
         return output
+
+    def rvs(self, n_sims: int = 1) -> tuple:
+        """
+        Generate random variates from frequency and severity, returning aggregate losses.
+
+        Args:
+            n_sims (int): Number of simulations to run.
+
+        Returns:
+            tuple: Tuple containing frequency and severity samples.
+
+        Examples:
+            >>> bucket.rvs(n_sims=1_000)
+        """
+        if n_sims == 1:
+            # 1 simulation: one tuple of severity values, one per policy
+            freq_samples = [self.frequency.rvs()
+                            for _ in range(self.n_policies)]
+            return tuple(self.severity.rvs(count) for count in freq_samples)
+        else:
+            # Multiple simulations: a tuple of tuples
+            all_sims: list[tuple] = []
+            for _ in range(n_sims):
+                freq_samples = [self.frequency.rvs()
+                                for _ in range(self.n_policies)]
+                sev_samples = tuple(self.severity.rvs(count)
+                                    for count in freq_samples)
+                all_sims.append(sev_samples)
+            return tuple(all_sims)
 
 
 class Portfolio(list):

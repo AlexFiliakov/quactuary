@@ -152,7 +152,7 @@ def to_frequency_model(obj) -> FrequencyModel:
 
     Examples:
         >>> to_frequency_model(5)
-        DeterministicFreq(5)
+        DeterministicFrequency(5)
     """
     if isinstance(obj, FrequencyModel):
         return obj
@@ -163,7 +163,7 @@ def to_frequency_model(obj) -> FrequencyModel:
             raise ValueError(
                 "Empty list or array cannot be converted to FrequencyModel")
         if all(isinstance(x, (int, np.integer)) for x in obj):
-            return EmpiricalFreq({int(k): 1.0 / len(obj) for k in obj})
+            return EmpiricalFrequency({int(k): 1.0 / len(obj) for k in obj})
         raise TypeError(f"Cannot convert {obj!r} to FrequencyModel")
     if isinstance(obj, rv_frozen):
         return _ScipyFrequencyAdapter(obj)
@@ -216,7 +216,7 @@ class DeterministicFrequency(FrequencyModel):
         value (int): Constant number of claims.
 
     Examples:
-        >>> DeterministicFreq(2).pmf(2)
+        >>> DeterministicFrequency(2).pmf(2)
         1.0
     """
 
@@ -230,7 +230,7 @@ class DeterministicFrequency(FrequencyModel):
         self.value = np.int64(value)
 
     def __str__(self):
-        return f"DeterministicFreq(value={self.value})"
+        return f"DeterministicFrequency(value={self.value})"
 
     def pmf(self, k: int) -> float:
         return 1.0 if k == self.value else 0.0
@@ -254,7 +254,7 @@ class DiscreteUniformFrequency(FrequencyModel):
         high (int, optional): Upper bound (exclusive). Defaults to 2.
 
     Examples:
-        >>> model = DiscreteUniformFreq(1, 5)
+        >>> model = DiscreteUniformFrequency(1, 5)
         >>> model.pmf(3)
         0.25
     """
@@ -266,7 +266,7 @@ class DiscreteUniformFrequency(FrequencyModel):
         self._dist = randint(low, high)
 
     def __str__(self):
-        return f"DiscreteUniformFreq(low={self._dist.args[0]}, high={self._dist.args[1]})"
+        return f"DiscreteUniformFrequency(low={self._dist.args[0]}, high={self._dist.args[1]})"
 
     def pmf(self, k: int) -> float:
         return float(self._dist.pmf(k))  # type: ignore[attr-defined]
@@ -279,7 +279,7 @@ class DiscreteUniformFrequency(FrequencyModel):
         return pd.Series(samples) if size > 1 else samples[0]
 
 
-class EmpiricalFreq(FrequencyModel):
+class EmpiricalFrequency(FrequencyModel):
     """
     Empirical frequency distribution defined by discrete probabilities.
 
@@ -290,7 +290,7 @@ class EmpiricalFreq(FrequencyModel):
         ValueError: If probabilities do not sum to 1.
 
     Examples:
-        >>> EmpiricalFreq({0: 0.2, 1: 0.8}).rvs(size=5)
+        >>> EmpiricalFrequency({0: 0.2, 1: 0.8}).rvs(size=5)
         array([0, 1, 1, 1, 0])
     """
 
@@ -301,7 +301,7 @@ class EmpiricalFreq(FrequencyModel):
         self._probs = np.array([pmf_values[k] for k in self._keys])
 
     def __str__(self):
-        return f"EmpiricalFreq(pmf_values={self.pmf_values})"
+        return f"EmpiricalFrequency(pmf_values={self.pmf_values})"
 
     def pmf(self, k: int) -> float:
         return self.pmf_values.get(k, 0.0)
@@ -386,7 +386,7 @@ class MixedFrequency(FrequencyModel):
         weights (list[float]): Mixing weights summing to 1.
 
     Examples:
-        >>> mix = MixFreq([Poisson(2), Poisson(5)], [0.4, 0.6])
+        >>> mix = MixedFrequency([Poisson(2), Poisson(5)], [0.4, 0.6])
         >>> mix.pmf(3)
     """
 
@@ -399,7 +399,7 @@ class MixedFrequency(FrequencyModel):
         self.weights = weights / np.sum(weights)
 
     def __str__(self):
-        return f"MixFreq(components={self.components}, weights={self.weights})"
+        return f"MixedFrequency(components={self.components}, weights={self.weights})"
 
     def pmf(self, k: int) -> float:
         return sum(w * comp.pmf(k) for comp, w in zip(self.components, self.weights))
@@ -592,7 +592,7 @@ class TriangularFrequency(FrequencyModel):
         This continuous distribution is rounded to integers for PMF and sampling.
 
     Examples:
-        >>> TriangularFreq(c=0.5, loc=1, scale=4).rvs(size=3)
+        >>> TriangularFrequency(c=0.5, loc=1, scale=4).rvs(size=3)
     """
 
     def __init__(self, c: float, loc: float = 0.0, scale: float = 1.0):
@@ -605,7 +605,7 @@ class TriangularFrequency(FrequencyModel):
     def __str__(self):
         loc = self._dist.kwds.get('loc', 0.0)
         scale = self._dist.kwds.get('scale', 1.0)
-        return f"TriangularFreq(c={self._dist.args[0]}, loc={loc}, scale={scale})"
+        return f"TriangularFrequency(c={self._dist.args[0]}, loc={loc}, scale={scale})"
 
     def pmf(self, k: int) -> float:
         return self._dist.cdf(k + 0.5 - epsilon) - self._dist.cdf(k - 0.5)

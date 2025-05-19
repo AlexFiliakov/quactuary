@@ -13,7 +13,7 @@ from scipy.stats import triang as sp_triang
 from quactuary.distributions.frequency import (Binomial,
                                                DeterministicFrequency,
                                                DiscreteUniformFrequency,
-                                               EmpiricalFreq, Geometric,
+                                               EmpiricalFrequency, Geometric,
                                                Hypergeometric, MixedFrequency,
                                                NegativeBinomial, PanjerABk,
                                                Poisson, TriangularFrequency)
@@ -66,7 +66,7 @@ def test_discrete_uniform_freq():
 
 def test_empirical_freq():
     pmf_vals = {0: 0.2, 1: 0.8}
-    model = EmpiricalFreq(pmf_vals)
+    model = EmpiricalFrequency(pmf_vals)
     assert model.pmf(0) == pytest.approx(0.2)
     assert model.pmf(2) == 0.0
     assert model.cdf(0) == pytest.approx(0.2)
@@ -232,11 +232,11 @@ def test_to_frequency_model_scalar_npint():
 
 
 def test_to_frequency_model_list():
-    from quactuary.distributions.frequency import (EmpiricalFreq,
+    from quactuary.distributions.frequency import (EmpiricalFrequency,
                                                    to_frequency_model)
 
     model = to_frequency_model([1, 2, 3])
-    assert isinstance(model, EmpiricalFreq)
+    assert isinstance(model, EmpiricalFrequency)
     assert model.pmf(1) == pytest.approx(1/3)
     assert model.pmf(2) == pytest.approx(1/3)
     assert model.pmf(3) == pytest.approx(1/3)
@@ -244,11 +244,11 @@ def test_to_frequency_model_list():
 
 
 def test_to_frequency_model_nparray():
-    from quactuary.distributions.frequency import (EmpiricalFreq,
+    from quactuary.distributions.frequency import (EmpiricalFrequency,
                                                    to_frequency_model)
 
     model = to_frequency_model(np.array([1, 2, 3]))
-    assert isinstance(model, EmpiricalFreq)
+    assert isinstance(model, EmpiricalFrequency)
     assert model.pmf(1) == pytest.approx(1/3)
     assert model.pmf(2) == pytest.approx(1/3)
     assert model.pmf(3) == pytest.approx(1/3)
@@ -258,11 +258,11 @@ def test_to_frequency_model_nparray():
 def test_to_frequency_model_series():
     import pandas as pd
 
-    from quactuary.distributions.frequency import (EmpiricalFreq,
+    from quactuary.distributions.frequency import (EmpiricalFrequency,
                                                    to_frequency_model)
     data = pd.Series([1, 2, 3])
     model = to_frequency_model(data)
-    assert isinstance(model, EmpiricalFreq)
+    assert isinstance(model, EmpiricalFrequency)
     assert model.pmf(1) == pytest.approx(1/3)
     assert model.pmf(2) == pytest.approx(1/3)
     assert model.pmf(3) == pytest.approx(1/3)
@@ -292,12 +292,12 @@ def test_to_frequency_model_model_returned():
 
 
 def test_to_frequency_model_empirical_list():
-    from quactuary.distributions.frequency import (EmpiricalFreq,
+    from quactuary.distributions.frequency import (EmpiricalFrequency,
                                                    to_frequency_model)
 
     data = [1, 2, 3]
     model = to_frequency_model(data)
-    assert isinstance(model, EmpiricalFreq)
+    assert isinstance(model, EmpiricalFrequency)
     for i in data:
         assert model.pmf(i) == pytest.approx(1/3)
 

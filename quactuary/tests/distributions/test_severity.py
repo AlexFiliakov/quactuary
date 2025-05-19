@@ -19,11 +19,12 @@ from quactuary.distributions.severity import (Beta, ChiSquared,
                                               ConstantSeverity,
                                               ContinuousUniformSeverity,
                                               DiscretizedSeverity,
-                                              EmpiricalSev, Exponential, Gamma,
-                                              InverseGamma, InverseGaussian,
-                                              InverseWeibull, Lognormal,
-                                              MixedSeverity, Pareto, StudentsT,
-                                              TriangularSeverity, Weibull)
+                                              EmpiricalSeverity, Exponential,
+                                              Gamma, InverseGamma,
+                                              InverseGaussian, InverseWeibull,
+                                              Lognormal, MixedSeverity, Pareto,
+                                              StudentsT, TriangularSeverity,
+                                              Weibull)
 
 
 def test_discreteized_severity_model():
@@ -44,7 +45,7 @@ def test_discreteized_severity_model():
     # Test the DiscretizedSeverityModel with an EmpiricalSev distribution
     values = [0.0, 5.0, 10.0]
     probs = [0.2, 0.3, 0.5]
-    model = EmpiricalSev(values, probs)
+    model = EmpiricalSeverity(values, probs)
     discretized_model = DiscretizedSeverity(
         model, min_val=0, max_val=10, bins=3)
     # The distribution gets transformed to bin midpoints
@@ -149,7 +150,7 @@ def test_continous_uniform_severity():
 def test_empirical_severity():
     values = [0.0, 5.0, 10.0]
     probs = [0.2, 0.3, 0.5]
-    model = EmpiricalSev(values, probs)
+    model = EmpiricalSeverity(values, probs)
     # PDF exact matches
     assert model.pdf(5.0) == pytest.approx(0.3)
     assert model.pdf(1.0) == pytest.approx(0.0)
@@ -377,22 +378,22 @@ def test_to_severity_model_scalar_npint():
 
 
 def test_to_severity_model_list():
-    from quactuary.distributions.severity import (EmpiricalSev,
+    from quactuary.distributions.severity import (EmpiricalSeverity,
                                                   to_severity_model)
 
     model = to_severity_model([1, 3.5])
-    assert isinstance(model, EmpiricalSev)
+    assert isinstance(model, EmpiricalSeverity)
     assert model.pdf(1.0) == pytest.approx(1/2)
     assert model.pdf(3.5) == pytest.approx(1/2)
     assert model.pdf(4.0) == 0.0
 
 
 def test_to_severity_model_nparray():
-    from quactuary.distributions.severity import (EmpiricalSev,
+    from quactuary.distributions.severity import (EmpiricalSeverity,
                                                   to_severity_model)
 
     model = to_severity_model(np.array([1, 3.5]))
-    assert isinstance(model, EmpiricalSev)
+    assert isinstance(model, EmpiricalSeverity)
     assert model.pdf(1.0) == pytest.approx(1/2)
     assert model.pdf(3.5) == pytest.approx(1/2)
     assert model.pdf(4.0) == 0.0
@@ -401,11 +402,11 @@ def test_to_severity_model_nparray():
 def test_to_severity_model_series():
     import pandas as pd
 
-    from quactuary.distributions.severity import (EmpiricalSev,
+    from quactuary.distributions.severity import (EmpiricalSeverity,
                                                   to_severity_model)
 
     model = to_severity_model(pd.Series([1, 3.5]))
-    assert isinstance(model, EmpiricalSev)
+    assert isinstance(model, EmpiricalSeverity)
     assert model.pdf(1) == pytest.approx(1/2)
     assert model.pdf(3.5) == pytest.approx(1/2)
     assert model.pdf(4.0) == 0.0
@@ -436,12 +437,12 @@ def test_to_severity_model_model_returned():
 
 
 def test_to_severity_model_empirical_list():
-    from quactuary.distributions.severity import (EmpiricalSev,
+    from quactuary.distributions.severity import (EmpiricalSeverity,
                                                   to_severity_model)
 
     data = [2.5, 3.5, 4.5]
     model = to_severity_model(data)
-    assert isinstance(model, EmpiricalSev)
+    assert isinstance(model, EmpiricalSeverity)
     for i in data:
         assert model.pdf(i) == pytest.approx(1/3)
 

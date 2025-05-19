@@ -134,9 +134,9 @@ def to_severity_model(obj) -> SeverityModel:
 
     Args:
         obj: Input to convert. Supported types:
-            - float or int: returns ConstantSev
-            - list, np.ndarray, pd.Series of numeric: returns EmpiricalSev
-            - scipy.stats.rv_frozen: returns _ScipySevAdapter
+            - float or int: returns ConstantSeverity
+            - list, np.ndarray, pd.Series of numeric: returns EmpiricalSeverity
+            - scipy.stats.rv_frozen: returns _ScipySeverityAdapter
             - SeverityModel: returned unchanged
 
     Returns:
@@ -154,11 +154,11 @@ def to_severity_model(obj) -> SeverityModel:
     if isinstance(obj, SeverityModel):
         return obj
 
-    # 3) Scalars → ConstantSev
+    # 3) Scalars → ConstantSeverity
     if isinstance(obj, (int, float, np.integer, np.floating)):
         return ConstantSeverity(float(obj))
 
-    # 4) Lists/arrays → EmpiricalSev
+    # 4) Lists/arrays → EmpiricalSeverity
     if isinstance(obj, (list, np.ndarray, pd.Series)):
         if len(obj) == 0:
             raise ValueError(
@@ -166,7 +166,7 @@ def to_severity_model(obj) -> SeverityModel:
         if all(isinstance(x, (int, float, np.integer, np.floating)) for x in obj):
             values = [float(x) for x in obj]
             probs = [1.0 / len(values)] * len(values)
-            return EmpiricalSev(values, probs)
+            return EmpiricalSeverity(values, probs)
         raise TypeError(f"Cannot convert {obj!r} to SeverityModel")
 
     # 5) Anything else is an error
@@ -383,7 +383,7 @@ class ConstantSeverity(SeverityModel):
         value (float): Fixed loss amount per claim.
 
     Examples:
-        >>> ConstantSev(100.0).pdf(100.0)
+        >>> ConstantSeverity(100.0).pdf(100.0)
         1.0
     """
 
@@ -397,7 +397,7 @@ class ConstantSeverity(SeverityModel):
         self.value = value
 
     def __str__(self):
-        return f"ConstantSev(value={self.value})"
+        return f"ConstantSeverity(value={self.value})"
 
     def pdf(self, x: float) -> float:
         return 1.0 if x == self.value else 0.0
@@ -421,13 +421,13 @@ class ContinuousUniformSeverity(SeverityModel):
         scale (float, optional): Width of distribution. Defaults to 1.0.
 
     Examples:
-        >>> ContinuousUniformSev(loc=100.0, scale=900.0).rvs(size=3)
+        >>> ContinuousUniformSeverity(loc=100.0, scale=900.0).rvs(size=3)
     """
 
     def __str__(self):
         loc = self._dist.kwds.get('loc', 0.0)
         scale = self._dist.kwds.get('scale', 1.0)
-        return f"ContinuousUniformSev(loc={loc}, scale={scale})"
+        return f"ContinuousUniformSeverity(loc={loc}, scale={scale})"
 
     def __init__(self, loc: float = 0.0, scale: float = 1.0):
         self._dist = uniform(loc=loc, scale=scale)
@@ -443,7 +443,7 @@ class ContinuousUniformSeverity(SeverityModel):
         return pd.Series(samples) if size > 1 else samples[0]
 
 
-class EmpiricalSev(SeverityModel):
+class EmpiricalSeverity(SeverityModel):
     """
     Empirical severity distribution defined by discrete support and probabilities.
 
@@ -455,7 +455,7 @@ class EmpiricalSev(SeverityModel):
         ValueError: If sum(probs) is zero.
 
     Examples:
-        >>> EmpiricalSev([100, 500], [0.3, 0.7]).cdf(250)
+        >>> EmpiricalSeverity([100, 500], [0.3, 0.7]).cdf(250)
     """
 
     def __init__(self, values: list[float], probs: list[float]):
@@ -464,7 +464,7 @@ class EmpiricalSev(SeverityModel):
         self.probs = np.array(probs) / total
 
     def __str__(self):
-        return f"EmpiricalSev(values={self.values}, probs={self.probs})"
+        return f"EmpiricalSeverity(values={self.values}, probs={self.probs})"
 
     def pdf(self, x: float) -> float:
         return float(sum(self.probs[i] for i, v in enumerate(self.values) if v == x))
@@ -679,7 +679,7 @@ class MixedSeverity(SeverityModel):
         weights (list[float]): Mixing weights summing to 1.
 
     Examples:
-        >>> mix = MixSev([Exponential(1000), Gamma(2)], [0.6, 0.4])
+        >>> mix = MixedSeverity([Exponential(1000), Gamma(2)], [0.6, 0.4])
         >>> mix.pdf(500.0)
     """
 
@@ -691,7 +691,7 @@ class MixedSeverity(SeverityModel):
     def __str__(self):
         components_str = ', '.join([str(comp) for comp in self.components])
         weights_str = ', '.join([str(w) for w in self.weights])
-        return f"MixSev(components=[{components_str}], weights=[{weights_str}])"
+        return f"MixedSeverity(components=[{components_str}], weights=[{weights_str}])"
 
     def pdf(self, x: float) -> float:
         return sum(w * comp.pdf(x) for comp, w in zip(self.components, self.weights))
@@ -780,7 +780,7 @@ class TriangularSeverity(SeverityModel):
         scale (float, optional): Width. Defaults to 1.0.
 
     Examples:
-        >>> TriangularSev(c=0.5, loc=100, scale=900).cdf(500)
+        >>> TriangularSeverity(c=0.5, loc=100, scale=900).cdf(500)
     """
 
     def __init__(self, c: float, loc: float = 0.0, scale: float = 1.0):
@@ -789,7 +789,7 @@ class TriangularSeverity(SeverityModel):
     def __str__(self):
         loc = self._dist.kwds.get('loc', 0.0)
         scale = self._dist.kwds.get('scale', 1.0)
-        return f"TriangularSev(c={self._dist.args[0]}, loc={loc}, scale={scale})"
+        return f"TriangularSeverity(c={self._dist.args[0]}, loc={loc}, scale={scale})"
 
     def pdf(self, x: float) -> float:
         return float(self._dist.pdf(x))  # type: ignore[attr-defined]

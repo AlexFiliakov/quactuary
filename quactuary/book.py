@@ -316,3 +316,27 @@ class Portfolio(list):
         """
         # Sum n_policies from each Inforce in the portfolio
         return sum(bucket.n_policies for bucket in self)
+    
+    def rvs(self, n_sims: int = 1) -> tuple:
+        """
+        Generate random variates from all buckets in the portfolio.
+
+        Args:
+            n_sims (int): Number of simulations to run.
+
+        Returns:
+            tuple: Tuple containing frequency and severity samples for each bucket.
+
+        Examples:
+            >>> portfolio.rvs(n_sims=1_000)
+        """
+        bucket_sims = [bucket.rvs(n_sims) for bucket in self]
+        if n_sims == 1:
+            # 1 simulation: one tuple of severity values, one per policy
+            return tuple(bucket_sims)
+        else:
+            # Multiple simulations: a tuple of tuples
+            grouped_by_sim = []
+            for i in range(n_sims):
+                grouped_by_sim.append(tuple(bucket[i] for bucket in bucket_sims))
+            return tuple(grouped_by_sim)

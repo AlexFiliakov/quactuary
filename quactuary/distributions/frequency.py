@@ -227,6 +227,9 @@ class Binomial(FrequencyModel):
         """
         return self._dist.rvs(size=size)
 
+    def __str__(self):
+        return f"Binomial(n={self._dist.args[0]}, p={self._dist.args[1]})"
+
 
 class DeterministicFreq(FrequencyModel):
     """
@@ -258,6 +261,9 @@ class DeterministicFreq(FrequencyModel):
     def rvs(self, size: int = 1) -> np.ndarray:
         return np.full(shape=size, fill_value=self.value, dtype=int)
 
+    def __str__(self):
+        return f"DeterministicFreq(value={self.value})"
+
 
 class DiscreteUniformFreq(FrequencyModel):
     """
@@ -287,6 +293,9 @@ class DiscreteUniformFreq(FrequencyModel):
 
     def rvs(self, size: int = 1) -> np.ndarray:
         return self._dist.rvs(size=size)
+
+    def __str__(self):
+        return f"DiscreteUniformFreq(low={self._dist.args[0]}, high={self._dist.args[1]})"
 
 
 class EmpiricalFreq(FrequencyModel):
@@ -319,6 +328,9 @@ class EmpiricalFreq(FrequencyModel):
     def rvs(self, size: int = 1) -> np.ndarray:
         return np.random.choice(self._keys, p=self._probs, size=size)
 
+    def __str__(self):
+        return f"EmpiricalFreq(pmf_values={self.pmf_values})"
+
 
 class Geometric(FrequencyModel):
     """
@@ -347,6 +359,9 @@ class Geometric(FrequencyModel):
     def rvs(self, size: int = 1) -> np.ndarray:
         return self._dist.rvs(size=size)
 
+    def __str__(self):
+        return f"Geometric(p={self._dist.args[0]})"
+
 
 class Hypergeometric(FrequencyModel):
     """
@@ -373,6 +388,9 @@ class Hypergeometric(FrequencyModel):
 
     def rvs(self, size: int = 1) -> np.ndarray:
         return self._dist.rvs(size=size)
+
+    def __str__(self):
+        return f"Hypergeometric(M={self._dist.args[0]}, n={self._dist.args[1]}, N={self._dist.args[2]})"
 
 
 class MixFreq(FrequencyModel):
@@ -406,6 +424,9 @@ class MixFreq(FrequencyModel):
             len(self.components), size=size, p=self.weights)
         return np.array([self.components[idx].rvs(1)[0] for idx in choices])
 
+    def __str__(self):
+        return f"MixFreq(components={self.components}, weights={self.weights})"
+
 
 class NegativeBinomial(FrequencyModel):
     """
@@ -431,6 +452,9 @@ class NegativeBinomial(FrequencyModel):
 
     def rvs(self, size: int = 1) -> np.ndarray:
         return self._dist.rvs(size=size)
+
+    def __str__(self):
+        return f"NegativeBinomial(r={self._dist.args[0]}, p={self._dist.args[1]})"
 
 
 class PanjerABk(FrequencyModel):
@@ -559,6 +583,9 @@ class PanjerABk(FrequencyModel):
                     break
         return samples if size > 1 else samples[0]
 
+    def __str__(self):
+        return f"PanjerABk(a={self.a}, b={self.b}, k={self.k})"
+
 
 class Poisson(FrequencyModel):
     """
@@ -583,6 +610,9 @@ class Poisson(FrequencyModel):
 
     def rvs(self, size: int = 1) -> np.ndarray:
         return self._dist.rvs(size=size)
+
+    def __str__(self):
+        return f"Poisson(mu={self._dist.args[0]})"
 
 
 class TriangularFreq(FrequencyModel):
@@ -616,3 +646,8 @@ class TriangularFreq(FrequencyModel):
 
     def rvs(self, size: int = 1) -> np.ndarray:
         return np.round(self._dist.rvs(size=size)).astype(int)
+
+    def __str__(self):
+        loc = self._dist.kwds.get('loc', 0.0)
+        scale = self._dist.kwds.get('scale', 1.0)
+        return f"TriangularFreq(c={self._dist.args[0]}, loc={loc}, scale={scale})"

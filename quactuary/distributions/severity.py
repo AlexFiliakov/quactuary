@@ -161,7 +161,6 @@ def to_severity_model(obj) -> SeverityModel:
     raise TypeError(f"Cannot convert {obj!r} to SeverityModel")
 
 
-
 class DiscretizedSeverity():
     """
     Discretized severity distributions. Needed for Quantum Circuits.
@@ -247,6 +246,9 @@ class DiscretizedSeverity():
             np.ndarray: Array of sampled claim counts.
         """
         return np.random.choice(self._probs.keys(), p=self._probs.values(), size=size)
+
+    def __str__(self):
+        return f"DiscretizedSeverityModel({self.sev_dist}, min_val={self.mid_x_vals[0]}, max_val={self.mid_x_vals[-1]}, bins={len(self.mid_x_vals)})"
 
 
 def _get_binned_moments(bin_edges, sev_dist: SeverityModel):
@@ -356,6 +358,11 @@ class Beta(SeverityModel):
         """
         return self._dist.rvs(size=size)
 
+    def __str__(self):
+        loc = self._dist.kwds.get('loc', 0.0)
+        scale = self._dist.kwds.get('scale', 1.0)
+        return f"Beta(a={self._dist.args[0]}, b={self._dist.args[1]}, loc={loc}, scale={scale})"
+
 
 class ChiSquared(SeverityModel):
     """
@@ -390,6 +397,11 @@ class ChiSquared(SeverityModel):
     def rvs(self, size: int = 1) -> np.ndarray:
         return self._dist.rvs(size=size)
 
+    def __str__(self):
+        loc = self._dist.kwds.get('loc', 0.0)
+        scale = self._dist.kwds.get('scale', 1.0)
+        return f"ChiSquared(df={self._dist.args[0]}, loc={self._dist.args[1]}, scale={self._dist.args[2]})"
+
 
 class ConstantSev(SeverityModel):
     """
@@ -421,6 +433,9 @@ class ConstantSev(SeverityModel):
     def rvs(self, size: int = 1) -> np.ndarray:
         return np.full(shape=size, fill_value=self.value)
 
+    def __str__(self):
+        return f"ConstantSev(value={self.value})"
+
 
 class ContinuousUniformSev(SeverityModel):
     """
@@ -445,6 +460,11 @@ class ContinuousUniformSev(SeverityModel):
 
     def rvs(self, size: int = 1) -> np.ndarray:
         return self._dist.rvs(size=size)
+
+    def __str__(self):
+        loc = self._dist.kwds.get('loc', 0.0)
+        scale = self._dist.kwds.get('scale', 1.0)
+        return f"ContinuousUniformSev(loc={loc}, scale={scale})"
 
 
 class EmpiricalSev(SeverityModel):
@@ -476,6 +496,9 @@ class EmpiricalSev(SeverityModel):
     def rvs(self, size: int = 1) -> np.ndarray:
         return np.random.choice(self.values, size=size, p=self.probs)
 
+    def __str__(self):
+        return f"EmpiricalSev(values={self.values}, probs={self.probs})"
+
 
 class Exponential(SeverityModel):
     """
@@ -500,6 +523,11 @@ class Exponential(SeverityModel):
 
     def rvs(self, size: int = 1) -> np.ndarray:
         return self._dist.rvs(size=size)
+
+    def __str__(self):
+        loc = self._dist.kwds.get('loc', 0.0)
+        scale = self._dist.kwds.get('scale', 1.0)
+        return f"Exponential(loc={loc}, scale={scale})"
 
 
 class Gamma(SeverityModel):
@@ -527,6 +555,11 @@ class Gamma(SeverityModel):
     def rvs(self, size: int = 1) -> np.ndarray:
         return self._dist.rvs(size=size)
 
+    def __str__(self):
+        loc = self._dist.kwds.get('loc', 0.0)
+        scale = self._dist.kwds.get('scale', 1.0)
+        return f"Gamma(shape={self._dist.args[0]}, loc={loc}, scale={scale})"
+
 
 class InverseGamma(SeverityModel):
     """
@@ -552,6 +585,11 @@ class InverseGamma(SeverityModel):
 
     def rvs(self, size: int = 1) -> np.ndarray:
         return self._dist.rvs(size=size)
+
+    def __str__(self):
+        loc = self._dist.kwds.get('loc', 0.0)
+        scale = self._dist.kwds.get('scale', 1.0)
+        return f"InverseGamma(shape={self._dist.args[0]}, loc={loc}, scale={scale})"
 
 
 class InverseGaussian(SeverityModel):
@@ -579,6 +617,11 @@ class InverseGaussian(SeverityModel):
     def rvs(self, size: int = 1) -> np.ndarray:
         return self._dist.rvs(size=size)
 
+    def __str__(self):
+        loc = self._dist.kwds.get('loc', 0.0)
+        scale = self._dist.kwds.get('scale', 1.0)
+        return f"InverseGaussian(shape={self._dist.args[0]}, loc={loc}, scale={scale})"
+
 
 class InverseWeibull(SeverityModel):
     """
@@ -605,13 +648,18 @@ class InverseWeibull(SeverityModel):
     def rvs(self, size: int = 1) -> np.ndarray:
         return self._dist.rvs(size=size)
 
+    def __str__(self):
+        loc = self._dist.kwds.get('loc', 0.0)
+        scale = self._dist.kwds.get('scale', 1.0)
+        return f"InverseWeibull(shape={self._dist.args[0]}, loc={loc}, scale={scale})"
+
 
 class Lognormal(SeverityModel):
     """
     Lognormal distribution modeling multiplicative loss processes.
 
     Args:
-        s (float): Shape parameter (sigma of underlying normal).
+        shape (float): Shape parameter (sigma of underlying normal).
         loc (float, optional): Location (shift). Defaults to 0.0.
         scale (float, optional): Scale (exp(mu)). Defaults to 1.0.
 
@@ -619,8 +667,8 @@ class Lognormal(SeverityModel):
         >>> Lognormal(s=0.5, scale=200.0).cdf(150.0)
     """
 
-    def __init__(self, s: float, loc: float = 0.0, scale: float = 1.0):
-        self._dist = lognorm(s, loc=loc, scale=scale)
+    def __init__(self, shape: float, loc: float = 0.0, scale: float = 1.0):
+        self._dist = lognorm(shape, loc=loc, scale=scale)
 
     def pdf(self, x: float) -> float:
         return float(self._dist.pdf(x))
@@ -630,6 +678,12 @@ class Lognormal(SeverityModel):
 
     def rvs(self, size: int = 1) -> np.ndarray:
         return self._dist.rvs(size=size)
+
+    def __str__(self):
+        loc = self._dist.kwds.get('loc', 0.0)
+        scale = self._dist.kwds.get('scale', 1.0)
+        return f"Lognormal(shape={self._dist.args[0]}, loc={loc}, scale={scale})"
+
 
 
 class MixSev(SeverityModel):
@@ -660,6 +714,11 @@ class MixSev(SeverityModel):
             len(self.components), size=size, p=self.weights)
         return np.array([self.components[i].rvs(1)[0] for i in choices])
 
+    def __str__(self):
+        components_str = ', '.join([str(comp) for comp in self.components])
+        weights_str = ', '.join([str(w) for w in self.weights])
+        return f"MixSev(components=[{components_str}], weights=[{weights_str}])"
+
 
 class Pareto(SeverityModel):
     """
@@ -685,6 +744,11 @@ class Pareto(SeverityModel):
 
     def rvs(self, size: int = 1) -> np.ndarray:
         return self._dist.rvs(size=size)
+
+    def __str__(self):
+        loc = self._dist.kwds.get('loc', 0.0)
+        scale = self._dist.kwds.get('scale', 1.0)
+        return f"Pareto(b={self._dist.args[0]}, loc={loc}, scale={scale})"
 
 
 class StudentsT(SeverityModel):
@@ -712,6 +776,12 @@ class StudentsT(SeverityModel):
     def rvs(self, size: int = 1) -> np.ndarray:
         return self._dist.rvs(size=size)
 
+    def __str__(self):
+        loc = self._dist.kwds.get('loc', 0.0)
+        scale = self._dist.kwds.get('scale', 1.0)
+        return f"StudentsT(shape={self._dist.args[0]}, loc={loc}, scale={scale})"
+
+
 
 class TriangularSev(SeverityModel):
     """
@@ -738,13 +808,19 @@ class TriangularSev(SeverityModel):
     def rvs(self, size: int = 1) -> np.ndarray:
         return self._dist.rvs(size=size)
 
+    def __str__(self):
+        loc = self._dist.kwds.get('loc', 0.0)
+        scale = self._dist.kwds.get('scale', 1.0)
+        return f"TriangularSev(c={self._dist.args[0]}, loc={loc}, scale={scale})"
+
+
 
 class Weibull(SeverityModel):
     """
     Weibull distribution modeling failure-time-like loss processes.
 
     Args:
-        c (float): Shape parameter.
+        shape (float): Shape parameter.
         loc (float, optional): Location. Defaults to 0.0.
         scale (float, optional): Scale. Defaults to 1.0.
 
@@ -752,8 +828,8 @@ class Weibull(SeverityModel):
         >>> Weibull(c=1.5, scale=200.0).pdf(150.0)
     """
 
-    def __init__(self, c: float, loc: float = 0.0, scale: float = 1.0):
-        self._dist = weibull_min(c, loc=loc, scale=scale)
+    def __init__(self, shape: float, loc: float = 0.0, scale: float = 1.0):
+        self._dist = weibull_min(shape, loc=loc, scale=scale)
 
     def pdf(self, x: float) -> float:
         return float(self._dist.pdf(x))
@@ -763,3 +839,8 @@ class Weibull(SeverityModel):
 
     def rvs(self, size: int = 1) -> np.ndarray:
         return self._dist.rvs(size=size)
+
+    def __str__(self):
+        loc = self._dist.kwds.get('loc', 0.0)
+        scale = self._dist.kwds.get('scale', 1.0)
+        return f"Weibull(shape={self._dist.args[0]}, loc={loc}, scale={scale})"

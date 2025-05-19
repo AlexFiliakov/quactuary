@@ -15,7 +15,7 @@ Examples:
 """
 
 from quactuary import get_backend
-from quactuary.entities import Inforce, Portfolio
+from quactuary.book import Inforce, Portfolio
 from quactuary.quantum import QuantumModelMixin
 
 
@@ -38,7 +38,7 @@ class ActuarialModel(QuantumModelMixin):
         layer_limit (Optional[float]): Limit for the layer.
         backend (BackendManager): Backend manager for execution.
     """
-    def __init__(self, inforce, deductible=None, limit=None, backend=None, **kw):
+    def __init__(self, book, deductible=None, limit=None, backend=None, **kw):
         """
         Initialize an ActuarialModel.
 
@@ -52,10 +52,10 @@ class ActuarialModel(QuantumModelMixin):
         Raises:
             TypeError: If inforce is not an Inforce or Portfolio.
         """
-        if isinstance(inforce, Inforce):
-            self.portfolio = Portfolio([inforce])
-        elif isinstance(inforce, Portfolio):
-            self.portfolio = inforce
+        if isinstance(book, Inforce):
+            self.portfolio = Portfolio([book])
+        elif isinstance(book, Portfolio):
+            self.portfolio = book
         else:
             raise TypeError("Need Inforce or Portfolio")
 

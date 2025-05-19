@@ -56,19 +56,20 @@ The official documentation is hosted on [docs.quactuary.com](https://docs.quactu
   - Generalized Linear Models
   - Portfolio Optimization
 - Phase 4: Beyond P&C
-  - Life Insurance Applications
+  - Reinsurance
+  - Life
+  - Health
 - Phase 5: Value-Add
   - Quantum Data Privacy & Security
 
 ## Usage Example
 
-### Example: Excess Severity Pricing
+### Example: Expected Loss
 
-Calculate the expected excess loss for a portfolio above a $1M retention with a limit of $4M:
+Calculate the expected loss for a portfolio of insurance policies:
 
 ```python
 import quactuary as qa
-import quactuary.book as book
 
 from quactuary.book import (
     ExposureBase, LOB, PolicyTerms, Inforce, Portfolio)
@@ -77,11 +78,11 @@ from quactuary.distributions.severity import Pareto, Lognormal
 
 
 # Workers’ Comp Bucket
-wc_policy = book.PolicyTerms(
+wc_policy = PolicyTerms(
     effective_date='2026-01-01',
     expiration_date='2027-01-01',
     lob=LOB.WC,
-    exposure_base=book.PAYROLL,
+    exposure_base=qa.book.PAYROLL,
     exposure_amount=100_000_000,
     retention_type="deductible",
     per_occ_retention=500_000,
@@ -89,11 +90,11 @@ wc_policy = book.PolicyTerms(
 )
 
 # General Liability Bucket
-glpl_policy = book.PolicyTerms(
+glpl_policy = PolicyTerms(
     effective_date='2026-01-01',
     expiration_date='2027-01-01',
     lob=LOB.GLPL,
-    exposure_base=book.SALES,
+    exposure_base=qa.book.SALES,
     exposure_amount=10_000_000_000,
     retention_type="deductible",
     per_occ_retention=1_000_000,
@@ -124,40 +125,67 @@ glpl_inforce = Inforce(
     name = "GLPL 2026 Bucket"
 )
 
-portfolio = Portfolio([wc_inforce, glpl_inforce])
-
-# Loss layer
-layer = LossLayer(portfolio, deductible=1_000_000, limit=4_000_000)
+portfolio = wc_inforce + glpl_inforce
 
 # Test using Classical Monte Carlo
-mc_layer_loss = layer.compute_excess_loss(qa.backend('classical', num_simulations=1_000_000))
-print(f"Classical layer expected loss: {mc_layer_loss}")
+mc_expected_loss = portfolio.mean_loss(qa.backend('classical', num_simulations=1_000_000))
+print(f"Classical portfolio expected loss: {mc_expected_loss}")
 
 # When ready, run a quantum session
-q_layer_loss = layer.compute_excess_loss(qa.backend('quantum', confidence=0.95))
-print(f"Quantum layer expected loss: {q_layer_loss}")
+q_expected_loss = portfolio.mean_loss(qa.backend('quantum', confidence=0.95))
+print(f"Quantum portfolio expected loss: {q_expected_loss}")
 ```
 
-In this example, `LossLayer` loads the specified distributions into a quantum state (using an n-qubit discrete approximation) and builds the circuit needed for the excess loss algorithm on a book of business. The user is not expected to know anything about quantum circuit design.
+In this example, `quactuary` loads the specified distributions into a quantum state (using an n-qubit discrete approximation) and builds the circuit needed for the excess loss algorithm on a book of business. The user is not expected to know anything about quantum circuit design.
+
+The Portfolio can be built up using approximate Inforce buckets, or down to policy-level granularity with individual PolicyTerms tailored to each client from your policy administration system.
 
 ### Example: Risk Measures
 
-Calculate risk measures for the portfolio loss layer defined above:
+Extend the portfolio above and calculate risk measures:
 
 ```python
+# Commercial Auto Bucket
+cauto_policy = PolicyTerms(
+    effective_date='2026-01-01',
+    expiration_date='2027-01-01',
+    lob=LOB.CAuto,
+    exposure_base=qa.book.VEHICLES,
+    exposure_amount=50,
+    retention_type="deductible",
+    per_occ_retention=100_000,
+    coverage="occ"
+)
+
+# Frequency-Severity Distributions
+cauto_freq = Poisson(3)
+cauto_sev = Lognormal(1.5, 0, 50_000)
+
+# Commercial Auto Inforce
+cauto_inforce = Inforce(
+    n_policies=400,
+    terms=cauto_policy,
+    frequency=cauto_freq,
+    severity=cauto_sev,
+    name = "CAuto 2026 Bucket"
+)
+
+# Add to Existing Portfolio
+portfolio += cauto_inforce
+
 # Test using Classical Monte Carlo
 with qa.use_backend('classical', num_simulations=1_000_000):
-  mc_layer_var = layer.value_at_risk(0.95)
-  mc_layer_tvar = layer.tail_value_at_risk(0.95)
-  print(f"Classical layer VaR: {mc_layer_var}")
-  print(f"Classical layer TVaR: {mc_layer_tvar}")
+  mc_portfolio_var = portfolio.value_at_risk(0.95)
+  mc_portfolio_tvar = portfolio.tail_value_at_risk(0.95)
+  print(f"Classical portfolio VaR: {mc_portfolio_var}")
+  print(f"Classical portfolio TVaR: {mc_portfolio_tvar}")
 
 # Evaluate Using Quantum Amplitude Estimation
 with qa.use_backend('quantum', confidence=0.95):
-  q_layer_var = layer.value_at_risk(0.95)
-  q_layer_tvar = layer.tail_value_at_risk(0.95)
-  print(f"Quantum layer VaR: {q_layer_var}")
-  print(f"Quantum layer TVaR: {q_layer_tvar}")
+  q_portfolio_var = portfolio.value_at_risk(0.95)
+  q_portfolio_tvar = portfolio.tail_value_at_risk(0.95)
+  print(f"Quantum portfolio VaR: {q_portfolio_var}")
+  print(f"Quantum portfolio TVaR: {q_portfolio_tvar}")
 ```
 
 Backends can be called as `ContextManager`s to be used across multiple statements. Again, all quantum circuits are taken care of behind the scenes.

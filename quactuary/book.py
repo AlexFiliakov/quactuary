@@ -11,6 +11,7 @@ Examples:
     >>> portfolio = Portfolio([bucket])
 """
 
+import locale
 from dataclasses import dataclass
 from datetime import date
 from enum import Enum
@@ -18,6 +19,8 @@ from typing import Optional
 
 from quactuary.distributions.frequency import FrequencyModel
 from quactuary.distributions.severity import SeverityModel
+
+locale.setlocale(locale.LC_ALL, '')
 
 
 @dataclass(frozen=True, slots=True)
@@ -72,6 +75,9 @@ class LOB(str, Enum):
     PWC = "Personal Watercraft"
     PWCPL = "Personal Watercraft Liability"
 
+    def __str__(self):
+        return self.value
+
 
 @dataclass(frozen=True, slots=True)
 class PolicyTerms:
@@ -102,7 +108,7 @@ class PolicyTerms:
     # per-occurrence limit (None if unlimited)
     per_occ_limit:      Optional[float] = None
     agg_limit:          Optional[float] = None  # aggregate limit (Optional)
-    attachment:         float = 0.0  # for XoL layers
+    attachment:         Optional[float] = None  # for XoL layers
     coverage:           str = "occ"  # occ (occurrence) / cm (claims-made)
     notes:              str = ""  # Additional notes (ad hoc)
     # ...additional fields defined as needed...
@@ -116,8 +122,34 @@ class PolicyTerms:
     # TODO: endorsements: Endorsements applicable to the policy (optional).
     # TODO: sublimits: Sublimits applicable to the policy (optional).
 
+    def __str__(self) -> str:
+        output = f"Effective Date: {self.effective_date}\n" + \
+                 f"Expiration Date: {self.expiration_date}\n"
+        if self.lob:
+            output += f"LoB: {self.lob}\n"
+        if self.exposure_base:
+            output += f"Exposure Base: {self.exposure_base}\n"
+        output += f"Exposure Amount: {self.exposure_amount:n}\n"
+        output += f"Retention Type: {self.retention_type}\n"
+        output += f"Per-Occurrence Retention: {self.per_occ_retention:n}\n"
+        if self.agg_retention:
+            output += f"Aggregate Retention: {self.agg_retention:n}\n"
+        if self.corridor_retention:
+            output += f"Corridor Retention: {self.corridor_retention:n}\n"
+        if self.coinsurance:
+            output += f"Coinsurance: {self.coinsurance:.2%}\n"
+        if self.per_occ_limit:
+            output += f"Per Occurrence Limit: {self.per_occ_limit:n}\n"
+        if self.agg_limit:
+            output += f"Aggregate Limit: {self.agg_limit:n}\n"
+        if self.attachment:
+            output += f"Attachment: {self.attachment:n}\n"
+        output += f"Coverage: {self.coverage}\n"
+        output += f"Notes: {self.notes}\n"
+        return output
 
 # TODO: Add a Reinsurance policy dataclass.
+
 
 @dataclass(slots=True)
 class Inforce:
@@ -140,6 +172,22 @@ class Inforce:
     severity:              SeverityModel
     name:             str = "Unnamed Bucket"
 
+    def __add__(self, other):
+        """
+        Merge this bucket with another into a Portfolio.
+
+        Args:
+            other (Inforce): Another in-force bucket to merge.
+
+        Returns:
+            Inforce: New in-force bucket containing policies from both.
+
+        Examples:
+            >>> combined = bucket1 + bucket2
+            >>> len(combined)
+        """
+        return Portfolio([self, other])
+
     def __len__(self):
         """
         Get the number of policies in this bucket.
@@ -151,6 +199,16 @@ class Inforce:
             >>> len(bucket)
         """
         return self.n_policies
+
+    def __str__(self) -> str:
+        output = f"Bucket: {self.name}\n" + \
+            f"- Number of Policies: {self.n_policies:n}\n" + \
+            f"- Frequency Model: {str(self.frequency)}\n" + \
+            f"- Severity Model: {str(self.severity)}\n" + \
+            f"- Policy Terms:\n"
+        for pol_detail in str(self.terms).splitlines():
+            output += f"  - {pol_detail}\n"
+        return output
 
 
 class Portfolio(list):
@@ -179,19 +237,25 @@ class Portfolio(list):
 
     def __add__(self, other):
         """
-        Merge this portfolio with another.
+        Merge this portfolio with another or add an in-force bucket.
 
         Args:
-            other (Portfolio): Another portfolio to merge.
+            other (Portfolio or Inforce): Another portfolio or an in-force bucket to merge.
 
         Returns:
             Portfolio: New portfolio containing buckets from both.
 
         Examples:
             >>> combined = portfolio1 + portfolio2
+            >>> combined = portfolio + inforce_bucket
             >>> len(combined)
         """
-        return Portfolio(list(self) + list(other))
+        if isinstance(other, Portfolio):
+            return Portfolio(list(self) + list(other))
+        elif hasattr(other, 'n_policies'):
+            return Portfolio(list(self) + [other])
+        else:
+            return NotImplemented
 
     def __len__(self):
         """
@@ -204,6 +268,12 @@ class Portfolio(list):
             >>> len(portfolio)
         """
         return self.total_policies()
+
+    def __str__(self) -> str:
+        output = ""
+        for bucket in self:
+            output += str(bucket)
+        return output
 
     def total_policies(self) -> int:
         """

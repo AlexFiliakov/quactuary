@@ -1,11 +1,11 @@
 {"header" : {
   "cloc_url"           : "github.com/AlDanial/cloc",
   "cloc_version"       : "1.98",
-  "elapsed_seconds"    : 0.0311181545257568,
+  "elapsed_seconds"    : 0.0271308422088623,
   "n_files"            : 34,
-  "n_lines"            : 3148,
-  "files_per_second"   : 1092.60978095143,
-  "lines_per_second"   : 101162.811483386},
+  "n_lines"            : 3180,
+  "files_per_second"   : 1253.18630871304,
+  "lines_per_second"   : 117209.778285513},
 "./quactuary/distributions/severity.py" :{
   "blank": 215,
   "comment": 308,
@@ -17,14 +17,14 @@
   "code": 228,
   "language": "Python"},
 "./quactuary/book.py" :{
-  "blank": 56,
-  "comment": 136,
-  "code": 152,
+  "blank": 60,
+  "comment": 147,
+  "code": 160,
   "language": "Python"},
 "./usage/Portfolio Example.ipynb" :{
   "blank": 0,
-  "comment": 178,
-  "code": 68,
+  "comment": 186,
+  "code": 69,
   "language": "Jupyter Notebook"},
 "./quactuary/backend.py" :{
   "blank": 36,
@@ -177,7 +177,7 @@
   "code": 0,
   "language": "Python"},
 "SUM": {
-  "blank": 642,
-  "comment": 1358,
-  "code": 1148,
+  "blank": 646,
+  "comment": 1377,
+  "code": 1157,
   "nFiles": 34} }

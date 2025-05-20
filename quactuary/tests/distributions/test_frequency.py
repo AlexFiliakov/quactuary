@@ -10,7 +10,7 @@ from scipy.stats import poisson as sp_poisson
 from scipy.stats import randint as randint
 from scipy.stats import triang as sp_triang
 
-import quactuary as qa
+import quactuary.distributions.frequency as freq
 from quactuary.distributions.frequency import (Binomial,
                                                DeterministicFrequency,
                                                DiscreteUniformFrequency,
@@ -26,7 +26,7 @@ epsilon = 1e-12
 def test_frequency_model():
     class DummyFrequencyModel(FrequencyModel):
         def __init__(self):
-            return super().__init__()
+            super().__init__()
 
         def pmf(self, k):
             return super().pmf(k)  # type: ignore[attr-defined]
@@ -54,7 +54,7 @@ def test_scipy_frequency_adapter():
     mu = 2
     frozen_model = sp_poisson(mu=mu)
     assert isinstance(frozen_model, rv_frozen)
-    model = qa.distributions.frequency.to_frequency_model(frozen_model)
+    model = freq.to_frequency_model(frozen_model)
     k = 0
     assert model.pmf(k) == pytest.approx(
         sp_poisson(mu).pmf(k))  # type: ignore[attr-defined]

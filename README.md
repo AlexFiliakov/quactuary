@@ -70,6 +70,7 @@ Calculate the expected loss for a portfolio of insurance policies:
 
 ```python
 import quactuary as qa
+import quactuary.book as book
 
 from datetime import date
 from quactuary.book import (
@@ -83,7 +84,7 @@ wc_policy = PolicyTerms(
     effective_date=date(2026, 1, 1),
     expiration_date=date(2027, 1, 1),
     lob=LOB.WC,
-    exposure_base=qa.book.PAYROLL,
+    exposure_base=book.PAYROLL,
     exposure_amount=100_000_000,
     retention_type="deductible",
     per_occ_retention=500_000,
@@ -95,7 +96,7 @@ glpl_policy = PolicyTerms(
     effective_date=date(2026, 1, 1),
     expiration_date=date(2027, 1, 1),
     lob=LOB.GLPL,
-    exposure_base=qa.book.SALES,
+    exposure_base=book.SALES,
     exposure_amount=10_000_000_000,
     retention_type="deductible",
     per_occ_retention=1_000_000,
@@ -151,7 +152,7 @@ cauto_policy = PolicyTerms(
     effective_date=date(2026, 1, 1),
     expiration_date=date(2027, 1, 1),
     lob=LOB.CAuto,
-    exposure_base=qa.book.VEHICLES,
+    exposure_base=book.VEHICLES,
     exposure_amount=50,
     retention_type="deductible",
     per_occ_retention=100_000,

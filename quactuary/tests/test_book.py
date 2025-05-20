@@ -6,6 +6,7 @@ import pandas as pd
 import pytest
 
 import quactuary as qa
+import quactuary.book as book
 from quactuary.book import LOB, Inforce, PolicyTerms, Portfolio
 from quactuary.distributions.frequency import DeterministicFrequency
 from quactuary.distributions.severity import ConstantSeverity
@@ -17,7 +18,7 @@ test_policy = PolicyTerms(
     effective_date=date(2026, 1, 1),
     expiration_date=date(2027, 1, 1),
     lob=LOB.WC,
-    exposure_base=qa.book.PAYROLL,  # type: ignore[attr-defined]
+    exposure_base=book.PAYROLL,  # type: ignore[attr-defined]
     exposure_amount=100_000_000,
     retention_type="deductible",
     per_occ_retention=500_000,

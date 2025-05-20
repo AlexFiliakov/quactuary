@@ -211,16 +211,20 @@ class DiscretizedSeverity():
 
         # 1) Compute the bins and midpoints
         # build N equal‐width bins on [domain_min, domain_max]
-        bin_edges = np.linspace(min_val, max_val, bins + 1)
+        self.bin_edges = np.linspace(min_val, max_val, bins + 1)
         self.step = (max_val - min_val) / bins
-        self.mid_x_vals = 0.5 * (bin_edges[:-1] + bin_edges[1:])
+        self.midpoints = 0.5 * (self.bin_edges[:-1] + self.bin_edges[1:])
 
         # 2) Compute the bin probabilities using the analytic function
-        pmf, self.bin_mean = _get_binned_moments(bin_edges, self.sev_dist)
+        pmf, self.bin_means = _get_binned_moments(
+            self.bin_edges, self.sev_dist)
 
         pmf /= np.sum(pmf)  # Normalize to sum to 1
 
-        self._probs = {x: pmf[i] for i, x in enumerate(self.mid_x_vals)}
+        self._probs = {x: pmf[i] for i, x in enumerate(self.midpoints)}
+
+    def __str__(self):
+        return f"DiscretizedSeverityModel({self.sev_dist}, min_val={self.midpoints[0]}, max_val={self.midpoints[-1]}, bins={len(self.midpoints)})"
 
     def pmf(self, x: float) -> float:
         """
@@ -240,13 +244,10 @@ class DiscretizedSeverity():
 
     def rvs(self, size: int = 1) -> pd.Series | float:
         samples = np.random.choice(
-            self._probs.keys(),  # type: ignore[attr-defined]
-            p=self._probs.values(),  # type: ignore[attr-defined]
+            list(self._probs.keys()),
+            p=list(self._probs.values()),
             size=size)
         return pd.Series(samples) if size > 1 else samples[0]
-
-    def __str__(self):
-        return f"DiscretizedSeverityModel({self.sev_dist}, min_val={self.mid_x_vals[0]}, max_val={self.mid_x_vals[-1]}, bins={len(self.mid_x_vals)})"
 
 
 def _get_binned_moments(bin_edges, sev_dist: SeverityModel):
@@ -362,7 +363,7 @@ class ChiSquared(SeverityModel):
     def __str__(self):
         loc = self._dist.kwds.get('loc')
         scale = self._dist.kwds.get('scale')
-        return f"ChiSquared(df={self._dist.args[0]}, loc={self._dist.args[1]}, scale={self._dist.args[2]})"
+        return f"ChiSquared(df={self._dist.args[0]}, loc={loc}, scale={scale})"
 
     def pdf(self, x: float) -> float:
         return float(self._dist.pdf(x))  # type: ignore[attr-defined]
@@ -464,7 +465,8 @@ class EmpiricalSeverity(SeverityModel):
         self.probs = np.array(probs) / total
 
     def __str__(self):
-        return f"EmpiricalSeverity(values={self.values}, probs={self.probs})"
+        probs_str = ', '.join([str(p) for p in self.probs])
+        return f"EmpiricalSeverity(values={self.values}, probs=[{probs_str}])"
 
     def pdf(self, x: float) -> float:
         return float(sum(self.probs[i] for i, v in enumerate(self.values) if v == x))
@@ -757,7 +759,7 @@ class StudentsT(SeverityModel):
     def __str__(self):
         loc = self._dist.kwds.get('loc')
         scale = self._dist.kwds.get('scale')
-        return f"StudentsT(shape={self._dist.args[0]}, loc={loc}, scale={scale})"
+        return f"StudentsT(df={self._dist.args[0]}, loc={loc}, scale={scale})"
 
     def pdf(self, x: float) -> float:
         return float(self._dist.pdf(x))  # type: ignore[attr-defined]

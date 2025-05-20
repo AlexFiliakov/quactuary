@@ -220,7 +220,7 @@ class DeterministicFrequency(FrequencyModel):
         1.0
     """
 
-    def __init__(self, value: np.integer):
+    def __init__(self, value: int | np.integer):
         """
         Initialize a deterministic frequency model.
 

@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import pytest
+from pandas.api.types import is_numeric_dtype
 from scipy.stats import beta as sp_beta
 from scipy.stats import chi2 as sp_chi2
 from scipy.stats import expon as sp_expon
@@ -15,6 +16,7 @@ from scipy.stats import triang as sp_triang
 from scipy.stats import uniform as sp_uniform
 from scipy.stats import weibull_min as sp_weibull
 
+import quactuary.distributions.severity as sev
 from quactuary.distributions.severity import (Beta, ChiSquared,
                                               ConstantSeverity,
                                               ContinuousUniformSeverity,
@@ -23,8 +25,53 @@ from quactuary.distributions.severity import (Beta, ChiSquared,
                                               Gamma, InverseGamma,
                                               InverseGaussian, InverseWeibull,
                                               Lognormal, MixedSeverity, Pareto,
-                                              StudentsT, TriangularSeverity,
-                                              Weibull)
+                                              SeverityModel, StudentsT,
+                                              TriangularSeverity, Weibull)
+
+
+def test_severity_model():
+    class DummySeverityModel(SeverityModel):
+        def __init__(self):
+            super().__init__()
+
+        def pdf(self, x):
+            return super().pdf(x)  # type: ignore[attr-defined]
+
+        def cdf(self, x):
+            return super().cdf(x)  # type: ignore[attr-defined]
+
+        def rvs(self, size=1):
+            return super().rvs(size=size)  # type: ignore[attr-defined]
+
+    model = DummySeverityModel()
+    with pytest.raises(NotImplementedError):
+        model.pdf(0)
+    with pytest.raises(NotImplementedError):
+        model.cdf(0)
+    with pytest.raises(NotImplementedError):
+        model.rvs()
+    with pytest.raises(NotImplementedError):
+        model.rvs(size=10)
+
+
+def test_scipy_severity_adapt():
+    from scipy.stats._distn_infrastructure import rv_frozen
+
+    df, loc, scale = 3.0, 0.0, 2.0
+    frozen_model = sp_chi2(df, loc=loc, scale=scale)
+    assert isinstance(frozen_model, rv_frozen)
+    model = sev.to_severity_model(frozen_model)
+    k = 0
+    assert model.pdf(k) == pytest.approx(
+        sp_chi2(df, loc=loc, scale=scale).pdf(k))  # type: ignore[attr-defined]
+    assert model.cdf(3) == pytest.approx(
+        sp_chi2(df, loc=loc, scale=scale).cdf(3))
+    samples = model.rvs(size=50)
+    assert isinstance(samples, pd.Series)
+    assert is_numeric_dtype(samples.dtype)
+    assert samples.min() >= 0
+    sample = model.rvs()
+    assert isinstance(sample, float)
 
 
 def test_discreteized_severity_model():
@@ -37,8 +84,8 @@ def test_discreteized_severity_model():
     # Check the properties of the discretized model
     assert isinstance(discretized_model.sev_dist, ChiSquared)
     assert discretized_model.step > 0
-    assert len(discretized_model.mid_x_vals) == 100
-    assert len(discretized_model.bin_mean) == 100
+    assert len(discretized_model.midpoints) == 100
+    assert len(discretized_model.bin_means) == 100
     assert len(discretized_model._probs) == 100
     assert discretized_model.pmf(9000) == pytest.approx(0.0)
 
@@ -80,6 +127,15 @@ def test_discreteized_severity_model():
         assert discretized_model.cdf(x) == pytest.approx(
             test_cdf_expected[i]), f"CDF at {x} should be {test_cdf_expected[i]}, but got {discretized_model.pmf(x)}"
 
+    expected_str = "DiscretizedSeverityModel(ContinuousUniformSeverity(loc=2.0, scale=5.0), min_val=2.5, max_val=6.5, bins=5)"
+    assert str(discretized_model) == expected_str
+
+    # Test the rvs method
+    sample = discretized_model.rvs()
+    assert isinstance(sample, float)
+    samples = discretized_model.rvs(10)
+    assert isinstance(samples, pd.Series)
+
 
 def test_beta_severity():
     a, b, loc, scale = 2.0, 5.0, 0.0, 1.0
@@ -97,6 +153,9 @@ def test_beta_severity():
     assert np.all((samples >= loc) & (samples <= loc + scale))
     sample = model.rvs()
     assert isinstance(sample, float)
+
+    expected_str = f"Beta(a={a}, b={b}, loc={loc}, scale={scale})"
+    assert str(model) == expected_str
 
 
 def test_chi_squared_severity():
@@ -116,6 +175,9 @@ def test_chi_squared_severity():
     sample = model.rvs()
     assert isinstance(sample, float)
 
+    expected_str = f"ChiSquared(df={df}, loc={loc}, scale={scale})"
+    assert str(model) == expected_str
+
 
 def test_constant_severity():
     value = 7.5
@@ -129,6 +191,9 @@ def test_constant_severity():
     assert np.all(samples == value)
     sample = model.rvs()
     assert isinstance(sample, float)
+
+    expected_str = f"ConstantSeverity(value={value})"
+    assert str(model) == expected_str
 
 
 def test_continous_uniform_severity():
@@ -145,6 +210,9 @@ def test_continous_uniform_severity():
     assert np.all((samples >= loc) & (samples <= loc + scale))
     sample = model.rvs()
     assert isinstance(sample, float)
+
+    expected_str = f"ContinuousUniformSeverity(loc={loc}, scale={scale})"
+    assert str(model) == expected_str
 
 
 def test_empirical_severity():
@@ -164,6 +232,10 @@ def test_empirical_severity():
     sample = model.rvs()
     assert isinstance(sample, float)
 
+    probs_str = ', '.join([str(p) for p in probs])
+    expected_str = f"EmpiricalSeverity(values={values}, probs=[{probs_str}])"
+    assert str(model) == expected_str
+
 
 def test_exponential_severity():
     loc, scale = 1.0, 2.0
@@ -179,6 +251,9 @@ def test_exponential_severity():
     assert np.all(samples >= loc)
     sample = model.rvs()
     assert isinstance(sample, float)
+
+    expected_str = f"Exponential(loc={loc}, scale={scale})"
+    assert str(model) == expected_str
 
 
 def test_gamma_severity():
@@ -198,6 +273,9 @@ def test_gamma_severity():
     sample = model.rvs()
     assert isinstance(sample, float)
 
+    expected_str = f"Gamma(shape={shape}, loc={loc}, scale={scale})"
+    assert str(model) == expected_str
+
 
 def test_inverse_gamma_severity():
     shape, loc, scale = 2.0, 0.0, 3.0
@@ -215,6 +293,9 @@ def test_inverse_gamma_severity():
     assert np.all(samples >= loc)
     sample = model.rvs()
     assert isinstance(sample, float)
+
+    expected_str = f"InverseGamma(shape={shape}, loc={loc}, scale={scale})"
+    assert str(model) == expected_str
 
 
 def test_inverse_gaussian_severity():
@@ -234,6 +315,9 @@ def test_inverse_gaussian_severity():
     sample = model.rvs()
     assert isinstance(sample, float)
 
+    expected_str = f"InverseGaussian(shape={shape}, loc={loc}, scale={scale})"
+    assert str(model) == expected_str
+
 
 def test_inverse_weibull_severity():
     shape, loc, scale = 2.0, 0.0, 3.0
@@ -251,6 +335,9 @@ def test_inverse_weibull_severity():
     assert np.all(samples >= loc)
     sample = model.rvs()
     assert isinstance(sample, float)
+
+    expected_str = f"InverseWeibull(shape={shape}, loc={loc}, scale={scale})"
+    assert str(model) == expected_str
 
 
 def test_lognormal_severity():
@@ -270,6 +357,9 @@ def test_lognormal_severity():
     sample = model.rvs()
     assert isinstance(sample, float)
 
+    expected_str = f"Lognormal(shape={s}, loc={loc}, scale={scale})"
+    assert str(model) == expected_str
+
 
 def test_mix_severity():
     comps = [ConstantSeverity(2.0), ConstantSeverity(5.0)]
@@ -277,11 +367,21 @@ def test_mix_severity():
     model = MixedSeverity(comps, weights)  # type: ignore[attr-defined]
     assert model.pdf(2.0) == pytest.approx(0.4)
     assert model.pdf(5.0) == pytest.approx(0.6)
+    assert model.cdf(1.0) == pytest.approx(0.0)
+    assert model.cdf(2.0) == pytest.approx(0.4)
+    assert model.cdf(2.5) == pytest.approx(0.4)
+    assert model.cdf(5.0) == pytest.approx(1.0)
+    assert model.cdf(6.0) == pytest.approx(1.0)
     samples = model.rvs(size=50)
     assert isinstance(samples, pd.Series)
     assert set(np.unique(samples)).issubset({2.0, 5.0})
     sample = model.rvs()
     assert isinstance(sample, float)
+
+    comp_str = f"[{str(comps[0])}, {str(comps[1])}]"
+    weights_str = ', '.join([str(w) for w in weights])
+    expected_str = f"MixedSeverity(components={comp_str}, weights=[{weights_str}])"
+    assert str(model) == expected_str
 
 
 def test_pareto_severity():
@@ -300,6 +400,9 @@ def test_pareto_severity():
     assert np.all(samples >= loc)
     sample = model.rvs()
     assert isinstance(sample, float)
+
+    expected_str = f"Pareto(b={b}, loc={loc}, scale={scale})"
+    assert str(model) == expected_str
 
 
 def test_t_severity():
@@ -320,6 +423,9 @@ def test_t_severity():
     sample = model.rvs()
     assert isinstance(sample, float)
 
+    expected_str = f"StudentsT(df={df}, loc={loc}, scale={scale})"
+    assert str(model) == expected_str
+
 
 def test_triangular_severity():
     c, loc, scale = 0.3, 1.0, 4.0
@@ -338,6 +444,9 @@ def test_triangular_severity():
     sample = model.rvs()
     assert isinstance(sample, float)
 
+    expected_str = f"TriangularSeverity(c={c}, loc={loc}, scale={scale})"
+    assert str(model) == expected_str
+
 
 def test_weibull_severity():
     c, loc, scale = 1.7, 0.0, 2.0
@@ -355,6 +464,9 @@ def test_weibull_severity():
     assert np.all(samples >= loc)
     sample = model.rvs()
     assert isinstance(sample, float)
+
+    expected_str = f"Weibull(shape={c}, loc={loc}, scale={scale})"
+    assert str(model) == expected_str
 
 
 def test_to_severity_model_scalar():
@@ -457,3 +569,9 @@ def test_to_severity_model_invalid_list_error():
     from quactuary.distributions.severity import to_severity_model
     with pytest.raises(TypeError):
         to_severity_model([1.0, 'a', 2.0])
+
+def test_to_severity_model_type_error():
+    from quactuary.distributions.severity import to_severity_model
+    with pytest.raises(TypeError):
+        to_severity_model('a')
+        to_severity_model('a')

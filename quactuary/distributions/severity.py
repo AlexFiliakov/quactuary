@@ -394,7 +394,7 @@ class ConstantSeverity(SeverityModel):
         Args:
             value (float): Fixed loss amount.
         """
-        self.value = value
+        self.value = float(value)
 
     def __str__(self):
         return f"ConstantSeverity(value={self.value})"

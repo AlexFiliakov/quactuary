@@ -71,6 +71,7 @@ Calculate the expected loss for a portfolio of insurance policies:
 ```python
 import quactuary as qa
 
+from datetime import date
 from quactuary.book import (
     ExposureBase, LOB, PolicyTerms, Inforce, Portfolio)
 from quactuary.distributions.frequency import Poisson, NegativeBinomial
@@ -79,8 +80,8 @@ from quactuary.distributions.severity import Pareto, Lognormal
 
 # Workers’ Comp Bucket
 wc_policy = PolicyTerms(
-    effective_date='2026-01-01',
-    expiration_date='2027-01-01',
+    effective_date=date(2026, 1, 1),
+    expiration_date=date(2027, 1, 1),
     lob=LOB.WC,
     exposure_base=qa.book.PAYROLL,
     exposure_amount=100_000_000,
@@ -91,8 +92,8 @@ wc_policy = PolicyTerms(
 
 # General Liability Bucket
 glpl_policy = PolicyTerms(
-    effective_date='2026-01-01',
-    expiration_date='2027-01-01',
+    effective_date=date(2026, 1, 1),
+    expiration_date=date(2027, 1, 1),
     lob=LOB.GLPL,
     exposure_base=qa.book.SALES,
     exposure_amount=10_000_000_000,
@@ -147,8 +148,8 @@ Extend the portfolio above and calculate risk measures:
 ```python
 # Commercial Auto Bucket
 cauto_policy = PolicyTerms(
-    effective_date='2026-01-01',
-    expiration_date='2027-01-01',
+    effective_date=date(2026, 1, 1),
+    expiration_date=date(2027, 1, 1),
     lob=LOB.CAuto,
     exposure_base=qa.book.VEHICLES,
     exposure_amount=50,

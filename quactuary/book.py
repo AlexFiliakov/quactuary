@@ -285,7 +285,30 @@ class Portfolio(list):
         elif hasattr(other, 'n_policies'):
             return Portfolio(list(self) + [other])
         else:
-            return NotImplemented
+            raise NotImplementedError
+
+    def __iadd__(self, other):
+        """
+        Merge this portfolio with another or add an in-force bucket in place.
+
+        Args:
+            other (Portfolio or Inforce): Another portfolio or an in-force bucket to merge.
+
+        Returns:
+            Portfolio: This portfolio with buckets from both.
+
+        Examples:
+            >>> portfolio += portfolio2
+            >>> portfolio += inforce_bucket
+            >>> len(portfolio)
+        """
+        if isinstance(other, Portfolio):
+            self.extend(other)
+        elif hasattr(other, 'n_policies'):
+            self.append(other)
+        else:
+            raise NotImplementedError
+        return self
 
     def __len__(self):
         """

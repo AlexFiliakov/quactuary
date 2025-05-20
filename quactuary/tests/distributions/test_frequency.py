@@ -10,15 +10,61 @@ from scipy.stats import poisson as sp_poisson
 from scipy.stats import randint as randint
 from scipy.stats import triang as sp_triang
 
+import quactuary as qa
 from quactuary.distributions.frequency import (Binomial,
                                                DeterministicFrequency,
                                                DiscreteUniformFrequency,
-                                               EmpiricalFrequency, Geometric,
+                                               EmpiricalFrequency,
+                                               FrequencyModel, Geometric,
                                                Hypergeometric, MixedFrequency,
                                                NegativeBinomial, PanjerABk,
                                                Poisson, TriangularFrequency)
 
 epsilon = 1e-12
+
+
+def test_frequency_model():
+    class DummyFrequencyModel(FrequencyModel):
+        def __init__(self):
+            return super().__init__()
+
+        def pmf(self, k):
+            return super().pmf(k)  # type: ignore[attr-defined]
+
+        def cdf(self, k):
+            return super().cdf(k)
+
+        def rvs(self, size=1):
+            return super().rvs(size=size)  # type: ignore[attr-defined]
+
+    model = DummyFrequencyModel()
+    with pytest.raises(NotImplementedError):
+        model.pmf(0)
+    with pytest.raises(NotImplementedError):
+        model.cdf(0)
+    with pytest.raises(NotImplementedError):
+        model.rvs()
+    with pytest.raises(NotImplementedError):
+        model.rvs(size=10)
+
+
+def test_scipy_frequency_adapter():
+    from scipy.stats._distn_infrastructure import rv_frozen
+
+    mu = 2
+    frozen_model = sp_poisson(mu=mu)
+    assert isinstance(frozen_model, rv_frozen)
+    model = qa.distributions.frequency.to_frequency_model(frozen_model)
+    k = 0
+    assert model.pmf(k) == pytest.approx(
+        sp_poisson(mu).pmf(k))  # type: ignore[attr-defined]
+    assert model.cdf(3) == pytest.approx(sp_poisson(mu).cdf(3))
+    samples = model.rvs(size=50)
+    assert isinstance(samples, pd.Series)
+    assert is_integer_dtype(samples.dtype)
+    assert samples.min() >= 0
+    sample = model.rvs()
+    assert isinstance(sample, np.integer)
 
 
 def test_binomial():
@@ -35,6 +81,9 @@ def test_binomial():
     sample = model.rvs()
     assert isinstance(sample, np.integer)
 
+    expected_str = "Binomial(n=5, p=0.4)"
+    assert str(model) == expected_str
+
 
 def test_deterministic():
     model = DeterministicFrequency(3)  # type: ignore[attr-defined]
@@ -50,6 +99,9 @@ def test_deterministic():
     sample = model.rvs()
     assert isinstance(sample, np.integer)
 
+    expected_str = "DeterministicFrequency(value=3)"
+    assert str(model) == expected_str
+
 
 def test_discrete_uniform_freq():
     low, high = 0, 10
@@ -62,6 +114,9 @@ def test_discrete_uniform_freq():
     assert is_integer_dtype(samples.dtype)
     sample = model.rvs()
     assert isinstance(sample, np.integer)
+
+    expected_str = f"DiscreteUniformFrequency(low={low}, high={high})"
+    assert str(model) == expected_str
 
 
 def test_empirical_freq():
@@ -78,6 +133,9 @@ def test_empirical_freq():
     sample = model.rvs()
     assert isinstance(sample, np.integer)
 
+    expected_str = f"EmpiricalFrequency(pmf_values={pmf_vals})"
+    assert str(model) == expected_str
+
 
 def test_geometric():
     p = 0.3
@@ -91,6 +149,9 @@ def test_geometric():
     assert samples.min() >= 1
     sample = model.rvs()
     assert isinstance(sample, np.integer)
+
+    expected_str = "Geometric(p=0.3)"
+    assert str(model) == expected_str
 
 
 def test_hypergeometric():
@@ -110,20 +171,33 @@ def test_hypergeometric():
     sample = model.rvs()
     assert isinstance(sample, np.integer)
 
+    expected_str = f"Hypergeometric(M={M}, n={n}, N={N})"
+    assert str(model) == expected_str
 
-def test_mixfreq():
+
+def test_mixed_frequency():
     comps = [DeterministicFrequency(1),
              DeterministicFrequency(3)]  # type: ignore[attr-defined]
     weights = [0.4, 0.6]
     model = MixedFrequency(comps, weights)  # type: ignore[attr-defined]
     assert model.pmf(1) == pytest.approx(0.4)
     assert model.pmf(3) == pytest.approx(0.6)
+    assert model.pmf(4) == pytest.approx(0.0)
+    assert model.cdf(0) == pytest.approx(0.0)
+    assert model.cdf(1) == pytest.approx(0.4)
+    assert model.cdf(2) == pytest.approx(0.4)
+    assert model.cdf(3) == pytest.approx(1.0)
+    assert model.cdf(4) == pytest.approx(1.0)
     samples = model.rvs(size=100)
     assert isinstance(samples, pd.Series)
     assert is_integer_dtype(samples.dtype)
     assert set(np.unique(samples)).issubset({1, 3})
     sample = model.rvs()
     assert isinstance(sample, np.integer)
+
+    expected_comps_str = [str(dist) for dist in comps]
+    expected_str = f"MixedFrequency(components={expected_comps_str}, weights={weights})"
+    assert str(model) == expected_str
 
 
 def test_negative_binomial():
@@ -139,6 +213,9 @@ def test_negative_binomial():
     assert samples.min() >= 0
     sample = model.rvs()
     assert isinstance(sample, np.integer)
+
+    expected_str = f"NegativeBinomial(r={r}, p={p})"
+    assert str(model) == expected_str
 
 
 def test_panjer_abk():
@@ -182,6 +259,14 @@ def test_panjer_abk():
     samples2 = model2.rvs(size=100)
     assert np.all(samples2 >= 0)
 
+    # Edge cases
+    assert model2.pmf(-1) == 0
+    assert model2.cdf(-1) == 0
+    assert model2.cdf(1_000_000_000_000) == pytest.approx(1.0)
+
+    expected_str = "PanjerABk(a=2, b=3, k=0)"
+    assert str(model) == expected_str
+
 
 def test_poisson():
     mu = 2.0
@@ -197,6 +282,9 @@ def test_poisson():
     sample = model.rvs()
     assert isinstance(sample, np.integer)
 
+    expected_str = f"Poisson(mu={mu})"
+    assert str(model) == expected_str
+
 
 def test_triangular_freq():
     c, loc, scale = 0.5, 0, 1
@@ -211,6 +299,9 @@ def test_triangular_freq():
     assert is_integer_dtype(samples.dtype)
     sample = model.rvs()
     assert isinstance(sample, np.integer)
+
+    expected_str = f"TriangularFrequency(c={c}, loc={loc}, scale={scale})"
+    assert str(model) == expected_str
 
 
 def test_to_frequency_model_scalar():

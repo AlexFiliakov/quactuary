@@ -320,8 +320,8 @@ class Beta(SeverityModel):
         self._dist = sp_beta(a, b, loc=loc, scale=scale)
 
     def __str__(self):
-        loc = self._dist.kwds.get('loc', 0.0)
-        scale = self._dist.kwds.get('scale', 1.0)
+        loc = self._dist.kwds.get('loc')
+        scale = self._dist.kwds.get('scale')
         return f"Beta(a={self._dist.args[0]}, b={self._dist.args[1]}, loc={loc}, scale={scale})"
 
     def pdf(self, x: float) -> float:
@@ -360,8 +360,8 @@ class ChiSquared(SeverityModel):
         self._dist = chi2(df, loc=loc, scale=scale)
 
     def __str__(self):
-        loc = self._dist.kwds.get('loc', 0.0)
-        scale = self._dist.kwds.get('scale', 1.0)
+        loc = self._dist.kwds.get('loc')
+        scale = self._dist.kwds.get('scale')
         return f"ChiSquared(df={self._dist.args[0]}, loc={self._dist.args[1]}, scale={self._dist.args[2]})"
 
     def pdf(self, x: float) -> float:
@@ -425,8 +425,8 @@ class ContinuousUniformSeverity(SeverityModel):
     """
 
     def __str__(self):
-        loc = self._dist.kwds.get('loc', 0.0)
-        scale = self._dist.kwds.get('scale', 1.0)
+        loc = self._dist.kwds.get('loc')
+        scale = self._dist.kwds.get('scale')
         return f"ContinuousUniformSeverity(loc={loc}, scale={scale})"
 
     def __init__(self, loc: float = 0.0, scale: float = 1.0):
@@ -495,8 +495,8 @@ class Exponential(SeverityModel):
         self._dist = expon(loc=loc, scale=scale)
 
     def __str__(self):
-        loc = self._dist.kwds.get('loc', 0.0)
-        scale = self._dist.kwds.get('scale', 1.0)
+        loc = self._dist.kwds.get('loc')
+        scale = self._dist.kwds.get('scale')
         return f"Exponential(loc={loc}, scale={scale})"
 
     def pdf(self, x: float) -> float:
@@ -527,8 +527,8 @@ class Gamma(SeverityModel):
         self._dist = sp_gamma(shape, loc=loc, scale=scale)
 
     def __str__(self):
-        loc = self._dist.kwds.get('loc', 0.0)
-        scale = self._dist.kwds.get('scale', 1.0)
+        loc = self._dist.kwds.get('loc')
+        scale = self._dist.kwds.get('scale')
         return f"Gamma(shape={self._dist.args[0]}, loc={loc}, scale={scale})"
 
     def pdf(self, x: float) -> float:
@@ -559,8 +559,8 @@ class InverseGamma(SeverityModel):
         self._dist = invgamma(shape, loc=loc, scale=scale)
 
     def __str__(self):
-        loc = self._dist.kwds.get('loc', 0.0)
-        scale = self._dist.kwds.get('scale', 1.0)
+        loc = self._dist.kwds.get('loc')
+        scale = self._dist.kwds.get('scale')
         return f"InverseGamma(shape={self._dist.args[0]}, loc={loc}, scale={scale})"
 
     def pdf(self, x: float) -> float:
@@ -591,8 +591,8 @@ class InverseGaussian(SeverityModel):
         self._dist = invgauss(shape, loc=loc, scale=scale)
 
     def __str__(self):
-        loc = self._dist.kwds.get('loc', 0.0)
-        scale = self._dist.kwds.get('scale', 1.0)
+        loc = self._dist.kwds.get('loc')
+        scale = self._dist.kwds.get('scale')
         return f"InverseGaussian(shape={self._dist.args[0]}, loc={loc}, scale={scale})"
 
     def pdf(self, x: float) -> float:
@@ -623,8 +623,8 @@ class InverseWeibull(SeverityModel):
         self._dist = invweibull(shape, loc=loc, scale=scale)
 
     def __str__(self):
-        loc = self._dist.kwds.get('loc', 0.0)
-        scale = self._dist.kwds.get('scale', 1.0)
+        loc = self._dist.kwds.get('loc')
+        scale = self._dist.kwds.get('scale')
         return f"InverseWeibull(shape={self._dist.args[0]}, loc={loc}, scale={scale})"
 
     def pdf(self, x: float) -> float:
@@ -655,8 +655,8 @@ class Lognormal(SeverityModel):
         self._dist = lognorm(shape, loc=loc, scale=scale)
 
     def __str__(self):
-        loc = self._dist.kwds.get('loc', 0.0)
-        scale = self._dist.kwds.get('scale', 1.0)
+        loc = self._dist.kwds.get('loc')
+        scale = self._dist.kwds.get('scale')
         return f"Lognormal(shape={self._dist.args[0]}, loc={loc}, scale={scale})"
 
     def pdf(self, x: float) -> float:
@@ -723,8 +723,8 @@ class Pareto(SeverityModel):
         self._dist = pareto(b, loc=loc, scale=scale)
 
     def __str__(self):
-        loc = self._dist.kwds.get('loc', 0.0)
-        scale = self._dist.kwds.get('scale', 1.0)
+        loc = self._dist.kwds.get('loc')
+        scale = self._dist.kwds.get('scale')
         return f"Pareto(b={self._dist.args[0]}, loc={loc}, scale={scale})"
 
     def pdf(self, x: float) -> float:
@@ -755,8 +755,8 @@ class StudentsT(SeverityModel):
         self._dist = t(df, loc=loc, scale=scale)
 
     def __str__(self):
-        loc = self._dist.kwds.get('loc', 0.0)
-        scale = self._dist.kwds.get('scale', 1.0)
+        loc = self._dist.kwds.get('loc')
+        scale = self._dist.kwds.get('scale')
         return f"StudentsT(shape={self._dist.args[0]}, loc={loc}, scale={scale})"
 
     def pdf(self, x: float) -> float:
@@ -787,8 +787,8 @@ class TriangularSeverity(SeverityModel):
         self._dist = triang(c, loc=loc, scale=scale)
 
     def __str__(self):
-        loc = self._dist.kwds.get('loc', 0.0)
-        scale = self._dist.kwds.get('scale', 1.0)
+        loc = self._dist.kwds.get('loc')
+        scale = self._dist.kwds.get('scale')
         return f"TriangularSeverity(c={self._dist.args[0]}, loc={loc}, scale={scale})"
 
     def pdf(self, x: float) -> float:
@@ -819,8 +819,8 @@ class Weibull(SeverityModel):
         self._dist = weibull_min(shape, loc=loc, scale=scale)
 
     def __str__(self):
-        loc = self._dist.kwds.get('loc', 0.0)
-        scale = self._dist.kwds.get('scale', 1.0)
+        loc = self._dist.kwds.get('loc')
+        scale = self._dist.kwds.get('scale')
         return f"Weibull(shape={self._dist.args[0]}, loc={loc}, scale={scale})"
 
     def pdf(self, x: float) -> float:

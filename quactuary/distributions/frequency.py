@@ -128,7 +128,7 @@ class _ScipyFrequencyAdapter(FrequencyModel):
             np.ndarray: Array of random variates.
         """
         samples = self._dist.rvs(size=size)
-        return pd.Series(self._dist.rvs(size=size)) if size > 1 else samples[0]
+        return pd.Series(samples) if size > 1 else samples[0]
 
 
 # Convenience function to convert various inputs into a FrequencyModel
@@ -154,6 +154,8 @@ def to_frequency_model(obj) -> FrequencyModel:
         >>> to_frequency_model(5)
         DeterministicFrequency(5)
     """
+    if isinstance(obj, rv_frozen):
+        return _ScipyFrequencyAdapter(obj)
     if isinstance(obj, FrequencyModel):
         return obj
     if isinstance(obj, (int, np.integer)):
@@ -165,8 +167,6 @@ def to_frequency_model(obj) -> FrequencyModel:
         if all(isinstance(x, (int, np.integer)) for x in obj):
             return EmpiricalFrequency({int(k): 1.0 / len(obj) for k in obj})
         raise TypeError(f"Cannot convert {obj!r} to FrequencyModel")
-    if isinstance(obj, rv_frozen):
-        return _ScipyFrequencyAdapter(obj)
     raise TypeError(f"Cannot convert {obj!r} to FrequencyModel")
 
 
@@ -307,7 +307,7 @@ class EmpiricalFrequency(FrequencyModel):
         return self.pmf_values.get(k, 0.0)
 
     def cdf(self, k: int) -> float:
-        return sum(self.pmf_values.get(i, 0.0) for i in range(k + 1))
+        return super().cdf(k)
 
     def rvs(self, size: int = 1) -> pd.Series | np.integer:
         samples = np.random.choice(self._keys, p=self._probs, size=size)
@@ -364,7 +364,10 @@ class Hypergeometric(FrequencyModel):
         self._dist = hypergeom(M=M, n=n, N=N)
 
     def __str__(self):
-        return f"Hypergeometric(M={self._dist.args[0]}, n={self._dist.args[1]}, N={self._dist.args[2]})"
+        M = self._dist.kwds.get('M')
+        n = self._dist.kwds.get('n')
+        N = self._dist.kwds.get('N')
+        return f"Hypergeometric(M={M}, n={n}, N={N})"
 
     def pmf(self, k: int) -> float:
         return float(self._dist.pmf(k))  # type: ignore[attr-defined]
@@ -399,7 +402,9 @@ class MixedFrequency(FrequencyModel):
         self.weights = weights / np.sum(weights)
 
     def __str__(self):
-        return f"MixedFrequency(components={self.components}, weights={self.weights})"
+        components_str = [str(dist) for dist in self.components]
+        weights_str = np.array2string(self.weights, separator=', ')
+        return f"MixedFrequency(components={components_str}, weights={weights_str})"
 
     def pmf(self, k: int) -> float:
         return sum(w * comp.pmf(k) for comp, w in zip(self.components, self.weights))
@@ -603,8 +608,8 @@ class TriangularFrequency(FrequencyModel):
         self._dist = triang(c, loc=loc, scale=scale)
 
     def __str__(self):
-        loc = self._dist.kwds.get('loc', 0.0)
-        scale = self._dist.kwds.get('scale', 1.0)
+        loc = self._dist.kwds.get('loc')
+        scale = self._dist.kwds.get('scale')
         return f"TriangularFrequency(c={self._dist.args[0]}, loc={loc}, scale={scale})"
 
     def pmf(self, k: int) -> float:

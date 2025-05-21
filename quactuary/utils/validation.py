@@ -1,11 +1,9 @@
-# validation.py
-
 """
 Utility functions for validating inputs or parameters used throughout the quActuary project.
 """
 
 
-def validate_probability(value: float) -> None:
+def validate_probability(value: float | int) -> None:
     """
     Validate that a probability value is between 0 and 1.
 
@@ -15,7 +13,7 @@ def validate_probability(value: float) -> None:
     Raises:
         ValueError: If the probability is not in the range [0, 1].
     """
-    if not (0 <= value <= 1):
+    if not (isinstance(value, float) or isinstance(value, int)) or not (0 <= value <= 1):
         raise ValueError(f"Probability must be between 0 and 1, got {value}.")
 
 

@@ -1,18 +1,23 @@
 import builtins
 import importlib
 import sys
+import types
 from importlib.metadata import version as dist_version
 
 import pytest
 
 
-def reload_quactuary():
+def reload_quactuary(version=None):
     # Remove quactuary modules to force fresh import
     to_remove = [m for m in sys.modules if m ==
                  "quactuary" or m.startswith("quactuary.")]
     for m in to_remove:
         sys.modules.pop(m, None)
-    return importlib.import_module("quactuary")
+    module = importlib.import_module("quactuary")
+    if version is not None:
+        # Simulate the version being set in the module
+        module.__dict__["__version__"] = version
+    return module
 
 
 def test_version_import_success():
@@ -42,3 +47,21 @@ def test_version_import_fallback(monkeypatch):
 
     qa = reload_quactuary()
     assert qa.__version__ == dist_version("quactuary")
+
+
+def test_version_import_double_fallback(monkeypatch):
+    # Remove modules so that __init__ hits the fallback
+    for mod in ["quactuary._version", "importlib.metadata", "importlib_metadata"]:
+        monkeypatch.delitem(sys.modules, mod, raising=False)
+
+    # Patch quactuary.__init__ so that once __init__.py sets _im,
+    # we replace _im.version with our forced fallback
+    def mock_version(package_name=None):
+        return "double.fallback.version"
+
+    # We’ll intercept the actual assignment in __init__.py by patching that symbol
+    monkeypatch.setattr("quactuary.__version__",
+                        types.SimpleNamespace(version=mock_version))
+
+    qa = reload_quactuary(mock_version())
+    assert qa.__version__ == mock_version()

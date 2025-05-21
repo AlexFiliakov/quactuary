@@ -1,11 +1,11 @@
 {"header" : {
   "cloc_url"           : "github.com/AlDanial/cloc",
   "cloc_version"       : "1.98",
-  "elapsed_seconds"    : 0.0269479751586914,
-  "n_files"            : 34,
-  "n_lines"            : 3187,
-  "files_per_second"   : 1261.69034221609,
-  "lines_per_second"   : 118264.91531302},
+  "elapsed_seconds"    : 0.0295882225036621,
+  "n_files"            : 35,
+  "n_lines"            : 3244,
+  "files_per_second"   : 1182.90309584052,
+  "lines_per_second"   : 109638.218368761},
 "./quactuary/distributions/severity.py" :{
   "blank": 215,
   "comment": 308,
@@ -18,28 +18,33 @@
   "language": "Python"},
 "./quactuary/book.py" :{
   "blank": 60,
-  "comment": 147,
-  "code": 160,
+  "comment": 150,
+  "code": 170,
+  "language": "Python"},
+"./quactuary/backend.py" :{
+  "blank": 42,
+  "comment": 87,
+  "code": 90,
   "language": "Python"},
 "./usage/Portfolio Example.ipynb" :{
   "blank": 0,
   "comment": 186,
   "code": 69,
   "language": "Jupyter Notebook"},
-"./quactuary/backend.py" :{
-  "blank": 36,
-  "comment": 81,
-  "code": 62,
+"./quactuary/quantum.py" :{
+  "blank": 22,
+  "comment": 45,
+  "code": 48,
+  "language": "Python"},
+"./quactuary/pricing.py" :{
+  "blank": 21,
+  "comment": 47,
+  "code": 40,
   "language": "Python"},
 "./docs/source/conf.py" :{
   "blank": 14,
   "comment": 16,
   "code": 30,
-  "language": "Python"},
-"./quactuary/pricing.py" :{
-  "blank": 35,
-  "comment": 93,
-  "code": 29,
   "language": "Python"},
 "./docs/make.bat" :{
   "blank": 8,
@@ -56,11 +61,6 @@
   "comment": 0,
   "code": 25,
   "language": "Python"},
-"./quactuary/quantum.py" :{
-  "blank": 28,
-  "comment": 58,
-  "code": 24,
-  "language": "Python"},
 "./docs/source/index.rst" :{
   "blank": 19,
   "comment": 26,
@@ -76,6 +76,11 @@
   "comment": 29,
   "code": 18,
   "language": "reStructuredText"},
+"./quactuary/classical.py" :{
+  "blank": 11,
+  "comment": 20,
+  "code": 17,
+  "language": "Python"},
 "./requirements-dev.txt" :{
   "blank": 0,
   "comment": 0,
@@ -177,7 +182,7 @@
   "code": 0,
   "language": "Python"},
 "SUM": {
-  "blank": 646,
-  "comment": 1377,
-  "code": 1164,
-  "nFiles": 34} }
+  "blank": 643,
+  "comment": 1347,
+  "code": 1254,
+  "nFiles": 35} }

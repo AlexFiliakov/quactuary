@@ -1,11 +1,11 @@
 {"header" : {
   "cloc_url"           : "github.com/AlDanial/cloc",
   "cloc_version"       : "1.98",
-  "elapsed_seconds"    : 0.0295882225036621,
+  "elapsed_seconds"    : 0.0287008285522461,
   "n_files"            : 35,
-  "n_lines"            : 3244,
-  "files_per_second"   : 1182.90309584052,
-  "lines_per_second"   : 109638.218368761},
+  "n_lines"            : 3242,
+  "files_per_second"   : 1219.47698953315,
+  "lines_per_second"   : 112958.41143047},
 "./quactuary/distributions/severity.py" :{
   "blank": 215,
   "comment": 308,
@@ -112,8 +112,8 @@
   "code": 9,
   "language": "Python"},
 "./quactuary/utils/validation.py" :{
-  "blank": 13,
-  "comment": 25,
+  "blank": 12,
+  "comment": 24,
   "code": 9,
   "language": "Python"},
 "./docs/source/quactuary.utils.rst" :{
@@ -182,7 +182,7 @@
   "code": 0,
   "language": "Python"},
 "SUM": {
-  "blank": 643,
-  "comment": 1347,
+  "blank": 642,
+  "comment": 1346,
   "code": 1254,
   "nFiles": 35} }

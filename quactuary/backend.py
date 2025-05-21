@@ -11,13 +11,25 @@ Examples:
     >>> set_backend('quantum', provider='AerSimulator')
 """
 
+from __future__ import annotations
+
+import copy
 from contextlib import contextmanager
 
+from qiskit.providers import Backend, BackendV1
 from qiskit_aer import Aer
 from qiskit_ibm_provider import IBMProvider
 
 # Global backend manager instance
 _backend = None
+
+
+class ClassicalBackend():
+    """
+    Indicates that classical algorithms should be used.
+    """
+
+    version = 0
 
 
 class BackendManager():
@@ -26,7 +38,8 @@ class BackendManager():
 
     Manages backend assignments and executes quantum circuits or classical simulations.
     """
-    def __init__(self, backend):
+
+    def __init__(self, backend: Backend | BackendV1 | ClassicalBackend) -> None:
         """
         Initialize a BackendManager.
 
@@ -34,43 +47,68 @@ class BackendManager():
             backend: Backend instance (e.g., Qiskit backend or custom classical engine).
         """
         self.backend = backend
+        if isinstance(backend, Backend) or isinstance(backend, BackendV1):
+            self.backend_type = 'quantum'
+        elif isinstance(backend, ClassicalBackend):
+            self.backend_type = 'classical'
+        else:
+            raise ValueError(
+                "Unsupported backend type. Must be a Qiskit or classical backend.")
 
-    def set_backend(self, backend):
+    def __copy__(self) -> BackendManager:
+        """
+        Create a shallow copy of the BackendManager.
+
+        Returns:
+            A new instance of BackendManager with the same backend.
+        """
+        return BackendManager(self.backend)
+
+    def __deepcopy__(self, memo) -> BackendManager:
+        """
+        Create a deep copy of the BackendManager.
+
+        Args:
+            memo: Dictionary to keep track of already copied objects.
+
+        Returns:
+            A new instance of BackendManager with the same backend.
+        """
+        error_message = "Deep copy is not implemented because Qiskit doesn't support it. Use shallow copy instead."
+        raise NotImplementedError(error_message)
+        # return BackendManager(self.backend.__deepcopy__(memo))
+
+    def copy(self, deep=False) -> BackendManager:
+        """
+        Create a shallow copy of the BackendManager.
+
+        Returns:
+            A new instance of BackendManager with the same backend.
+        """
+        if not deep:
+            return copy.copy(self)
+        else:
+            return copy.deepcopy(self)
+
+    def set_backend(self, manager: BackendManager) -> None:
         """
         Override the active backend.
 
         Args:
-            backend: New backend instance.
+            manager: New BackendManager instance.
         """
-        self.backend = backend
-
-    def get_backend(self):
-        """
-        Retrieve the active backend.
-
-        Returns:
-            The current backend instance.
-        """
-        return self.backend
-
-    def run(self, circuit):
-        """
-        Execute a circuit on the active backend.
-
-        Args:
-            circuit: QuantumCircuit or equivalent object to run.
-
-        Returns:
-            Result: Execution result or job output.
-
-        Examples:
-            >>> result = backend_manager.run(qc)
-        """
-        job = self.backend.run(circuit)
-        return job.result()
+        if isinstance(manager.backend, Backend) or \
+                isinstance(manager.backend, BackendV1):
+            self.backend_type = 'quantum'
+        elif isinstance(manager.backend, ClassicalBackend):
+            self.backend_type = 'classical'
+        else:
+            raise ValueError(
+                "Unsupported backend type. Must be a Qiskit or classical backend.")
+        self.backend = manager.backend
 
 
-def get_backend():
+def get_backend() -> BackendManager:
     """
     Retrieve or initialize the global BackendManager.
 
@@ -84,7 +122,7 @@ def get_backend():
     return _backend
 
 
-def set_backend(mode, provider=None, **kwargs):
+def set_backend(mode='quantum', provider=None, **kwargs) -> BackendManager:
     """
     Configure the global execution backend.
 
@@ -106,43 +144,45 @@ def set_backend(mode, provider=None, **kwargs):
     """
     backend_manager = get_backend()
 
-    if mode.lower() == 'quantum':
+    if mode.lower() in ('quantum', 'q', 'qiskit', 'aer', 'ibmq'):
         # Lazy import: Only require Qiskit when quantum mode is used.
         try:
             import qiskit
         except ImportError:
             raise ImportError("Qiskit is required for quantum backend. "
-                                "Please install it with:\n\npip install qiskit==1.4.2.")
+                              "Please install it with:\n\npip install qiskit==1.4.2.")
 
         # Ensure the installed version meets our requirements.
         try:
             from packaging import version
         except ImportError:
             raise ImportError("Please install the 'packaging' package to check Qiskit version with:"
-                            "\n\npip install packaging")
-        
+                              "\n\npip install packaging")
+
         if version.parse(qiskit.__version__) != version.parse("1.4.2"):
             raise ImportError("Quantum mode requires Qiskit version 1.4.2 exactly. "
-                                "Please upgrade it with:\n\npip install qiskit==1.4.2 --force-reinstall")
+                              "Please upgrade it with:\n\npip install qiskit==1.4.2 --force-reinstall")
 
         if provider is None or provider.lower() == 'aersimulator':
             # Use Qiskit Aer simulator
-            new_backend = Aer.get_backend('aer_simulator')
+            aer_backend = Aer.get_backend('aer_simulator')
+            new_backend = BackendManager(aer_backend)
         elif provider.lower() == 'ibmq':
             # Use IBM's quantum provider.
             from qiskit_ibm_provider import IBMProvider
             backend_name = kwargs.get('instance', None)
             if backend_name:
                 ibmq_provider = IBMProvider(**kwargs)
-                new_backend = ibmq_provider.get_backend(backend_name)
+                ibmq_backend = ibmq_provider.get_backend(backend_name)
+                new_backend = BackendManager(ibmq_backend)
             else:
-                new_backend = None
+                raise NotImplementedError(
+                    "Alternate IBM Quantum backend is not implemented yet.")
                 # Optionally, you could set new_backend to the provider's least_busy backend.
         else:
             raise ValueError(f"Unsupported quantum provider: {provider}")
-    elif mode.lower() == 'classical':
-        # This is a placeholder - implement actual classical simulation backend
-        new_backend = kwargs.get('backend', provider)
+    elif mode.lower() in ('classical', 'c'):
+        new_backend = BackendManager(ClassicalBackend())
     else:
         raise ValueError(f"Unsupported backend type: {mode}")
 
@@ -169,7 +209,7 @@ def use_backend(mode, provider=None, **kwargs):
     """
     global _backend
     # Store the original backend manager instance
-    original_backend = _backend
+    original_backend = get_backend().copy()
     try:
         # Set the temporary backend
         set_backend(mode, provider, **kwargs)

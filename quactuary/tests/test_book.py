@@ -72,7 +72,7 @@ Coverage: occ
 Notes: Comprehensive str test
 """
     assert str(test_policy) == expected_str
-    
+
     expected_sparse_str = """Effective Date: 2027-01-01
 Expiration Date: 2028-01-01
 Exposure Amount: 5,000,000
@@ -82,6 +82,7 @@ Coverage: cm
 Notes: Sparse str test
 """
     assert str(test_sparse_policy) == expected_sparse_str
+
 
 def test_inforce_str():
     expected_str = """Bucket: Test Inforce
@@ -106,6 +107,11 @@ def test_inforce_str():
   - Notes: Comprehensive str test
 """
     assert str(test_inforce) == expected_str
+
+
+def test_portfolio_from_single_inforce():
+    test_portfolio = Portfolio(test_inforce)
+    assert len(test_portfolio) == test_inforce.n_policies
 
 
 def test_portfolio_str():
@@ -166,7 +172,7 @@ def test_portfolio_rvs():
 
     # Validate unimplemented operations
     with pytest.raises(NotImplementedError):
-        test_portfolio + 5
+        result = test_portfolio + 5
     with pytest.raises(NotImplementedError):
         test_portfolio += 5
 

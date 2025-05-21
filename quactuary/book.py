@@ -17,6 +17,7 @@ from datetime import date
 from enum import Enum
 from typing import Optional
 
+from quactuary.backend import BackendManager, set_backend
 from quactuary.distributions.frequency import FrequencyModel
 from quactuary.distributions.severity import SeverityModel
 
@@ -241,7 +242,7 @@ class Inforce:
             return tuple(all_sims)
 
 
-class Portfolio(list):
+class Portfolio(list[Inforce]):
     """
     Portfolio of in-force buckets.
 
@@ -253,17 +254,29 @@ class Portfolio(list):
         >>> combined = p1 + p2
     """
 
-    def __init__(self, buckets: list[Inforce]):
+    def __init__(self,
+                 buckets: list[Inforce] | Inforce,
+                 backend: Optional[BackendManager] = None,
+                 **kwargs):
         """
         Initialize the portfolio with a list of in-force buckets.
 
         Args:
             buckets (list[Inforce]): List of `Inforce` objects.
+            backend (Optional[BackendManager]): Execution backend.
 
         Examples:
             >>> portfolio = Portfolio([gl_inforce, wc_inforce])
         """
+        if isinstance(buckets, Inforce):
+            # If a single Inforce is passed, convert it to a list
+            buckets = [buckets]
         super().__init__(buckets)
+        self.backend = backend if backend else set_backend(
+            'quantum', **kwargs)
+        # Local import to avoid circular dependency at module load
+        from quactuary.pricing import PricingModel
+        self.pricing_model = PricingModel(self)
 
     def __add__(self, other):
         """

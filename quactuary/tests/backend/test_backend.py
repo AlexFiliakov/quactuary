@@ -1,51 +1,45 @@
 from contextlib import contextmanager
 
 import pytest
-from qiskit_aer.backends import AerSimulator
+from qiskit.providers import Backend
 
-from quactuary import backend
-
-
-class DummyBackend:
-    def __init__(self):
-        self.ran = False
-
-    def run(self, circuit):
-        self.ran = True
-        return DummyResult()
-
-
-class DummyResult:
-    def result(self):
-        return 'dummy_result'
-
-
-def test_backend_manager_set_and_get_backend():
-    dummy = DummyBackend()
-    manager = backend.BackendManager(dummy)
-    assert manager.get_backend() is dummy
-    dummy2 = DummyBackend()
-    manager.set_backend(dummy2)
-    assert manager.get_backend() is dummy2
-
-
-def test_backend_manager_run():
-    dummy = DummyBackend()
-    manager = backend.BackendManager(dummy)
-    result = manager.run('fake_circuit')
-    assert result == 'dummy_result'
-    assert dummy.ran
+import quactuary.backend as backend
+from quactuary.backend import ClassicalBackend
 
 
 def test_get_backend_returns_backend_manager():
-    b = backend.get_backend()
-    assert isinstance(b, backend.BackendManager)
+    manager = backend.get_backend()
+    assert isinstance(manager, backend.BackendManager)
+
+
+def test_unsupported_backend_type():
+    with pytest.raises(ValueError):
+        backend.BackendManager(
+            backend='unsupported_backend')  # type: ignore[attr-defined]
+    manager = backend.BackendManager(ClassicalBackend())
+    manager.backend = 'unsupported_backend'  # type: ignore[attr-defined]
+    with pytest.raises(ValueError):
+        backend.get_backend().set_backend(manager)  # type: ignore[attr-defined]
+
+
+def test_copy_backend_manager():
+    manager = backend.get_backend()
+    orig_backend = manager.backend
+    copy_manager = manager.copy()
+    assert isinstance(copy_manager, backend.BackendManager)
+    assert copy_manager.backend == manager.backend
+    assert copy_manager.backend_type == manager.backend_type
+    assert copy_manager is not manager
+    assert copy_manager.backend is orig_backend
+    with pytest.raises(NotImplementedError):
+        deepcopy_manager = manager.copy(deep=True)
 
 
 def test_set_backend_classical_sets_backend():
     backend.set_backend('classical', backend='test_backend')
-    b = backend.get_backend()
-    assert b.get_backend() == 'test_backend'
+    manager = backend.get_backend()
+    assert manager.backend_type == 'classical'
+    assert isinstance(manager.backend, backend.ClassicalBackend)
 
 
 def test_set_backend_invalid_mode():
@@ -55,14 +49,16 @@ def test_set_backend_invalid_mode():
 
 def test_set_backend_quantum_aersimulator():
     backend.set_backend('quantum', 'aersimulator')
-    b = backend.get_backend()
-    assert isinstance(b.get_backend(), AerSimulator)
+    mgr = backend.get_backend()
+    assert mgr.backend_type == 'quantum'
+    assert isinstance(mgr.backend, Backend)
 
 
 def test_set_backend_quantum_defaults_to_aersimulator():
     backend.set_backend('quantum')
-    b = backend.get_backend()
-    assert isinstance(b.get_backend(), AerSimulator)
+    mgr = backend.get_backend()
+    assert mgr.backend_type == 'quantum'
+    assert isinstance(mgr.backend, Backend)
 
 
 @pytest.mark.skip(reason="TODO: implement working IBM connection")
@@ -70,7 +66,7 @@ def test_set_backend_ibmq_provider_specific():
     backend.set_backend('quantum', provider='ibmq',
                         instance='ibmq_qasm_simulator')
     b = backend.get_backend()
-    assert isinstance(b.get_backend(), backend.IBMProvider)
+    assert isinstance(b.get_backend().backend, backend.IBMProvider)
     assert b.get_backend().backend_name == 'ibmq_qasm_simulator'
 
 
@@ -78,7 +74,7 @@ def test_set_backend_ibmq_provider_specific():
 def test_set_backend_ibmq_provider_default():
     backend.set_backend('quantum', provider='ibmq')
     b = backend.get_backend()
-    assert isinstance(b.get_backend(), backend.IBMProvider)
+    assert isinstance(b.get_backend().backend, backend.IBMProvider)
     pytest.fail("TODO: detect least busy backend and set it as default")
 
 
@@ -88,8 +84,9 @@ def test_set_backend_invalid_quantum_provider():
 
 
 def test_use_backend_context_manager_restores_backend():
-    orig = backend.get_backend()
+    backend.set_backend()
+    assert backend.get_backend().backend_type == 'quantum'
     with backend.use_backend('classical', backend='temp_backend') as temp:
-        assert temp.get_backend() == 'temp_backend'
+        assert backend.get_backend().backend_type == 'classical'
     # After context, should restore original
-    assert backend.get_backend() == orig
+    assert backend.get_backend().backend_type == 'quantum'

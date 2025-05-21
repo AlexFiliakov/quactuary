@@ -42,22 +42,3 @@ def test_version_import_fallback(monkeypatch):
 
     qa = reload_quactuary()
     assert qa.__version__ == dist_version("quactuary")
-
-
-def test_get_and_set_backend_classical():
-    qa = reload_quactuary()
-    # Ensure get_backend returns a manager and is singleton
-    bm1 = qa.get_backend()
-    bm2 = qa.get_backend()
-    assert bm1 is bm2
-    # Set a dummy classical backend
-    dummy = object()
-    ret = qa.set_backend("classical", backend=dummy)
-    assert ret is dummy
-    assert qa.get_backend().get_backend() is dummy
-
-
-def test_set_backend_invalid_mode():
-    qa = reload_quactuary()
-    with pytest.raises(ValueError):
-        qa.set_backend("unsupported_mode")

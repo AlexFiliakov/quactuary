@@ -14,21 +14,41 @@ Examples:
     >>> result = model.compute_excess_loss()
 """
 
-from quactuary import get_backend
-from quactuary.book import Inforce, Portfolio
-from quactuary.quantum import QuantumModelMixin
+from typing import Optional
+
+from qiskit.providers import Backend, BackendV1
+
+from quactuary.backend import BackendManager, ClassicalBackend, set_backend
+from quactuary.book import Portfolio
+from quactuary.classical import ClassicalPricingModel
+from quactuary.quantum import QuantumPricingModel
 
 
-class ActuarialModel(QuantumModelMixin):
+class PricingResult():
+    """
+    Container for results from pricing computations.
+
+    Models can convert these results into user-facing formats (e.g., numbers or DataFrames).
+
+    Attributes:
+        estimates (dict[str, float]): Point estimates for various statistics.
+        intervals (dict[str, tuple[float, float]]): Confidence intervals for estimates.
+        samples (Optional[np.ndarray]): Raw samples obtained from execution.
+        metadata (dict): Additional run details.
+    """
+    @property
+    def estimates(self):
+        raise NotImplementedError(
+            "TODO: Implement the pricing result dataclass.")
+
+
+class PricingModel(ClassicalPricingModel, QuantumPricingModel):
     """
     Base class for actuarial pricing models with optional quantum support.
 
     Provides common interface for portfolio-based loss models using classical or quantum backends.
 
     Args:
-        inforce (Inforce or Portfolio): Policy inforce data.
-        deductible (Optional[float]): Layer deductible.
-        limit (Optional[float]): Layer limit.
         backend (Optional[BackendManager]): Execution backend override.
         **kw: Additional model-specific settings.
 
@@ -38,120 +58,51 @@ class ActuarialModel(QuantumModelMixin):
         layer_limit (Optional[float]): Limit for the layer.
         backend (BackendManager): Backend manager for execution.
     """
-    def __init__(self, book, deductible=None, limit=None, backend=None, **kw):
+
+    def __init__(self, portfolio: Portfolio):
         """
         Initialize an ActuarialModel.
 
         Args:
-            inforce (Inforce or Portfolio): Policy inforce data.
-            deductible (Optional[float]): Layer deductible.
-            limit (Optional[float]): Layer limit.
-            backend (Optional[BackendManager]): Execution backend.
-            **kw: Additional settings (ignored).
-
-        Raises:
-            TypeError: If inforce is not an Inforce or Portfolio.
+            portfolio (Portfolio): Inforce policy data grouped into a Portfolio.
         """
-        if isinstance(book, Inforce):
-            self.portfolio = Portfolio([book])
-        elif isinstance(book, Portfolio):
-            self.portfolio = book
+        super(ClassicalPricingModel).__init__()
+        super(QuantumPricingModel).__init__()
+        self.portfolio = portfolio
+
+    def calculate_portfolio_statistics(
+            self,
+            mean: bool = True,
+            variance: bool = True,
+            value_at_risk: bool = True,
+            tail_value_at_risk: bool = True,
+            tail_alpha: float = 0.95,
+            backend: Optional[BackendManager] = None) -> PricingResult:
+        """
+        Calculate portfolio statistics based on the selected methods.
+
+        Args:
+            mean (bool): Calculate mean loss.
+            variance (bool): Calculate variance.
+            value_at_risk (bool): Calculate value at risk.
+            tail_value_at_risk (bool): Calculate tail value at risk.
+            backend (Optional[BackendManager]): Execution backend override.
+        """
+
+        if backend is None:
+            if self.portfolio.backend is None:
+                set_backend()
+            cur_backend = self.portfolio.backend.backend
         else:
-            raise TypeError("Need Inforce or Portfolio")
+            cur_backend = backend.backend
 
-        # optional layer terms that sit above policy terms
-        self.layer_deductible = deductible
-        self.layer_limit = limit
-
-        # Use the global backend manager
-        if backend is not None:
-            self.backend = backend
+        if isinstance(cur_backend, ClassicalBackend):
+            return ClassicalPricingModel.calculate_portfolio_statistics(
+                self, mean, variance, value_at_risk, tail_value_at_risk, tail_alpha)
+        if isinstance(cur_backend, Backend) or \
+                isinstance(cur_backend, BackendV1):
+            return QuantumPricingModel.calculate_portfolio_statistics(
+                self, mean, variance, value_at_risk, tail_value_at_risk, tail_alpha)
         else:
-            self.backend = get_backend()
-
-
-class ExcessLossModel(ActuarialModel):
-    """
-    Pricing model for aggregate excess loss.
-
-    Computes the loss exceeding a deductible up to a layer limit for an insurance portfolio.
-
-    Args:
-        inforce (Inforce or Portfolio): Portfolio data.
-        deductible (Optional[float]): Layer deductible.
-        limit (Optional[float]): Layer limit.
-        **kw: Additional settings.
-
-    Examples:
-        >>> model = ExcessLossModel(inforce, deductible=1000, limit=10000)
-        >>> losses = model.compute_excess_loss()
-    """
-    def __init__(self, inforce, deductible=None, limit=None, **kw):
-        super().__init__(inforce, deductible, limit, **kw)
-
-    def compute_excess_loss(self, backend=None):
-        """
-        Compute aggregate excess loss for the portfolio.
-
-        Args:
-            backend (Optional[BackendManager]): Execution backend override.
-
-        Returns:
-            Any: Excess loss result (e.g., numeric array or DataFrame).
-
-        Raises:
-            NotImplementedError: Method not yet implemented.
-        """
-        raise NotImplementedError("compute_excess_loss is not implemented.")
-
-
-class RiskMeasureModel(ActuarialModel):
-    """
-    Pricing model for risk measures (VaR, TVaR).
-
-    Computes quantile-based risk metrics for insurance portfolios, with optional quantum acceleration.
-
-    Args:
-        inforce (Inforce or Portfolio): Portfolio data.
-        deductible (Optional[float]): Layer deductible.
-        limit (Optional[float]): Layer limit.
-        **kw: Additional settings.
-
-    Examples:
-        >>> rm = RiskMeasureModel(inforce)
-        >>> var = rm.value_at_risk(alpha=0.99)
-    """
-    def __init__(self, inforce, deductible=None, limit=None, **kw):
-        super().__init__(inforce, deductible, limit, **kw)
-
-    def value_at_risk(self, alpha=0.95, backend=None):
-        """
-        Compute the Value at Risk (VaR) at the given confidence level.
-
-        Args:
-            alpha (float, optional): Confidence level (0 < alpha < 1). Defaults to 0.95.
-            backend (Optional[BackendManager]): Execution backend override.
-
-        Returns:
-            float: Estimated VaR value.
-
-        Raises:
-            NotImplementedError: Method not yet implemented.
-        """
-        raise NotImplementedError("value_at_risk is not implemented.")
-
-    def tail_value_at_risk(self, alpha=0.95, backend=None):
-        """
-        Compute the Tail Value at Risk (TVaR) at the given confidence level.
-
-        Args:
-            alpha (float, optional): Confidence level (0 < alpha < 1). Defaults to 0.95.
-            backend (Optional[BackendManager]): Execution backend override.
-
-        Returns:
-            float: Estimated TVaR value.
-
-        Raises:
-            NotImplementedError: Method not yet implemented.
-        """
-        raise NotImplementedError("tail_value_at_risk is not implemented.")
+            error_str = "Unsupported backend type. Must be a Qiskit or classical backend."
+            raise ValueError(error_str)

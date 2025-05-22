@@ -10,12 +10,14 @@ Examples:
     >>> bucket = Inforce(n_policies=50, freq=freq_model, sev=sev_model, terms=terms)
     >>> portfolio = Portfolio([bucket])
 """
-
 import locale
 from dataclasses import dataclass
 from datetime import date
 from enum import Enum
 from typing import Optional
+
+import numpy as np
+import pandas as pd
 
 from quactuary.backend import BackendManager, set_backend
 from quactuary.distributions.frequency import FrequencyModel
@@ -211,7 +213,7 @@ class Inforce:
             output += f"  - {pol_detail}\n"
         return output
 
-    def rvs(self, n_sims: int = 1) -> tuple:
+    def simulate(self, n_sims: int = 1) -> pd.Series | float:
         """
         Generate random variates from frequency and severity, returning aggregate losses.
 
@@ -219,27 +221,35 @@ class Inforce:
             n_sims (int): Number of simulations to run.
 
         Returns:
-            tuple: Tuple containing frequency and severity samples.
+            pd.Series: Series containing simulated aggregates.
 
         Examples:
-            >>> bucket.rvs(n_sims=1_000)
+            >>> bucket.simulate(n_sims=1_000)
         """
+        if n_sims is None or n_sims < 0 or not isinstance(n_sims, int):
+            raise ValueError(
+                "Number of simulations must be a positive integer.")
+        if n_sims == 0:
+            return 0.0
         if n_sims == 1:
             # 1 simulation: one tuple of severity values, one per policy
-            freq_samples = [self.frequency.rvs()
-                            for _ in range(self.n_policies)]
-            return tuple(self.severity.rvs(count)  # type: ignore[attr-defined]
-                         for count in freq_samples)
+            freq_samples = np.sum([self.frequency.rvs()
+                                   for _ in range(self.n_policies)])
+            sim_result = np.sum(self.severity.rvs(int(freq_samples)))
+            return sim_result
         else:
             # Multiple simulations: a tuple of tuples
-            all_sims: list[tuple] = []
+            all_sims = []
             for _ in range(n_sims):
-                freq_samples = [self.frequency.rvs()
-                                for _ in range(self.n_policies)]
-                sev_samples = tuple(self.severity.rvs(count)  # type: ignore[attr-defined]
-                                    for count in freq_samples)
-                all_sims.append(sev_samples)
-            return tuple(all_sims)
+                freq_samples = np.sum([self.frequency.rvs()
+                                      for _ in range(self.n_policies)])
+                if freq_samples == 0:
+                    # No claims, no severity
+                    all_sims.append(0)
+                    continue
+                sim_result = np.sum(self.severity.rvs(int(freq_samples)))
+                all_sims.append(sim_result)
+            return pd.Series(all_sims)
 
 
 class Portfolio(list[Inforce]):
@@ -354,27 +364,37 @@ class Portfolio(list[Inforce]):
         # Sum n_policies from each Inforce in the portfolio
         return sum(bucket.n_policies for bucket in self)
 
-    def rvs(self, n_sims: int = 1) -> tuple:
+    def simulate(self, n_sims: int = 1) -> pd.Series | float:
         """
-        Generate random variates from all buckets in the portfolio.
+        Generate random variates from frequency and severity from all buckets in the portfolio, returning aggregate losses.
 
         Args:
             n_sims (int): Number of simulations to run.
 
         Returns:
-            tuple: Tuple containing frequency and severity samples for each bucket.
+            pd.Series: Series containing simulated aggregates.
 
         Examples:
-            >>> portfolio.rvs(n_sims=1_000)
+            >>> portfolio.simulate(n_sims=1_000)
         """
-        bucket_sims = [bucket.rvs(n_sims) for bucket in self]
+        if n_sims is None or n_sims < 0 or not isinstance(n_sims, int):
+            raise ValueError(
+                "Number of simulations must be a positive integer.")
+        if n_sims == 0:
+            return 0.0
+        bucket_sims = [bucket.simulate(n_sims) for bucket in self]
         if n_sims == 1:
-            # 1 simulation: one tuple of severity values, one per policy
-            return tuple(bucket_sims)
+            return sum(bucket_sims)
         else:
-            # Multiple simulations: a tuple of tuples
             grouped_by_sim = []
             for i in range(n_sims):
-                grouped_by_sim.append(
-                    tuple(bucket[i] for bucket in bucket_sims))
-            return tuple(grouped_by_sim)
+                sim_result = 0.0
+                for bucket in bucket_sims:
+                    if isinstance(bucket, pd.Series):
+                        # pick the iᵗʰ simulation from this bucket
+                        sim_result += bucket.iloc[i]
+                    else:
+                        # bucket is a scalar float
+                        sim_result += bucket
+                grouped_by_sim.append(sim_result)
+            return pd.Series(grouped_by_sim)

@@ -65,16 +65,16 @@ def test_set_backend_quantum_defaults_to_aersimulator():
 def test_set_backend_ibmq_provider_specific():
     backend.set_backend('quantum', provider='ibmq',
                         instance='ibmq_qasm_simulator')
-    b = backend.get_backend()
-    assert isinstance(b.get_backend().backend, backend.IBMProvider)
-    assert b.get_backend().backend_name == 'ibmq_qasm_simulator'
+    b = backend.get_backend().backend
+    assert isinstance(b, backend.IBMProvider)
+    assert b.backend_name == 'ibmq_qasm_simulator'
 
 
 @pytest.mark.skip(reason="TODO: implement working IBM connection")
 def test_set_backend_ibmq_provider_default():
     backend.set_backend('quantum', provider='ibmq')
-    b = backend.get_backend()
-    assert isinstance(b.get_backend().backend, backend.IBMProvider)
+    b = backend.get_backend().backend
+    assert isinstance(b, backend.IBMProvider)
     pytest.fail("TODO: detect least busy backend and set it as default")
 
 

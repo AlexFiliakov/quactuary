@@ -16,30 +16,14 @@ Examples:
 
 from typing import Optional
 
+import pandas as pd
 from qiskit.providers import Backend, BackendV1
 
-from quactuary.backend import BackendManager, ClassicalBackend, set_backend
+from quactuary.backend import BackendManager, ClassicalBackend, get_backend
 from quactuary.book import Portfolio
 from quactuary.classical import ClassicalPricingModel
+from quactuary.datatypes import PricingResult
 from quactuary.quantum import QuantumPricingModel
-
-
-class PricingResult():
-    """
-    Container for results from pricing computations.
-
-    Models can convert these results into user-facing formats (e.g., numbers or DataFrames).
-
-    Attributes:
-        estimates (dict[str, float]): Point estimates for various statistics.
-        intervals (dict[str, tuple[float, float]]): Confidence intervals for estimates.
-        samples (Optional[np.ndarray]): Raw samples obtained from execution.
-        metadata (dict): Additional run details.
-    """
-    @property
-    def estimates(self):
-        raise NotImplementedError(
-            "TODO: Implement the pricing result dataclass.")
 
 
 class PricingModel(ClassicalPricingModel, QuantumPricingModel):
@@ -70,14 +54,16 @@ class PricingModel(ClassicalPricingModel, QuantumPricingModel):
         super(QuantumPricingModel).__init__()
         self.portfolio = portfolio
 
-    def calculate_portfolio_statistics(
-            self,
-            mean: bool = True,
-            variance: bool = True,
-            value_at_risk: bool = True,
-            tail_value_at_risk: bool = True,
-            tail_alpha: float = 0.95,
-            backend: Optional[BackendManager] = None) -> PricingResult:
+    def simulate(
+        self,
+        mean: bool = True,
+        variance: bool = True,
+        value_at_risk: bool = True,
+        tail_value_at_risk: bool = True,
+        tail_alpha: float = 0.05,
+        n_sims: Optional[int] = None,
+        backend: Optional[BackendManager] = None
+    ) -> PricingResult:
         """
         Calculate portfolio statistics based on the selected methods.
 
@@ -87,22 +73,21 @@ class PricingModel(ClassicalPricingModel, QuantumPricingModel):
             value_at_risk (bool): Calculate value at risk.
             tail_value_at_risk (bool): Calculate tail value at risk.
             backend (Optional[BackendManager]): Execution backend override.
+            num_simulations (Optional[int]): Number of Classical simulations.
         """
 
         if backend is None:
-            if self.portfolio.backend is None:
-                set_backend()
-            cur_backend = self.portfolio.backend.backend
+            cur_backend = get_backend().backend
         else:
             cur_backend = backend.backend
 
         if isinstance(cur_backend, ClassicalBackend):
             return ClassicalPricingModel.calculate_portfolio_statistics(
-                self, mean, variance, value_at_risk, tail_value_at_risk, tail_alpha)
+                self, self.portfolio, mean, variance, value_at_risk, tail_value_at_risk, tail_alpha, n_sims)
         if isinstance(cur_backend, Backend) or \
                 isinstance(cur_backend, BackendV1):
             return QuantumPricingModel.calculate_portfolio_statistics(
-                self, mean, variance, value_at_risk, tail_value_at_risk, tail_alpha)
+                self, self.portfolio, mean, variance, value_at_risk, tail_value_at_risk, tail_alpha)
         else:
             error_str = "Unsupported backend type. Must be a Qiskit or classical backend."
             raise ValueError(error_str)

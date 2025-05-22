@@ -141,23 +141,22 @@ def test_portfolio_str():
     assert str(test_portfolio) == expected_str + expected_str
 
 
-def test_inforce_rvs():
+def test_inforce_simulate():
     assert len(test_inforce) == 5
     # Test single random variable (one sample for inforce experience)
-    sample = test_inforce.rvs()
-    expected_series = pd.Series([100.0, 100.0, 100.0])
-    for s in sample:
-        pd.testing.assert_series_equal(s, expected_series)
+    sample = test_inforce.simulate()
+    assert isinstance(sample, float)
+    expected_result = 100.0 * 3 * 5
+    assert sample == pytest.approx(expected_result)
 
-    samples = test_inforce.rvs(7)
+    samples = test_inforce.simulate(7)
+    assert isinstance(samples, pd.Series)
     assert len(samples) == 7
-    for sample_instance in samples:
-        assert len(sample_instance) == 5
-        for s in sample_instance:
-            pd.testing.assert_series_equal(s, expected_series)
+    expected_results = pd.Series([expected_result]).repeat(7).reset_index(drop=True)
+    pd.testing.assert_series_equal(samples, expected_results)
 
 
-def test_portfolio_rvs():
+def test_portfolio_simulate():
     # Validate implementation of __add__ and __iadd__ methods
     test_portfolio = Portfolio([test_inforce])
     assert len(test_portfolio) == 5
@@ -180,19 +179,13 @@ def test_portfolio_rvs():
     assert len(test_portfolio) == 10
     assert test_portfolio.total_policies() == 10
 
-    sample = test_portfolio.rvs()
-    expected_series = pd.Series([100.0, 100.0, 100.0])
-    assert len(sample) == 2
-    for bucket in sample:
-        assert len(bucket) == 5
-        for pol in bucket:
-            pd.testing.assert_series_equal(pol, expected_series)
+    sample = test_portfolio.simulate()
+    assert isinstance(sample, float)
+    expected_result = 100.0 * 3 * 5 * 2
+    assert sample == pytest.approx(expected_result)
 
-    samples = test_portfolio.rvs(7)
+    samples = test_portfolio.simulate(7)
+    assert isinstance(samples, pd.Series)
     assert len(samples) == 7
-    for buckets in samples:
-        assert len(buckets) == 2
-        for bucket in buckets:
-            assert len(bucket) == 5
-            for pol in bucket:
-                pd.testing.assert_series_equal(pol, expected_series)
+    expected_results = pd.Series([expected_result]).repeat(7).reset_index(drop=True)
+    pd.testing.assert_series_equal(samples, expected_results)

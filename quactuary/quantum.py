@@ -12,11 +12,8 @@ Examples:
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    # only imported for type‐checking, avoids circular import at runtime
-    from quactuary.pricing import PricingResult
+from quactuary.book import Portfolio
+from quactuary.datatypes import PricingResult
 
 
 class QuantumPricingModel ():
@@ -31,11 +28,14 @@ class QuantumPricingModel ():
 
     def calculate_portfolio_statistics(
         self,
+        portfolio: Portfolio,
         mean: bool = True,
         variance: bool = True,
         value_at_risk: bool = True,
         tail_value_at_risk: bool = True,
-        tail_alpha: float = 0.95
+        tail_alpha: float = 0.05,
+        *args,
+        **kwargs
     ) -> PricingResult:
         """
         Compute mean loss for the portfolio using Classical Monte Carlo.
@@ -46,16 +46,18 @@ class QuantumPricingModel ():
         """
         result = []
         if mean:
-            mean_result = self.mean_loss()
+            mean_result = self.mean_loss(portfolio=portfolio)
             result.append(mean_result)
         if variance:
-            variance_result = self.variance()
+            variance_result = self.variance(portfolio=portfolio)
             result.append(variance_result)
         if value_at_risk:
-            VaR_result = self.value_at_risk(alpha=tail_alpha)
+            VaR_result = self.value_at_risk(
+                portfolio=portfolio, alpha=tail_alpha)
             result.append(VaR_result)
         if tail_value_at_risk:
-            TVaR_result = self.tail_value_at_risk(alpha=tail_alpha)
+            TVaR_result = self.tail_value_at_risk(
+                portfolio=portfolio, alpha=tail_alpha)
             result.append(TVaR_result)
 
         error_message = "TODO: Implement portfolio statistics reporting."
@@ -64,7 +66,7 @@ class QuantumPricingModel ():
         return PricingResult()
 
     # These are probably going to be separate circuits until we see how to combine them.
-    def mean_loss(self):
+    def mean_loss(self, portfolio: Portfolio):
         """
         Builds the quantum circuit to compute mean loss for the portfolio using quantum circuits.
 
@@ -75,7 +77,7 @@ class QuantumPricingModel ():
         raise NotImplementedError(error_message)
         return 0.0
 
-    def variance(self):
+    def variance(self, portfolio: Portfolio):
         """
         Builds the quantum circuit to compute variance for the portfolio using quantum circuits.
 
@@ -86,7 +88,7 @@ class QuantumPricingModel ():
         raise NotImplementedError(error_message)
         return 0.0
 
-    def value_at_risk(self, alpha: float = 0.95):
+    def value_at_risk(self, portfolio: Portfolio, alpha: float = 0.95):
         """
         Builds the quantum circuit to compute the value at risk (VaR) for the portfolio using quantum circuits.
 
@@ -100,7 +102,7 @@ class QuantumPricingModel ():
         raise NotImplementedError(error_message)
         return 0.0
 
-    def tail_value_at_risk(self, alpha: float = 0.95):
+    def tail_value_at_risk(self, portfolio: Portfolio, alpha: float = 0.95):
         """
         Builds the quantum circuit to compute the tail value at risk (TVaR) for the portfolio using quantum circuits.
 

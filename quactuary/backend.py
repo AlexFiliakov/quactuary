@@ -21,14 +21,13 @@ from qiskit_aer import Aer
 from qiskit_ibm_provider import IBMProvider
 
 # Global backend manager instance
-_backend = None
+global _backend
 
 
 class ClassicalBackend():
     """
     Indicates that classical algorithms should be used.
     """
-
     version = 0
 
 
@@ -77,6 +76,12 @@ class BackendManager():
         error_message = "Deep copy is not implemented because Qiskit doesn't support it. Use shallow copy instead."
         raise NotImplementedError(error_message)
         # return BackendManager(self.backend.__deepcopy__(memo))
+
+    def __str__(self) -> str:
+        return f"BackendManager(backend_type={self.backend_type}, backend={self.backend})"
+
+    def __repr__(self) -> str:
+        return str(self)
 
     def copy(self, deep=False) -> BackendManager:
         """
@@ -140,9 +145,9 @@ def set_backend(mode='quantum', provider=None, **kwargs) -> BackendManager:
 
     Examples:
         >>> set_backend('quantum', provider='AerSimulator')
-        >>> set_backend('classical', backend='numpy')
+        >>> set_backend('classical')
     """
-    backend_manager = get_backend()
+    global _backend
 
     if mode.lower() in ('quantum', 'q', 'qiskit', 'aer', 'ibmq'):
         # Lazy import: Only require Qiskit when quantum mode is used.
@@ -186,7 +191,7 @@ def set_backend(mode='quantum', provider=None, **kwargs) -> BackendManager:
     else:
         raise ValueError(f"Unsupported backend type: {mode}")
 
-    backend_manager.set_backend(new_backend)
+    _backend = new_backend
     return new_backend
 
 

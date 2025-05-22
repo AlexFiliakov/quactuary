@@ -4,9 +4,10 @@ import pytest
 
 from quactuary.backend import BackendManager, ClassicalBackend
 from quactuary.book import Inforce, PolicyTerms, Portfolio
+from quactuary.datatypes import PricingResult
 from quactuary.distributions.frequency import DeterministicFrequency
 from quactuary.distributions.severity import ConstantSeverity
-from quactuary.pricing import PricingModel, PricingResult
+from quactuary.pricing import PricingModel
 
 test_sparse_policy = PolicyTerms(
     effective_date=date(2027, 1, 1),
@@ -32,16 +33,9 @@ test_inforce = Inforce(
 test_portfolio = Portfolio([test_inforce])
 
 
-def test_pricing_result():
-    with pytest.raises(NotImplementedError):
-        result = PricingResult()
-        result.estimates
-
-
 def test_pricing_model():
     pm = PricingModel(test_portfolio)
-    with pytest.raises(NotImplementedError):
-        pm.calculate_portfolio_statistics()
+    assert pm.portfolio == test_portfolio
     new_manager = BackendManager(ClassicalBackend())
-    with pytest.raises(NotImplementedError):
-        pm.calculate_portfolio_statistics(backend=new_manager)
+    sample = pm.simulate(backend=new_manager)
+    assert isinstance(sample, PricingResult)

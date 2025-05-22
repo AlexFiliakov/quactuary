@@ -1,11 +1,11 @@
 {"header" : {
   "cloc_url"           : "github.com/AlDanial/cloc",
   "cloc_version"       : "1.98",
-  "elapsed_seconds"    : 0.0287008285522461,
-  "n_files"            : 35,
-  "n_lines"            : 3242,
-  "files_per_second"   : 1219.47698953315,
-  "lines_per_second"   : 112958.41143047},
+  "elapsed_seconds"    : 0.0286490917205811,
+  "n_files"            : 36,
+  "n_lines"            : 3405,
+  "files_per_second"   : 1256.58433960537,
+  "lines_per_second"   : 118851.935454341},
 "./quactuary/distributions/severity.py" :{
   "blank": 215,
   "comment": 308,
@@ -18,28 +18,33 @@
   "language": "Python"},
 "./quactuary/book.py" :{
   "blank": 60,
-  "comment": 150,
-  "code": 170,
+  "comment": 151,
+  "code": 189,
   "language": "Python"},
 "./quactuary/backend.py" :{
-  "blank": 42,
+  "blank": 43,
   "comment": 87,
-  "code": 90,
+  "code": 94,
   "language": "Python"},
 "./usage/Portfolio Example.ipynb" :{
   "blank": 0,
-  "comment": 186,
-  "code": 69,
+  "comment": 234,
+  "code": 83,
   "language": "Jupyter Notebook"},
+"./quactuary/classical.py" :{
+  "blank": 17,
+  "comment": 28,
+  "code": 66,
+  "language": "Python"},
 "./quactuary/quantum.py" :{
-  "blank": 22,
-  "comment": 45,
-  "code": 48,
+  "blank": 21,
+  "comment": 44,
+  "code": 52,
   "language": "Python"},
 "./quactuary/pricing.py" :{
-  "blank": 21,
-  "comment": 47,
-  "code": 40,
+  "blank": 17,
+  "comment": 39,
+  "code": 37,
   "language": "Python"},
 "./docs/source/conf.py" :{
   "blank": 14,
@@ -76,11 +81,6 @@
   "comment": 29,
   "code": 18,
   "language": "reStructuredText"},
-"./quactuary/classical.py" :{
-  "blank": 11,
-  "comment": 20,
-  "code": 17,
-  "language": "Python"},
 "./requirements-dev.txt" :{
   "blank": 0,
   "comment": 0,
@@ -109,6 +109,11 @@
 "./quactuary/__init__.py" :{
   "blank": 1,
   "comment": 1,
+  "code": 9,
+  "language": "Python"},
+"./quactuary/datatypes.py" :{
+  "blank": 5,
+  "comment": 12,
   "code": 9,
   "language": "Python"},
 "./quactuary/utils/validation.py" :{
@@ -182,7 +187,7 @@
   "code": 0,
   "language": "Python"},
 "SUM": {
-  "blank": 642,
-  "comment": 1346,
-  "code": 1254,
-  "nFiles": 35} }
+  "blank": 649,
+  "comment": 1406,
+  "code": 1350,
+  "nFiles": 36} }

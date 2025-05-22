@@ -73,10 +73,12 @@ import quactuary as qa
 import quactuary.book as book
 
 from datetime import date
+from quactuary.backend import set_backend
 from quactuary.book import (
     ExposureBase, LOB, PolicyTerms, Inforce, Portfolio)
 from quactuary.distributions.frequency import Poisson, NegativeBinomial
 from quactuary.distributions.severity import Pareto, Lognormal
+from quactuary.pricing import PricingModel
 
 
 # Workers’ Comp Bucket
@@ -105,7 +107,7 @@ glpl_policy = PolicyTerms(
 
 # Frequency-Severity Distributions
 wc_freq = Poisson(100)
-wc_sev = Pareto(0, 40_000)
+wc_sev = Pareto(1, 0, 40_000)
 
 glpl_freq = NegativeBinomial(50, 0.5)
 glpl_sev = Lognormal(2, 0, 100_000)
@@ -129,13 +131,19 @@ glpl_inforce = Inforce(
 
 portfolio = wc_inforce + glpl_inforce
 
+pm = PricingModel(portfolio)
+
 # Test using Classical Monte Carlo
-mc_expected_loss = portfolio.mean_loss(qa.backend('classical', num_simulations=1_000_000))
-print(f"Classical portfolio expected loss: {mc_expected_loss}")
+set_backend("classical")
+classical_result = pm.simulate(n_sims=1_000)
+classical_mean = classical_result.estimates["mean"]
+print(f"Classical portfolio expected loss: {classical_mean}")
 
 # When ready, run a quantum session
-q_expected_loss = portfolio.mean_loss(qa.backend('quantum', confidence=0.95))
-print(f"Quantum portfolio expected loss: {q_expected_loss}")
+set_backend("quantum", provider="ibmq")
+quantum_result = pm.simulate()
+quantum_mean = quantum_result.estimates["mean"]
+print(f"Quantum portfolio expected loss: {quantum_mean}")
 ```
 
 In this example, `quactuary` loads the specified distributions into a quantum state (using an n-qubit discrete approximation) and builds the circuit needed for the excess loss algorithm on a book of business. The user is not expected to know anything about quantum circuit design.
@@ -147,6 +155,11 @@ The Portfolio can be built up using approximate Inforce buckets, or down to poli
 Extend the portfolio above and calculate risk measures:
 
 ```python
+from quactuary.backend import use_backend
+from quactuary.distributions.frequency import Geometric
+from quactuary.distributions.severity import ContinuousUniformSeverity
+
+
 # Commercial Auto Bucket
 cauto_policy = PolicyTerms(
     effective_date=date(2026, 1, 1),
@@ -160,8 +173,8 @@ cauto_policy = PolicyTerms(
 )
 
 # Frequency-Severity Distributions
-cauto_freq = Poisson(3)
-cauto_sev = Lognormal(1.5, 0, 50_000)
+cauto_freq = Geometric(1/8)
+cauto_sev = ContinuousUniformSeverity(5_000, 95_000)
 
 # Commercial Auto Inforce
 cauto_inforce = Inforce(
@@ -174,20 +187,22 @@ cauto_inforce = Inforce(
 
 # Add to Existing Portfolio
 portfolio += cauto_inforce
+pm2 = PricingModel(portfolio)
 
 # Test using Classical Monte Carlo
-with qa.use_backend('classical', num_simulations=1_000_000):
-  mc_portfolio_var = portfolio.value_at_risk(0.95)
-  mc_portfolio_tvar = portfolio.tail_value_at_risk(0.95)
-  print(f"Classical portfolio VaR: {mc_portfolio_var}")
-  print(f"Classical portfolio TVaR: {mc_portfolio_tvar}")
+with use_backend("classical", num_simulations=1_000):
+    classical_result = pm2.simulate(tail_alpha=0.05, n_sims=1_000)
+    classical_VaR = classical_result.estimates["VaR"]
+    classical_TVaR = classical_result.estimates["TVaR"]
+    print(f"Classical portfolio VaR: {classical_VaR}")
+    print(f"Classical portfolio TVaR: {classical_TVaR}")
 
-# Evaluate Using Quantum Amplitude Estimation
-with qa.use_backend('quantum', confidence=0.95):
-  q_portfolio_var = portfolio.value_at_risk(0.95)
-  q_portfolio_tvar = portfolio.tail_value_at_risk(0.95)
-  print(f"Quantum portfolio VaR: {q_portfolio_var}")
-  print(f"Quantum portfolio TVaR: {q_portfolio_tvar}")
+# Evaluate using the Quantum session established earlier
+quantum_result = pm2.simulate(tail_alpha=0.05)
+quantum_VaR = quantum_result.estimates["VaR"]
+quantum_TVaR = quantum_result.estimates["TVaR"]
+print(f"Quantum portfolio VaR: {quantum_VaR}")
+print(f"Quantum portfolio TVaR: {quantum_TVaR}")
 ```
 
 Backends can be called as `ContextManager`s to be used across multiple statements. Again, all quantum circuits are taken care of behind the scenes.

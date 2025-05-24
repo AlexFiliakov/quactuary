@@ -177,7 +177,7 @@ def test_portfolio_simulate():
 
     test_portfolio = test_inforce + test_inforce
     assert len(test_portfolio) == 10
-    assert test_portfolio.total_policies() == 10
+    assert test_portfolio.policies == 10
 
     sample = test_portfolio.simulate()
     assert isinstance(sample, float)

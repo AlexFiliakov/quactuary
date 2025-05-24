@@ -213,6 +213,19 @@ class Inforce:
             output += f"  - {pol_detail}\n"
         return output
 
+    @property
+    def policies(self) -> int:
+        """
+        Get the number of policies in this bucket.
+
+        Returns:
+            int: Number of policies in the bucket.
+
+        Examples:
+            >>> bucket.policies
+        """
+        return self.n_policies
+
     def simulate(self, n_sims: int = 1) -> pd.Series | float:
         """
         Generate random variates from frequency and severity, returning aggregate losses.
@@ -343,7 +356,7 @@ class Portfolio(list[Inforce]):
         Examples:
             >>> len(portfolio)
         """
-        return self.total_policies()
+        return self.policies
 
     def __str__(self) -> str:
         output = ""
@@ -351,7 +364,8 @@ class Portfolio(list[Inforce]):
             output += str(bucket)
         return output
 
-    def total_policies(self) -> int:
+    @property
+    def policies(self) -> int:
         """
         Compute the total number of policies in the portfolio.
 

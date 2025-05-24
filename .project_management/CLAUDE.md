@@ -5,16 +5,16 @@
 - Before adding Date/Time to any file make sure you are aware of the current system time (system `date` command) and use 24h time format.
 - When Using Timestamps use YYYY-MM-DD HH:MM format, for Date only use YYYY-MM-DD
 
-## Simone Overview
+## Simone Project Management Overview
 
 This project uses the Simone framework for project management (spec at https://github.com/Helmi/claude-simone). Key operational files are:
 
-- Project status: `.project_management/00_PROJECT_MANIFEST.md`
+- Project status: `quactuary/.project_management/00_PROJECT_MANIFEST.md`
 
 ## Directory Structure
 
 ```plaintext
-.project_management/
+quactuary/.project_management/
 ├── 00_PROJECT_MANIFEST.md       # Project status and pointers
 ├── 01_PROJECT_DOCS/             # General Documentation to understand the Project
 ├── 02_REQUIREMENTS/             # Milestone-based requirements in subfolders
@@ -38,7 +38,7 @@ This project uses the Simone framework for project management (spec at https://g
 
 ## General Guidelines
 
-- Always use templates from `.project_management/99_TEMPLATES/` as structural guides
+- Always use templates from `quactuary/.project_management/99_TEMPLATES/` as structural guides
 - Flag unclear requirements or overly complex tasks for human review and actively ask the user.
 - Be concise in logs and communications and be aware of current date and time
 - Update project manifest when significant changes occur (especially on Tasks, Sprints or Milestones completed)

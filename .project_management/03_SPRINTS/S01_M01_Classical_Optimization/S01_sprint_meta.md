@@ -55,7 +55,7 @@ The sprint will be considered complete when:
 - Code has been reviewed and merged to the main branch
 
 ## Notes / Context
-This is an example sprint document to demonstrate how sprints might be structured in a project using the Simone framework. This simulates what a typical initial API development sprint might look like.
+This is an example sprint document to demonstrate how sprints might be structured in a project using the Simone Project Management framework. This simulates what a typical initial API development sprint might look like.
 
 ## Related Documents
 - [Milestone M01: Backend Setup](../../02_REQUIREMENTS/M01_Backend_Setup/M01_milestone_meta.md)

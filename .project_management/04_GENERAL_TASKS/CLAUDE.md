@@ -7,7 +7,7 @@ General tasks are standalone work items not tied to sprints:
 - Files follow pattern: `T<NNN>_<Description>.md`
 - Completed tasks: `TX<NNN>_<Description>.md`
 
-Always use the template at `.project_management/99_TEMPLATES/task_template.md` when creating new general tasks.
+Always use the template at `quactuary/.project_management/99_TEMPLATES/task_template.md` when creating new general tasks.
 
 ## Task Formatting
 

@@ -35,7 +35,7 @@ Update status as progress occurs:
 
 - planning → in_progress → review → complete
 
-Always use the template at `.project_management/99_TEMPLATES/sprint_template.md` when creating new sprint meta files.
+Always use the template at `quactuary/.project_management/99_TEMPLATES/sprint_template.md` when creating new sprint meta files.
 
 ## Sprint Tasks
 
@@ -48,7 +48,7 @@ Tasks within a sprint follow a standard format:
   - Rename file from T... to TX... (e.g., `TX01_S01_Task_Name.md`)
   - Update Output Log with final entry
 
-Always use the template at `.project_management/99_TEMPLATES/task_template.md` when creating new sprint tasks.
+Always use the template at `quactuary/.project_management/99_TEMPLATES/task_template.md` when creating new sprint tasks.
 
 ## Working with Sprint Tasks
 

@@ -82,6 +82,35 @@ class LOB(str, Enum):
         return self.value
 
 
+@dataclass
+class PolicyResult:
+    """
+    Detailed breakdown of policy term application.
+    
+    Attributes:
+        ground_up_loss: Original loss amount
+        retained_amount: Amount retained by insured
+        loss_after_retention: Loss after applying retention
+        excess_attachment: Amount below XoL attachment (if applicable)
+        loss_after_attachment: Loss after XoL attachment
+        limited_loss: Loss after applying limits
+        amount_over_limit: Amount exceeding limits
+        corridor_retained: Amount retained by corridor
+        insurer_share: Final amount paid by insurer after coinsurance
+        insured_share: Final amount paid by insured (retention + coinsurance)
+    """
+    ground_up_loss: float
+    retained_amount: float
+    loss_after_retention: float
+    excess_attachment: float
+    loss_after_attachment: float
+    limited_loss: float
+    amount_over_limit: float
+    corridor_retained: float
+    insurer_share: float
+    insured_share: float
+
+
 @dataclass(frozen=True, slots=True)
 class PolicyTerms:
     """
@@ -150,6 +179,394 @@ class PolicyTerms:
         output += f"Coverage: {self.coverage}\n"
         output += f"Notes: {self.notes}\n"
         return output
+    
+    def __post_init__(self):
+        """Validate policy parameters after initialization."""
+        if self.effective_date >= self.expiration_date:
+            raise ValueError("Effective date must be before expiration date")
+        if self.coinsurance is not None and not 0.0 <= self.coinsurance <= 1.0:
+            raise ValueError("Coinsurance must be between 0.0 and 1.0")
+        if self.retention_type not in ["deductible", "SIR"]:
+            raise ValueError("Retention type must be 'deductible' or 'SIR'")
+        # Validate non-negative values
+        for field, value in [
+            ("per_occ_retention", self.per_occ_retention),
+            ("agg_retention", self.agg_retention),
+            ("corridor_retention", self.corridor_retention),
+            ("per_occ_limit", self.per_occ_limit),
+            ("agg_limit", self.agg_limit),
+            ("attachment", self.attachment),
+            ("exposure_amount", self.exposure_amount)
+        ]:
+            if value is not None and value < 0:
+                raise ValueError(f"{field} cannot be negative")
+    
+    def is_policy_active(self, evaluation_date: date) -> bool:
+        """
+        Check if the policy is active on a given date.
+        
+        Args:
+            evaluation_date: Date to check policy status
+            
+        Returns:
+            bool: True if policy is active on the evaluation date
+            
+        Examples:
+            >>> from datetime import date
+            >>> terms = PolicyTerms(
+            ...     effective_date=date(2024, 1, 1),
+            ...     expiration_date=date(2024, 12, 31)
+            ... )
+            >>> terms.is_policy_active(date(2024, 6, 15))
+            True
+            >>> terms.is_policy_active(date(2025, 1, 1))
+            False
+        """
+        return self.effective_date <= evaluation_date < self.expiration_date
+    
+    def apply_retention(self, loss_amount: np.ndarray | float, 
+                       aggregate_losses_so_far: float = 0.0) -> tuple[np.ndarray | float, float]:
+        """
+        Apply retention (deductible or SIR) to loss amount.
+        
+        Args:
+            loss_amount: Gross loss amount(s) before retention
+            aggregate_losses_so_far: Total retained losses so far (for aggregate retention tracking)
+            
+        Returns:
+            tuple: (net_loss_after_retention, retained_amount)
+            
+        Examples:
+            >>> terms = PolicyTerms(
+            ...     effective_date=date(2024, 1, 1),
+            ...     expiration_date=date(2024, 12, 31),
+            ...     retention_type="deductible",
+            ...     per_occ_retention=1000.0
+            ... )
+            >>> net_loss, retained = terms.apply_retention(2500.0)
+            >>> net_loss
+            1500.0
+            >>> retained
+            1000.0
+        """
+        # Convert to numpy array for consistent handling
+        loss_array = np.atleast_1d(loss_amount)
+        retained = np.zeros_like(loss_array)
+        
+        # Apply per-occurrence retention
+        if self.per_occ_retention > 0:
+            retained = np.minimum(loss_array, self.per_occ_retention)
+            net_loss = loss_array - retained
+        else:
+            net_loss = loss_array.copy()
+            
+        # Apply aggregate retention if specified
+        if self.agg_retention is not None and self.agg_retention > 0:
+            # Calculate how much aggregate retention is remaining
+            agg_retention_remaining = max(0, self.agg_retention - aggregate_losses_so_far)
+            if agg_retention_remaining > 0:
+                # Apply remaining aggregate retention
+                total_retained = retained.sum()
+                additional_retention = min(total_retained, agg_retention_remaining)
+                # Proportionally reduce the retained amount if aggregate limit is reached
+                if total_retained > 0:
+                    retention_factor = additional_retention / total_retained
+                    net_loss = net_loss + retained * (1 - retention_factor)
+                    retained = retained * retention_factor
+        
+        # Return scalar if input was scalar
+        if np.isscalar(loss_amount):
+            return float(net_loss[0]), float(retained[0])
+        return net_loss, retained
+    
+    def apply_limits(self, loss_amount: np.ndarray | float,
+                    aggregate_paid_so_far: float = 0.0) -> tuple[np.ndarray | float, float]:
+        """
+        Apply per-occurrence and aggregate limits to loss amount.
+        
+        Args:
+            loss_amount: Loss amount(s) after retention
+            aggregate_paid_so_far: Total losses paid so far (for aggregate limit tracking)
+            
+        Returns:
+            tuple: (limited_loss, amount_over_limit)
+            
+        Examples:
+            >>> terms = PolicyTerms(
+            ...     effective_date=date(2024, 1, 1),
+            ...     expiration_date=date(2024, 12, 31),
+            ...     per_occ_limit=10000.0,
+            ...     agg_limit=50000.0
+            ... )
+            >>> limited, excess = terms.apply_limits(15000.0)
+            >>> limited
+            10000.0
+            >>> excess
+            5000.0
+        """
+        # Convert to numpy array for consistent handling
+        loss_array = np.atleast_1d(loss_amount)
+        
+        # Apply per-occurrence limit
+        if self.per_occ_limit is not None:
+            limited_loss = np.minimum(loss_array, self.per_occ_limit)
+            amount_over_limit = loss_array - limited_loss
+        else:
+            limited_loss = loss_array.copy()
+            amount_over_limit = np.zeros_like(loss_array)
+            
+        # Apply aggregate limit if specified
+        if self.agg_limit is not None:
+            # Calculate remaining aggregate limit
+            agg_limit_remaining = max(0, self.agg_limit - aggregate_paid_so_far)
+            
+            # Apply aggregate limit
+            cumsum = np.cumsum(limited_loss)
+            within_agg_limit = cumsum <= agg_limit_remaining
+            
+            # Adjust losses that exceed aggregate limit
+            if not within_agg_limit.all():
+                # Find where we exceed the limit
+                exceed_idx = np.where(~within_agg_limit)[0]
+                if len(exceed_idx) > 0:
+                    first_exceed = exceed_idx[0]
+                    # Partial payment for the loss that crosses the limit
+                    if first_exceed > 0:
+                        prior_sum = cumsum[first_exceed - 1]
+                    else:
+                        prior_sum = 0
+                    partial_payment = agg_limit_remaining - prior_sum
+                    
+                    # Update limited losses and excess
+                    amount_over_limit[first_exceed] += limited_loss[first_exceed] - partial_payment
+                    limited_loss[first_exceed] = partial_payment
+                    
+                    # Zero out all subsequent losses
+                    amount_over_limit[first_exceed + 1:] += limited_loss[first_exceed + 1:]
+                    limited_loss[first_exceed + 1:] = 0
+        
+        # Return scalar if input was scalar
+        if np.isscalar(loss_amount):
+            return float(limited_loss[0]), float(amount_over_limit[0])
+        return limited_loss, amount_over_limit
+    
+    def apply_coinsurance(self, loss_amount: np.ndarray | float) -> np.ndarray | float:
+        """
+        Apply coinsurance to loss amount.
+        
+        Args:
+            loss_amount: Loss amount(s) to apply coinsurance to
+            
+        Returns:
+            Loss amount after coinsurance (insurer's portion)
+            
+        Notes:
+            - coinsurance = 0.0 means insurer pays all (100%)
+            - coinsurance = 1.0 means insured pays all (0% to insurer)
+            - coinsurance = 0.2 means insured pays 20%, insurer pays 80%
+            
+        Examples:
+            >>> terms = PolicyTerms(
+            ...     effective_date=date(2024, 1, 1),
+            ...     expiration_date=date(2024, 12, 31),
+            ...     coinsurance=0.2  # 20% coinsurance
+            ... )
+            >>> terms.apply_coinsurance(10000.0)
+            8000.0  # Insurer pays 80%
+        """
+        if self.coinsurance is None:
+            return loss_amount
+            
+        # Calculate insurer's share (1 - coinsurance)
+        insurer_share = 1.0 - self.coinsurance
+        
+        if np.isscalar(loss_amount):
+            return loss_amount * insurer_share
+        return np.asarray(loss_amount) * insurer_share
+    
+    def apply_xol_attachment(self, ground_up_loss: np.ndarray | float) -> np.ndarray | float:
+        """
+        Apply excess-of-loss (XoL) attachment point.
+        
+        Args:
+            ground_up_loss: Ground-up loss amount(s)
+            
+        Returns:
+            Loss amount excess of attachment point
+            
+        Notes:
+            XoL layers only respond to losses exceeding the attachment point.
+            The attachment point is applied before any limits.
+            
+        Examples:
+            >>> terms = PolicyTerms(
+            ...     effective_date=date(2024, 1, 1),
+            ...     expiration_date=date(2024, 12, 31),
+            ...     attachment=100000.0,
+            ...     per_occ_limit=500000.0
+            ... )
+            >>> terms.apply_xol_attachment(150000.0)
+            50000.0  # Only the excess over 100k
+        """
+        if self.attachment is None or self.attachment <= 0:
+            return ground_up_loss
+            
+        if np.isscalar(ground_up_loss):
+            return max(0, ground_up_loss - self.attachment)
+            
+        loss_array = np.asarray(ground_up_loss)
+        return np.maximum(0, loss_array - self.attachment)
+    
+    def apply_policy_terms(self, loss_amount: float, 
+                          aggregate_retained_so_far: float = 0.0,
+                          aggregate_paid_so_far: float = 0.0) -> PolicyResult:
+        """
+        Apply all policy terms to a loss amount in the correct order.
+        
+        This is the main method that orchestrates the application of all policy
+        features in the correct actuarial order.
+        
+        Args:
+            loss_amount: Ground-up loss amount
+            aggregate_retained_so_far: Total retained by insured so far (for agg retention)
+            aggregate_paid_so_far: Total paid by insurer so far (for agg limits)
+            
+        Returns:
+            PolicyResult: Detailed breakdown of the policy application
+            
+        Order of operations:
+            1. Validate loss amount
+            2. Apply retentions (deductible/SIR)
+            3. Apply XoL attachment if present
+            4. Apply limits (per-occurrence and aggregate)
+            5. Apply corridor retention if present
+            6. Apply coinsurance
+            
+        Examples:
+            >>> terms = PolicyTerms(
+            ...     effective_date=date(2024, 1, 1),
+            ...     expiration_date=date(2024, 12, 31),
+            ...     retention_type="deductible",
+            ...     per_occ_retention=1000.0,
+            ...     per_occ_limit=10000.0,
+            ...     coinsurance=0.2  # 20% coinsurance
+            ... )
+            >>> result = terms.apply_policy_terms(15000.0)
+            >>> result.insurer_share  # (15000 - 1000) capped at 10000, then 80% of that
+            8000.0
+        """
+        # 1. Validate loss amount
+        if loss_amount < 0:
+            raise ValueError("Loss amount cannot be negative")
+            
+        # 2. Apply retentions (deductible/SIR)
+        loss_after_retention, retained = self.apply_retention(
+            loss_amount, aggregate_retained_so_far)
+        
+        # 3. Apply XoL attachment if present
+        excess_attachment = 0.0
+        if self.attachment is not None and self.attachment > 0:
+            # For XoL, we apply attachment to the gross loss
+            loss_after_attachment = self.apply_xol_attachment(loss_amount)
+            excess_attachment = loss_amount - loss_after_attachment
+            
+            # Adjust retention calculation for XoL
+            if self.retention_type == "SIR":
+                # SIR applies to losses excess of attachment
+                loss_after_retention, retained = self.apply_retention(
+                    loss_after_attachment, aggregate_retained_so_far)
+            else:
+                # For deductible on XoL, it applies after attachment
+                loss_after_retention = loss_after_attachment
+        else:
+            loss_after_attachment = loss_amount
+            
+        # 4. Apply limits (per-occurrence and aggregate)
+        limited_loss, amount_over_limit = self.apply_limits(
+            loss_after_retention, aggregate_paid_so_far)
+            
+        # 5. Apply corridor retention if present
+        corridor_retained = 0.0
+        if self.corridor_retention is not None and self.corridor_retention > 0:
+            corridor_retained = min(limited_loss, self.corridor_retention)
+            limited_loss = limited_loss - corridor_retained
+            
+        # 6. Apply coinsurance
+        insurer_share = self.apply_coinsurance(limited_loss)
+        coinsurance_to_insured = limited_loss - insurer_share
+        
+        # Calculate total insured share
+        insured_share = retained + corridor_retained + coinsurance_to_insured
+        
+        return PolicyResult(
+            ground_up_loss=loss_amount,
+            retained_amount=retained,
+            loss_after_retention=loss_after_retention,
+            excess_attachment=excess_attachment,
+            loss_after_attachment=loss_after_attachment,
+            limited_loss=limited_loss + corridor_retained,  # Before corridor
+            amount_over_limit=amount_over_limit,
+            corridor_retained=corridor_retained,
+            insurer_share=insurer_share,
+            insured_share=insured_share
+        )
+    
+    def get_exposure_info(self) -> dict:
+        """
+        Get exposure information for rating and analysis.
+        
+        Returns:
+            dict: Exposure base, amount, and related information
+            
+        Examples:
+            >>> terms = PolicyTerms(
+            ...     effective_date=date(2024, 1, 1),
+            ...     expiration_date=date(2024, 12, 31),
+            ...     exposure_base=PAYROLL,
+            ...     exposure_amount=1000000.0
+            ... )
+            >>> info = terms.get_exposure_info()
+            >>> info['exposure_base_name']
+            'Payroll'
+        """
+        return {
+            'exposure_base': self.exposure_base,
+            'exposure_base_name': self.exposure_base.name if self.exposure_base else None,
+            'exposure_base_unit': self.exposure_base.unit if self.exposure_base else None,
+            'exposure_amount': self.exposure_amount,
+            'lob': self.lob,
+            'lob_name': str(self.lob) if self.lob else None
+        }
+    
+    def calculate_rate_per_unit(self, premium: float) -> float:
+        """
+        Calculate rate per unit of exposure.
+        
+        Args:
+            premium: Total premium amount
+            
+        Returns:
+            float: Rate per unit of exposure
+            
+        Examples:
+            >>> terms = PolicyTerms(
+            ...     effective_date=date(2024, 1, 1),
+            ...     expiration_date=date(2024, 12, 31),
+            ...     exposure_base=PAYROLL,
+            ...     exposure_amount=1000000.0
+            ... )
+            >>> terms.calculate_rate_per_unit(5000.0)
+            0.005  # $5 per $1000 of payroll
+        """
+        if self.exposure_amount <= 0:
+            raise ValueError("Exposure amount must be positive to calculate rate")
+        
+        # For monetary exposures, rate is often per $1000 or $100
+        if self.exposure_base and self.exposure_base.unit == "USD":
+            return premium / (self.exposure_amount / 1000.0)
+        else:
+            # For other units, rate is per unit
+            return premium / self.exposure_amount
 
 # TODO: Add a Reinsurance policy dataclass.
 

@@ -1,0 +1,47 @@
+---
+project_name: quActuary
+current_milestone_id: M01
+highest_sprint_in_milestone: S01
+current_sprint_id: S01
+status: active
+last_updated: 2025-05-24 17:17
+---
+
+# Project Manifest: quActuary
+
+This manifest serves as the central reference point for the project. It tracks the current focus and links to key documentation.
+
+## 1. Project Vision & Overview
+
+The quActuary package provides quantum-accelerated actuarial computations with a seamless classical/quantum backend switch. The package enables actuaries to leverage quantum computing for complex risk calculations while maintaining compatibility with classical approaches.
+
+Key features:
+- Backend System: Toggle between classical and quantum execution
+- Policy management and portfolio construction
+- Frequency and severity distributions with quantum state preparation
+- Risk measures (VaR, TVaR) with quantum optimization
+
+This project follows a milestone-based development approach.
+
+## 2. Current Focus
+
+- **Milestone:** M01 - Classical Optimization Foundation
+- **Sprint:** S01 - Optimize Classical Simulations
+
+## 3. Sprints in Current Milestone
+
+- [S01_M01_Classical_Optimization](./03_SPRINTS/S01_M01_Classical_Optimization/) - **Active**
+  - Goal: Implement policy logic and optimize classical simulation
+  - Tasks: Policy logic, compound distributions, Sobol sequences, optimization
+
+## 4. Key Documentation
+
+- [Architecture Documentation](./01_PROJECT_DOCS/ARCHITECTURE.md)
+- [Current Milestone Requirements](./02_REQUIREMENTS/M01_Backend_Setup/)
+- [General Tasks](./04_GENERAL_TASKS/)
+
+## 5. Quick Links
+
+- **Current Sprint:** [S01 Sprint Folder](./03_SPRINTS/S01_M01_Classical_Optimization/)
+- **Active Tasks:** Check sprint folder for T##_S01_*.md files
+- **Project Reviews:** [Latest Review](./10_STATE_OF_PROJECT/)

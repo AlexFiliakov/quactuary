@@ -1,8 +1,57 @@
 """
-Pricing strategy implementations for the strategy pattern architecture.
+Pricing strategy implementations using the strategy pattern.
 
-This module provides the strategy pattern implementation to replace multiple inheritance
-in the PricingModel class, enabling cleaner separation of concerns and easier testing.
+This module implements the strategy pattern for actuarial pricing calculations,
+providing a clean separation between different computational approaches (classical,
+quantum, JIT-optimized) while maintaining a consistent interface. This architecture
+replaces the previous multiple inheritance design with composition, resulting in
+more maintainable and testable code.
+
+Key Components:
+    - PricingStrategy: Abstract base class defining the strategy interface
+    - ClassicalPricingStrategy: Traditional Monte Carlo implementation
+    - QuantumPricingStrategy: Quantum-accelerated calculations (future)
+    - Helper functions for strategy selection based on backend type
+
+Design Benefits:
+    - Separation of concerns: Each strategy encapsulates its approach
+    - Extensibility: New strategies can be added without modifying existing code
+    - Testability: Strategies can be tested independently
+    - Runtime flexibility: Strategies can be swapped dynamically
+
+Examples:
+    Using classical strategy directly:
+        >>> from quactuary.pricing_strategies import ClassicalPricingStrategy
+        >>> from quactuary.book import Portfolio
+        >>> 
+        >>> portfolio = Portfolio(policies_df)
+        >>> strategy = ClassicalPricingStrategy(use_jit=True)
+        >>> result = strategy.calculate_portfolio_statistics(
+        ...     portfolio=portfolio,
+        ...     n_sims=10000
+        ... )
+
+    Strategy selection based on backend:
+        >>> from quactuary.backend import get_backend
+        >>> from quactuary.pricing_strategies import get_strategy_for_backend
+        >>> 
+        >>> backend = get_backend()  # Current global backend
+        >>> strategy = get_strategy_for_backend(backend)
+        >>> # Automatically returns appropriate strategy
+
+    Integration with PricingModel:
+        >>> from quactuary.pricing import PricingModel
+        >>> 
+        >>> # PricingModel uses strategies internally
+        >>> model = PricingModel(portfolio, strategy=ClassicalPricingStrategy())
+        >>> # Or let it auto-select based on backend
+        >>> model = PricingModel(portfolio)  # Uses default strategy
+
+Notes:
+    - Classical strategy supports both standard and JIT-optimized execution
+    - Quantum strategy is a placeholder for future implementation
+    - Strategies should be stateless when possible for thread safety
+    - The pattern allows for easy addition of new computational approaches
 """
 
 from abc import ABC, abstractmethod
@@ -20,7 +69,30 @@ class PricingStrategy(ABC):
     """
     Abstract base class for pricing strategies.
     
-    Defines the interface that all pricing strategies must implement.
+    This class defines the interface that all pricing strategies must implement,
+    ensuring consistent behavior across different computational approaches. Each
+    concrete strategy encapsulates a specific method for calculating portfolio
+    risk measures (classical Monte Carlo, quantum algorithms, etc.).
+    
+    The strategy pattern allows the PricingModel to delegate calculations to
+    different implementations without knowing the specific details, enabling
+    runtime flexibility and clean separation of concerns.
+    
+    Subclasses must implement:
+        - calculate_portfolio_statistics: Main calculation method
+        
+    Design principles:
+        - Strategies should be stateless when possible
+        - All strategies return PricingResult objects
+        - Parameters should be validated by the strategy
+        - Strategies can have their own initialization parameters
+        
+    Examples:
+        Creating a custom strategy:
+            >>> class CustomStrategy(PricingStrategy):
+            ...     def calculate_portfolio_statistics(self, portfolio, **kwargs):
+            ...         # Custom implementation here
+            ...         return PricingResult(...)
     """
     
     @abstractmethod
@@ -58,8 +130,44 @@ class ClassicalPricingStrategy(PricingStrategy):
     """
     Classical pricing strategy using Monte Carlo simulation.
     
-    This strategy implements classical actuarial calculations using
-    traditional Monte Carlo methods and statistical approaches.
+    This strategy implements traditional actuarial calculations using Monte Carlo
+    simulation methods. It supports both standard Python implementations and
+    JIT-compiled versions for improved performance on large portfolios.
+    
+    The classical approach:
+    - Generates random samples from loss distributions
+    - Computes empirical statistics from the samples
+    - Provides consistent, well-understood results
+    - Scales linearly with number of simulations
+    
+    Features:
+        - Standard Monte Carlo simulation
+        - Optional JIT compilation via Numba
+        - Support for all standard risk measures
+        - Integration with quasi-random sequences
+        
+    Attributes:
+        use_jit (bool): Whether to use JIT-compiled kernels for performance.
+            
+    Examples:
+        Standard usage:
+            >>> strategy = ClassicalPricingStrategy(use_jit=False)
+            >>> result = strategy.calculate_portfolio_statistics(
+            ...     portfolio, n_sims=10000
+            ... )
+            
+        With JIT optimization:
+            >>> strategy = ClassicalPricingStrategy(use_jit=True)
+            >>> # Faster for large portfolios and many simulations
+            >>> result = strategy.calculate_portfolio_statistics(
+            ...     portfolio, n_sims=100000
+            ... )
+            
+    Performance notes:
+        - JIT compilation has overhead on first call
+        - Benefits increase with portfolio size and simulation count
+        - Standard implementation better for small/quick calculations
+        - JIT version can be 10-100x faster for large problems
     """
     
     def __init__(self, use_jit: bool = True):
@@ -67,7 +175,17 @@ class ClassicalPricingStrategy(PricingStrategy):
         Initialize the classical pricing strategy.
         
         Args:
-            use_jit: Whether to use JIT compilation for performance (default: True)
+            use_jit (bool): Whether to use JIT compilation for performance.
+                Default is True. Set to False for better debugging or when
+                working with small portfolios where compilation overhead
+                isn't worth the speedup.
+                
+        Examples:
+            >>> # For production with large portfolios
+            >>> strategy = ClassicalPricingStrategy(use_jit=True)
+            >>> 
+            >>> # For debugging or small calculations  
+            >>> strategy = ClassicalPricingStrategy(use_jit=False)
         """
         self.use_jit = use_jit
     

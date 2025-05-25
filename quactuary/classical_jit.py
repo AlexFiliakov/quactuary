@@ -1,7 +1,78 @@
 """
 JIT-optimized classical actuarial simulation module.
 
-Provides high-performance Monte Carlo simulation using Numba JIT compilation.
+This module provides a high-performance implementation of classical actuarial
+pricing models using Numba JIT compilation. It offers the same interface as
+the standard classical module but with significant performance improvements
+for large-scale Monte Carlo simulations.
+
+The module achieves performance gains through:
+- Just-In-Time compilation of simulation loops
+- Parallel execution across CPU cores
+- Optimized memory access patterns
+- Vectorized operations on NumPy arrays
+- Reduced Python interpreter overhead
+
+Key Components:
+    - ClassicalJITPricingModel: Main pricing model with JIT optimization
+    - Distribution parameter extraction for JIT compatibility
+    - Bucket-based parallel simulation
+    - Optimized risk measure calculations
+
+Performance Characteristics:
+    - 10-100x faster than pure Python for large portfolios
+    - Linear scaling with CPU cores (parallel=True)
+    - One-time compilation overhead on first use
+    - Memory-efficient batch processing
+
+Limitations:
+    - Assumes specific distribution types (Poisson, Lognormal, Exponential)
+    - Falls back to approximations for unsupported distributions
+    - Requires Numba package installation
+    - May have reduced flexibility compared to pure Python
+
+Examples:
+    Direct usage:
+        >>> from quactuary.classical_jit import ClassicalJITPricingModel
+        >>> from quactuary.book import Portfolio
+        >>> 
+        >>> portfolio = Portfolio(policies_df)
+        >>> jit_model = ClassicalJITPricingModel()
+        >>> 
+        >>> # First call compiles (slower)
+        >>> result = jit_model.calculate_portfolio_statistics(
+        ...     portfolio=portfolio,
+        ...     n_sims=100000,
+        ...     use_jit=True
+        ... )
+        >>> 
+        >>> # Subsequent calls are fast
+        >>> result2 = jit_model.calculate_portfolio_statistics(
+        ...     portfolio=portfolio,
+        ...     n_sims=1000000,  # 10x more simulations
+        ...     use_jit=True
+        ... )
+
+    Through pricing strategy:
+        >>> from quactuary.pricing_strategies import ClassicalPricingStrategy
+        >>> 
+        >>> # Automatically uses JIT when use_jit=True
+        >>> strategy = ClassicalPricingStrategy(use_jit=True)
+        >>> result = strategy.calculate_portfolio_statistics(
+        ...     portfolio, n_sims=100000
+        ... )
+
+Performance Tips:
+    - Use for portfolios with >100 policies
+    - Use for simulations with >10,000 iterations
+    - Group policies with similar characteristics in buckets
+    - Ensure distributions are Poisson/Lognormal/Exponential when possible
+    - Run a warmup simulation to trigger compilation
+
+Notes:
+    - The module maintains API compatibility with classical.py
+    - Warnings are issued when distributions require approximation
+    - Results should match non-JIT version within Monte Carlo error
 """
 
 from __future__ import annotations

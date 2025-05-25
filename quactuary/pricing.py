@@ -1,17 +1,73 @@
 """
 Pricing module for actuarial loss models.
 
-This module provides classes to price excess loss and compute risk measures for insurance portfolios,
-using classical simulation methods (Monte Carlo, FFT) with optional quantum acceleration via Qiskit.
+This module provides a flexible framework for pricing insurance portfolios and calculating
+risk measures using various computational backends (classical Monte Carlo, FFT, or quantum).
+The module implements a strategy pattern to allow seamless switching between different
+calculation methods while maintaining a consistent interface.
 
-Notes:
-    Classical methods include Monte Carlo and FFT via external libraries.
-    Quantum acceleration uses Qiskit backends managed by BackendManager.
+Key Features:
+    - Portfolio-based pricing with support for individual policy terms
+    - Classical simulation methods (Monte Carlo with optional quasi-random sequences)
+    - Quantum acceleration support via Qiskit backends
+    - Compound distribution modeling for aggregate losses
+    - Excess of loss reinsurance pricing
+    - Risk measures: VaR, TVaR, mean, variance
+
+Architecture:
+    The module uses composition over inheritance with a strategy pattern:
+    - PricingModel: Main interface for all pricing operations
+    - PricingStrategy: Abstract base for calculation strategies
+    - ClassicalPricingStrategy: Traditional Monte Carlo implementation
+    - QuantumPricingStrategy: Quantum-accelerated calculations
 
 Examples:
-    >>> from quactuary.pricing import ExcessLossModel, RiskMeasureModel
-    >>> model = ExcessLossModel(inforce, deductible=1000.0, limit=10000.0)
-    >>> result = model.compute_excess_loss()
+    Basic portfolio pricing:
+        >>> from quactuary.pricing import PricingModel
+        >>> from quactuary.book import Portfolio
+        >>> 
+        >>> # Create portfolio from policy data
+        >>> portfolio = Portfolio(policies_df)
+        >>> model = PricingModel(portfolio)
+        >>> 
+        >>> # Calculate risk measures
+        >>> result = model.simulate(
+        ...     mean=True,
+        ...     value_at_risk=True,
+        ...     tail_alpha=0.05,
+        ...     n_sims=10000
+        ... )
+        >>> print(f"VaR 95%: {result.value_at_risk:.2f}")
+
+    Using quasi-Monte Carlo for improved convergence:
+        >>> # Use Sobol sequences for better uniformity
+        >>> result = model.simulate(
+        ...     qmc_method="sobol",
+        ...     qmc_scramble=True,
+        ...     n_sims=5000
+        ... )
+
+    Pricing excess of loss reinsurance:
+        >>> from quactuary.distributions import Poisson, LogNormal
+        >>> 
+        >>> # Set up aggregate loss model
+        >>> model.set_compound_distribution(
+        ...     frequency=Poisson(lambda_=100),
+        ...     severity=LogNormal(mu=7, sigma=1.5)
+        ... )
+        >>> 
+        >>> # Price a 1M xs 500k layer
+        >>> layer_price = model.price_excess_layer(
+        ...     attachment=500_000,
+        ...     limit=1_000_000,
+        ...     n_simulations=10000
+        ... )
+        >>> print(f"Expected layer loss: ${layer_price['expected_loss']:,.2f}")
+
+Notes:
+    - The module automatically selects the appropriate backend based on availability
+    - Quasi-Monte Carlo methods can significantly improve convergence for smooth integrands
+    - Quantum backends are experimental and require appropriate hardware/simulators
 """
 
 from typing import Optional, Union
@@ -27,7 +83,7 @@ from quactuary.distributions.compound import CompoundDistribution
 from quactuary.distributions.frequency import FrequencyModel
 from quactuary.distributions.severity import SeverityModel
 from quactuary.pricing_strategies import PricingStrategy, ClassicalPricingStrategy, get_strategy_for_backend
-from quactuary.sobol import set_qmc_simulator, reset_qmc_simulator
+from quactuary.sobol import set_qmc_simulator, reset_qmc_simulator, get_qmc_simulator
 
 
 class PricingModel:
@@ -51,8 +107,27 @@ class PricingModel:
         Initialize a PricingModel.
 
         Args:
-            portfolio (Portfolio): Inforce policy data grouped into a Portfolio.
-            strategy (Optional[PricingStrategy]): Pricing strategy to use. If None, automatically selects based on current backend.
+            portfolio (Portfolio): Inforce policy data grouped into a Portfolio. The portfolio
+                should contain policy-level information including exposures, limits, deductibles,
+                and other terms needed for pricing.
+            strategy (Optional[PricingStrategy]): Pricing strategy to use. If None, automatically 
+                selects based on current backend configuration. You can provide a custom strategy
+                for specialized calculations or override the default classical strategy.
+
+        Examples:
+            Using default classical strategy:
+                >>> portfolio = Portfolio(policies_df)
+                >>> model = PricingModel(portfolio)
+            
+            Using quantum strategy:
+                >>> from quactuary.pricing_strategies import QuantumPricingStrategy
+                >>> quantum_strategy = QuantumPricingStrategy()
+                >>> model = PricingModel(portfolio, strategy=quantum_strategy)
+            
+            Using JIT-optimized classical strategy:
+                >>> from quactuary.pricing_strategies import ClassicalPricingStrategy
+                >>> jit_strategy = ClassicalPricingStrategy(use_jit=True)
+                >>> model = PricingModel(portfolio, strategy=jit_strategy)
         """
         self.portfolio = portfolio
         self.strategy = strategy or ClassicalPricingStrategy()
@@ -75,21 +150,91 @@ class PricingModel:
         """
         Calculate portfolio statistics using the configured strategy.
 
+        This method performs Monte Carlo simulation to estimate portfolio risk measures.
+        It supports both standard pseudo-random and quasi-random (low-discrepancy) sequences
+        for improved convergence. The calculation can be performed using different backends
+        (classical or quantum) through the strategy pattern.
+
         Args:
-            mean (bool): Calculate mean loss.
-            variance (bool): Calculate variance.
-            value_at_risk (bool): Calculate value at risk.
-            tail_value_at_risk (bool): Calculate tail value at risk.
-            tail_alpha (float): Alpha level for tail risk measures.
-            n_sims (Optional[int]): Number of simulations.
-            backend (Optional[BackendManager]): Execution backend override. If provided, temporarily switches strategy.
-            qmc_method (Optional[str]): Quasi-Monte Carlo method ("sobol", "halton", or None for standard random).
-            qmc_scramble (bool): Whether to apply scrambling to QMC sequences.
-            qmc_skip (int): Number of initial QMC points to skip.
-            qmc_seed (Optional[int]): Random seed for QMC scrambling.
+            mean (bool): Calculate mean (expected) loss. Default is True.
+            variance (bool): Calculate variance of losses. Default is True.
+            value_at_risk (bool): Calculate Value at Risk (VaR). Default is True.
+            tail_value_at_risk (bool): Calculate Tail Value at Risk (TVaR/CVaR). Default is True.
+            tail_alpha (float): Alpha level for tail risk measures (VaR and TVaR). 
+                For example, 0.05 gives 95% VaR. Default is 0.05.
+            n_sims (Optional[int]): Number of Monte Carlo simulations. If None, uses the
+                strategy's default (typically 10,000). Higher values improve accuracy.
+            backend (Optional[BackendManager]): Execution backend override. If provided, 
+                temporarily switches strategy to match the backend. Useful for comparing
+                classical vs quantum results.
+            qmc_method (Optional[str]): Quasi-Monte Carlo method for low-discrepancy sequences:
+                - "sobol": Sobol sequences (recommended for up to ~20 dimensions)
+                - "halton": Halton sequences (good for lower dimensions)
+                - None: Standard pseudo-random numbers (default)
+            qmc_scramble (bool): Whether to apply Owen scrambling to QMC sequences. 
+                Scrambling improves uniformity and enables error estimation. Default is True.
+            qmc_skip (int): Number of initial QMC points to skip. Skipping early points
+                can improve uniformity for some sequences. Default is 1024.
+            qmc_seed (Optional[int]): Random seed for QMC scrambling. If None, uses a
+                random seed. Providing a seed ensures reproducibility.
 
         Returns:
-            PricingResult: Portfolio statistics results.
+            PricingResult: Object containing calculated portfolio statistics:
+                - mean: Expected portfolio loss
+                - variance: Variance of portfolio losses
+                - value_at_risk: VaR at (1-tail_alpha) confidence level
+                - tail_value_at_risk: TVaR at (1-tail_alpha) confidence level
+                - n_simulations: Number of simulations performed
+                - convergence_error: Estimated Monte Carlo error (if available)
+
+        Examples:
+            Basic risk measure calculation:
+                >>> result = model.simulate(n_sims=10000)
+                >>> print(f"Expected loss: ${result.mean:,.2f}")
+                >>> print(f"95% VaR: ${result.value_at_risk:,.2f}")
+                >>> print(f"95% TVaR: ${result.tail_value_at_risk:,.2f}")
+
+            Using Sobol sequences for better convergence:
+                >>> result = model.simulate(
+                ...     qmc_method="sobol",
+                ...     qmc_scramble=True,
+                ...     n_sims=5000,  # Can use fewer simulations with QMC
+                ...     tail_alpha=0.01  # 99% confidence level
+                ... )
+
+            Comparing classical vs quantum backends:
+                >>> from quactuary.backend import get_backend
+                >>> 
+                >>> # Classical calculation
+                >>> classical_result = model.simulate(
+                ...     backend=get_backend("classical"),
+                ...     n_sims=10000
+                ... )
+                >>> 
+                >>> # Quantum calculation (if available)
+                >>> quantum_backend = get_backend("quantum")
+                >>> if quantum_backend:
+                ...     quantum_result = model.simulate(
+                ...         backend=quantum_backend,
+                ...         n_sims=10000
+                ...     )
+
+            Calculating only specific measures:
+                >>> # Only calculate mean and VaR, skip variance and TVaR
+                >>> result = model.simulate(
+                ...     mean=True,
+                ...     variance=False,
+                ...     value_at_risk=True,
+                ...     tail_value_at_risk=False,
+                ...     n_sims=20000
+                ... )
+
+        Notes:
+            - Quasi-Monte Carlo methods can significantly reduce the number of simulations
+              needed for accurate results, especially for smooth integrands
+            - The quantum backend is experimental and may not support all features
+            - TVaR is always >= VaR for the same confidence level
+            - Increasing n_sims improves accuracy but increases computation time linearly
         """
         # Configure QMC if requested
         qmc_was_configured = get_qmc_simulator() is not None
@@ -134,9 +279,41 @@ class PricingModel:
         """
         Set compound distribution for aggregate loss modeling.
         
+        This method creates a compound distribution S = X₁ + X₂ + ... + Xₙ where:
+        - N ~ frequency distribution (number of losses)
+        - Xᵢ ~ severity distribution (individual loss amounts)
+        
+        The compound distribution is used for aggregate loss calculations, excess layer
+        pricing, and can leverage analytical solutions when available (e.g., compound
+        Poisson with certain severity distributions).
+        
         Args:
-            frequency: Frequency distribution model
-            severity: Severity distribution model
+            frequency (FrequencyModel): Frequency distribution model determining the number
+                of losses. Common choices include Poisson, NegativeBinomial, or Binomial.
+            severity (SeverityModel): Severity distribution model for individual loss amounts.
+                Common choices include LogNormal, Gamma, Pareto, or Weibull.
+
+        Examples:
+            Setting up a compound Poisson-LogNormal model:
+                >>> from quactuary.distributions import Poisson, LogNormal
+                >>> model.set_compound_distribution(
+                ...     frequency=Poisson(lambda_=50),
+                ...     severity=LogNormal(mu=8, sigma=1.2)
+                ... )
+            
+            Using empirical frequency with parametric severity:
+                >>> from quactuary.distributions import Empirical, Gamma
+                >>> historical_counts = [45, 52, 48, 51, 49]
+                >>> model.set_compound_distribution(
+                ...     frequency=Empirical(data=historical_counts),
+                ...     severity=Gamma(alpha=2.0, scale=5000)
+                ... )
+
+        Notes:
+            - The compound distribution is used by calculate_aggregate_statistics()
+              and price_excess_layer() methods
+            - Some combinations have analytical solutions (e.g., Poisson-Exponential)
+            - Others require simulation-based approaches
         """
         self.compound_distribution = CompoundDistribution.create(frequency, severity)
     
@@ -149,13 +326,58 @@ class PricingModel:
         """
         Calculate aggregate loss statistics using compound distribution or empirical methods.
         
+        This method computes key risk measures for the aggregate loss distribution of the
+        portfolio. If a compound distribution has been set, it will be used for calculations.
+        Otherwise, empirical simulation based on portfolio characteristics is performed.
+        
         Args:
-            apply_policy_terms: Whether to apply policy terms (deductibles, limits, etc.)
-            confidence_levels: List of confidence levels for VaR/TVaR (default: [0.90, 0.95, 0.99])
-            n_simulations: Number of simulations for empirical calculation if no compound distribution
+            apply_policy_terms (bool): Whether to apply policy terms (deductibles, limits, etc.)
+                when calculating aggregate losses. Default is True.
+            confidence_levels (Optional[list]): List of confidence levels for VaR/TVaR calculations.
+                Values should be between 0 and 1. Default is [0.90, 0.95, 0.99].
+            n_simulations (int): Number of simulations for empirical calculation if no compound
+                distribution is set, or for TVaR calculation. Default is 10,000.
             
         Returns:
-            Dictionary with aggregate loss statistics
+            dict: Dictionary containing aggregate loss statistics with keys:
+                - 'mean': Expected aggregate loss
+                - 'std': Standard deviation of aggregate loss
+                - 'variance': Variance of aggregate loss
+                - 'has_analytical': Boolean indicating if analytical solution was used
+                - 'var_X%': Value at Risk at X% confidence level
+                - 'tvar_X%': Tail Value at Risk (CVaR) at X% confidence level
+                - 'method': 'compound' or 'empirical' indicating calculation method
+
+        Examples:
+            Calculate statistics with compound distribution:
+                >>> # Set up compound distribution first
+                >>> model.set_compound_distribution(
+                ...     frequency=Poisson(lambda_=100),
+                ...     severity=LogNormal(mu=7, sigma=1.5)
+                ... )
+                >>> stats = model.calculate_aggregate_statistics()
+                >>> print(f"Expected aggregate loss: ${stats['mean']:,.2f}")
+                >>> print(f"VaR 99%: ${stats['var_99%']:,.2f}")
+                >>> print(f"TVaR 99%: ${stats['tvar_99%']:,.2f}")
+            
+            Calculate with custom confidence levels:
+                >>> stats = model.calculate_aggregate_statistics(
+                ...     confidence_levels=[0.95, 0.99, 0.995],
+                ...     n_simulations=50000
+                ... )
+                >>> print(f"VaR 99.5%: ${stats['var_99.5%']:,.2f}")
+            
+            Empirical calculation without compound distribution:
+                >>> # No compound distribution set, uses portfolio empirical approach
+                >>> stats = model.calculate_aggregate_statistics(
+                ...     apply_policy_terms=True,
+                ...     n_simulations=25000
+                ... )
+
+        Notes:
+            - TVaR (Tail Value at Risk) is also known as CVaR (Conditional Value at Risk)
+            - TVaR represents the expected loss given that the loss exceeds VaR
+            - Empirical method assumes exponential losses if no policy-specific information
         """
         if confidence_levels is None:
             confidence_levels = [0.90, 0.95, 0.99]
@@ -252,13 +474,73 @@ class PricingModel:
         """
         Price an excess of loss reinsurance layer.
         
+        This method calculates the expected loss and other statistics for an excess of loss
+        reinsurance layer with specified attachment point and limit. The layer pays losses
+        that exceed the attachment point, up to the specified limit.
+        
+        Layer payment formula: min(max(Loss - Attachment, 0), Limit)
+        
         Args:
-            attachment: Layer attachment point
-            limit: Layer limit
-            n_simulations: Number of simulations for pricing
+            attachment (float): Layer attachment point (deductible). The layer begins paying
+                when aggregate losses exceed this amount.
+            limit (float): Layer limit. The maximum amount the layer will pay. For unlimited
+                layers, use float('inf').
+            n_simulations (int): Number of Monte Carlo simulations for pricing. Higher values
+                give more accurate results but take longer. Default is 10,000.
             
         Returns:
-            Dictionary with layer pricing information
+            dict: Dictionary containing layer pricing information with keys:
+                - 'attachment': Layer attachment point
+                - 'limit': Layer limit  
+                - 'expected_loss': Expected loss to the layer (pure premium)
+                - 'loss_std': Standard deviation of layer losses
+                - 'loss_probability': Probability of any loss to the layer
+                - 'average_severity': Average loss amount when layer is triggered
+                - 'ground_up_mean': Mean of ground-up (unlimited) losses
+                - 'ground_up_std': Standard deviation of ground-up losses
+
+        Raises:
+            ValueError: If compound distribution has not been set via set_compound_distribution()
+
+        Examples:
+            Price a 1M xs 500k layer:
+                >>> from quactuary.distributions import Poisson, LogNormal
+                >>> 
+                >>> # Set aggregate loss distribution
+                >>> model.set_compound_distribution(
+                ...     frequency=Poisson(lambda_=100),
+                ...     severity=LogNormal(mu=7, sigma=1.5)
+                ... )
+                >>> 
+                >>> # Price the layer
+                >>> layer = model.price_excess_layer(
+                ...     attachment=500_000,
+                ...     limit=1_000_000,
+                ...     n_simulations=50000
+                ... )
+                >>> 
+                >>> print(f"Layer: {layer['limit']:,.0f} xs {layer['attachment']:,.0f}")
+                >>> print(f"Expected loss: ${layer['expected_loss']:,.2f}")
+                >>> print(f"Loss probability: {layer['loss_probability']:.1%}")
+                >>> print(f"Average severity when triggered: ${layer['average_severity']:,.2f}")
+            
+            Price multiple layers for a reinsurance program:
+                >>> layers = [
+                ...     (100_000, 400_000),   # 400k xs 100k
+                ...     (500_000, 500_000),   # 500k xs 500k
+                ...     (1_000_000, 2_000_000)  # 2M xs 1M
+                ... ]
+                >>> 
+                >>> for attachment, limit in layers:
+                ...     result = model.price_excess_layer(attachment, limit)
+                ...     rate = result['expected_loss'] / limit * 100
+                ...     print(f"{limit/1e6:.1f}M xs {attachment/1e6:.1f}M: Rate = {rate:.2f}%")
+
+        Notes:
+            - Requires compound distribution to be set first
+            - Uses Monte Carlo simulation to estimate layer losses
+            - For high attachment points, increase n_simulations for accuracy
+            - Layer limit is the maximum payment, not the upper bound of coverage
         """
         if self.compound_distribution is None:
             raise ValueError("Compound distribution not set. Call set_compound_distribution first.")

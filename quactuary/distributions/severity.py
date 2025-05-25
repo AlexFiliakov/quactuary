@@ -252,17 +252,49 @@ class DiscretizedSeverity():
 
 def _get_binned_moments(bin_edges, sev_dist: SeverityModel):
     """
-    This helper function computes for each bin defined by bin_edges:
-    - pmf: Probability mass in the bin
-    - bin_mean: First moment in the bin
+    Compute probability mass and conditional mean for discretization bins.
+
+    This helper function is used for discretizing continuous severity distributions
+    into bins, computing both the probability mass and the conditional expected
+    value within each bin. This is essential for numerical methods like Panjer
+    recursion that require discrete distributions.
+
+    The function computes:
+    - pmf[i]: P(a[i] ≤ X < b[i]) for each bin
+    - bin_mean[i]: E[X | a[i] ≤ X < b[i]] for each bin
 
     Args:
-        bin_edges (array-like): The edges of the bins.
-        sev_dist (SeverityModel): The underlying severity distribution.
+        bin_edges (array-like): The edges of the bins, must be monotonically increasing.
+            For n bins, this should have n+1 elements: [a₀, a₁, ..., aₙ] where
+            bin i covers the interval [aᵢ, aᵢ₊₁).
+        sev_dist (SeverityModel): The underlying continuous severity distribution to
+            discretize. Must implement pdf() and cdf() methods.
 
     Returns:
-        pmf (ndarray): Probability mass in each bin.
-        bin_mean (ndarray): Exact first moment (∫ x f(x) dx) over each bin.
+        tuple[np.ndarray, np.ndarray]: A tuple containing:
+            - pmf: Array of probability masses for each bin. Sum equals the total
+              probability mass covered by the bins (may be < 1 if bins don't cover
+              full support).
+            - bin_mean: Array of conditional expected values within each bin. These
+              are the exact first moments computed via numerical integration.
+
+    Examples:
+        Discretize a lognormal distribution:
+            >>> from quactuary.distributions import LogNormal
+            >>> sev = LogNormal(mu=5, sigma=1)
+            >>> bin_edges = np.linspace(0, 1000, 101)  # 100 bins
+            >>> pmf, means = _get_binned_moments(bin_edges, sev)
+            >>> print(f"Total probability captured: {pmf.sum():.3f}")
+            
+        Use for Panjer recursion:
+            >>> # Convert continuous severity to discrete for Panjer
+            >>> discrete_sev = DiscretizedSeverity(bin_edges, pmf, means)
+
+    Notes:
+        - Numerical integration uses scipy.integrate.quad for accuracy
+        - Small epsilon shift used for discrete CDF compatibility
+        - Bins with negligible probability mass still computed for completeness
+        - Integration may be slow for many bins or complex distributions
     """
     edges = np.asarray(bin_edges)
     a = edges[:-1]
@@ -278,20 +310,6 @@ def _get_binned_moments(bin_edges, sev_dist: SeverityModel):
 
     return pmf, bin_mean
 
-
-"""
- ██████  ██████  ███    ███ ███    ███  ██████  ███    ██                                      
-██      ██    ██ ████  ████ ████  ████ ██    ██ ████   ██                                      
-██      ██    ██ ██ ████ ██ ██ ████ ██ ██    ██ ██ ██  ██                                      
-██      ██    ██ ██  ██  ██ ██  ██  ██ ██    ██ ██  ██ ██                                      
- ██████  ██████  ██      ██ ██      ██  ██████  ██   ████                                      
-
-██████  ██ ███████ ████████ ██████  ██ ██████  ██    ██ ████████ ██  ██████  ███    ██ ███████ 
-██   ██ ██ ██         ██    ██   ██ ██ ██   ██ ██    ██    ██    ██ ██    ██ ████   ██ ██      
-██   ██ ██ ███████    ██    ██████  ██ ██████  ██    ██    ██    ██ ██    ██ ██ ██  ██ ███████ 
-██   ██ ██      ██    ██    ██   ██ ██ ██   ██ ██    ██    ██    ██ ██    ██ ██  ██ ██      ██ 
-██████  ██ ███████    ██    ██   ██ ██ ██████   ██████     ██    ██  ██████  ██   ████ ███████ 
-"""
 
 
 class Beta(SeverityModel):
@@ -578,18 +596,48 @@ class InverseGamma(SeverityModel):
 
 class InverseGaussian(SeverityModel):
     """
-    Inverse Gaussian distribution for modeling claim losses.
+    Inverse Gaussian (Wald) distribution for modeling claim losses.
+
+    The Inverse Gaussian distribution is commonly used in actuarial science for
+    modeling claim severities, particularly when the underlying process involves
+    a first passage time or when losses show positive skewness.
 
     Args:
-        mu (float): Mean of the distribution.
-        lam (float): Shape parameter.
+        shape (float): Shape parameter (mu). Controls the concentration of the
+            distribution. Higher values lead to more concentrated distributions.
+        loc (float): Location parameter. Shifts the distribution along the x-axis.
+            Default is 0.0 for standard form.
+        scale (float): Scale parameter. Scales the distribution. Default is 1.0.
 
     Examples:
-        >>> InverseGaussian(mu=500.0, lam=2).pmf(300.0)
+        Basic usage:
+            >>> ig = InverseGaussian(shape=2.0, loc=0.0, scale=1000.0)
+            >>> ig.pdf(800.0)
+            0.00123
+            
+        Sampling claim amounts:
+            >>> claims = ig.rvs(size=100)
+            >>> print(f"Mean claim: ${claims.mean():.2f}")
+            
+        Computing risk measures:
+            >>> var_95 = ig.ppf(0.95)  # 95% VaR
+            >>> print(f"95% VaR: ${var_95:.2f}")
+
+    Notes:
+        - The Inverse Gaussian is related to Brownian motion first passage times
+        - It has heavier right tail than Gamma but lighter than LogNormal
+        - All parameters must be positive for a valid distribution
     """
 
-    def __init__(self, shape: float, loc: float, scale: float):
-        """Inverse Gaussian(mu, lam)."""
+    def __init__(self, shape: float, loc: float = 0.0, scale: float = 1.0):
+        """
+        Initialize Inverse Gaussian distribution.
+        
+        Args:
+            shape (float): Shape parameter (must be positive).
+            loc (float): Location parameter. Default is 0.0.
+            scale (float): Scale parameter (must be positive). Default is 1.0.
+        """
         self._dist = invgauss(shape, loc=loc, scale=scale)
 
     def __str__(self):

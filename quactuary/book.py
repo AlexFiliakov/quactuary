@@ -1,14 +1,86 @@
 """
 Insurance entity models for policy terms, inforce buckets, and portfolios.
 
-This module defines the core business objects for representing insurance policy
-terms (`PolicyTerms`), aggregation buckets (`Inforce`), and collections of buckets (`Portfolio`).
+This module provides the core business objects for modeling insurance portfolios
+in the quactuary framework. It defines structures for representing individual
+policy terms, homogeneous groups of policies (buckets), and complete portfolios.
+The module supports both traditional insurance structures and modern excess-of-loss
+arrangements with comprehensive policy term modeling.
+
+Key Components:
+    - PolicyTerms: Detailed insurance policy layer specifications
+    - Inforce: Homogeneous bucket of policies with shared characteristics
+    - Portfolio: Collection of Inforce buckets representing full book
+    - ExposureBase: Standard exposure measurement units
+    - LOB: Line of Business enumeration
+    - PolicyResult: Detailed loss calculation breakdown
+
+Design Philosophy:
+    - Separation of policy terms from loss distributions
+    - Support for complex insurance structures (XoL, corridors, etc.)
+    - Efficient simulation through bucketing similar policies
+    - Comprehensive tracking of loss components
 
 Examples:
-    >>> from quactuary.entities import PolicyTerms, Inforce, Portfolio
-    >>> terms = PolicyTerms(per_occ_deductible=100.0, coinsurance=0.8)
-    >>> bucket = Inforce(n_policies=50, freq=freq_model, sev=sev_model, terms=terms)
-    >>> portfolio = Portfolio([bucket])
+    Creating a simple portfolio:
+        >>> from quactuary.book import PolicyTerms, Inforce, Portfolio
+        >>> from quactuary.distributions import Poisson, LogNormal
+        >>> import datetime
+        >>> 
+        >>> # Define policy terms
+        >>> terms = PolicyTerms(
+        ...     effective_date=datetime.date(2024, 1, 1),
+        ...     expiration_date=datetime.date(2025, 1, 1),
+        ...     per_occ_retention=10000,  # $10k deductible
+        ...     per_occ_limit=1000000,    # $1M limit
+        ...     coinsurance=0.8           # 80% insurer share
+        ... )
+        >>> 
+        >>> # Create inforce bucket
+        >>> bucket = Inforce(
+        ...     n_policies=100,
+        ...     frequency=Poisson(lambda_=2.0),
+        ...     severity=LogNormal(mu=8, sigma=1.5),
+        ...     terms=terms
+        ... )
+        >>> 
+        >>> # Build portfolio
+        >>> portfolio = Portfolio([bucket])
+        >>> losses = portfolio.simulate(n_sims=10000)
+
+    Modeling excess-of-loss layers:
+        >>> # Primary layer: $1M xs $100k
+        >>> primary_terms = PolicyTerms(
+        ...     effective_date=datetime.date(2024, 1, 1),
+        ...     expiration_date=datetime.date(2025, 1, 1),
+        ...     attachment=100000,
+        ...     per_occ_limit=1000000
+        ... )
+        >>> 
+        >>> # Excess layer: $5M xs $1.1M
+        >>> excess_terms = PolicyTerms(
+        ...     effective_date=datetime.date(2024, 1, 1),
+        ...     expiration_date=datetime.date(2025, 1, 1),
+        ...     attachment=1100000,
+        ...     per_occ_limit=5000000
+        ... )
+
+    Using exposure bases:
+        >>> from quactuary.book import PAYROLL, PolicyTerms
+        >>> 
+        >>> wc_terms = PolicyTerms(
+        ...     effective_date=datetime.date(2024, 1, 1),
+        ...     expiration_date=datetime.date(2025, 1, 1),
+        ...     lob=LOB.WC,
+        ...     exposure_base=PAYROLL,
+        ...     exposure_amount=10_000_000  # $10M payroll
+        ... )
+
+Notes:
+    - PolicyTerms are immutable (frozen dataclass) for safety
+    - Inforce buckets should contain homogeneous risks
+    - Portfolio simulation leverages bucketing for efficiency
+    - All monetary values in consistent currency units
 """
 import locale
 from dataclasses import dataclass

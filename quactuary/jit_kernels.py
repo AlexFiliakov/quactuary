@@ -2,7 +2,65 @@
 JIT-compiled numerical kernels for performance optimization.
 
 This module provides Numba-accelerated functions for computationally intensive
-operations in the quactuary package, particularly Monte Carlo simulation.
+operations in the quactuary package. These kernels are designed to significantly
+speed up Monte Carlo simulations and other numerical calculations by compiling
+Python functions to optimized machine code.
+
+Key Features:
+    - Just-In-Time (JIT) compilation using Numba
+    - Parallel execution support for multi-core systems
+    - Optimized implementations of core simulation algorithms
+    - Memory-efficient array operations
+    - Support for various loss distributions
+
+Performance Benefits:
+    - 10-100x speedup for large-scale simulations
+    - Linear scaling with number of CPU cores
+    - Reduced memory allocation overhead
+    - Vectorized operations where possible
+
+Supported Operations:
+    - Aggregate loss simulation (single and batch)
+    - Portfolio loss aggregation
+    - Risk measure calculations (VaR, TVaR)
+    - Distribution parameter extraction
+    - Numerical integration kernels
+
+Examples:
+    Direct kernel usage (low-level):
+        >>> from quactuary.jit_kernels import simulate_aggregate_loss_batch
+        >>> import numpy as np
+        >>> 
+        >>> # Simulate 10000 aggregate losses
+        >>> losses = simulate_aggregate_loss_batch(
+        ...     n_sims=10000,
+        ...     n_policies=100,
+        ...     freq_lambda=2.0,
+        ...     sev_mean=1000.0,
+        ...     sev_std=500.0,
+        ...     distribution_type=0  # Lognormal
+        ... )
+        >>> print(f"Mean loss: ${np.mean(losses):,.2f}")
+
+    Integration with pricing models:
+        >>> from quactuary.pricing_strategies import ClassicalPricingStrategy
+        >>> 
+        >>> # The JIT kernels are used automatically when use_jit=True
+        >>> strategy = ClassicalPricingStrategy(use_jit=True)
+        >>> # Kernels compile on first use, then run fast
+
+Technical Notes:
+    - First call compiles the function (one-time overhead)
+    - Subsequent calls use cached compiled code
+    - nopython=True ensures no Python object overhead
+    - parallel=True enables automatic parallelization
+    - cache=True saves compiled functions between runs
+
+Requirements:
+    - NumPy arrays (not Python lists) for inputs
+    - Fixed data types (no dynamic typing)
+    - Limited Python features within JIT functions
+    - Numba package must be installed
 """
 
 import numpy as np

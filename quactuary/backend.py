@@ -1,14 +1,57 @@
 """
 Backend selection and execution module.
 
-Provides plumbing to choose between quantum (Qiskit) and classical
-execution backends. Abstracts backend management so user-facing models
-receive numeric results regardless of execution mode.
+This module provides the infrastructure for seamlessly switching between quantum
+and classical computation backends in the quactuary framework. It abstracts the
+complexity of backend management, allowing actuarial models to work with both
+quantum circuits (via Qiskit) and classical algorithms transparently.
+
+Key Features:
+    - Unified interface for quantum and classical backends
+    - Support for various quantum providers (Aer simulator, IBMQ, etc.)
+    - Global backend configuration with context manager support
+    - Automatic backend detection and initialization
+    - Thread-safe backend switching
+
+Architecture:
+    - BackendManager: Wrapper class managing backend instances
+    - ClassicalBackend: Marker class for classical computation
+    - Global backend instance with getter/setter functions
+    - Context managers for temporary backend switching
 
 Examples:
-    >>> from quactuary.backend import get_backend, set_backend
-    >>> manager = get_backend()
-    >>> set_backend('quantum', provider='AerSimulator')
+    Basic backend configuration:
+        >>> from quactuary.backend import get_backend, set_backend
+        >>> 
+        >>> # Get current backend (defaults to classical)
+        >>> current = get_backend()
+        >>> print(current.backend_type)  # 'classical'
+        >>> 
+        >>> # Switch to quantum simulator
+        >>> set_backend('quantum', provider='AerSimulator')
+        >>> 
+        >>> # Switch back to classical
+        >>> set_backend('classical')
+
+    Using context manager for temporary switching:
+        >>> from quactuary.backend import backend_context
+        >>> 
+        >>> # Temporarily use quantum backend
+        >>> with backend_context('quantum'):
+        ...     # Quantum computations here
+        ...     result = model.calculate()
+        >>> # Automatically reverts to previous backend
+
+    Working with real quantum hardware:
+        >>> # Configure IBMQ backend (requires credentials)
+        >>> set_backend('quantum', provider='IBMQ', 
+        ...            hub='ibm-q', group='open', project='main')
+
+Notes:
+    - Classical backend is always available and requires no dependencies
+    - Quantum backend requires Qiskit and qiskit-aer packages
+    - Backend selection affects all quactuary computations globally
+    - Use context managers for temporary backend changes in production code
 """
 
 from __future__ import annotations
@@ -26,24 +69,90 @@ _backend = None
 
 class ClassicalBackend():
     """
-    Indicates that classical algorithms should be used.
+    Marker class indicating classical computation backend.
+    
+    This class serves as a placeholder to identify when classical algorithms
+    should be used instead of quantum circuits. It provides a consistent
+    interface with quantum backends while signaling that computations should
+    use traditional Monte Carlo or analytical methods.
+    
+    Attributes:
+        version (int): Backend version number for compatibility tracking.
+        
+    Examples:
+        >>> backend = ClassicalBackend()
+        >>> manager = BackendManager(backend)
+        >>> print(manager.backend_type)  # 'classical'
+        
+    Notes:
+        - No actual computation logic is implemented here
+        - Acts as a type marker for the BackendManager
+        - Always available without external dependencies
     """
     version = 0
 
 
 class BackendManager():
     """
-    Manager for quantum and classical backends.
+    Manager for quantum and classical computation backends.
 
-    Manages backend assignments and executes quantum circuits or classical simulations.
+    This class provides a unified interface for managing different types of computational
+    backends, abstracting the differences between quantum circuits and classical algorithms.
+    It handles backend detection, type checking, and provides a consistent API for the
+    rest of the quactuary framework.
+
+    The BackendManager supports:
+    - Qiskit quantum backends (simulators and real hardware)
+    - Classical computation backend (for Monte Carlo, analytical methods)
+    - Dynamic backend switching
+    - Backend state management and copying
+
+    Attributes:
+        backend: The underlying backend instance (Qiskit Backend or ClassicalBackend).
+        backend_type (str): Either 'quantum' or 'classical' indicating the backend type.
+
+    Examples:
+        Creating with classical backend:
+            >>> classical = ClassicalBackend()
+            >>> manager = BackendManager(classical)
+            >>> print(manager.backend_type)  # 'classical'
+            
+        Creating with quantum simulator:
+            >>> from qiskit_aer import Aer
+            >>> quantum = Aer.get_backend('aer_simulator')
+            >>> manager = BackendManager(quantum)
+            >>> print(manager.backend_type)  # 'quantum'
+            
+        Switching backends:
+            >>> manager1 = BackendManager(ClassicalBackend())
+            >>> manager2 = BackendManager(Aer.get_backend('aer_simulator'))
+            >>> manager1.set_backend(manager2)  # Switch to quantum
+
+    Notes:
+        - The manager does not execute computations directly
+        - It serves as a configuration holder and type checker
+        - Deep copying is not supported due to Qiskit limitations
     """
 
     def __init__(self, backend: Backend | BackendV1 | ClassicalBackend) -> None:
         """
-        Initialize a BackendManager.
+        Initialize a BackendManager with a specific backend.
 
         Args:
-            backend: Backend instance (e.g., Qiskit backend or custom classical engine).
+            backend: Backend instance to manage. Can be:
+                - Qiskit Backend/BackendV1/BackendV2 for quantum computation
+                - ClassicalBackend instance for classical computation
+
+        Raises:
+            ValueError: If the backend type is not supported.
+            
+        Examples:
+            >>> # Classical backend
+            >>> manager = BackendManager(ClassicalBackend())
+            >>> 
+            >>> # Quantum simulator
+            >>> from qiskit_aer import Aer
+            >>> manager = BackendManager(Aer.get_backend('aer_simulator'))
         """
         self.backend = backend
         if isinstance(backend, (Backend, BackendV1, BackendV2)):
@@ -158,12 +267,12 @@ def set_backend(mode='quantum', provider=None, **kwargs) -> BackendManager:
 
         # Ensure the installed version meets our requirements.
         try:
-            import pkg_resources
+            from packaging import version
         except ImportError:
-            raise ImportError("Please install the 'pkg_resources' package to check Qiskit version with:"
+            raise ImportError("Please install the 'packaging' package to check Qiskit version with:"
                               "\n\npip install packaging")
 
-        if pkg_resources.get_distribution("qiskit").version != "1.4.2":
+        if version.parse(qiskit.__version__) != version.parse("1.4.2"):
             raise ImportError("Quantum mode requires Qiskit version 1.4.2 exactly. "
                               "Please upgrade it with:\n\npip install qiskit==1.4.2 --force-reinstall")
 

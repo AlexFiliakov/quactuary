@@ -27,3 +27,11 @@ Module contents
    :members:
    :show-inheritance:
    :undoc-members:
+
+quactuary.distributions module
+=============================
+
+.. automodule:: quactuary.distributions
+   :members:
+   :show-inheritance:
+   :undoc-members:

@@ -10,7 +10,9 @@ import numpy as np
 import pytest
 
 # Create mock modules
-sys.modules['qiskit'] = MagicMock()
+mock_qiskit = MagicMock()
+mock_qiskit.__version__ = "1.4.2"
+sys.modules['qiskit'] = mock_qiskit
 sys.modules['qiskit.providers'] = MagicMock()
 
 from quactuary.book import Inforce, PolicyTerms, Portfolio

@@ -4,7 +4,7 @@ current_milestone_id: M01
 highest_sprint_in_milestone: S01
 current_sprint_id: S01
 status: active
-last_updated: 2025-05-25 10:46
+last_updated: 2025-05-25 11:35
 ---
 
 # Project Manifest: quActuary
@@ -32,11 +32,12 @@ This project follows a milestone-based development approach.
 
 - [S01_M01_Classical_Optimization](./03_SPRINTS/S01_M01_Classical_Optimization/) - **Active**
   - Goal: Implement policy logic and optimize classical simulation
-  - Completed Tasks: TX01_S01_Policy_Logic (✓), TX02_S01_Compound_Distributions (✓), TX03_S01_Sobol_Sequences (✓), TX07_S01_Simplify_PricingModel (✓)
+  - Completed Tasks: TX01_S01_Policy_Logic (✓), TX02_S01_Compound_Distributions (✓), TX03_S01_Sobol_Sequences (✓), TX04_S01_Optimize_Classical_Simulation (✓), TX07_S01_Simplify_PricingModel (✓)
   - In Progress: None
-  - Core Remaining: T04_S01_Optimize_Classical_Simulation
+  - Core Tasks: All completed
   - Added Critical: T08_S01_Simplify_Compounds, T09_S01_RunDev, T10_S01_Prune_Tests
   - Added Enhancement: T05_S01_Numerical_Stability, T06_S01_Extended_Distributions
+  - Performance Follow-Up: T11_S01_Testing_Suite, T12_S01_Parallel_Stability, T13_S01_Integration_Testing, T14_S01_Documentation
 
 ## 4. Key Documentation
 

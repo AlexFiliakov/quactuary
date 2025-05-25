@@ -85,12 +85,18 @@ Getting Started
    #  'VaR': 2565751.9589995327,
    #  'TVaR': 2596372.4576630797}
 
-Actuarial Modules
------------------
+Documentation
+-------------
 
 .. toctree::
    :maxdepth: 2
-   :caption: Actuarial Modules:
+   :caption: User Guide:
+
+   user_guide/index
+
+.. toctree::
+   :maxdepth: 2
+   :caption: API Reference:
 
    quactuary.entities
    quactuary.pricing
@@ -99,6 +105,12 @@ Actuarial Modules
    quactuary.backend
    quactuary.utils
    quactuary.future
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Development:
+
+   development/index
 
 Indices and Tables
 ------------------

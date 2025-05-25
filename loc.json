@@ -1,11 +1,21 @@
 {"header" : {
   "cloc_url"           : "github.com/AlDanial/cloc",
   "cloc_version"       : "1.98",
-  "elapsed_seconds"    : 0.0292661190032959,
-  "n_files"            : 37,
-  "n_lines"            : 3624,
-  "files_per_second"   : 1264.26055999544,
-  "lines_per_second"   : 123829.196470905},
+  "elapsed_seconds"    : 0.0434701442718506,
+  "n_files"            : 40,
+  "n_lines"            : 5909,
+  "files_per_second"   : 920.171779275697,
+  "lines_per_second"   : 135932.376093502},
+"./quactuary/distributions/compound.py" :{
+  "blank": 273,
+  "comment": 305,
+  "code": 633,
+  "language": "Python"},
+"./quactuary/book.py" :{
+  "blank": 125,
+  "comment": 362,
+  "code": 344,
+  "language": "Python"},
 "./quactuary/distributions/severity.py" :{
   "blank": 215,
   "comment": 308,
@@ -16,15 +26,20 @@
   "comment": 249,
   "code": 233,
   "language": "Python"},
-"./quactuary/book.py" :{
-  "blank": 60,
-  "comment": 151,
-  "code": 189,
+"./usage/Sobol Sequence Example.ipynb" :{
+  "blank": 0,
+  "comment": 254,
+  "code": 196,
+  "language": "Jupyter Notebook"},
+"./quactuary/pricing.py" :{
+  "blank": 42,
+  "comment": 84,
+  "code": 124,
   "language": "Python"},
 "./quactuary/backend.py" :{
   "blank": 43,
   "comment": 87,
-  "code": 94,
+  "code": 97,
   "language": "Python"},
 "./usage/Front Page Examples.ipynb" :{
   "blank": 0,
@@ -46,11 +61,6 @@
   "comment": 44,
   "code": 52,
   "language": "Python"},
-"./quactuary/pricing.py" :{
-  "blank": 17,
-  "comment": 39,
-  "code": 37,
-  "language": "Python"},
 "./docs/source/conf.py" :{
   "blank": 14,
   "comment": 16,
@@ -61,6 +71,11 @@
   "comment": 1,
   "code": 26,
   "language": "DOS Batch"},
+"./quactuary/distributions/__init__.py" :{
+  "blank": 3,
+  "comment": 4,
+  "code": 26,
+  "language": "Python"},
 "./scripts/coverage_to_json.py" :{
   "blank": 3,
   "comment": 1,
@@ -192,7 +207,7 @@
   "code": 0,
   "language": "Python"},
 "SUM": {
-  "blank": 649,
-  "comment": 1537,
-  "code": 1438,
-  "nFiles": 37} }
+  "blank": 1015,
+  "comment": 2356,
+  "code": 2538,
+  "nFiles": 40} }

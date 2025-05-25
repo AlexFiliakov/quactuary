@@ -11,7 +11,11 @@ from quactuary.book import LOB, Inforce, PolicyTerms, Portfolio
 from quactuary.distributions.frequency import DeterministicFrequency
 from quactuary.distributions.severity import ConstantSeverity
 
-locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
+try:
+    locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
+except locale.Error:
+    # Fallback to C locale if en_US.UTF-8 is not available
+    locale.setlocale(locale.LC_ALL, 'C')
 
 
 test_policy = PolicyTerms(

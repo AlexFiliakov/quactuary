@@ -1,7 +1,11 @@
 from contextlib import contextmanager
 
 import pytest
-from qiskit.providers import Backend
+from qiskit.providers import Backend, BackendV1, BackendV2
+try:
+    from qiskit_ibm_runtime import QiskitRuntimeService
+except ImportError:
+    QiskitRuntimeService = None
 
 import quactuary.backend as backend
 from quactuary.backend import ClassicalBackend
@@ -19,7 +23,8 @@ def test_unsupported_backend_type():
     manager = backend.BackendManager(ClassicalBackend())
     manager.backend = 'unsupported_backend'  # type: ignore[attr-defined]
     with pytest.raises(ValueError):
-        backend.get_backend().set_backend(manager)  # type: ignore[attr-defined]
+        backend.get_backend().set_backend(
+            manager)  # type: ignore[attr-defined]
 
 
 def test_copy_backend_manager():
@@ -51,14 +56,14 @@ def test_set_backend_quantum_aersimulator():
     backend.set_backend('quantum', 'aersimulator')
     mgr = backend.get_backend()
     assert mgr.backend_type == 'quantum'
-    assert isinstance(mgr.backend, Backend)
+    assert isinstance(mgr.backend, (Backend, BackendV1, BackendV2))
 
 
 def test_set_backend_quantum_defaults_to_aersimulator():
     backend.set_backend('quantum')
     mgr = backend.get_backend()
     assert mgr.backend_type == 'quantum'
-    assert isinstance(mgr.backend, Backend)
+    assert isinstance(mgr.backend, (Backend, BackendV1, BackendV2))
 
 
 @pytest.mark.skip(reason="TODO: implement working IBM connection")
@@ -66,7 +71,7 @@ def test_set_backend_ibmq_provider_specific():
     backend.set_backend('quantum', provider='ibmq',
                         instance='ibmq_qasm_simulator')
     b = backend.get_backend().backend
-    assert isinstance(b, backend.IBMProvider)
+    assert isinstance(b, backend.QiskitRuntimeService)
     assert b.backend_name == 'ibmq_qasm_simulator'
 
 
@@ -74,7 +79,7 @@ def test_set_backend_ibmq_provider_specific():
 def test_set_backend_ibmq_provider_default():
     backend.set_backend('quantum', provider='ibmq')
     b = backend.get_backend().backend
-    assert isinstance(b, backend.IBMProvider)
+    assert isinstance(b, backend.QiskitRuntimeService)
     pytest.fail("TODO: detect least busy backend and set it as default")
 
 

@@ -104,6 +104,13 @@ Implement Sobol sequences as a low-discrepancy sequence generator to replace sta
 - [ ] Stress tests with high-dimensional portfolios
 - [ ] Validation against analytical results where available
 
+### 9. Adaptive Discretization Enhancement (from T02_S01)
+- [ ] Implement dynamic grid sizing based on distribution parameters
+- [ ] Add error estimation for discretization accuracy
+- [ ] Implement automatic refinement for tail regions
+- [ ] Integrate with Sobol sequences for optimal grid point placement
+- [ ] Add convergence monitoring for discretization error
+
 ## Implementation Notes
 - Start with established library (scipy.stats.qmc) and enhance as needed
 - Owen scrambling is essential for confidence intervals

@@ -16,12 +16,12 @@ from __future__ import annotations
 import copy
 from contextlib import contextmanager
 
-from qiskit.providers import Backend, BackendV1
+import qiskit
+from qiskit.providers import Backend, BackendV1, BackendV2
 from qiskit_aer import Aer
-from qiskit_ibm_provider import IBMProvider
 
 # Global backend manager instance
-global _backend
+_backend = None
 
 
 class ClassicalBackend():
@@ -46,7 +46,7 @@ class BackendManager():
             backend: Backend instance (e.g., Qiskit backend or custom classical engine).
         """
         self.backend = backend
-        if isinstance(backend, Backend) or isinstance(backend, BackendV1):
+        if isinstance(backend, (Backend, BackendV1, BackendV2)):
             self.backend_type = 'quantum'
         elif isinstance(backend, ClassicalBackend):
             self.backend_type = 'classical'
@@ -102,8 +102,7 @@ class BackendManager():
         Args:
             manager: New BackendManager instance.
         """
-        if isinstance(manager.backend, Backend) or \
-                isinstance(manager.backend, BackendV1):
+        if isinstance(manager.backend, (Backend, BackendV1, BackendV2)):
             self.backend_type = 'quantum'
         elif isinstance(manager.backend, ClassicalBackend):
             self.backend_type = 'classical'
@@ -159,12 +158,12 @@ def set_backend(mode='quantum', provider=None, **kwargs) -> BackendManager:
 
         # Ensure the installed version meets our requirements.
         try:
-            from packaging import version
+            import pkg_resources
         except ImportError:
-            raise ImportError("Please install the 'packaging' package to check Qiskit version with:"
+            raise ImportError("Please install the 'pkg_resources' package to check Qiskit version with:"
                               "\n\npip install packaging")
 
-        if version.parse(qiskit.__version__) != version.parse("1.4.2"):
+        if pkg_resources.get_distribution("qiskit").version != "1.4.2":
             raise ImportError("Quantum mode requires Qiskit version 1.4.2 exactly. "
                               "Please upgrade it with:\n\npip install qiskit==1.4.2 --force-reinstall")
 
@@ -174,10 +173,14 @@ def set_backend(mode='quantum', provider=None, **kwargs) -> BackendManager:
             new_backend = BackendManager(aer_backend)
         elif provider.lower() == 'ibmq':
             # Use IBM's quantum provider.
-            from qiskit_ibm_provider import IBMProvider
+            try:
+                from qiskit_ibm_runtime import QiskitRuntimeService
+            except ImportError:
+                raise ImportError("qiskit-ibm-runtime is required for IBM Quantum backends. "
+                                  "Please install it with:\n\npip install qiskit-ibm-runtime")
             backend_name = kwargs.get('instance', None)
             if backend_name:
-                ibmq_provider = IBMProvider(**kwargs)
+                ibmq_provider = QiskitRuntimeService(**kwargs)
                 ibmq_backend = ibmq_provider.get_backend(backend_name)
                 new_backend = BackendManager(ibmq_backend)
             else:

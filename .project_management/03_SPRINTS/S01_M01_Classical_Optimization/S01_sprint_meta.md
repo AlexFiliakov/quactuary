@@ -41,10 +41,22 @@ Implement classical insurance simulations of standard policy features and optimi
 4. Implement optimized simulation techniques such as optional parallel processing and JIT compilation with Numba. Research additional optimizations and implement them without reducing simulation accuracy.
 
 ## Sprint Backlog
-- [T01_S01_Policy_Logic](./T01_S01_Policy_Logic.md)
-- [T02_S01_Compound_Distributions](./T02_S01_Compound_Distributions.md)
-- [T03_S01_Sobol_Sequences](./T03_S01_Sobol_Sequences.md)
-- [T04_S01_Optimize__Classical_Simulation](./T04_S01_Optimize__Classical_Simulation.md)
+
+### Core Sprint Tasks
+- [T01_S01_Policy_Logic](./TX01_S01_Policy_Logic.md) ✅ COMPLETE
+- [T02_S01_Compound_Distributions](./T02_S01_Compound_Distributions.md) 🔄 90% Complete
+- [T03_S01_Sobol_Sequences](./T03_S01_Sobol_Sequences.md) ❌ Not Started
+- [T04_S01_Optimize__Classical_Simulation](./T04_S01_Optimize__Classical_Simulation.md) ❌ Not Started
+
+### Enhancement Tasks (Added Post-Review)
+- [T05_S01_Numerical_Stability_Module](./T05_S01_Numerical_Stability_Module.md) (NEW - High Priority)
+- [T06_S01_Extended_Distribution_Support](./T06_S01_Extended_Distribution_Support.md) (NEW - Medium Priority)
+
+### Architectural Cleanup Tasks (Critical Issues from Review)
+- [T07_S01_Simplify_PricingModel_Architecture](./T07_S01_Simplify_PricingModel_Architecture.md) (NEW - High Priority)
+- [T08_S01_Simplify_Compound_Distribution_Engineering](./T08_S01_Simplify_Compound_Distribution_Engineering.md) (NEW - Medium Priority)
+- [T09_S01_Implement_RunDev_Pattern](./T09_S01_Implement_RunDev_Pattern.md) (NEW - Medium Priority)
+- [T10_S01_Prune_Test_Suite](./T10_S01_Prune_Test_Suite.md) (NEW - Medium Priority - End of Sprint)
 
 ## Definition of Done (for the Sprint)
 The sprint will be considered complete when:

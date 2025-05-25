@@ -22,6 +22,8 @@ import pandas as pd
 from quactuary.backend import BackendManager, set_backend
 from quactuary.distributions.frequency import FrequencyModel
 from quactuary.distributions.severity import SeverityModel
+from quactuary.distributions.qmc_wrapper import wrap_for_qmc
+from quactuary.sobol import get_qmc_simulator
 
 locale.setlocale(locale.LC_ALL, '')
 
@@ -661,23 +663,32 @@ class Inforce:
                 "Number of simulations must be a positive integer.")
         if n_sims == 0:
             return 0.0
+        
+        # Wrap distributions for QMC if enabled
+        if get_qmc_simulator() is not None:
+            freq = wrap_for_qmc(self.frequency)
+            sev = wrap_for_qmc(self.severity)
+        else:
+            freq = self.frequency
+            sev = self.severity
+            
         if n_sims == 1:
             # 1 simulation: one tuple of severity values, one per policy
-            freq_samples = np.sum([self.frequency.rvs()
+            freq_samples = np.sum([freq.rvs()
                                    for _ in range(self.n_policies)])
-            sim_result = np.sum(self.severity.rvs(int(freq_samples)))
+            sim_result = np.sum(sev.rvs(int(freq_samples)))
             return sim_result
         else:
             # Multiple simulations: a tuple of tuples
             all_sims = []
             for _ in range(n_sims):
-                freq_samples = np.sum([self.frequency.rvs()
+                freq_samples = np.sum([freq.rvs()
                                       for _ in range(self.n_policies)])
                 if freq_samples == 0:
                     # No claims, no severity
                     all_sims.append(0)
                     continue
-                sim_result = np.sum(self.severity.rvs(int(freq_samples)))
+                sim_result = np.sum(sev.rvs(int(freq_samples)))
                 all_sims.append(sim_result)
             return pd.Series(all_sims)
 

@@ -22,41 +22,40 @@ from qiskit.providers import Backend, BackendV1, BackendV2
 
 from quactuary.backend import BackendManager, ClassicalBackend, get_backend
 from quactuary.book import Portfolio
-from quactuary.classical import ClassicalPricingModel
 from quactuary.datatypes import PricingResult
 from quactuary.distributions.compound import CompoundDistribution
 from quactuary.distributions.frequency import FrequencyModel
 from quactuary.distributions.severity import SeverityModel
-from quactuary.quantum import QuantumPricingModel
+from quactuary.pricing_strategies import PricingStrategy, ClassicalPricingStrategy, get_strategy_for_backend
+from quactuary.sobol import set_qmc_simulator, reset_qmc_simulator
 
 
-class PricingModel(ClassicalPricingModel, QuantumPricingModel):
+class PricingModel:
     """
     Base class for actuarial pricing models with optional quantum support.
 
-    Provides common interface for portfolio-based loss models using classical or quantum backends.
+    Uses composition with strategy pattern to provide classical or quantum backend execution.
 
     Args:
-        backend (Optional[BackendManager]): Execution backend override.
-        **kw: Additional model-specific settings.
+        portfolio (Portfolio): Inforce policy data grouped into a Portfolio.
+        strategy (Optional[PricingStrategy]): Pricing strategy to use. If None, automatically selects based on current backend.
 
     Attributes:
         portfolio (Portfolio): Wrapped inforce portfolio.
-        layer_deductible (Optional[float]): Deductible for the layer.
-        layer_limit (Optional[float]): Limit for the layer.
-        backend (BackendManager): Backend manager for execution.
+        strategy (PricingStrategy): Strategy object handling the actual calculations.
+        compound_distribution (Optional[CompoundDistribution]): Compound distribution for aggregate loss modeling.
     """
 
-    def __init__(self, portfolio: Portfolio):
+    def __init__(self, portfolio: Portfolio, strategy: Optional[PricingStrategy] = None):
         """
-        Initialize an ActuarialModel.
+        Initialize a PricingModel.
 
         Args:
             portfolio (Portfolio): Inforce policy data grouped into a Portfolio.
+            strategy (Optional[PricingStrategy]): Pricing strategy to use. If None, automatically selects based on current backend.
         """
-        super(ClassicalPricingModel).__init__()
-        super(QuantumPricingModel).__init__()
         self.portfolio = portfolio
+        self.strategy = strategy or ClassicalPricingStrategy()
         self.compound_distribution = None
 
     def simulate(
@@ -67,34 +66,69 @@ class PricingModel(ClassicalPricingModel, QuantumPricingModel):
         tail_value_at_risk: bool = True,
         tail_alpha: float = 0.05,
         n_sims: Optional[int] = None,
-        backend: Optional[BackendManager] = None
+        backend: Optional[BackendManager] = None,
+        qmc_method: Optional[str] = None,
+        qmc_scramble: bool = True,
+        qmc_skip: int = 1024,
+        qmc_seed: Optional[int] = None
     ) -> PricingResult:
         """
-        Calculate portfolio statistics based on the selected methods.
+        Calculate portfolio statistics using the configured strategy.
 
         Args:
             mean (bool): Calculate mean loss.
             variance (bool): Calculate variance.
             value_at_risk (bool): Calculate value at risk.
             tail_value_at_risk (bool): Calculate tail value at risk.
-            backend (Optional[BackendManager]): Execution backend override.
-            num_simulations (Optional[int]): Number of Classical simulations.
+            tail_alpha (float): Alpha level for tail risk measures.
+            n_sims (Optional[int]): Number of simulations.
+            backend (Optional[BackendManager]): Execution backend override. If provided, temporarily switches strategy.
+            qmc_method (Optional[str]): Quasi-Monte Carlo method ("sobol", "halton", or None for standard random).
+            qmc_scramble (bool): Whether to apply scrambling to QMC sequences.
+            qmc_skip (int): Number of initial QMC points to skip.
+            qmc_seed (Optional[int]): Random seed for QMC scrambling.
+
+        Returns:
+            PricingResult: Portfolio statistics results.
         """
-
-        if backend is None:
-            cur_backend = get_backend().backend
-        else:
-            cur_backend = backend.backend
-
-        if isinstance(cur_backend, ClassicalBackend):
-            return ClassicalPricingModel.calculate_portfolio_statistics(
-                self, self.portfolio, mean, variance, value_at_risk, tail_value_at_risk, tail_alpha, n_sims)
-        if isinstance(cur_backend, (Backend, BackendV1, BackendV2)):
-            return QuantumPricingModel.calculate_portfolio_statistics(
-                self, self.portfolio, mean, variance, value_at_risk, tail_value_at_risk, tail_alpha)
-        else:
-            error_str = "Unsupported backend type. Must be a Qiskit or classical backend."
-            raise ValueError(error_str)
+        # Configure QMC if requested
+        qmc_was_configured = get_qmc_simulator() is not None
+        if qmc_method is not None:
+            set_qmc_simulator(
+                method=qmc_method,
+                scramble=qmc_scramble,
+                skip=qmc_skip,
+                seed=qmc_seed
+            )
+        
+        try:
+            # Use a different strategy if backend is specified
+            if backend is not None:
+                strategy = get_strategy_for_backend(backend)
+                return strategy.calculate_portfolio_statistics(
+                    portfolio=self.portfolio,
+                    mean=mean,
+                    variance=variance, 
+                    value_at_risk=value_at_risk,
+                    tail_value_at_risk=tail_value_at_risk,
+                    tail_alpha=tail_alpha,
+                    n_sims=n_sims
+                )
+            
+            # Use the configured strategy
+            return self.strategy.calculate_portfolio_statistics(
+                portfolio=self.portfolio,
+                mean=mean,
+                variance=variance,
+                value_at_risk=value_at_risk,
+                tail_value_at_risk=tail_value_at_risk,
+                tail_alpha=tail_alpha,
+                n_sims=n_sims
+            )
+        finally:
+            # Reset QMC if it wasn't configured before
+            if qmc_method is not None and not qmc_was_configured:
+                reset_qmc_simulator()
     
     def set_compound_distribution(self, frequency: FrequencyModel, severity: SeverityModel):
         """

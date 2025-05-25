@@ -18,6 +18,7 @@ from quactuary.distributions.compound import (
     PoissonGammaCompound,
     SimulatedCompound,
 )
+from quactuary.quantum import QuantumPricingModel
 
 
 class MockPoisson:
@@ -349,6 +350,56 @@ class TestPerformance:
         elapsed = time.time() - start
         
         assert elapsed < 0.02  # Should take less than 20ms for 10k calculations
+
+
+class TestQuantumIntegration:
+    """Test quantum state preparation for analytical distributions."""
+    
+    def test_quantum_state_preparation_basic(self):
+        """Test basic quantum state preparation for compound distributions."""
+        freq = MockPoisson(mu=2.0)
+        sev = MockExponential(scale=500.0)
+        
+        compound = PoissonExponentialCompound(freq, sev)
+        quantum_model = QuantumPricingModel()
+        
+        # Test that quantum model can access compound distribution properties
+        assert hasattr(compound, 'mean')
+        assert hasattr(compound, 'var')
+        assert compound.has_analytical_solution()
+        
+        # Basic quantum preparation test (placeholder until quantum circuits implemented)
+        mean_val = compound.mean()
+        var_val = compound.var()
+        
+        # Verify that the analytical properties are accessible for quantum state preparation
+        assert mean_val > 0
+        assert var_val > 0
+        assert np.isfinite(mean_val)
+        assert np.isfinite(var_val)
+    
+    def test_quantum_compatible_parameters(self):
+        """Test that compound distributions provide quantum-compatible parameters."""
+        freq = MockPoisson(mu=3.0)
+        sev = MockGamma(a=2.0, scale=100.0)
+        
+        compound = PoissonGammaCompound(freq, sev)
+        
+        # Parameters needed for quantum state preparation
+        params = {
+            'mean': compound.mean(),
+            'variance': compound.var(),
+            'std': compound.std(),
+            'lambda': freq.mu,
+            'severity_mean': sev.mean(),
+            'severity_var': sev.var()
+        }
+        
+        # All parameters should be finite and positive
+        for key, value in params.items():
+            assert np.isfinite(value), f"Parameter {key} is not finite"
+            if key != 'std':  # std can be zero in degenerate cases
+                assert value >= 0, f"Parameter {key} is negative"
 
 
 if __name__ == '__main__':

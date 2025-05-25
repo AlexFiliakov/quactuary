@@ -17,6 +17,11 @@ from .compound import (
     BinomialLognormalApproximation,
     PanjerRecursion,
 )
+from .qmc_wrapper import (
+    QMCFrequencyWrapper,
+    QMCSeverityWrapper,
+    wrap_for_qmc,
+)
 
 __all__ = [
     'FrequencyModel',
@@ -30,4 +35,7 @@ __all__ = [
     'NegativeBinomialGammaCompound',
     'BinomialLognormalApproximation',
     'PanjerRecursion',
+    'QMCFrequencyWrapper',
+    'QMCSeverityWrapper',
+    'wrap_for_qmc',
 ]

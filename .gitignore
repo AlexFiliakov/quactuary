@@ -175,3 +175,4 @@ cython_debug/
 quactuary/_version.py
 quactuary/tests/pytest_failure_summaries.txt
 profile_output.prof
+benchmark_results/*

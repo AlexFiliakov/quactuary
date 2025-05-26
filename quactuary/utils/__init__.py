@@ -18,9 +18,9 @@ Examples:
         >>> validate_positive(lambda_=-1.0)  # Raises ValueError
         
     Using numerical utilities:
-        >>> from quactuary.utils.numerical import stable_log_sum_exp
+        >>> from quactuary.utils.numerical import logsumexp
         >>> log_probs = [-1000, -1001, -999]
-        >>> result = stable_log_sum_exp(log_probs)
+        >>> result = logsumexp(log_probs)
 
 Notes:
     - Utilities are designed to be reusable across all modules
@@ -36,9 +36,34 @@ from .validation import (
     validate_array_like,
 )
 
+from .numerical import (
+    logsumexp,
+    logaddexp,
+    stable_exp,
+    stable_log,
+    check_finite,
+    clip_to_valid_range,
+    detect_numerical_issues,
+    stable_probability_calculation,
+    stable_moment_calculation,
+    stable_quantile_interpolation,
+)
+
 __all__ = [
+    # Validation utilities
     'validate_positive',
     'validate_probability', 
     'validate_integer',
     'validate_array_like',
+    # Numerical stability utilities
+    'logsumexp',
+    'logaddexp',
+    'stable_exp',
+    'stable_log',
+    'check_finite',
+    'clip_to_valid_range',
+    'detect_numerical_issues',
+    'stable_probability_calculation',
+    'stable_moment_calculation',
+    'stable_quantile_interpolation',
 ]

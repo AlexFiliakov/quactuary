@@ -64,6 +64,7 @@ class PoissonGammaMixture(MixedPoissonDistribution):
         """
         self.alpha = alpha
         self.beta = beta
+        self._validate_params()  # Validate before setup
         super().__init__('gamma', alpha=alpha, beta=beta)
     
     def _setup_distribution(self):

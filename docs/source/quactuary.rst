@@ -9,50 +9,21 @@ Subpackages
 
    quactuary.distributions
    quactuary.future
-   quactuary.tests
+   quactuary.utils
 
-Submodules
-----------
+Package Overview
+~~~~~~~~~~~~~~~~
 
-quactuary.backend module
-------------------------
+The quactuary package provides a comprehensive framework for quantum-accelerated
+actuarial modeling. For detailed documentation of individual modules, see the
+API reference sections below.
 
-.. automodule:: quactuary.backend
-   :members:
-   :show-inheritance:
-   :undoc-members:
-
-quactuary.entities module
--------------------------
-
-.. automodule:: quactuary.entities
-   :members:
-   :show-inheritance:
-   :undoc-members:
-
-quactuary.pricing module
-------------------------
-
-.. automodule:: quactuary.pricing
-   :members:
-   :show-inheritance:
-   :undoc-members:
-
-quactuary.quantum module
-------------------------
-
-.. automodule:: quactuary.quantum
-   :members:
-   :show-inheritance:
-   :undoc-members:
-
-quactuary.utils module
-----------------------
-
-.. automodule:: quactuary.utils
-   :members:
-   :show-inheritance:
-   :undoc-members:
+Key Features:
+    - Classical and quantum-accelerated pricing models
+    - Comprehensive frequency and severity distributions
+    - High-performance parallel and vectorized simulations
+    - Memory-efficient algorithms for large-scale portfolios
+    - Integration with quantum computing frameworks
 
 Module contents
 ---------------

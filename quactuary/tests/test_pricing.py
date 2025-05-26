@@ -712,6 +712,107 @@ class TestEdgeCasesAndErrors:
             assert results['average_severity'] == 0
 
 
+class TestPricingStrategies:
+    """Test pricing strategy pattern implementation."""
+    
+    @pytest.fixture
+    def simple_portfolio(self):
+        """Create a simple test portfolio."""
+        policy = PolicyTerms(
+            effective_date=date(2023, 1, 1),
+            expiration_date=date(2023, 12, 31),
+            per_occ_retention=1000.0,
+            per_occ_limit=10000.0
+        )
+        return Portfolio([policy])
+    
+    def test_pricing_model_default_strategy(self, simple_portfolio):
+        """Test that PricingModel uses ClassicalPricingStrategy by default."""
+        from quactuary.pricing_strategies import ClassicalPricingStrategy
+        
+        model = PricingModel(simple_portfolio)
+        
+        # Check that default strategy is ClassicalPricingStrategy
+        assert isinstance(model.strategy, ClassicalPricingStrategy)
+        assert model.portfolio == simple_portfolio
+        assert model.compound_distribution is None
+    
+    def test_pricing_model_custom_strategy(self, simple_portfolio):
+        """Test that PricingModel accepts custom strategy."""
+        from quactuary.pricing_strategies import ClassicalPricingStrategy
+        
+        custom_strategy = ClassicalPricingStrategy()
+        model = PricingModel(simple_portfolio, strategy=custom_strategy)
+        
+        # Check that custom strategy is used
+        assert model.strategy == custom_strategy
+    
+    def test_classical_strategy_delegation(self, simple_portfolio):
+        """Test that ClassicalPricingStrategy delegates correctly."""
+        from quactuary.pricing_strategies import ClassicalPricingStrategy
+        
+        # With JIT disabled, should use regular classical model
+        strategy = ClassicalPricingStrategy(use_jit=False)
+        
+        # Mock the classical model to avoid actual computation
+        with patch('quactuary.classical.ClassicalPricingModel') as mock_class:
+            mock_instance = Mock()
+            mock_class.return_value = mock_instance
+            
+            # Set up mock return value
+            expected_result = PricingResult(
+                estimates={'mean': 5000.0},
+                intervals={},
+                samples=pd.Series([4000, 5000, 6000]),
+                metadata={'n_sims': 3}
+            )
+            mock_instance.calculate_portfolio_statistics.return_value = expected_result
+            
+            # Call the strategy
+            result = strategy.calculate_portfolio_statistics(
+                portfolio=simple_portfolio,
+                mean=True,
+                n_sims=3
+            )
+            
+            # Verify delegation occurred
+            mock_instance.calculate_portfolio_statistics.assert_called_once_with(
+                portfolio=simple_portfolio,
+                mean=True,
+                variance=True,
+                value_at_risk=True,
+                tail_value_at_risk=True,
+                tail_alpha=0.05,
+                n_sims=3
+            )
+            assert result == expected_result
+    
+    def test_quantum_strategy_not_implemented(self):
+        """Test that QuantumPricingStrategy raises NotImplementedError."""
+        from quactuary.pricing_strategies import QuantumPricingStrategy
+        
+        strategy = QuantumPricingStrategy()
+        
+        with pytest.raises(NotImplementedError, match="not yet implemented"):
+            strategy.calculate_portfolio_statistics(Portfolio([]))
+    
+    def test_classical_strategy_jit_optimization_flag(self):
+        """Test that ClassicalPricingStrategy correctly handles use_jit flag."""
+        from quactuary.pricing_strategies import ClassicalPricingStrategy
+        
+        # Test with JIT enabled (default)
+        strategy_default = ClassicalPricingStrategy()
+        assert strategy_default.use_jit is True
+        
+        # Test with JIT disabled
+        strategy_no_jit = ClassicalPricingStrategy(use_jit=False)
+        assert strategy_no_jit.use_jit is False
+        
+        # Test with JIT explicitly enabled
+        strategy_jit = ClassicalPricingStrategy(use_jit=True)
+        assert strategy_jit.use_jit is True
+
+
 # Legacy test for backwards compatibility
 def test_pricing_model():
     """Legacy test from original test_pricing.py."""

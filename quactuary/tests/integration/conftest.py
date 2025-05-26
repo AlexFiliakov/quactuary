@@ -120,13 +120,13 @@ def generate_deterministic_portfolio(
         # Vary distributions across buckets
         if i % 3 == 0:
             freq = Poisson(mu=2.5 + i * 0.5)
-            sev = Lognormal(shape=1.2 + i * 0.1, location=0, scale=10000 * (1 + i * 0.2))
+            sev = Lognormal(shape=1.2 + i * 0.1, loc=0, scale=10000 * (1 + i * 0.2))
             lob = LOB.GLPL
             exposure_base = book.SALES
             exposure_amount = 1_000_000_000 * (1 + i)
         elif i % 3 == 1:
             freq = NegativeBinomial(r=10 + i * 2, p=0.3 + i * 0.1)
-            sev = Pareto(b=1.5 + i * 0.1, threshold=0, scale=5000 * (1 + i * 0.3))
+            sev = Pareto(b=1.5 + i * 0.1, loc=0, scale=5000 * (1 + i * 0.3))
             lob = LOB.WC
             exposure_base = book.PAYROLL
             exposure_amount = 50_000_000 * (1 + i)

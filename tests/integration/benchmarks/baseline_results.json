@@ -1,101 +1,45 @@
 {
-  "schema_version": "1.0",
-  "description": "Baseline performance results for integration testing",
-  "created": "2025-05-26",
-  "last_updated": "2025-05-26T09:11:40.376887",
-  "baselines": {
-    "speedup_targets": {
-      "small_portfolio": {
-        "target_speedup": 15.0,
-        "minimum_speedup": 5.0,
-        "typical_baseline_time_seconds": 2.5,
-        "expected_optimized_time_seconds": 0.5
-      },
-      "medium_portfolio": {
-        "target_speedup": 35.0,
-        "minimum_speedup": 10.0,
-        "typical_baseline_time_seconds": 25.0,
-        "expected_optimized_time_seconds": 2.5
-      },
-      "large_portfolio": {
-        "target_speedup": 25.0,
-        "minimum_speedup": 8.0,
-        "typical_baseline_time_seconds": 120.0,
-        "expected_optimized_time_seconds": 15.0
-      }
-    },
-    "memory_limits": {
-      "small_portfolio_mb": 1024,
-      "medium_portfolio_mb": 2048,
-      "large_portfolio_mb": 4096,
-      "extreme_portfolio_mb": 8192
-    },
-    "convergence_rates": {
-      "monte_carlo_expected": -0.5,
-      "qmc_target": -1.0,
-      "qmc_minimum": -0.8
-    },
-    "accuracy_tolerances": {
-      "mean_relative_error": 0.01,
-      "quantile_relative_error": 0.1,
-      "variance_relative_error": 0.05
-    }
+  "speedup_small_portfolio": {
+    "baseline_time": 0.015984773635864258,
+    "optimized_time": 0.0032358169555664062,
+    "speedup": 4.939949896846448,
+    "target_speedup": 2.0,
+    "achieved_target": true
   },
-  "test_configurations": {
-    "optimization_combinations": [
-      {
-        "jit": true,
-        "qmc": false,
-        "parallel": false,
-        "vectorized": false
-      },
-      {
-        "jit": false,
-        "qmc": true,
-        "parallel": false,
-        "vectorized": false
-      },
-      {
-        "jit": true,
-        "qmc": true,
-        "parallel": false,
-        "vectorized": false
-      },
-      {
-        "jit": true,
-        "qmc": true,
-        "parallel": true,
-        "vectorized": true
-      }
-    ],
-    "portfolio_sizes": {
-      "tiny": 10,
-      "small": 100,
-      "medium": 1000,
-      "large": 5000,
-      "extreme": 10000
-    },
-    "simulation_counts": [
-      100,
-      500,
-      1000,
-      2000,
-      5000,
-      10000
-    ]
+  "last_updated": "2025-05-26T12:31:54.619220",
+  "speedup_medium_portfolio": {
+    "baseline_time": 0.030005693435668945,
+    "optimized_time": 0.023963451385498047,
+    "speedup": 1.2521440652671376,
+    "target_speedup": 3.0,
+    "achieved_target": false
   },
-  "environment_info": {
-    "python_version": "3.8+",
-    "numpy_version": "1.20+",
-    "platform": "linux",
-    "recommended_cores": 4,
-    "recommended_memory_gb": 8
+  "speedup_large_portfolio": {
+    "baseline_time": 0.1426088809967041,
+    "optimized_time": 0.1166679859161377,
+    "speedup": 1.2223480149834165,
+    "target_speedup": 4.0,
+    "achieved_target": false
   },
-  "trend_analysis_test": {
-    "timestamp": "2025-05-26T09:11:40.361699",
-    "small_portfolio_time": 5.2,
-    "medium_portfolio_time": 25.8,
-    "large_portfolio_time": 120.5,
-    "memory_usage_mb": 512.3
+  "memory_small_portfolio": {
+    "peak_memory_mb": 286.171875,
+    "rss_mb": 286.171875,
+    "memory_percent": 4.172618600105255,
+    "limit_mb": 1024,
+    "within_limit": true
+  },
+  "memory_medium_portfolio": {
+    "peak_memory_mb": 286.4296875,
+    "rss_mb": 286.4296875,
+    "memory_percent": 4.176377715961206,
+    "limit_mb": 2048,
+    "within_limit": true
+  },
+  "memory_large_portfolio": {
+    "peak_memory_mb": 286.4296875,
+    "rss_mb": 286.4296875,
+    "memory_percent": 4.176377715961206,
+    "limit_mb": 4096,
+    "within_limit": true
   }
 }

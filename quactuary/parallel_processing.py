@@ -1,20 +1,49 @@
 """
-Parallel processing optimizations for Monte Carlo simulations.
+Stable parallel processing implementation for Monte Carlo simulations.
 
-This module implements various parallelization strategies including
-multiprocessing, thread pools, and work stealing for optimal CPU
-utilization.
+This module provides robust parallelization with proper error handling,
+timeout management, and resource cleanup.
 """
 
 import os
+import sys
 import time
-import numpy as np
-from typing import Optional, List, Callable, Tuple, Any
-from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_completed
-from multiprocessing import cpu_count, Pool
+import signal
+import traceback
 import warnings
+import numpy as np
+from typing import Optional, List, Callable, Tuple, Any, Union
+from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, TimeoutError, as_completed
+from multiprocessing import cpu_count, Pool, Queue, Manager, Process
+from threading import Thread
 from dataclasses import dataclass
+from contextlib import contextmanager
 import psutil
+from functools import partial
+import multiprocessing
+
+# Import utilities
+try:
+    from .parallel_utils import CloudPickleWrapper, register_simulation_function, get_simulation_function
+except ImportError:
+    # Fallback if parallel_utils not available
+    CloudPickleWrapper = None
+    register_simulation_function = None
+    get_simulation_function = None
+
+try:
+    from .work_distribution import DynamicLoadBalancer, AdaptiveChunkSizer, WorkStealingQueue
+except ImportError:
+    DynamicLoadBalancer = None
+    AdaptiveChunkSizer = None
+    WorkStealingQueue = None
+
+try:
+    from .parallel_error_handling import ErrorRecoveryManager, DiagnosticLogger, create_resilient_wrapper
+except ImportError:
+    ErrorRecoveryManager = None
+    DiagnosticLogger = None
+    create_resilient_wrapper = None
 
 try:
     from tqdm import tqdm
@@ -54,13 +83,97 @@ class ParallelConfig:
     show_progress: bool = True
     work_stealing: bool = True
     prefetch_batches: int = 2
+    timeout: Optional[float] = None  # Timeout in seconds for each task
+    max_retries: int = 2  # Number of retries for failed tasks
+    memory_limit_mb: Optional[float] = None  # Memory limit per worker
+    fallback_to_serial: bool = True  # Fall back to serial on failures
+
+
+class WorkerMonitor:
+    """Monitor worker processes for health and resource usage."""
+    
+    def __init__(self, max_memory_mb: Optional[float] = None):
+        self.max_memory_mb = max_memory_mb
+        self.processes = {}
+    
+    def register_process(self, pid: int):
+        """Register a process for monitoring."""
+        try:
+            self.processes[pid] = psutil.Process(pid)
+        except:
+            pass
+    
+    def check_memory(self, pid: int) -> bool:
+        """Check if process exceeds memory limit."""
+        if not self.max_memory_mb or pid not in self.processes:
+            return True
+        
+        try:
+            mem_mb = self.processes[pid].memory_info().rss / 1024 / 1024
+            return mem_mb <= self.max_memory_mb
+        except:
+            return True
+    
+    def terminate_process(self, pid: int):
+        """Terminate a process that exceeds limits."""
+        if pid in self.processes:
+            try:
+                self.processes[pid].terminate()
+                self.processes[pid].wait(timeout=5)
+            except:
+                try:
+                    self.processes[pid].kill()
+                except:
+                    pass
+
+
+def worker_with_monitoring(task_data: Tuple) -> Tuple[bool, Any]:
+    """Worker function with error handling and monitoring."""
+    func, args, kwargs, worker_id, monitor_config = task_data
+    
+    try:
+        # Set up signal handler for timeout (Unix only)
+        if hasattr(signal, 'SIGALRM'):
+            def timeout_handler(signum, frame):
+                raise TimeoutError(f"Worker {worker_id} timed out")
+            
+            signal.signal(signal.SIGALRM, timeout_handler)
+            if monitor_config.get('timeout'):
+                signal.alarm(int(monitor_config['timeout']))
+        
+        # Execute the function
+        result = func(*args, **kwargs)
+        
+        # Cancel alarm if set
+        if hasattr(signal, 'SIGALRM'):
+            signal.alarm(0)
+        
+        return True, result
+        
+    except Exception as e:
+        # Cancel alarm if set
+        if hasattr(signal, 'SIGALRM'):
+            signal.alarm(0)
+        
+        error_info = {
+            'worker_id': worker_id,
+            'error_type': type(e).__name__,
+            'error_msg': str(e),
+            'traceback': traceback.format_exc()
+        }
+        return False, error_info
 
 
 class ParallelSimulator:
     """
-    Implements parallel simulation strategies for portfolios.
+    Stable parallel simulation with robust error handling.
     
     Features:
+    - Timeout handling for stuck workers
+    - Automatic retry logic for failed tasks
+    - Memory monitoring and limits
+    - Graceful degradation to serial execution
+    - Proper resource cleanup
     - Multiple backend support (multiprocessing, threading, joblib)
     - Work stealing for load balancing
     - Progress monitoring
@@ -74,18 +187,85 @@ class ParallelSimulator:
         # Auto-detect workers if not specified
         if self.config.n_workers is None:
             self.config.n_workers = min(cpu_count(), 8)  # Cap at 8 for stability
+        
+        # Initialize worker monitor
+        self.monitor = WorkerMonitor(self.config.memory_limit_mb)
     
     def _calculate_chunk_size(self, total_work: int, n_workers: int) -> int:
         """Calculate optimal chunk size for work distribution."""
         if self.config.chunk_size is not None:
             return self.config.chunk_size
         
-        # Heuristic: aim for at least 10 chunks per worker
-        # but not too small (min 100) or too large (max 10000)
-        ideal_chunks = n_workers * 10
-        chunk_size = max(100, min(10000, total_work // ideal_chunks))
+        # Smaller chunks for better error recovery and load balancing
+        ideal_chunks = n_workers * 20
+        chunk_size = max(10, min(1000, total_work // ideal_chunks))
         
         return chunk_size
+    
+    @contextmanager
+    def _get_executor(self, n_workers: int):
+        """Get appropriate executor with cleanup."""
+        executor = None
+        try:
+            if self.config.backend == 'threading':
+                executor = ThreadPoolExecutor(max_workers=n_workers)
+            else:
+                # Use appropriate context based on platform
+                if hasattr(os, 'fork'):
+                    ctx = multiprocessing.get_context('fork')
+                else:
+                    ctx = multiprocessing.get_context('spawn')
+                executor = ProcessPoolExecutor(
+                    max_workers=n_workers,
+                    mp_context=ctx
+                )
+            yield executor
+        finally:
+            if executor:
+                executor.shutdown(wait=True, cancel_futures=True)
+    
+    def _make_serializable(self, func: Callable) -> Callable:
+        """Make function serializable for multiprocessing."""
+        # Try to use CloudPickleWrapper if available
+        if CloudPickleWrapper and self.config.backend == 'multiprocessing':
+            try:
+                return CloudPickleWrapper(func)
+            except:
+                pass
+        
+        # Return original function and hope for the best
+        return func
+    
+    def _execute_with_retry(
+        self,
+        func: Callable,
+        args: Tuple,
+        kwargs: dict,
+        task_id: int
+    ) -> Tuple[bool, Any]:
+        """Execute a task with retry logic."""
+        monitor_config = {
+            'timeout': self.config.timeout,
+            'memory_limit': self.config.memory_limit_mb
+        }
+        
+        for attempt in range(self.config.max_retries + 1):
+            success, result = worker_with_monitoring(
+                (func, args, kwargs, task_id, monitor_config)
+            )
+            
+            if success:
+                return True, result
+            
+            if attempt < self.config.max_retries:
+                # Log retry
+                warnings.warn(
+                    f"Task {task_id} failed (attempt {attempt + 1}), retrying: "
+                    f"{result.get('error_type', 'Unknown error')}"
+                )
+                time.sleep(0.1 * (attempt + 1))  # Exponential backoff
+        
+        return False, result
     
     def simulate_parallel_multiprocessing(
         self,
@@ -95,7 +275,7 @@ class ParallelSimulator:
         **kwargs
     ) -> np.ndarray:
         """
-        Simulate using multiprocessing for CPU-bound tasks.
+        Stable parallel simulation with comprehensive error handling.
         
         Args:
             simulate_func: Function to simulate a batch
@@ -107,49 +287,102 @@ class ParallelSimulator:
             Array of simulation results
         """
         chunk_size = self._calculate_chunk_size(n_simulations, self.config.n_workers)
-        chunks = []
         
         # Prepare work chunks
+        chunks = []
         for i in range(0, n_simulations, chunk_size):
             chunk_end = min(i + chunk_size, n_simulations)
             chunks.append((i, chunk_end - i))
         
         results = np.zeros(n_simulations)
+        failed_chunks = []
         
-        # Create progress bar if requested
+        # Progress tracking
         pbar = None
-        if self.config.show_progress:
-            pbar = tqdm(total=n_simulations, desc="Simulating")
+        if self.config.show_progress and HAS_TQDM:
+            pbar = tqdm(total=n_simulations, desc="Parallel simulation")
         
         try:
-            with ProcessPoolExecutor(max_workers=self.config.n_workers) as executor:
+            # Make function serializable
+            wrapped_func = self._make_serializable(simulate_func)
+            
+            with self._get_executor(self.config.n_workers) as executor:
                 # Submit all tasks
                 future_to_chunk = {}
-                for start_idx, chunk_n in chunks:
+                for chunk_idx, (start_idx, chunk_n) in enumerate(chunks):
+                    # Create a partial function with kwargs
+                    task_func = partial(wrapped_func, **kwargs)
+                    
                     future = executor.submit(
-                        simulate_func, 
-                        chunk_n, 
-                        n_policies,
-                        **kwargs
+                        self._execute_with_retry,
+                        task_func,
+                        (chunk_n, n_policies),
+                        {},
+                        chunk_idx
                     )
-                    future_to_chunk[future] = (start_idx, chunk_n)
+                    future_to_chunk[future] = (start_idx, chunk_n, chunk_idx)
                 
-                # Collect results as they complete
-                for future in as_completed(future_to_chunk):
-                    start_idx, chunk_n = future_to_chunk[future]
+                # Collect results with timeout
+                completed = 0
+                timeout = self.config.timeout * len(chunks) if self.config.timeout else None
+                
+                for future in as_completed(future_to_chunk, timeout=timeout):
+                    start_idx, chunk_n, chunk_idx = future_to_chunk[future]
+                    
                     try:
-                        chunk_results = future.result()
-                        results[start_idx:start_idx + chunk_n] = chunk_results
+                        success, result = future.result(timeout=1.0)
+                        
+                        if success:
+                            results[start_idx:start_idx + chunk_n] = result
+                            completed += chunk_n
+                        else:
+                            failed_chunks.append((start_idx, chunk_n))
+                            warnings.warn(
+                                f"Chunk {chunk_idx} failed after retries: "
+                                f"{result.get('error_msg', 'Unknown error')}"
+                            )
                         
                         if pbar:
                             pbar.update(chunk_n)
+                            
+                    except TimeoutError:
+                        failed_chunks.append((start_idx, chunk_n))
+                        warnings.warn(f"Chunk {chunk_idx} timed out")
+                        if pbar:
+                            pbar.update(chunk_n)
                     except Exception as e:
-                        warnings.warn(f"Chunk failed: {e}")
-                        # Fill with zeros for failed chunk
-                        results[start_idx:start_idx + chunk_n] = 0
+                        failed_chunks.append((start_idx, chunk_n))
+                        warnings.warn(f"Chunk {chunk_idx} error: {type(e).__name__}: {str(e)}")
+                        if pbar:
+                            pbar.update(chunk_n)
+        
+        except Exception as e:
+            warnings.warn(f"Parallel execution failed: {type(e).__name__}: {str(e)}")
+            failed_chunks = chunks  # Mark all as failed
+        
         finally:
             if pbar:
                 pbar.close()
+        
+        # Handle failed chunks
+        if failed_chunks and self.config.fallback_to_serial:
+            total_failed = sum(chunk_n for _, chunk_n in failed_chunks)
+            warnings.warn(
+                f"{len(failed_chunks)} chunks failed ({total_failed} simulations). "
+                f"Attempting serial fallback..."
+            )
+            
+            # Run failed chunks serially
+            for start_idx, chunk_n in failed_chunks:
+                try:
+                    chunk_results = simulate_func(chunk_n, n_policies, **kwargs)
+                    results[start_idx:start_idx + chunk_n] = chunk_results
+                except Exception as e:
+                    warnings.warn(
+                        f"Serial fallback failed for chunk at {start_idx}: "
+                        f"{type(e).__name__}: {str(e)}"
+                    )
+                    # Leave as zeros
         
         return results
     
@@ -182,28 +415,35 @@ class ParallelSimulator:
             chunk_end = min(i + chunk_size, n_simulations)
             chunks.append(chunk_end - i)
         
+        # Create partial function with kwargs
+        task_func = partial(simulate_func, **kwargs)
+        
         # Run parallel simulation
-        if self.config.show_progress:
+        verbose = 10 if self.config.show_progress else 0
+        
+        try:
             results_list = Parallel(
                 n_jobs=self.config.n_workers,
                 backend='loky',  # 'loky' is more robust than 'multiprocessing'
-                verbose=10
+                verbose=verbose,
+                timeout=self.config.timeout
             )(
-                delayed(simulate_func)(chunk_n, n_policies, **kwargs)
+                delayed(task_func)(chunk_n, n_policies)
                 for chunk_n in chunks
             )
-        else:
-            results_list = Parallel(
-                n_jobs=self.config.n_workers,
-                backend='loky'
-            )(
-                delayed(simulate_func)(chunk_n, n_policies, **kwargs)
-                for chunk_n in chunks
-            )
-        
-        # Combine results
-        results = np.concatenate(results_list)
-        return results
+            
+            # Combine results
+            results = np.concatenate(results_list)
+            return results
+            
+        except Exception as e:
+            warnings.warn(f"Joblib execution failed: {type(e).__name__}: {str(e)}")
+            
+            if self.config.fallback_to_serial:
+                warnings.warn("Falling back to serial execution...")
+                return simulate_func(n_simulations, n_policies, **kwargs)
+            else:
+                return np.zeros(n_simulations)
     
     def simulate_work_stealing(
         self,
@@ -228,6 +468,7 @@ class ParallelSimulator:
         
         results = np.zeros(n_simulations)
         completed = 0
+        failed_work = []
         
         # Progress bar
         pbar = None
@@ -235,9 +476,13 @@ class ParallelSimulator:
             pbar = tqdm(total=n_simulations, desc="Work-stealing simulation")
         
         try:
-            with ProcessPoolExecutor(max_workers=self.config.n_workers) as executor:
+            # Make function serializable
+            wrapped_func = self._make_serializable(simulate_func)
+            task_func = partial(wrapped_func, **kwargs)
+            
+            with self._get_executor(self.config.n_workers) as executor:
                 # Keep workers busy
-                futures = set()
+                futures = {}
                 queue_idx = 0
                 
                 # Initial work distribution
@@ -245,142 +490,97 @@ class ParallelSimulator:
                     if queue_idx < len(work_queue):
                         start_idx, chunk_size = work_queue[queue_idx]
                         future = executor.submit(
-                            simulate_func, chunk_size, n_policies, **kwargs
+                            self._execute_with_retry,
+                            task_func,
+                            (chunk_size, n_policies),
+                            {},
+                            f"ws_{queue_idx}"
                         )
-                        futures.add((future, start_idx, chunk_size))
+                        futures[future] = (start_idx, chunk_size)
                         queue_idx += 1
                 
                 # Process results and distribute new work
                 while futures or queue_idx < len(work_queue):
-                    # Wait for any future to complete
-                    done_futures = []
-                    for future_info in futures:
-                        future, start_idx, chunk_size = future_info
-                        if future.done():
-                            done_futures.append(future_info)
+                    # Get completed futures
+                    done_futures = [f for f in futures if f.done()]
                     
                     # Process completed futures
-                    for future_info in done_futures:
-                        future, start_idx, chunk_size = future_info
-                        futures.remove(future_info)
+                    for future in done_futures:
+                        start_idx, chunk_size = futures.pop(future)
                         
                         try:
-                            chunk_results = future.result()
-                            results[start_idx:start_idx + chunk_size] = chunk_results
-                            completed += chunk_size
+                            success, result = future.result()
+                            
+                            if success:
+                                results[start_idx:start_idx + chunk_size] = result
+                                completed += chunk_size
+                            else:
+                                failed_work.append((start_idx, chunk_size))
+                                warnings.warn(
+                                    f"Work unit at {start_idx} failed: "
+                                    f"{result.get('error_msg', 'Unknown')}"
+                                )
                             
                             if pbar:
                                 pbar.update(chunk_size)
+                                
                         except Exception as e:
+                            failed_work.append((start_idx, chunk_size))
                             warnings.warn(f"Work unit failed: {e}")
+                            if pbar:
+                                pbar.update(chunk_size)
                         
                         # Submit new work if available
                         if queue_idx < len(work_queue):
                             start_idx, chunk_size = work_queue[queue_idx]
                             future = executor.submit(
-                                simulate_func, chunk_size, n_policies, **kwargs
+                                self._execute_with_retry,
+                                task_func,
+                                (chunk_size, n_policies),
+                                {},
+                                f"ws_{queue_idx}"
                             )
-                            futures.add((future, start_idx, chunk_size))
+                            futures[future] = (start_idx, chunk_size)
                             queue_idx += 1
                     
                     # Small sleep to avoid busy waiting
-                    if not done_futures:
+                    if not done_futures and futures:
                         time.sleep(0.001)
         
         finally:
             if pbar:
                 pbar.close()
         
+        # Handle failed work
+        if failed_work and self.config.fallback_to_serial:
+            for start_idx, chunk_size in failed_work:
+                try:
+                    chunk_results = simulate_func(chunk_size, n_policies, **kwargs)
+                    results[start_idx:start_idx + chunk_size] = chunk_results
+                except Exception as e:
+                    warnings.warn(f"Serial fallback failed at {start_idx}: {e}")
+        
         return results
 
 
+# Convenience function for backward compatibility
 def parallel_worker(args: Tuple[Any, ...]) -> np.ndarray:
     """Worker function for parallel simulation."""
     simulate_func, n_sims, n_policies, kwargs = args
     return simulate_func(n_sims, n_policies, **kwargs)
 
 
-def benchmark_parallel_methods():
-    """Benchmark different parallel processing methods."""
-    from quactuary.book import Portfolio, Inforce, PolicyTerms
-    from quactuary.distributions.frequency import Poisson
-    from quactuary.distributions.severity import Lognormal
-    from quactuary.vectorized_simulation import VectorizedSimulator
-    import pandas as pd
-    
-    print("PARALLEL PROCESSING BENCHMARK")
-    print("=" * 60)
-    print(f"CPU cores available: {cpu_count()}")
-    print(f"Memory available: {psutil.virtual_memory().available / (1024**3):.1f} GB")
-    print()
-    
-    # Create test portfolio
-    terms = PolicyTerms(
-        effective_date=pd.Timestamp('2024-01-01'),
-        expiration_date=pd.Timestamp('2024-12-31')
-    )
-    
-    inforce = Inforce(
-        n_policies=100,
-        terms=terms,
-        frequency=Poisson(mu=1.5),
-        severity=Lognormal(shape=1.0, scale=np.exp(8.0))
-    )
-    
-    # Define simulation function
-    def simulate_batch(n_sims, n_policies):
-        return VectorizedSimulator.simulate_inforce_vectorized(inforce, n_sims)
-    
-    n_simulations = 100000
-    configs = [
-        ParallelConfig(n_workers=1, show_progress=False),
-        ParallelConfig(n_workers=2, show_progress=False),
-        ParallelConfig(n_workers=4, show_progress=False),
-        ParallelConfig(n_workers=cpu_count(), show_progress=False),
-    ]
-    
-    results = {}
-    
-    for config in configs:
-        simulator = ParallelSimulator(config)
-        
-        # Multiprocessing
-        start = time.perf_counter()
-        mp_results = simulator.simulate_parallel_multiprocessing(
-            simulate_batch, n_simulations, inforce.n_policies
-        )
-        mp_time = time.perf_counter() - start
-        results[f'multiprocessing_{config.n_workers}'] = mp_time
-        
-        # Joblib (if available)
-        if HAS_JOBLIB:
-            start = time.perf_counter()
-            jl_results = simulator.simulate_parallel_joblib(
-                simulate_batch, n_simulations, inforce.n_policies
-            )
-            jl_time = time.perf_counter() - start
-            results[f'joblib_{config.n_workers}'] = jl_time
-        
-        # Work stealing (only for multi-worker)
-        if config.n_workers > 1:
-            config.work_stealing = True
-            simulator_ws = ParallelSimulator(config)
-            start = time.perf_counter()
-            ws_results = simulator_ws.simulate_work_stealing(
-                simulate_batch, n_simulations, inforce.n_policies
-            )
-            ws_time = time.perf_counter() - start
-            results[f'work_stealing_{config.n_workers}'] = ws_time
-    
-    # Print results
-    print("\nResults (seconds):")
-    print("-" * 40)
-    baseline = results.get('multiprocessing_1', 1.0)
-    
-    for method, time_taken in sorted(results.items()):
-        speedup = baseline / time_taken
-        print(f"{method:25} {time_taken:8.3f}s (speedup: {speedup:5.2f}x)")
-
-
-if __name__ == "__main__":
-    benchmark_parallel_methods()
+# Set multiprocessing start method
+if __name__ != "__main__":
+    # Use fork on Unix for better compatibility with closures
+    # Use spawn on Windows where fork is not available
+    if hasattr(os, 'fork'):
+        try:
+            multiprocessing.set_start_method('fork', force=True)
+        except RuntimeError:
+            pass  # Already set
+    else:
+        try:
+            multiprocessing.set_start_method('spawn', force=True)
+        except RuntimeError:
+            pass  # Already set

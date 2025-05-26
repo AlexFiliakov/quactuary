@@ -13,6 +13,7 @@ import warnings
 from quactuary.book import Inforce
 from quactuary.distributions.frequency import FrequencyModel
 from quactuary.distributions.severity import SeverityModel
+from quactuary.parallel_processing import ParallelSimulator, ParallelConfig
 
 
 class VectorizedSimulator:
@@ -30,7 +31,9 @@ class VectorizedSimulator:
     def simulate_inforce_vectorized(
         inforce: Inforce,
         n_sims: int,
-        batch_size: Optional[int] = None
+        batch_size: Optional[int] = None,
+        parallel: bool = False,
+        n_workers: Optional[int] = None
     ) -> np.ndarray:
         """
         Simulate aggregate losses using vectorized operations.
@@ -39,10 +42,36 @@ class VectorizedSimulator:
             inforce: Inforce bucket to simulate
             n_sims: Number of simulations
             batch_size: Size of batches for memory efficiency
+            parallel: Whether to use parallel processing
+            n_workers: Number of parallel workers (None for auto)
             
         Returns:
             Array of aggregate losses
         """
+        if parallel:
+            # Use parallel processing for large simulations
+            config = ParallelConfig(
+                n_workers=n_workers,
+                show_progress=True,
+                fallback_to_serial=True
+            )
+            simulator = ParallelSimulator(config)
+            
+            # Create simulation function for parallel execution
+            def simulate_batch(n_batch, n_policies):
+                return VectorizedSimulator._simulate_batch(
+                    inforce.frequency,
+                    inforce.severity,
+                    n_policies,
+                    n_batch
+                )
+            
+            return simulator.simulate_parallel_multiprocessing(
+                simulate_batch,
+                n_sims,
+                inforce.n_policies
+            )
+        
         if batch_size is None:
             batch_size = min(n_sims, 10000)  # Default batch size
         
@@ -79,6 +108,41 @@ class VectorizedSimulator:
                         results[batch_start + sim_idx] = sim_severities.sum()
                         severity_idx += freq
             
+        return results
+    
+    @staticmethod
+    def _simulate_batch(
+        frequency: FrequencyModel,
+        severity: SeverityModel,
+        n_policies: int,
+        n_sims: int
+    ) -> np.ndarray:
+        """Helper method for parallel batch simulation."""
+        # Vectorized frequency sampling
+        freq_samples = np.zeros((n_policies, n_sims))
+        for i in range(n_policies):
+            freq_samples[i, :] = frequency.rvs(size=n_sims)
+        
+        # Total frequencies per simulation
+        total_freqs = freq_samples.sum(axis=0).astype(int)
+        
+        # Pre-allocate results
+        results = np.zeros(n_sims)
+        
+        # Vectorized severity sampling
+        max_freq = total_freqs.max()
+        if max_freq > 0:
+            # Sample all severities at once
+            all_severities = severity.rvs(size=total_freqs.sum())
+            
+            # Distribute severities to simulations
+            severity_idx = 0
+            for sim_idx, freq in enumerate(total_freqs):
+                if freq > 0:
+                    sim_severities = all_severities[severity_idx:severity_idx + freq]
+                    results[sim_idx] = sim_severities.sum()
+                    severity_idx += freq
+        
         return results
     
     @staticmethod

@@ -8,7 +8,7 @@ from scipy import stats
 
 from quactuary.distributions.frequency import Binomial
 from quactuary.distributions.severity import Exponential, Gamma, Lognormal
-from quactuary.distributions.compound_binomial import (
+from quactuary.distributions.compound import (
     BinomialExponentialCompound,
     BinomialGammaCompound,
     BinomialLognormalCompound,

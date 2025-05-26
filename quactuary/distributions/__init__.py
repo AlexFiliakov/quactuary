@@ -26,7 +26,7 @@ The module is organized into three main components:
    - Panjer recursion for exact calculation with discrete severities
 
 4. **Extended Distribution Support**:
-   - **Compound Binomial** (`compound_binomial` module):
+   - **Compound Binomial** (part of `compound` module):
      - Binomial-Exponential, Binomial-Gamma, Binomial-Lognormal
      - Panjer recursion for binomial frequency
    - **Mixed Poisson** (`mixed_poisson` module):
@@ -124,7 +124,7 @@ from .compound import (
     NegativeBinomialGammaCompound,
     create_compound_distribution,
 )
-from .compound_binomial import (
+from .compound import (
     BinomialExponentialCompound,
     BinomialGammaCompound,
     BinomialLognormalCompound,

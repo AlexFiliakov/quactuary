@@ -13,7 +13,7 @@ import multiprocessing as mp
 from quactuary.distributions.compound import CompoundDistribution, create_compound_distribution
 from quactuary.distributions.frequency import FrequencyModel
 from quactuary.distributions.severity import SeverityModel
-from quactuary.distributions.compound_binomial import (
+from quactuary.distributions.compound import (
     BinomialExponentialCompound,
     BinomialGammaCompound, 
     BinomialLognormalCompound

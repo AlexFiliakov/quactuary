@@ -25,7 +25,7 @@ from quactuary.distributions.compound import (
     NegativeBinomialGammaCompound,
     SimulatedCompound,
 )
-from quactuary.distributions.compound_binomial import (
+from quactuary.distributions.compound import (
     BinomialExponentialCompound,
     BinomialGammaCompound,
     BinomialLognormalCompound,

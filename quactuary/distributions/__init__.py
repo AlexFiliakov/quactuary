@@ -26,12 +26,9 @@ The module is organized into three main components:
    - Panjer recursion for exact calculation with discrete severities
 
 4. **Extended Distribution Support**:
-   - **Compound Binomial** (part of `compound` module):
-     - Binomial-Exponential, Binomial-Gamma, Binomial-Lognormal
-     - Panjer recursion for binomial frequency
-   - **Mixed Poisson** (`mixed_poisson` module):
-     - Poisson-Gamma (Negative Binomial), Poisson-Inverse Gaussian
-     - Hierarchical and time-varying intensity models
+
+   - **Compound Binomial** (part of `compound` module): Binomial-Exponential, Binomial-Gamma, Binomial-Lognormal with Panjer recursion for binomial frequency
+   - **Mixed Poisson** (`mixed_poisson` module): Poisson-Gamma (Negative Binomial), Poisson-Inverse Gaussian with hierarchical and time-varying intensity models
    - **Zero-Inflated** (`zero_inflated` module):
      - Zero-inflated compound distributions with EM algorithm
      - Statistical tests for zero-inflation detection

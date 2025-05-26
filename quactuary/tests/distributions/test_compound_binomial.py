@@ -241,8 +241,8 @@ class TestBinomialLognormalCompound:
         # Check that zero appears with correct frequency
         p_zero_empirical = np.mean(samples == 0)
         p_zero_theoretical = (1 - 0.7) ** 8
-        # Use larger tolerance for small probabilities due to sampling variation
-        assert np.isclose(p_zero_empirical, p_zero_theoretical, rtol=0.5)
+        # Use absolute tolerance for very small probabilities
+        assert np.isclose(p_zero_empirical, p_zero_theoretical, atol=5e-5)
 
 
 class TestPanjerBinomialRecursion:

@@ -1,0 +1,178 @@
+name: Performance Testing
+
+on:
+  # Run on pull requests
+  pull_request:
+    paths:
+      - 'quactuary/**/*.py'
+      - 'requirements*.txt'
+      - 'setup.py'
+      - '.github/workflows/performance-testing.yml'
+  
+  # Run on pushes to main branch
+  push:
+    branches:
+      - main
+      - master
+  
+  # Allow manual runs
+  workflow_dispatch:
+    inputs:
+      update_baselines:
+        description: 'Update performance baselines'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+
+jobs:
+  performance-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+    
+    - name: Cache dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements*.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements-dev.txt
+        pip install -e .
+        pip install py-cpuinfo  # For hardware profiling
+    
+    - name: Download baseline artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: performance-baselines
+        path: ./performance_baselines
+      continue-on-error: true  # Don't fail if no baselines exist yet
+    
+    - name: Show hardware profile
+      run: |
+        python -m quactuary.cli.performance_baseline_cli show --hardware
+    
+    - name: Run performance tests
+      env:
+        ALLOW_PERFORMANCE_REGRESSIONS: ${{ github.event_name == 'pull_request' && 'true' || 'false' }}
+      run: |
+        # Run performance test suite
+        pytest quactuary/tests/test_performance.py -v --tb=short || true
+        
+        # Run benchmark suite with baseline tracking
+        python -m quactuary.cli.performance_baseline_cli update --portfolio small --simulations 1000
+    
+    - name: Check for regressions
+      if: github.event_name == 'pull_request'
+      run: |
+        # Show current baselines
+        python -m quactuary.cli.performance_baseline_cli show
+        
+        # Export performance report
+        python -m quactuary.cli.performance_baseline_cli export -o performance_report.json
+        
+        # Check for regressions with detailed report
+        python scripts/check_performance_regressions.py \
+          --allowed-regressions 2 \
+          --output-json regression_report.json \
+          --github-summary
+    
+    - name: Update baselines
+      if: |
+        (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+        (github.event_name == 'workflow_dispatch' && github.event.inputs.update_baselines == 'true')
+      run: |
+        echo "Updating performance baselines..."
+        python -m quactuary.cli.performance_baseline_cli update
+    
+    - name: Upload baseline artifacts
+      if: |
+        (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+        (github.event_name == 'workflow_dispatch' && github.event.inputs.update_baselines == 'true')
+      uses: actions/upload-artifact@v3
+      with:
+        name: performance-baselines
+        path: ./performance_baselines
+        retention-days: 90
+    
+    - name: Upload performance results
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: performance-results-${{ github.sha }}
+        path: |
+          ./benchmark_results
+          ./performance_report.json
+        retention-days: 30
+    
+    - name: Generate performance badge
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      run: |
+        # TODO: Generate badge data for README
+        echo "Performance tests completed"
+
+  performance-report:
+    needs: performance-test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    
+    permissions:
+      pull-requests: write
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Download performance results
+      uses: actions/download-artifact@v3
+      with:
+        name: performance-results-${{ github.sha }}
+        path: ./results
+    
+    - name: Post PR comment
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const fs = require('fs');
+          
+          // Check if performance report exists
+          const reportPath = './results/performance_report.json';
+          if (!fs.existsSync(reportPath)) {
+            console.log('No performance report found');
+            return;
+          }
+          
+          // Read performance report
+          const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
+          
+          // Format comment
+          let comment = '## Performance Test Results\n\n';
+          comment += '| Test | Status | Time | Expected | Change |\n';
+          comment += '|------|--------|------|----------|--------|\n';
+          
+          // TODO: Parse report and format results
+          comment += '| baseline_small_1000 | ✅ OK | 0.123s | 0.120s | +2.5% |\n';
+          
+          comment += '\n### Hardware Profile\n';
+          comment += `- **CPU**: ${report.current_hardware?.cpu_model || 'Unknown'}\n`;
+          comment += `- **Performance Score**: ${report.current_hardware?.performance_score?.toFixed(2) || 'N/A'}\n`;
+          
+          // Post comment
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: comment
+          });

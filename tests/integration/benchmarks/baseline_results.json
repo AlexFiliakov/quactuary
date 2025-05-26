@@ -1,44 +1,44 @@
 {
   "speedup_small_portfolio": {
-    "baseline_time": 0.015984773635864258,
-    "optimized_time": 0.0032358169555664062,
-    "speedup": 4.939949896846448,
+    "baseline_time": 0.812140703201294,
+    "optimized_time": 0.05907797813415527,
+    "speedup": 13.74692785452256,
     "target_speedup": 2.0,
     "achieved_target": true
   },
-  "last_updated": "2025-05-26T12:31:54.619220",
+  "last_updated": "2025-05-26T13:43:44.504516",
   "speedup_medium_portfolio": {
-    "baseline_time": 0.030005693435668945,
-    "optimized_time": 0.023963451385498047,
-    "speedup": 1.2521440652671376,
+    "baseline_time": 0.13959670066833496,
+    "optimized_time": 0.16000676155090332,
+    "speedup": 0.8724425100243326,
     "target_speedup": 3.0,
     "achieved_target": false
   },
   "speedup_large_portfolio": {
-    "baseline_time": 0.1426088809967041,
-    "optimized_time": 0.1166679859161377,
-    "speedup": 1.2223480149834165,
+    "baseline_time": 0.431286096572876,
+    "optimized_time": 0.3652920722961426,
+    "speedup": 1.1806609813947235,
     "target_speedup": 4.0,
     "achieved_target": false
   },
   "memory_small_portfolio": {
-    "peak_memory_mb": 286.171875,
-    "rss_mb": 286.171875,
-    "memory_percent": 4.172618600105255,
+    "peak_memory_mb": 290.90234375,
+    "rss_mb": 290.90234375,
+    "memory_percent": 4.241592680431865,
     "limit_mb": 1024,
     "within_limit": true
   },
   "memory_medium_portfolio": {
-    "peak_memory_mb": 286.4296875,
-    "rss_mb": 286.4296875,
-    "memory_percent": 4.176377715961206,
+    "peak_memory_mb": 290.90234375,
+    "rss_mb": 290.90234375,
+    "memory_percent": 4.241592680431865,
     "limit_mb": 2048,
     "within_limit": true
   },
   "memory_large_portfolio": {
-    "peak_memory_mb": 286.4296875,
-    "rss_mb": 286.4296875,
-    "memory_percent": 4.176377715961206,
+    "peak_memory_mb": 290.90234375,
+    "rss_mb": 290.90234375,
+    "memory_percent": 4.241592680431865,
     "limit_mb": 4096,
     "within_limit": true
   }

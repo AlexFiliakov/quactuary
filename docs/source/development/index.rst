@@ -16,6 +16,7 @@ quactuary is an open-source project that welcomes contributions from the communi
    setting_up_environment
    code_standards
    testing_guidelines
+   performance_testing
    documentation_guidelines
    submitting_changes
    issue_reporting

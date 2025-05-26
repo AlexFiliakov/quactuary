@@ -1,5 +1,5 @@
 Performance Testing Guide
-========================
+=========================
 
 This guide describes the performance testing infrastructure in quActuary, including
 how to write performance tests, manage baselines, and detect regressions.
@@ -15,7 +15,7 @@ The quActuary performance testing system provides:
 - **CLI Tools**: Command-line utilities for baseline management and analysis
 
 Key Components
--------------
+--------------
 
 Performance Baseline System
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -48,7 +48,7 @@ The adaptive baseline system consists of three main classes:
    )
 
 Performance Test Framework
-~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The framework provides base classes and decorators for writing performance tests:
 
@@ -75,10 +75,10 @@ The framework provides base classes and decorators for writing performance tests
            )
 
 Writing Performance Tests
-------------------------
+-------------------------
 
 Basic Performance Test
-~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~
 
 Here's a simple example of a performance test:
 
@@ -112,7 +112,7 @@ Here's a simple example of a performance test:
            )
 
 Using the Performance Decorator
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 For simpler tests, use the decorator:
 
@@ -125,7 +125,7 @@ For simpler tests, use the decorator:
        self.assertEqual(result, 9227465)
 
 Hardware Normalization
-~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~
 
 The system automatically normalizes performance based on hardware capabilities:
 
@@ -146,10 +146,10 @@ This allows meaningful comparisons across different environments:
    # Both are considered equivalent performance
 
 Managing Baselines
------------------
+------------------
 
 CLI Commands
-~~~~~~~~~~~
+~~~~~~~~~~~~
 
 The performance baseline CLI provides several commands:
 
@@ -177,7 +177,7 @@ The performance baseline CLI provides several commands:
        -i baselines_backup.json
 
 Baseline Storage
-~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~
 
 Baselines are stored in JSON format in the ``performance_baselines/`` directory:
 
@@ -200,10 +200,10 @@ Baselines are stored in JSON format in the ``performance_baselines/`` directory:
    }
 
 CI/CD Integration
-----------------
+-----------------
 
 GitHub Actions Workflow
-~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
 
 The repository includes a GitHub Actions workflow that:
 
@@ -213,7 +213,7 @@ The repository includes a GitHub Actions workflow that:
 4. Posts performance reports as PR comments
 
 Manual Baseline Updates
-~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
 
 To manually update baselines:
 
@@ -224,10 +224,10 @@ To manually update baselines:
        -f update_baselines=true
 
 Regression Detection
--------------------
+--------------------
 
 Regression Thresholds
-~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
 
 The system uses adaptive thresholds for regression detection:
 
@@ -236,7 +236,7 @@ The system uses adaptive thresholds for regression detection:
 - **Dynamic adjustment**: Uses the larger of the two thresholds
 
 Handling Regressions
-~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~
 
 When a regression is detected:
 
@@ -252,7 +252,7 @@ Example regression output:
    Expected: 1.234s (normalized), Got: 1.668s (normalized)
 
 Best Practices
--------------
+--------------
 
 1. **Isolate Performance Tests**
    
@@ -312,10 +312,10 @@ Best Practices
           )
 
 Troubleshooting
---------------
+---------------
 
 Common Issues
-~~~~~~~~~~~~
+~~~~~~~~~~~~~
 
 1. **High Variance in Measurements**
    
@@ -336,7 +336,7 @@ Common Issues
    - Let tests establish initial baselines
 
 Debug Output
-~~~~~~~~~~~
+~~~~~~~~~~~~
 
 Enable verbose output for debugging:
 
@@ -349,7 +349,7 @@ Enable verbose output for debugging:
    python -m pytest tests/performance -v -s
 
 Performance Reports
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~
 
 Generate detailed performance reports:
 

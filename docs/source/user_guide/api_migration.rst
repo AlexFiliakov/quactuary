@@ -285,7 +285,7 @@ Getting Help
 
 If you encounter issues not covered in this guide:
 
-1. Check the :doc:`/api_reference/index` for current parameter names
+1. Check the :doc:`/quactuary` for current parameter names
 2. Review the :doc:`/user_guide/distribution_parameters` for distribution specifics
 3. See :doc:`/user_guide/optimization_config` for optimization details
 4. File an issue on `GitHub <https://github.com/quactuary/quactuary/issues>`_

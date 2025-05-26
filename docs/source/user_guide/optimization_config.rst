@@ -392,6 +392,6 @@ Example 3: Quick Exploratory Analysis
 See Also
 --------
 
-* :doc:`/performance/optimization_strategies` - Detailed optimization explanations
-* :doc:`/api_reference/optimization_selector` - API documentation
-* :doc:`/tutorials/performance_tuning` - Performance tuning tutorial
+* :doc:`/performance/tuning_guide` - Performance tuning and optimization guide
+* :doc:`/user_guide/optimization_overview` - Optimization overview and concepts
+* :doc:`/performance/benchmarks` - Performance benchmarks and comparisons

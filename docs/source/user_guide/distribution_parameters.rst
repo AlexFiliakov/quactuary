@@ -223,6 +223,6 @@ Working with Zero-Inflated Models
 See Also
 --------
 
-* :doc:`/api_reference/distributions` - Full API documentation
+* :doc:`/quactuary.distributions` - Full API documentation
 * :doc:`/user_guide/testing_best_practices` - Testing with stochastic distributions
-* :doc:`/tutorials/distribution_fitting` - Fitting distributions to data
+* :doc:`/user_guide/best_practices` - Best practices for using distributions

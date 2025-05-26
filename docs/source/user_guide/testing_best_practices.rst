@@ -490,5 +490,5 @@ See Also
 --------
 
 * :doc:`/development/contributing` - General contribution guidelines
-* :doc:`/api_reference/testing` - Testing utilities and fixtures
+* :doc:`/development/testing_guidelines` - Testing guidelines and best practices
 * `pytest documentation <https://docs.pytest.org/>`_ - Official pytest docs

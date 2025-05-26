@@ -233,16 +233,72 @@ python run_dev.py docs --serve   # Build and serve locally
 # Utilities
 python run_dev.py coverage       # Generate coverage report
 python run_dev.py clean          # Clean build artifacts
+python run_dev.py profile        # Performance profiling
+python run_dev.py setup          # Initial environment setup
+python run_dev.py version        # Show version info
+python run_dev.py completion     # Tab completion setup
 ```
 
 ### Available Commands
 
+**Core Commands:**
 - **test**: Run pytest with options for coverage, specific files, or patterns
 - **lint**: Run code quality tools (ruff, mypy, black)
 - **format**: Auto-format code using black
 - **install/build**: Install package in development mode with dependencies
-- **coverage**: Generate detailed coverage reports
+- **coverage**: Generate detailed coverage reports with branch coverage options
 - **clean**: Remove build artifacts and caches
 - **docs**: Build Sphinx documentation with optional local server
 
+**Utility Commands:**
+- **profile**: Run performance profiling on modules or test suites
+- **setup**: Set up initial development environment from scratch
+- **version**: Display package version and environment information
+- **completion**: Generate shell tab completion scripts for bash/zsh
+
+### Features
+
+- **Progress Indicators**: Visual feedback for long-running commands (tests, coverage, docs)
+- **Tab Completion**: Enable shell completion with `python run_dev.py completion`
+- **IDE Integration**: Supports VS Code, PyCharm, Vim, Sublime, and Emacs
+- **Environment Detection**: Automatically detects and validates virtual environments
+
 The script automatically detects virtual environments and provides helpful error messages. Use `python run_dev.py --help` or `python run_dev.py <command> --help` for detailed options.
+
+### Example Development Workflows
+
+**Initial Setup:**
+```bash
+# Clone and set up from scratch
+git clone https://github.com/AlexFiliakov/quactuary.git
+cd quactuary
+python run_dev.py setup  # Creates venv and installs dependencies
+```
+
+**Daily Development:**
+```bash
+# Start your day
+python run_dev.py version       # Check environment
+python run_dev.py test --file test_pricing.py  # Test specific module
+
+# Before committing
+python run_dev.py format        # Auto-format code
+python run_dev.py lint          # Check code quality
+python run_dev.py test --coverage  # Run full test suite
+```
+
+**Performance Optimization:**
+```bash
+# Profile a slow test
+python run_dev.py profile "pytest tests/test_quantum.py -v"
+
+# Profile specific function
+python run_dev.py profile quactuary.pricing
+```
+
+**Enable Tab Completion:**
+```bash
+# One-time setup
+python run_dev.py completion    # Shows setup instructions
+# Follow the instructions for your shell (bash/zsh)
+```

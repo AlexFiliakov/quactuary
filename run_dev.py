@@ -8,12 +8,56 @@ import argparse
 import os
 import subprocess
 import sys
+import threading
+import time
 from pathlib import Path
 from typing import List, Tuple, Optional
 
 
-def run_command(cmd: List[str], check: bool = True, capture_output: bool = False) -> subprocess.CompletedProcess:
+class ProgressIndicator:
+    """Simple progress indicator for long-running commands."""
+    
+    def __init__(self, message: str = "Working"):
+        self.message = message
+        self.running = False
+        self.thread = None
+        self.spinner_chars = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
+        self.spinner_idx = 0
+    
+    def _spin(self):
+        """Spin the progress indicator."""
+        while self.running:
+            print(f"\r{self.message}... {self.spinner_chars[self.spinner_idx % len(self.spinner_chars)]}", end="", flush=True)
+            self.spinner_idx += 1
+            time.sleep(0.1)
+    
+    def start(self):
+        """Start the progress indicator."""
+        if not self.running:
+            self.running = True
+            self.thread = threading.Thread(target=self._spin)
+            self.thread.start()
+    
+    def stop(self, success: bool = True):
+        """Stop the progress indicator."""
+        if self.running:
+            self.running = False
+            self.thread.join()
+            # Clear the line
+            print(f"\r{' ' * (len(self.message) + 10)}\r", end="", flush=True)
+            if success:
+                print(f"✓ {self.message} complete")
+            else:
+                print(f"✗ {self.message} failed")
+
+
+def run_command(cmd: List[str], check: bool = True, capture_output: bool = False, show_progress: bool = False, progress_message: str = "Running command") -> subprocess.CompletedProcess:
     """Run a command and handle errors."""
+    progress = None
+    if show_progress:
+        progress = ProgressIndicator(progress_message)
+        progress.start()
+    
     try:
         result = subprocess.run(
             cmd,
@@ -21,8 +65,12 @@ def run_command(cmd: List[str], check: bool = True, capture_output: bool = False
             capture_output=capture_output,
             text=True
         )
+        if progress:
+            progress.stop(success=True)
         return result
     except subprocess.CalledProcessError as e:
+        if progress:
+            progress.stop(success=False)
         print(f"Error running command: {' '.join(cmd)}")
         print(f"Exit code: {e.returncode}")
         if e.stdout:
@@ -93,8 +141,18 @@ def run_tests(args: argparse.Namespace) -> None:
     if args.failfast:
         cmd.append("-x")
     
-    print(f"Running: {' '.join(cmd)}")
-    run_command(cmd)
+    # Determine progress message
+    if args.file:
+        progress_msg = f"Running tests in {args.file}"
+    elif args.pattern:
+        progress_msg = f"Running tests matching '{args.pattern}'"
+    else:
+        progress_msg = "Running all tests"
+    
+    if args.coverage:
+        progress_msg += " with coverage"
+    
+    run_command(cmd, show_progress=True, progress_message=progress_msg)
     
     if args.coverage:
         print("\nCoverage report generated in htmlcov/")
@@ -164,8 +222,7 @@ def build_docs(args: argparse.Namespace) -> None:
         print("Cleaning documentation build...")
         run_command(["make", "clean"])
     
-    print("Building HTML documentation...")
-    run_command(["make", "html"])
+    run_command(["make", "html"], show_progress=True, progress_message="Building HTML documentation")
     
     build_dir = Path("build/html")
     if build_dir.exists():
@@ -180,19 +237,303 @@ def build_docs(args: argparse.Namespace) -> None:
 
 def run_coverage(args: argparse.Namespace) -> None:
     """Generate and display coverage report."""
-    print("Running tests with coverage...")
     cmd = [sys.executable, "-m", "pytest", "--cov=quactuary", "--cov-report=html", "--cov-report=term"]
     
     if args.branch:
         cmd.append("--cov-branch")
     
-    run_command(cmd)
+    progress_msg = "Generating coverage report"
+    if args.branch:
+        progress_msg += " with branch coverage"
+    
+    run_command(cmd, show_progress=True, progress_message=progress_msg)
     
     print("\nCoverage report generated in htmlcov/")
     
     if args.open:
         import webbrowser
         webbrowser.open(f"file://{Path('htmlcov/index.html').absolute()}")
+
+
+def run_profile(args: argparse.Namespace) -> None:
+    """Run performance profiling on specified module/function."""
+    print("Running performance profiling...")
+    
+    # Default to profiling the main test suite if no specific target
+    target = args.target or "pytest quactuary/tests -v"
+    
+    # Prepare the profiling command
+    profile_cmd = [
+        sys.executable, "-m", "cProfile",
+        "-s", "cumulative",  # Sort by cumulative time
+        "-o", "profile_output.prof"  # Output file
+    ]
+    
+    # If target is a command string, split it
+    if isinstance(target, str) and " " in target:
+        import shlex
+        profile_cmd.extend(["-m"] + shlex.split(target)[0:1])
+        profile_cmd.extend(shlex.split(target)[1:])
+    else:
+        profile_cmd.extend(["-m", target])
+    
+    # Run profiling
+    run_command(profile_cmd)
+    
+    # Analyze results
+    print("\nProfile results saved to profile_output.prof")
+    print("\nTop 20 functions by cumulative time:")
+    
+    import pstats
+    stats = pstats.Stats("profile_output.prof")
+    stats.strip_dirs()
+    stats.sort_stats("cumulative")
+    stats.print_stats(20)
+    
+    # Generate visual output if snakeviz is available
+    try:
+        run_command([sys.executable, "-m", "snakeviz", "profile_output.prof"], check=False)
+    except:
+        print("\nInstall snakeviz for visual profiling: pip install snakeviz")
+
+
+def setup_environment(args: argparse.Namespace) -> None:
+    """Set up initial development environment from scratch."""
+    print("Setting up development environment...")
+    
+    # Check Python version
+    import sys
+    if sys.version_info < (3, 9):
+        print(f"Error: Python 3.9+ required, found {sys.version}")
+        sys.exit(1)
+    print(f"✓ Python {sys.version.split()[0]} OK")
+    
+    # Check if in a virtual environment
+    if not hasattr(sys, 'real_prefix') and sys.base_prefix == sys.prefix:
+        print("\nNo virtual environment detected.")
+        
+        # Create virtual environment
+        venv_path = Path("venv")
+        if not venv_path.exists():
+            print("Creating virtual environment...")
+            run_command([sys.executable, "-m", "venv", "venv"])
+            print(f"✓ Virtual environment created at {venv_path}")
+            print(f"\nActivate it with:")
+            print(f"  source venv/bin/activate  # Linux/Mac")
+            print(f"  venv\\Scripts\\activate     # Windows")
+            sys.exit(0)
+        else:
+            print(f"Virtual environment exists at {venv_path}")
+            print("Please activate it and run this command again.")
+            sys.exit(1)
+    
+    # Install development dependencies
+    print("\nInstalling development dependencies...")
+    run_command([sys.executable, "-m", "pip", "install", "--upgrade", "pip", "setuptools", "wheel"])
+    run_command([sys.executable, "-m", "pip", "install", "-e", ".[dev]"])
+    print("✓ Dependencies installed")
+    
+    # Run initial tests to verify setup
+    print("\nRunning basic tests to verify setup...")
+    result = run_command(
+        [sys.executable, "-m", "pytest", "--tb=short", "-v", "-k", "test_basic"],
+        check=False,
+        capture_output=True
+    )
+    
+    if result.returncode == 0:
+        print("✓ Basic tests passed")
+    else:
+        print("⚠ Some tests failed - this is normal for initial setup")
+    
+    print("\n✅ Development environment setup complete!")
+    print("\nNext steps:")
+    print("  1. Run 'python run_dev.py test' to run all tests")
+    print("  2. Run 'python run_dev.py lint' to check code style")
+    print("  3. Run 'python run_dev.py docs' to build documentation")
+
+
+def setup_completion(args: argparse.Namespace) -> None:
+    """Generate and display shell completion setup instructions."""
+    script_path = Path(__file__).absolute()
+    
+    print("Tab Completion Setup for run_dev.py")
+    print("=" * 50)
+    
+    # Bash completion script
+    bash_completion = f"""
+# Add this to your ~/.bashrc or ~/.bash_profile:
+
+_run_dev_complete() {{
+    local cur prev opts base
+    COMPREPLY=()
+    cur="${{COMP_WORDS[COMP_CWORD]}}"
+    prev="${{COMP_WORDS[COMP_CWORD-1]}}"
+    
+    # Main commands
+    opts="test lint format install build coverage clean docs profile setup version"
+    
+    # Complete main commands
+    if [[ ${{COMP_CWORD}} == 1 ]] ; then
+        COMPREPLY=( $(compgen -W "${{opts}}" -- ${{cur}}) )
+        return 0
+    fi
+    
+    # Complete test options
+    if [[ "${{prev}}" == "test" ]] ; then
+        opts="--coverage --coverage-branch --file --pattern --verbose --failfast"
+        COMPREPLY=( $(compgen -W "${{opts}}" -- ${{cur}}) )
+        return 0
+    fi
+    
+    # Complete coverage options
+    if [[ "${{prev}}" == "coverage" ]] ; then
+        opts="--branch --open"
+        COMPREPLY=( $(compgen -W "${{opts}}" -- ${{cur}}) )
+        return 0
+    fi
+    
+    # Complete docs options
+    if [[ "${{prev}}" == "docs" ]] ; then
+        opts="--serve --clean"
+        COMPREPLY=( $(compgen -W "${{opts}}" -- ${{cur}}) )
+        return 0
+    fi
+}}
+
+complete -F _run_dev_complete python {script_path}
+complete -F _run_dev_complete ./run_dev.py
+"""
+
+    # Zsh completion script
+    zsh_completion = f"""
+# Add this to your ~/.zshrc:
+
+_run_dev_complete() {{
+    local -a commands
+    commands=(
+        'test:Run tests'
+        'lint:Run linting tools'
+        'format:Auto-format code'
+        'install:Install development environment'
+        'build:Build package'
+        'coverage:Generate coverage report'
+        'clean:Clean build artifacts'
+        'docs:Build documentation'
+        'profile:Run performance profiling'
+        'setup:Set up development environment'
+        'version:Show version and environment info'
+    )
+    
+    if (( CURRENT == 2 )); then
+        _describe -t commands 'run_dev.py commands' commands
+    elif (( CURRENT == 3 )); then
+        case ${{words[2]}} in
+            test)
+                _arguments \\
+                    '--coverage[Run with coverage]' \\
+                    '--coverage-branch[Include branch coverage]' \\
+                    '--file[Run specific test file]:file:_files' \\
+                    '--pattern[Run tests matching pattern]:pattern:' \\
+                    '--verbose[Verbose output]' \\
+                    '--failfast[Stop on first failure]'
+                ;;
+            coverage)
+                _arguments \\
+                    '--branch[Include branch coverage]' \\
+                    '--open[Open report in browser]'
+                ;;
+            docs)
+                _arguments \\
+                    '--serve[Serve docs locally]' \\
+                    '--clean[Clean before building]'
+                ;;
+        esac
+    fi
+}}
+
+compdef _run_dev_complete {script_path}
+compdef _run_dev_complete ./run_dev.py
+"""
+
+    print("\nFor Bash:")
+    print("-" * 40)
+    print(bash_completion)
+    
+    print("\nFor Zsh:")
+    print("-" * 40)
+    print(zsh_completion)
+    
+    print("\nQuick Setup:")
+    print("-" * 40)
+    print("1. Choose the script for your shell (bash or zsh)")
+    print("2. Copy the script to your shell config file")
+    print("3. Reload your shell: source ~/.bashrc (or ~/.zshrc)")
+    print("4. Tab completion should now work!")
+    
+    print("\nAlternative: Using argcomplete (requires pip install argcomplete)")
+    print("-" * 40)
+    print("1. pip install argcomplete")
+    print("2. Add to ~/.bashrc: eval \"$(register-python-argcomplete run_dev.py)\"")
+    print("3. Reload shell: source ~/.bashrc")
+
+
+def show_version(args: argparse.Namespace) -> None:
+    """Display package version and environment info."""
+    print("quActuary Development Environment")
+    print("=" * 40)
+    
+    # Package version
+    try:
+        from quactuary._version import __version__
+        print(f"quActuary version: {__version__}")
+    except ImportError:
+        print("quActuary version: Development")
+    
+    # Python version
+    import sys
+    print(f"Python version: {sys.version.split()[0]}")
+    print(f"Python executable: {sys.executable}")
+    
+    # Virtual environment
+    if hasattr(sys, 'real_prefix') or sys.base_prefix != sys.prefix:
+        print(f"Virtual environment: Active")
+    else:
+        print(f"Virtual environment: Not active")
+    
+    # Key dependencies
+    print("\nKey dependencies:")
+    deps = ["numpy", "scipy", "pandas", "qiskit", "pytest", "sphinx"]
+    for dep in deps:
+        try:
+            module = __import__(dep)
+            version = getattr(module, "__version__", "Unknown")
+            print(f"  {dep}: {version}")
+        except ImportError:
+            print(f"  {dep}: Not installed")
+    
+    # Git information
+    try:
+        git_result = run_command(
+            ["git", "rev-parse", "--short", "HEAD"],
+            capture_output=True,
+            check=False
+        )
+        if git_result.returncode == 0:
+            print(f"\nGit commit: {git_result.stdout.strip()}")
+            
+            # Check for uncommitted changes
+            status_result = run_command(
+                ["git", "status", "--porcelain"],
+                capture_output=True,
+                check=False
+            )
+            if status_result.stdout.strip():
+                print("Git status: Uncommitted changes")
+            else:
+                print("Git status: Clean")
+    except:
+        pass
 
 
 def clean_build(args: argparse.Namespace) -> None:
@@ -250,6 +591,10 @@ Examples:
   python run_dev.py docs --serve              # Build and serve docs
   python run_dev.py test --file test_pricing.py  # Run specific test
   python run_dev.py clean                     # Clean build artifacts
+  python run_dev.py profile                   # Profile test performance
+  python run_dev.py setup                     # Set up environment from scratch
+  python run_dev.py version                   # Show version info
+  python run_dev.py completion                # Show tab completion setup
         """
     )
     
@@ -298,6 +643,23 @@ Examples:
     docs_parser.add_argument('--serve', action='store_true', help='Serve docs locally')
     docs_parser.add_argument('--clean', action='store_true', help='Clean before building')
     docs_parser.set_defaults(func=build_docs)
+    
+    # Profile command
+    profile_parser = subparsers.add_parser('profile', help='Run performance profiling')
+    profile_parser.add_argument('target', nargs='?', help='Module or command to profile')
+    profile_parser.set_defaults(func=run_profile)
+    
+    # Setup command
+    setup_parser = subparsers.add_parser('setup', help='Set up development environment')
+    setup_parser.set_defaults(func=setup_environment)
+    
+    # Version command
+    version_parser = subparsers.add_parser('version', help='Show version and environment info')
+    version_parser.set_defaults(func=show_version)
+    
+    # Completion command
+    completion_parser = subparsers.add_parser('completion', help='Show tab completion setup instructions')
+    completion_parser.set_defaults(func=setup_completion)
     
     args = parser.parse_args()
     

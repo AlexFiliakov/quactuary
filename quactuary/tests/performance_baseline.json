@@ -1,0 +1,24 @@
+{
+  "baseline": {
+    "time_seconds": 0.5,
+    "mean_loss": 125000.0,
+    "std_loss": 50000.0
+  },
+  "jit": {
+    "time_seconds": 0.25,
+    "mean_loss": 125000.0,
+    "std_loss": 50000.0
+  },
+  "qmc": {
+    "time_seconds": 0.48,
+    "mean_loss": 125000.0,
+    "std_loss": 48000.0
+  },
+  "combined": {
+    "time_seconds": 0.22,
+    "mean_loss": 125000.0,
+    "std_loss": 48000.0
+  },
+  "portfolio_size": 50,
+  "n_sims": 5000
+}

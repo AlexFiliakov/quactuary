@@ -93,10 +93,11 @@ import pandas as pd
 
 from quactuary.backend import BackendManager, set_backend
 from quactuary.distributions.frequency import FrequencyModel
-from quactuary.distributions.severity import SeverityModel
 from quactuary.distributions.qmc_wrapper import wrap_for_qmc
+from quactuary.distributions.severity import SeverityModel
+from quactuary.parallel_processing import ParallelConfig, ParallelSimulator
 from quactuary.sobol import get_qmc_simulator
-from quactuary.parallel_processing import ParallelSimulator, ParallelConfig
+
 # from quactuary.vectorized_simulation import VectorizedSimulator  # Avoid circular import
 
 locale.setlocale(locale.LC_ALL, '')
@@ -237,21 +238,21 @@ class PolicyTerms:
             output += f"LoB: {self.lob}\n"
         if self.exposure_base:
             output += f"Exposure Base: {self.exposure_base}\n"
-        output += f"Exposure Amount: {self.exposure_amount:n}\n"
+        output += f"Exposure Amount: {int(self.exposure_amount):,}\n"
         output += f"Retention Type: {self.retention_type}\n"
-        output += f"Per-Occurrence Retention: {self.per_occ_retention:n}\n"
+        output += f"Per-Occurrence Retention: {int(self.per_occ_retention):,}\n"
         if self.agg_retention:
-            output += f"Aggregate Retention: {self.agg_retention:n}\n"
+            output += f"Aggregate Retention: {int(self.agg_retention):,}\n"
         if self.corridor_retention:
-            output += f"Corridor Retention: {self.corridor_retention:n}\n"
+            output += f"Corridor Retention: {int(self.corridor_retention):,}\n"
         if self.coinsurance:
             output += f"Coinsurance: {self.coinsurance:.2%}\n"
         if self.per_occ_limit:
-            output += f"Per Occurrence Limit: {self.per_occ_limit:n}\n"
+            output += f"Per Occurrence Limit: {int(self.per_occ_limit):,}\n"
         if self.agg_limit:
-            output += f"Aggregate Limit: {self.agg_limit:n}\n"
+            output += f"Aggregate Limit: {int(self.agg_limit):,}\n"
         if self.attachment:
-            output += f"Attachment: {self.attachment:n}\n"
+            output += f"Attachment: {int(self.attachment):,}\n"
         output += f"Coverage: {self.coverage}\n"
         output += f"Notes: {self.notes}\n"
         return output
@@ -698,7 +699,7 @@ class Inforce:
 
     def __str__(self) -> str:
         output = f"Bucket: {self.name}\n" + \
-            f"- Number of Policies: {self.n_policies:n}\n" + \
+            f"- Number of Policies: {self.n_policies:,}\n" + \
             f"- Frequency Model: {str(self.frequency)}\n" + \
             f"- Severity Model: {str(self.severity)}\n" + \
             f"- Policy Terms:\n"
@@ -880,6 +881,19 @@ class Portfolio(list[Inforce]):
         for bucket in self:
             output += str(bucket)
         return output
+    
+    @property
+    def inforces(self) -> list[Inforce]:
+        """
+        Get the list of in-force buckets in the portfolio.
+
+        Returns:
+            list[Inforce]: List of `Inforce` objects in the portfolio.
+
+        Examples:
+            >>> portfolio.inforces
+        """
+        return list(self)
 
     @property
     def policies(self) -> int:

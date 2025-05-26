@@ -116,3 +116,34 @@ class TestParallelProcessing:
             flaky_func, 100, 10
         )
         assert len(results) == 100
+
+
+class TestParallelConfigExtended:
+    """Extended tests for ParallelConfig from consolidated test file."""
+    
+    def test_parallel_config_defaults(self):
+        """Test ParallelConfig default values."""
+        config = ParallelConfig()
+        
+        assert config.n_workers is None  # Uses system default
+        assert config.backend == 'multiprocessing'
+        assert config.chunk_size is None
+        assert config.show_progress is True
+        assert config.work_stealing is True
+        assert config.prefetch_batches == 2
+    
+    def test_parallel_config_custom(self):
+        """Test ParallelConfig with custom values."""
+        config = ParallelConfig(
+            n_workers=4,
+            backend='threading',
+            chunk_size=100,
+            show_progress=False,
+            work_stealing=False
+        )
+        
+        assert config.n_workers == 4
+        assert config.backend == 'threading'
+        assert config.chunk_size == 100
+        assert config.show_progress is False
+        assert config.work_stealing is False

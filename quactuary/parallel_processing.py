@@ -76,7 +76,73 @@ except ImportError:
 
 @dataclass
 class ParallelConfig:
-    """Configuration for parallel processing."""
+    """
+    Comprehensive configuration for parallel processing operations.
+    
+    This dataclass encapsulates all configuration parameters for parallel
+    processing, providing sensible defaults while allowing fine-tuning for
+    specific use cases and performance requirements.
+    
+    Attributes:
+        n_workers (Optional[int]): Number of worker processes or threads to use.
+            If None, automatically determined based on CPU count and memory.
+            Default is None (auto-detection).
+        backend (str): Parallelization backend to use. Options are:
+            - 'multiprocessing': Process-based parallelization (recommended for CPU-bound)
+            - 'threading': Thread-based parallelization (better for I/O-bound) 
+            - 'joblib': Joblib-based processing (experimental)
+            Default is 'multiprocessing'.
+        chunk_size (Optional[int]): Number of work items to process per chunk.
+            Larger chunks reduce overhead but may cause load imbalance.
+            If None, automatically calculated. Default is None (auto-sizing).
+        show_progress (bool): Whether to display a progress bar during processing.
+            Requires tqdm library. Default is True.
+        work_stealing (bool): Enable work stealing between workers.
+            Improves load balancing for variable execution times. Default is True.
+        prefetch_batches (int): Number of work batches to prefetch for workers.
+            Higher values improve throughput but increase memory usage. Default is 2.
+        timeout (Optional[float]): Maximum time in seconds for each work item.
+            Prevents hung processes. If None, no timeout applied. Default is None.
+        max_retries (int): Maximum retry attempts for failed work items.
+            Enables automatic recovery from transient failures. Default is 2.
+        memory_limit_mb (Optional[float]): Memory limit per worker in MB.
+            Workers exceeding this limit will be restarted. Default is None.
+        fallback_to_serial (bool): Whether to fall back to serial processing
+            if parallel processing fails. Default is True.
+    
+    Examples:
+        High-performance configuration:
+            >>> config = ParallelConfig(
+            ...     n_workers=16,
+            ...     backend='multiprocessing',
+            ...     chunk_size=100,
+            ...     timeout=300,
+            ...     work_stealing=True
+            ... )
+            
+        Memory-constrained configuration:
+            >>> config = ParallelConfig(
+            ...     n_workers=4,
+            ...     memory_limit_mb=2000,
+            ...     chunk_size=50,
+            ...     prefetch_batches=1
+            ... )
+            
+        Production configuration:
+            >>> config = ParallelConfig(
+            ...     n_workers=None,  # Auto-detect
+            ...     timeout=600,     # 10 minute timeout
+            ...     max_retries=3,   # Retry failed items
+            ...     show_progress=True,
+            ...     fallback_to_serial=True
+            ... )
+    
+    Notes:
+        - Auto-detection considers both CPU and memory constraints
+        - Work stealing adds small coordination overhead
+        - Memory limits require psutil for monitoring
+        - Serial fallback ensures reliability in production environments
+    """
     n_workers: Optional[int] = None  # None = auto-detect
     backend: str = 'multiprocessing'  # 'multiprocessing', 'threading', 'joblib'
     chunk_size: Optional[int] = None  # None = auto
@@ -90,9 +156,70 @@ class ParallelConfig:
 
 
 class WorkerMonitor:
-    """Monitor worker processes for health and resource usage."""
+    """
+    Real-time monitoring system for worker processes and resource usage.
+    
+    The WorkerMonitor provides comprehensive monitoring of worker processes,
+    tracking memory usage, CPU utilization, and process health. It enables
+    automatic detection of problematic workers and supports resource-based
+    decision making for optimal parallel processing performance.
+    
+    Key Features:
+        - Real-time memory usage monitoring per worker
+        - Process health and responsiveness tracking
+        - Automatic detection of memory leaks and resource exhaustion
+        - Support for worker replacement and cleanup
+        - Integration with system resource monitoring
+    
+    Attributes:
+        max_memory_mb (Optional[float]): Maximum memory limit per worker in MB.
+        processes (dict): Dictionary tracking monitored worker processes.
+    
+    Examples:
+        Basic worker monitoring:
+            >>> monitor = WorkerMonitor(max_memory_mb=1000)  # 1GB limit
+            >>> 
+            >>> # Monitor a worker process
+            >>> worker_pid = 12345
+            >>> monitor.register_worker(worker_pid)
+            >>> 
+            >>> # Check if worker exceeds memory limit
+            >>> if monitor.check_worker_memory(worker_pid):
+            ...     print("Worker memory usage is acceptable")
+            ... else:
+            ...     print("Worker exceeds memory limit - restart needed")
+            
+        Integration with parallel processing:
+            >>> config = ParallelConfig(memory_limit_mb=1500)
+            >>> monitor = WorkerMonitor(config.memory_limit_mb)
+            >>> 
+            >>> # Monitor workers during parallel execution
+            >>> for worker in active_workers:
+            ...     if not monitor.is_worker_healthy(worker.pid):
+            ...         restart_worker(worker)
+    
+    Notes:
+        - Requires psutil for detailed process monitoring
+        - Memory monitoring has minimal performance overhead
+        - Designed for long-running parallel processing jobs
+        - Supports both process and thread monitoring
+    """
     
     def __init__(self, max_memory_mb: Optional[float] = None):
+        """
+        Initialize the worker monitor with optional memory limits.
+        
+        Args:
+            max_memory_mb (Optional[float]): Maximum memory usage per worker
+                in megabytes. If None, no memory limit is enforced.
+                
+        Examples:
+            >>> # Monitor with 500MB memory limit per worker
+            >>> monitor = WorkerMonitor(max_memory_mb=500)
+            >>> 
+            >>> # Monitor without memory limits
+            >>> monitor = WorkerMonitor()
+        """
         self.max_memory_mb = max_memory_mb
         self.processes = {}
     

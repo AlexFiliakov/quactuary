@@ -27,6 +27,19 @@ class VectorizedSimulator:
     - Minimal Python loops
     """
     
+    def __init__(self):
+        """
+        Initialize the vectorized simulator.
+        
+        The simulator is stateless and doesn't require configuration.
+        All parameters are passed to individual simulation methods.
+        
+        Examples:
+            >>> simulator = VectorizedSimulator()
+            >>> # Ready to use for any portfolio simulation
+        """
+        pass
+    
     @staticmethod
     def simulate_inforce_vectorized(
         inforce: Inforce,

@@ -74,6 +74,7 @@ class PerformanceBenchmark:
         self.output_dir = output_dir
         os.makedirs(output_dir, exist_ok=True)
         self.results: List[BenchmarkResult] = []
+        self.last_measurement = {}
         
     @contextmanager
     def measure_performance(self, name: str):
@@ -150,7 +151,7 @@ class PerformanceBenchmark:
             Inforce(
                 n_policies=30,
                 terms=terms,
-                frequency=NegativeBinomial(n=5, p=0.3),
+                frequency=NegativeBinomial(r=5, p=0.3),
                 severity=Gamma(shape=2.0, scale=4000.0),
                 name="Medium Bucket 3"
             )

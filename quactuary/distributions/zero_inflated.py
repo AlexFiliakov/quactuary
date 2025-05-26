@@ -92,15 +92,19 @@ class ZeroInflatedCompound(CompoundDistribution):
         # Handle negative values
         result[x_array < 0] = 0.0
         
-        # Handle zero and positive values
-        non_neg_mask = x_array >= 0
-        if np.any(non_neg_mask):
-            base_cdf = self.base_compound.cdf(x_array[non_neg_mask])
+        # Handle infinite values (should be exactly 1)
+        inf_mask = np.isinf(x_array) & (x_array > 0)
+        result[inf_mask] = 1.0
+        
+        # Handle zero and finite positive values
+        finite_non_neg_mask = (x_array >= 0) & np.isfinite(x_array)
+        if np.any(finite_non_neg_mask):
+            base_cdf = self.base_compound.cdf(x_array[finite_non_neg_mask])
             p_zero_base = self.base_compound.pdf(0)
             
             # Adjust CDF for zero-inflation
             adjusted_cdf = self.zero_prob + (1 - self.zero_prob) * base_cdf
-            result[non_neg_mask] = adjusted_cdf
+            result[finite_non_neg_mask] = adjusted_cdf
         
         return result[0] if np.isscalar(x) else result
     

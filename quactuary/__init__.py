@@ -40,11 +40,11 @@ Quick Start:
         >>> print(f"95% VaR: ${result.estimates['VaR']:,.2f}")
 
     Using distributions:
-        >>> from quactuary.distributions import Poisson, LogNormal, CompoundDistribution
+        >>> from quactuary.distributions import Poisson, Lognormal, CompoundDistribution
         >>> 
         >>> # Define frequency and severity
         >>> frequency = Poisson(lambda_=100)
-        >>> severity = LogNormal(mu=7, sigma=1.5)
+        >>> severity = Lognormal(shape=1.5, scale=np.exp(7))
         >>> 
         >>> # Create compound distribution
         >>> compound = CompoundDistribution.create(frequency, severity)

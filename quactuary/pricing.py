@@ -48,12 +48,12 @@ Examples:
         ... )
 
     Pricing excess of loss reinsurance:
-        >>> from quactuary.distributions import Poisson, LogNormal
+        >>> from quactuary.distributions import Poisson, Lognormal
         >>> 
         >>> # Set up aggregate loss model
         >>> model.set_compound_distribution(
         ...     frequency=Poisson(lambda_=100),
-        ...     severity=LogNormal(mu=7, sigma=1.5)
+        ...     severity=Lognormal(shape=1.5, scale=np.exp(7))
         ... )
         >>> 
         >>> # Price a 1M xs 500k layer
@@ -291,14 +291,14 @@ class PricingModel:
             frequency (FrequencyModel): Frequency distribution model determining the number
                 of losses. Common choices include Poisson, NegativeBinomial, or Binomial.
             severity (SeverityModel): Severity distribution model for individual loss amounts.
-                Common choices include LogNormal, Gamma, Pareto, or Weibull.
+                Common choices include Lognormal, Gamma, Pareto, or Weibull.
 
         Examples:
-            Setting up a compound Poisson-LogNormal model:
-                >>> from quactuary.distributions import Poisson, LogNormal
+            Setting up a compound Poisson-Lognormal model:
+                >>> from quactuary.distributions import Poisson, Lognormal
                 >>> model.set_compound_distribution(
                 ...     frequency=Poisson(lambda_=50),
-                ...     severity=LogNormal(mu=8, sigma=1.2)
+                ...     severity=Lognormal(shape=1.2, scale=np.exp(8))
                 ... )
             
             Using empirical frequency with parametric severity:
@@ -353,7 +353,7 @@ class PricingModel:
                 >>> # Set up compound distribution first
                 >>> model.set_compound_distribution(
                 ...     frequency=Poisson(lambda_=100),
-                ...     severity=LogNormal(mu=7, sigma=1.5)
+                ...     severity=Lognormal(shape=1.5, scale=np.exp(7))
                 ... )
                 >>> stats = model.calculate_aggregate_statistics()
                 >>> print(f"Expected aggregate loss: ${stats['mean']:,.2f}")
@@ -413,21 +413,22 @@ class PricingModel:
             
             for _ in range(n_simulations):
                 total_loss = 0.0
-                # For each policy in portfolio, simulate a loss
-                for policy in self.portfolio.policies:
+                # For each inforce in portfolio, simulate a loss
+                for inforce in self.portfolio:
                     # Simple empirical approach: use expected loss with some variance
-                    if hasattr(policy, 'expected_loss'):
+                    if hasattr(inforce, 'expected_loss'):
                         # Add random variation around expected loss
-                        loss = np.random.exponential(scale=policy.expected_loss)
+                        loss = np.random.exponential(scale=inforce.expected_loss)
                     else:
                         # Default to a simple loss model
                         loss = np.random.exponential(scale=1000.0)
                     
                     # Apply policy terms if available
-                    if hasattr(policy, 'deductible'):
-                        loss = max(0, loss - policy.deductible)
-                    if hasattr(policy, 'limit'):
-                        loss = min(loss, policy.limit)
+                    if hasattr(inforce, 'terms') and inforce.terms is not None:
+                        if hasattr(inforce.terms, 'per_occ_retention') and inforce.terms.per_occ_retention is not None:
+                            loss = max(0, loss - inforce.terms.per_occ_retention)
+                        if hasattr(inforce.terms, 'per_occ_limit') and inforce.terms.per_occ_limit is not None:
+                            loss = min(loss, inforce.terms.per_occ_limit)
                     
                     total_loss += loss
                 
@@ -458,9 +459,8 @@ class PricingModel:
                     results[f'tvar_{level:.0%}'] = var
         
         # Apply policy terms if requested
-        if apply_policy_terms and hasattr(self.portfolio, 'policies'):
-            # This would apply deductibles, limits, etc. from the portfolio
-            # For now, we'll add a placeholder
+        if apply_policy_terms and len(self.portfolio) > 0:
+            # Policy terms have been applied in the calculation above
             results['note'] = 'Policy terms application included in calculation'
         
         return results
@@ -504,12 +504,12 @@ class PricingModel:
 
         Examples:
             Price a 1M xs 500k layer:
-                >>> from quactuary.distributions import Poisson, LogNormal
+                >>> from quactuary.distributions import Poisson, Lognormal
                 >>> 
                 >>> # Set aggregate loss distribution
                 >>> model.set_compound_distribution(
                 ...     frequency=Poisson(lambda_=100),
-                ...     severity=LogNormal(mu=7, sigma=1.5)
+                ...     severity=Lognormal(shape=1.5, scale=np.exp(7))
                 ... )
                 >>> 
                 >>> # Price the layer

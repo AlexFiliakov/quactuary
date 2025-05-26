@@ -15,7 +15,7 @@ The module is organized into three main components:
 
 2. **Severity Distributions** (`severity` module):
    - Continuous distributions for modeling individual claim amounts
-   - Implementations: LogNormal, Gamma, Exponential, Pareto, Weibull, etc.
+   - Implementations: Lognormal, Gamma, Exponential, Pareto, Weibull, etc.
    - Support for truncation, censoring, and discretization
    - Integration with numerical quadrature methods
 
@@ -48,12 +48,12 @@ Key Features:
 
 Examples:
     Basic frequency-severity modeling:
-        >>> from quactuary.distributions import Poisson, LogNormal
+        >>> from quactuary.distributions import Poisson, Lognormal
         >>> from quactuary.distributions import CompoundDistribution
         >>> 
         >>> # Define frequency and severity
         >>> frequency = Poisson(lambda_=100)
-        >>> severity = LogNormal(mu=7, sigma=1.5)
+        >>> severity = Lognormal(shape=1.5, scale=np.exp(7))
         >>> 
         >>> # Create compound distribution
         >>> compound = CompoundDistribution.create(frequency, severity)
@@ -72,7 +72,7 @@ Examples:
         >>> 
         >>> # Fit severity distribution to historical data
         >>> claim_amounts = [1200, 3400, 890, ...]
-        >>> severity = LogNormal.fit(claim_amounts)
+        >>> severity = Lognormal.fit(claim_amounts)
 
     Quasi-Monte Carlo for better convergence:
         >>> from quactuary.distributions import wrap_for_qmc

@@ -66,6 +66,11 @@ def logsumexp(
         1002.4076059644444
     """
     a = np.asarray(a)
+    
+    # Handle empty array case
+    if a.size == 0:
+        return -np.inf
+    
     if axis is None:
         a_max = np.max(a)
     else:
@@ -109,8 +114,8 @@ def logaddexp(x1: Union[float, np.ndarray], x2: Union[float, np.ndarray]) -> Uni
         >>> logaddexp(1000, 1001)
         1001.3132616875183
     """
-    x1 = np.asarray(x1)
-    x2 = np.asarray(x2)
+    x1 = np.asarray(x1, dtype=float)
+    x2 = np.asarray(x2, dtype=float)
     
     # Use the identity: log(exp(x1) + exp(x2)) = max(x1, x2) + log(1 + exp(-|x1 - x2|))
     max_val = np.maximum(x1, x2)
@@ -122,7 +127,12 @@ def logaddexp(x1: Union[float, np.ndarray], x2: Union[float, np.ndarray]) -> Uni
     
     result = max_val.copy() if isinstance(max_val, np.ndarray) else max_val
     if np.any(mask):
-        np.add(result, np.log1p(np.exp(diff)), where=mask, out=result)
+        if isinstance(result, np.ndarray):
+            np.add(result, np.log1p(np.exp(diff)), where=mask, out=result)
+        else:
+            # For scalar case
+            if mask:
+                result = result + np.log1p(np.exp(diff))
     
     return result
 
@@ -142,6 +152,10 @@ def stable_exp(x: Union[float, np.ndarray], clip: bool = True) -> Union[float, n
         1.7976931348623157e+308
     """
     x = np.asarray(x)
+    
+    # Handle empty array case
+    if x.size == 0:
+        return x  # Return empty array
     
     if clip:
         # Clip to safe range
@@ -169,6 +183,10 @@ def stable_log(x: Union[float, np.ndarray], min_value: float = MIN_FLOAT) -> Uni
         -708.3964185322641
     """
     x = np.asarray(x)
+    
+    # Handle empty array case
+    if x.size == 0:
+        return x  # Return empty array
     
     # Ensure positive values
     if np.any(x < 0):

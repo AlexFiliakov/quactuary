@@ -280,8 +280,8 @@ def _get_binned_moments(bin_edges, sev_dist: SeverityModel):
 
     Examples:
         Discretize a lognormal distribution:
-            >>> from quactuary.distributions import LogNormal
-            >>> sev = LogNormal(mu=5, sigma=1)
+            >>> from quactuary.distributions import Lognormal
+            >>> sev = Lognormal(shape=1, scale=np.exp(5))
             >>> bin_edges = np.linspace(0, 1000, 101)  # 100 bins
             >>> pmf, means = _get_binned_moments(bin_edges, sev)
             >>> print(f"Total probability captured: {pmf.sum():.3f}")
@@ -625,7 +625,7 @@ class InverseGaussian(SeverityModel):
 
     Notes:
         - The Inverse Gaussian is related to Brownian motion first passage times
-        - It has heavier right tail than Gamma but lighter than LogNormal
+        - It has heavier right tail than Gamma but lighter than Lognormal
         - All parameters must be positive for a valid distribution
     """
 

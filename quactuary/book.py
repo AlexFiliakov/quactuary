@@ -24,7 +24,7 @@ Design Philosophy:
 Examples:
     Creating a simple portfolio:
         >>> from quactuary.book import PolicyTerms, Inforce, Portfolio
-        >>> from quactuary.distributions import Poisson, LogNormal
+        >>> from quactuary.distributions import Poisson, Lognormal
         >>> import datetime
         >>> 
         >>> # Define policy terms
@@ -40,7 +40,7 @@ Examples:
         >>> bucket = Inforce(
         ...     n_policies=100,
         ...     frequency=Poisson(lambda_=2.0),
-        ...     severity=LogNormal(mu=8, sigma=1.5),
+        ...     severity=Lognormal(shape=1.5, scale=np.exp(8)),
         ...     terms=terms
         ... )
         >>> 

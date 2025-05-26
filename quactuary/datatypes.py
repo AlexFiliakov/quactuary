@@ -128,3 +128,23 @@ class PricingResult:
     intervals: dict
     samples: Optional[pd.Series]
     metadata: dict
+    
+    @property
+    def mean(self) -> float:
+        """Get mean estimate for backward compatibility."""
+        return self.estimates.get('mean', 0.0)
+    
+    @property
+    def variance(self) -> float:
+        """Get variance estimate for backward compatibility."""
+        return self.estimates.get('variance', 0.0)
+    
+    @property
+    def value_at_risk(self) -> float:
+        """Get VaR estimate for backward compatibility."""
+        return self.estimates.get('VaR', self.estimates.get('value_at_risk', 0.0))
+    
+    @property
+    def tail_value_at_risk(self) -> float:
+        """Get TVaR estimate for backward compatibility."""
+        return self.estimates.get('TVaR', self.estimates.get('tail_value_at_risk', 0.0))

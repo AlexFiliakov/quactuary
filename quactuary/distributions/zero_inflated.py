@@ -333,6 +333,77 @@ def detect_zero_inflation(data: np.ndarray, frequency: FrequencyModel,
     return is_zero_inflated, diagnostics
 
 
+def score_test_zi(data: np.ndarray, distribution: str = 'poisson', 
+                   **dist_params) -> Tuple[float, float]:
+    """
+    Score test for zero-inflation in count data.
+    
+    Args:
+        data: Observed count data
+        distribution: Base distribution ('poisson', 'nbinom', 'binomial')
+        **dist_params: Distribution parameters (if not estimated from data)
+        
+    Returns:
+        Tuple of (score_statistic, p_value)
+    """
+    n_obs = len(data)
+    n_zeros = np.sum(data == 0)
+    
+    # Estimate parameters if not provided
+    if distribution == 'poisson':
+        if 'mu' not in dist_params:
+            # Method of moments estimator
+            dist_params['mu'] = np.mean(data)
+        
+        # Expected zeros under Poisson
+        exp_zeros = n_obs * np.exp(-dist_params['mu'])
+        
+    elif distribution == 'nbinom':
+        if 'r' not in dist_params or 'p' not in dist_params:
+            # Simple moment estimators
+            mean_data = np.mean(data)
+            var_data = np.var(data)
+            
+            if var_data > mean_data:
+                p = mean_data / var_data
+                r = mean_data * p / (1 - p)
+            else:
+                # Fallback if underdispersed
+                r = 5.0
+                p = 0.5
+            
+            dist_params['r'] = r
+            dist_params['p'] = p
+        
+        # Expected zeros under NB
+        exp_zeros = n_obs * (1 - dist_params['p']) ** dist_params['r']
+        
+    elif distribution == 'binomial':
+        if 'n' not in dist_params:
+            dist_params['n'] = int(np.max(data))
+        if 'p' not in dist_params:
+            dist_params['p'] = np.mean(data) / dist_params['n']
+        
+        # Expected zeros under Binomial
+        exp_zeros = n_obs * (1 - dist_params['p']) ** dist_params['n']
+        
+    else:
+        # Default to Poisson
+        mu = np.mean(data)
+        exp_zeros = n_obs * np.exp(-mu)
+    
+    # Score test statistic
+    if exp_zeros > 0:
+        score_stat = (n_zeros - exp_zeros) ** 2 / exp_zeros
+    else:
+        score_stat = np.inf
+    
+    # P-value from chi-square(1) distribution
+    p_value = 1 - stats.chi2.cdf(score_stat, df=1)
+    
+    return score_stat, p_value
+
+
 class ZeroInflatedMixtureEM:
     """
     EM algorithm implementation for zero-inflated mixture models.
@@ -353,7 +424,7 @@ class ZeroInflatedMixtureEM:
         self.severity_type = severity_type
     
     def fit(self, data: np.ndarray, init_params: Dict = None,
-            max_iter: int = 100, tol: float = 1e-6) -> Dict:
+            max_iter: int = 100, tol: float = 1e-6, callback: callable = None) -> Dict:
         """
         Fit zero-inflated compound distribution to data.
         
@@ -362,6 +433,7 @@ class ZeroInflatedMixtureEM:
             init_params: Initial parameter values
             max_iter: Maximum iterations
             tol: Convergence tolerance
+            callback: Optional callback function(params, log_likelihood, iteration)
             
         Returns:
             Dictionary with fitted parameters and diagnostics
@@ -378,7 +450,11 @@ class ZeroInflatedMixtureEM:
         if init_params is None:
             init_params = self._initialize_params(data)
         
+        # Handle parameter name consistency (mu vs lambda for Poisson)
         params = init_params.copy()
+        if self.frequency_type == 'poisson' and 'mu' in params:
+            params['lambda'] = params.pop('mu')
+        
         log_lik_old = -np.inf
         
         for iteration in range(max_iter):
@@ -391,6 +467,10 @@ class ZeroInflatedMixtureEM:
             # Compute log-likelihood
             log_lik = self._compute_log_likelihood(data, params)
             
+            # Call callback if provided
+            if callback is not None:
+                callback(params, log_lik, iteration)
+            
             # Check convergence
             if abs(log_lik - log_lik_old) < tol:
                 break
@@ -398,7 +478,7 @@ class ZeroInflatedMixtureEM:
             log_lik_old = log_lik
         
         return {
-            'parameters': params,
+            'params': params,
             'log_likelihood': log_lik,
             'converged': iteration < max_iter - 1,
             'iterations': iteration + 1,
@@ -418,9 +498,14 @@ class ZeroInflatedMixtureEM:
         
         # Frequency parameters (example for Poisson)
         if self.frequency_type == 'poisson':
-            pos_data = data[data > 0]
-            if len(pos_data) > 0:
-                params['lambda'] = np.mean(pos_data) / 1000  # Rough estimate
+            # Initial lambda estimate from positive data
+            if np.any(data > 0):
+                # Use mean of all data divided by proportion of non-zeros
+                prop_nonzero = 1 - n_zeros / n_obs
+                if prop_nonzero > 0:
+                    params['lambda'] = np.mean(data) / prop_nonzero
+                else:
+                    params['lambda'] = 1.0
             else:
                 params['lambda'] = 1.0
         
@@ -431,15 +516,126 @@ class ZeroInflatedMixtureEM:
     
     def _e_step(self, data: np.ndarray, params: Dict) -> np.ndarray:
         """Expectation step - compute responsibilities."""
-        # Placeholder - implement based on specific distributions
-        pass
+        n_obs = len(data)
+        zero_mask = data == 0
+        n_zeros = np.sum(zero_mask)
+        
+        # Initialize responsibilities
+        responsibilities = np.zeros(n_obs)
+        
+        if n_zeros > 0:
+            # Get parameters
+            zero_prob = params.get('zero_prob', 0.0)
+            
+            # Calculate P(N=0) based on frequency type
+            if self.frequency_type == 'poisson':
+                lambda_param = params.get('lambda', 1.0)
+                p_n_zero = np.exp(-lambda_param)
+            elif self.frequency_type == 'nbinom':
+                r = params.get('r', 1.0)
+                p = params.get('p', 0.5)
+                p_n_zero = (1 - p) ** r
+            elif self.frequency_type == 'binom':
+                n = params.get('n', 10)
+                p = params.get('p', 0.5)
+                p_n_zero = (1 - p) ** n
+            else:
+                p_n_zero = 0.5
+            
+            # Total probability of zero
+            p_zero_total = zero_prob + (1 - zero_prob) * p_n_zero
+            
+            # Responsibility that zero comes from zero-inflation
+            if p_zero_total > 1e-10:
+                w_zero = zero_prob / p_zero_total
+            else:
+                w_zero = 0.0
+            
+            # Set responsibilities for zero observations
+            responsibilities[zero_mask] = w_zero
+        
+        return responsibilities
     
     def _m_step(self, data: np.ndarray, responsibilities: np.ndarray) -> Dict:
         """Maximization step - update parameters."""
-        # Placeholder - implement based on specific distributions
-        pass
+        n_obs = len(data)
+        zero_mask = data == 0
+        n_zeros = np.sum(zero_mask)
+        
+        # Copy current parameters
+        new_params = {}
+        
+        # Update zero_prob based on responsibilities
+        # Sum of responsibilities for all zeros gives expected number of structural zeros
+        n_structural_zeros = np.sum(responsibilities)
+        
+        new_params['zero_prob'] = max(0.0, min(0.999, n_structural_zeros / n_obs))
+        
+        # Update frequency parameters based on type
+        # This is simplified - full implementation would use MLE on positive data
+        pos_data = data[data > 0]
+        
+        if self.frequency_type == 'poisson':
+            # Estimate lambda from all data (including zeros from Poisson process)
+            # Account for zero-inflation when estimating
+            if new_params['zero_prob'] < 0.999:
+                # Adjust mean for zero-inflation
+                adjusted_mean = np.mean(data) / (1 - new_params['zero_prob'])
+                new_params['lambda'] = max(0.1, adjusted_mean)
+            else:
+                new_params['lambda'] = 1.0
+                
+        elif self.frequency_type == 'nbinom':
+            # Simple defaults for now
+            new_params['r'] = 5.0
+            new_params['p'] = 0.5
+            
+        elif self.frequency_type == 'binom':
+            # Simple defaults for now
+            new_params['n'] = 10
+            new_params['p'] = 0.3
+        
+        return new_params
     
     def _compute_log_likelihood(self, data: np.ndarray, params: Dict) -> float:
         """Compute log-likelihood under current parameters."""
-        # Placeholder - implement based on specific distributions
-        pass
+        n_obs = len(data)
+        zero_mask = data == 0
+        pos_mask = data > 0
+        n_zeros = np.sum(zero_mask)
+        n_pos = np.sum(pos_mask)
+        
+        # Get zero probability
+        zero_prob = params.get('zero_prob', 0.0)
+        
+        # Calculate log-likelihood based on distribution type
+        log_lik = 0.0
+        
+        # For zero observations
+        if n_zeros > 0:
+            # P(X=0) = π + (1-π)P(N=0)
+            if self.frequency_type == 'poisson':
+                lambda_param = params.get('lambda', 1.0)
+                p_n_zero = np.exp(-lambda_param)
+            elif self.frequency_type == 'nbinom':
+                r = params.get('r', 1.0)
+                p = params.get('p', 0.5)
+                p_n_zero = (1 - p) ** r
+            elif self.frequency_type == 'binom':
+                n = params.get('n', 10)
+                p = params.get('p', 0.5)
+                p_n_zero = (1 - p) ** n
+            else:
+                p_n_zero = 0.5  # Default fallback
+            
+            p_zero_total = zero_prob + (1 - zero_prob) * p_n_zero
+            p_zero_total = max(1e-10, p_zero_total)  # Avoid log(0)
+            log_lik += n_zeros * stable_log(p_zero_total)
+        
+        # For positive observations
+        if n_pos > 0:
+            # P(X>0) = (1-π) * P(compound > 0)
+            # This is simplified - in reality would compute full compound distribution
+            log_lik += n_pos * stable_log(max(1e-10, 1 - zero_prob))
+        
+        return log_lik

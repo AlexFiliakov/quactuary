@@ -95,19 +95,30 @@ class EdgeworthExpansion:
         # Base approximation
         result = phi / self.std
         
-        if order >= 3 and self.skewness != 0:
-            # Third-order correction
-            h3 = self._hermite_polynomial(3, z)
-            result *= (1 + self.skewness * h3 / 6)
-        
-        if order >= 4 and (self.skewness != 0 or self.excess_kurtosis != 0):
-            # Fourth-order correction
-            h4 = self._hermite_polynomial(4, z)
-            h6 = self._hermite_polynomial(6, z)
+        if order == 2:
+            # No corrections beyond normal
+            pass
+        elif order == 3:
+            # Third-order correction only
+            if self.skewness != 0:
+                h3 = self._hermite_polynomial(3, z)
+                result = result * (1 + self.skewness * h3 / 6)
+        elif order >= 4:
+            # Full expansion with both corrections applied together
+            correction = 1.0
             
-            correction4 = (self.excess_kurtosis * h4 / 24 + 
-                          self.skewness**2 * h6 / 72)
-            result *= (1 + correction4)
+            if self.skewness != 0:
+                h3 = self._hermite_polynomial(3, z)
+                correction += self.skewness * h3 / 6
+            
+            if self.skewness != 0 or self.excess_kurtosis != 0:
+                h4 = self._hermite_polynomial(4, z)
+                h6 = self._hermite_polynomial(6, z)
+                
+                correction += (self.excess_kurtosis * h4 / 24 + 
+                              self.skewness**2 * h6 / 72)
+            
+            result = result * correction
         
         # Ensure non-negative
         result = np.maximum(result, 0)
@@ -263,19 +274,141 @@ class CompoundDistributionEdgeworth:
     to construct accurate Edgeworth approximations.
     """
     
-    def __init__(self, frequency_mean: float, frequency_var: float,
-                 severity_moments: Dict[int, float]):
+    def __init__(self, compound_dist=None, frequency_mean: float = None, 
+                 frequency_var: float = None, severity_moments: Dict[int, float] = None):
         """
         Initialize Edgeworth expansion for compound distribution.
         
         Args:
-            frequency_mean: E[N]
-            frequency_var: Var[N]
-            severity_moments: Dict mapping order k to E[X^k]
+            compound_dist: Optional compound distribution object (if provided, extracts parameters)
+            frequency_mean: E[N] (required if compound_dist not provided)
+            frequency_var: Var[N] (required if compound_dist not provided)
+            severity_moments: Dict mapping order k to E[X^k] (required if compound_dist not provided)
         """
-        self.freq_mean = frequency_mean
-        self.freq_var = frequency_var
-        self.sev_moments = severity_moments
+        if compound_dist is not None:
+            # Extract parameters from compound distribution
+            # Need to check if mean/var are properties or methods
+            if hasattr(compound_dist.frequency, 'mean'):
+                if callable(compound_dist.frequency.mean):
+                    self.freq_mean = compound_dist.frequency.mean()
+                else:
+                    self.freq_mean = compound_dist.frequency.mean
+            else:
+                # Use parameter directly from scipy distribution
+                if hasattr(compound_dist.frequency, '_dist'):
+                    freq_type = type(compound_dist.frequency).__name__
+                    if freq_type == 'Poisson':
+                        # For Poisson, mu is in args[0]
+                        self.freq_mean = compound_dist.frequency._dist.args[0]
+                    elif freq_type == 'Binomial':
+                        # For Binomial, mean = n * p
+                        n = compound_dist.frequency._dist.args[0]
+                        p = compound_dist.frequency._dist.args[1]
+                        self.freq_mean = n * p
+                    elif freq_type == 'NegativeBinomial':
+                        # For NegativeBinomial, mean = r * (1-p) / p
+                        r = compound_dist.frequency._dist.args[0]
+                        p = compound_dist.frequency._dist.args[1]
+                        self.freq_mean = r * (1 - p) / p
+                    else:
+                        # Try to get mean directly
+                        self.freq_mean = compound_dist.frequency._dist.mean()
+                else:
+                    raise ValueError(f"Cannot extract mean from {type(compound_dist.frequency).__name__}")
+                
+            if hasattr(compound_dist.frequency, 'var'):
+                if callable(compound_dist.frequency.var):
+                    self.freq_var = compound_dist.frequency.var()
+                else:
+                    self.freq_var = compound_dist.frequency.var
+            else:
+                # Calculate variance based on distribution type
+                if hasattr(compound_dist.frequency, '_dist'):
+                    freq_type = type(compound_dist.frequency).__name__
+                    if freq_type == 'Poisson':
+                        # For Poisson, var = mean
+                        self.freq_var = self.freq_mean
+                    elif freq_type == 'Binomial':
+                        # For Binomial, var = n * p * (1 - p)
+                        n = compound_dist.frequency._dist.args[0]
+                        p = compound_dist.frequency._dist.args[1]
+                        self.freq_var = n * p * (1 - p)
+                    elif freq_type == 'NegativeBinomial':
+                        # For NegativeBinomial, var = r * (1-p) / p^2
+                        r = compound_dist.frequency._dist.args[0]
+                        p = compound_dist.frequency._dist.args[1]
+                        self.freq_var = r * (1 - p) / (p ** 2)
+                    else:
+                        # Try to get variance directly
+                        self.freq_var = compound_dist.frequency._dist.var()
+                else:
+                    self.freq_var = self.freq_mean  # Default fallback
+            
+            # Compute severity moments
+            self.sev_moments = {}
+            for k in range(1, 5):  # Moments up to 4th order
+                if hasattr(compound_dist.severity, 'moment'):
+                    # Use moment method if available
+                    self.sev_moments[k] = compound_dist.severity.moment(k)
+                else:
+                    # Fallback to standard moment calculations
+                    if k == 1:
+                        if hasattr(compound_dist.severity, 'mean'):
+                            if callable(compound_dist.severity.mean):
+                                self.sev_moments[k] = compound_dist.severity.mean()
+                            else:
+                                self.sev_moments[k] = compound_dist.severity.mean
+                        else:
+                            # Get mean from distribution parameters
+                            if hasattr(compound_dist.severity, '_dist'):
+                                sev_type = type(compound_dist.severity).__name__
+                                if sev_type == 'Exponential':
+                                    # For Exponential, mean = scale
+                                    self.sev_moments[k] = compound_dist.severity._dist.kwds.get('scale', 1.0)
+                                elif sev_type == 'Gamma':
+                                    # For Gamma, mean = shape * scale
+                                    shape = compound_dist.severity._dist.args[0]
+                                    scale = compound_dist.severity._dist.kwds.get('scale', 1.0)
+                                    self.sev_moments[k] = shape * scale
+                                else:
+                                    # Try to use distribution's mean method
+                                    self.sev_moments[k] = compound_dist.severity._dist.mean()
+                    elif k == 2:
+                        mean_val = self.sev_moments[1]
+                        if hasattr(compound_dist.severity, 'var'):
+                            if callable(compound_dist.severity.var):
+                                var_val = compound_dist.severity.var()
+                            else:
+                                var_val = compound_dist.severity.var
+                        else:
+                            # Get variance from distribution parameters
+                            if hasattr(compound_dist.severity, '_dist'):
+                                sev_type = type(compound_dist.severity).__name__
+                                if sev_type == 'Exponential':
+                                    # For Exponential, var = scale^2
+                                    scale = compound_dist.severity._dist.kwds.get('scale', 1.0)
+                                    var_val = scale ** 2
+                                elif sev_type == 'Gamma':
+                                    # For Gamma, var = shape * scale^2
+                                    shape = compound_dist.severity._dist.args[0]
+                                    scale = compound_dist.severity._dist.kwds.get('scale', 1.0)
+                                    var_val = shape * (scale ** 2)
+                                else:
+                                    # Try to use distribution's var method
+                                    var_val = compound_dist.severity._dist.var()
+                        self.sev_moments[k] = var_val + mean_val**2
+                    else:
+                        # Higher moments - use numerical integration or sampling
+                        # For now, estimate from samples
+                        np.random.seed(42)
+                        samples = compound_dist.severity.rvs(size=10000)
+                        self.sev_moments[k] = np.mean(samples**k)
+        else:
+            if frequency_mean is None or frequency_var is None or severity_moments is None:
+                raise ValueError("Must provide either compound_dist or all of (frequency_mean, frequency_var, severity_moments)")
+            self.freq_mean = frequency_mean
+            self.freq_var = frequency_var
+            self.sev_moments = severity_moments
         
         # Compute compound distribution moments
         self._compute_compound_moments()
@@ -296,10 +429,21 @@ class CompoundDistributionEdgeworth:
         m3 = self.sev_moments.get(3, 0)
         m4 = self.sev_moments.get(4, 0)
         
+        # Compute severity variance from moments
+        sev_var = m2 - m1**2
+        
         # Compound distribution moments
         self.mean = self.freq_mean * m1
         
-        self.variance = self.freq_mean * m2 + self.freq_var * m1**2
+        # For compound Poisson: Var[S] = λ * E[X²]
+        # For general compound: Var[S] = E[N] * Var[X] + Var[N] * E[X]²
+        # For Poisson, Var[N] = E[N] = λ, so:
+        # Var[S] = λ * Var[X] + λ * E[X]² = λ * E[X²]
+        if self.freq_mean == self.freq_var:  # Poisson case
+            self.variance = self.freq_mean * m2
+        else:
+            # General compound distribution formula
+            self.variance = self.freq_mean * sev_var + self.freq_var * m1**2
         
         # Third moment
         freq_m3 = self.freq_var + self.freq_mean  # For common distributions
@@ -388,6 +532,46 @@ def automatic_order_selection(skewness: float, excess_kurtosis: float,
         # Large departure from normality
         # Edgeworth may not be appropriate, but use order 3
         return 3
+
+
+def cornish_fisher_expansion(z: Union[float, np.ndarray], 
+                            skewness: float, 
+                            excess_kurtosis: float,
+                            order: int = 3) -> Union[float, np.ndarray]:
+    """
+    Cornish-Fisher expansion for quantile transformation.
+    
+    Transforms standard normal quantiles to distribution quantiles
+    using cumulant corrections.
+    
+    Args:
+        z: Standard normal quantile(s)
+        skewness: Standardized third cumulant
+        excess_kurtosis: Standardized fourth cumulant minus 3
+        order: Order of expansion (1, 2, or 3)
+        
+    Returns:
+        Transformed quantile(s)
+    """
+    z_array = np.atleast_1d(z)
+    
+    # Order 1: just return z
+    if order == 1:
+        result = z_array.copy()
+    else:
+        # Start with z
+        result = z_array.copy()
+        
+        if order >= 2:
+            # Second-order correction (skewness)
+            result += skewness * (z_array**2 - 1) / 6
+        
+        if order >= 3:
+            # Third-order correction (kurtosis and skewness squared)
+            result += (excess_kurtosis * z_array * (z_array**2 - 3) / 24 -
+                      skewness**2 * z_array * (2*z_array**2 - 5) / 36)
+    
+    return result[0] if np.isscalar(z) else result
 
 
 def edgeworth_gram_charlier_comparison(moments: Dict[int, float],

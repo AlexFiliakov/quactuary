@@ -12,6 +12,10 @@ This guide provides detailed information on using the quactuary package effectiv
    configuration_guide
    best_practices
    numerical_stability
+   distribution_parameters
+   optimization_config
+   testing_best_practices
+   api_migration
 
 Getting Started
 ---------------
@@ -42,6 +46,18 @@ Numerical Stability
 ~~~~~~~~~~~~~~~~~~~
 
 Working with actuarial calculations often involves extreme values and complex operations. The :doc:`numerical_stability` guide provides best practices for ensuring accurate results even with challenging numerical conditions.
+
+API Reference
+~~~~~~~~~~~~~
+
+* **Distribution Parameters** (:doc:`distribution_parameters`) - Complete reference for all distribution parameter names and conventions
+* **Optimization Configuration** (:doc:`optimization_config`) - Guide to using OptimizationConfig for performance tuning
+* **API Migration Guide** (:doc:`api_migration`) - Migrate from older versions to the current API
+
+Development
+~~~~~~~~~~~
+
+* **Testing Best Practices** (:doc:`testing_best_practices`) - Write robust tests for stochastic methods and numerical computations
 
 Basic Usage
 -----------

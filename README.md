@@ -106,11 +106,11 @@ glpl_policy = PolicyTerms(
 )
 
 # Frequency-Severity Distributions
-wc_freq = Poisson(100)
-wc_sev = Pareto(1, 0, 40_000)
+wc_freq = Poisson(mu=100)
+wc_sev = Pareto(b=1, loc=0, scale=40_000)
 
-glpl_freq = NegativeBinomial(50, 0.5)
-glpl_sev = Lognormal(2, 0, 100_000)
+glpl_freq = NegativeBinomial(r=50, p=0.5)
+glpl_sev = Lognormal(shape=2, loc=0, scale=100_000)
 
 # Book of Business
 wc_inforce = Inforce(
@@ -173,8 +173,8 @@ cauto_policy = PolicyTerms(
 )
 
 # Frequency-Severity Distributions
-cauto_freq = Geometric(1/8)
-cauto_sev = ContinuousUniformSeverity(5_000, 95_000)
+cauto_freq = Geometric(p=1/8)
+cauto_sev = ContinuousUniformSeverity(loc=5_000, scale=90_000)
 
 # Commercial Auto Inforce
 cauto_inforce = Inforce(

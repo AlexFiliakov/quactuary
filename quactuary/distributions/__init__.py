@@ -25,6 +25,20 @@ The module is organized into three main components:
    - Simulation-based approaches for general cases
    - Panjer recursion for exact calculation with discrete severities
 
+4. **Extended Distribution Support**:
+   - **Compound Binomial** (`compound_binomial` module):
+     - Binomial-Exponential, Binomial-Gamma, Binomial-Lognormal
+     - Panjer recursion for binomial frequency
+   - **Mixed Poisson** (`mixed_poisson` module):
+     - Poisson-Gamma (Negative Binomial), Poisson-Inverse Gaussian
+     - Hierarchical and time-varying intensity models
+   - **Zero-Inflated** (`zero_inflated` module):
+     - Zero-inflated compound distributions with EM algorithm
+     - Statistical tests for zero-inflation detection
+   - **Edgeworth Expansion** (`edgeworth` module):
+     - Higher-order moment corrections to normal approximation
+     - Automatic order selection and convergence diagnostics
+
 Key Features:
     - Consistent API following scipy.stats conventions
     - Support for both analytical and simulation-based calculations
@@ -70,6 +84,28 @@ Examples:
         >>> # Use in compound distribution
         >>> compound = CompoundDistribution.create(qmc_frequency, qmc_severity)
 
+    Extended distributions for complex scenarios:
+        >>> from quactuary.distributions.compound_extensions import create_extended_compound_distribution
+        >>> 
+        >>> # Zero-inflated compound with parallel processing
+        >>> zi_compound = create_extended_compound_distribution(
+        ...     frequency='poisson',
+        ...     severity='gamma',
+        ...     zero_inflated=True,
+        ...     zero_prob=0.2,
+        ...     parallel=True,
+        ...     mu=5.0, a=2.0, scale=1000
+        ... )
+        >>> 
+        >>> # Mixed Poisson for heterogeneous portfolios
+        >>> from quactuary.distributions.mixed_poisson import PoissonGammaMixture
+        >>> mixed = PoissonGammaMixture(alpha=3.0, beta=0.5)
+        >>> 
+        >>> # Edgeworth expansion for accurate tail approximation
+        >>> from quactuary.distributions.edgeworth import EdgeworthExpansion
+        >>> edge = EdgeworthExpansion(mean=10000, variance=2500000, 
+        ...                          skewness=0.8, excess_kurtosis=0.5)
+
 Notes:
     - All distributions follow the scipy.stats API for consistency
     - The compound module automatically selects analytical vs simulation methods
@@ -81,14 +117,41 @@ from .frequency import FrequencyModel
 from .severity import SeverityModel
 from .compound import (
     CompoundDistribution,
-    AnalyticalCompound,
     SimulatedCompound,
     PoissonExponentialCompound,
     PoissonGammaCompound,
     GeometricExponentialCompound,
     NegativeBinomialGammaCompound,
-    BinomialLognormalApproximation,
-    PanjerRecursion,
+    create_compound_distribution,
+)
+from .compound_binomial import (
+    BinomialExponentialCompound,
+    BinomialGammaCompound,
+    BinomialLognormalCompound,
+    PanjerBinomialRecursion,
+)
+from .mixed_poisson import (
+    MixedPoissonDistribution,
+    PoissonGammaMixture,
+    PoissonInverseGaussianMixture,
+    HierarchicalPoissonMixture,
+    TimeVaryingPoissonMixture,
+)
+from .zero_inflated import (
+    ZeroInflatedCompound,
+    ZIPoissonCompound,
+    ZINegativeBinomialCompound,
+    ZIBinomialCompound,
+    detect_zero_inflation,
+)
+from .edgeworth import (
+    EdgeworthExpansion,
+    CompoundDistributionEdgeworth,
+    automatic_order_selection,
+)
+from .compound_extensions import (
+    create_extended_compound_distribution,
+    distribution_selection_guide,
 )
 from .qmc_wrapper import (
     QMCFrequencyWrapper,
@@ -97,17 +160,42 @@ from .qmc_wrapper import (
 )
 
 __all__ = [
+    # Base models
     'FrequencyModel',
     'SeverityModel', 
     'CompoundDistribution',
-    'AnalyticalCompound',
     'SimulatedCompound',
+    # Standard compound distributions
     'PoissonExponentialCompound',
     'PoissonGammaCompound',
     'GeometricExponentialCompound',
     'NegativeBinomialGammaCompound',
-    'BinomialLognormalApproximation',
-    'PanjerRecursion',
+    # Compound binomial distributions
+    'BinomialExponentialCompound',
+    'BinomialGammaCompound',
+    'BinomialLognormalCompound',
+    'PanjerBinomialRecursion',
+    # Mixed Poisson processes
+    'MixedPoissonDistribution',
+    'PoissonGammaMixture',
+    'PoissonInverseGaussianMixture',
+    'HierarchicalPoissonMixture',
+    'TimeVaryingPoissonMixture',
+    # Zero-inflated models
+    'ZeroInflatedCompound',
+    'ZIPoissonCompound',
+    'ZINegativeBinomialCompound',
+    'ZIBinomialCompound',
+    'detect_zero_inflation',
+    # Edgeworth expansion
+    'EdgeworthExpansion',
+    'CompoundDistributionEdgeworth',
+    'automatic_order_selection',
+    # Factory functions
+    'create_compound_distribution',
+    'create_extended_compound_distribution',
+    'distribution_selection_guide',
+    # QMC support
     'QMCFrequencyWrapper',
     'QMCSeverityWrapper',
     'wrap_for_qmc',

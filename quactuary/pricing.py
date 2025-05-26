@@ -306,7 +306,7 @@ class PricingModel:
                 >>> historical_counts = [45, 52, 48, 51, 49]
                 >>> model.set_compound_distribution(
                 ...     frequency=Empirical(data=historical_counts),
-                ...     severity=Gamma(alpha=2.0, scale=5000)
+                ...     severity=Gamma(shape=2.0, scale=5000)
                 ... )
 
         Notes:

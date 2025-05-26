@@ -151,7 +151,7 @@ class PerformanceBenchmark:
                 n_policies=30,
                 terms=terms,
                 frequency=NegativeBinomial(n=5, p=0.3),
-                severity=Gamma(a=2.0, scale=4000.0),
+                severity=Gamma(shape=2.0, scale=4000.0),
                 name="Medium Bucket 3"
             )
         ])

@@ -572,7 +572,7 @@ class InverseGamma(SeverityModel):
         scale (float, optional): Scale (β). Defaults to 1.0.
 
     Examples:
-        >>> InverseGamma(a=2.0, scale=500.0).pdf(200.0)
+        >>> InverseGamma(shape=2.0, scale=500.0).pdf(200.0)
     """
 
     def __init__(self, shape: float, loc: float = 0.0, scale: float = 1.0):
@@ -698,7 +698,7 @@ class Lognormal(SeverityModel):
         scale (float, optional): Scale (exp(mu)). Defaults to 1.0.
 
     Examples:
-        >>> Lognormal(s=0.5, scale=200.0).cdf(150.0)
+        >>> Lognormal(shape=0.5, scale=200.0).cdf(150.0)
     """
 
     def __init__(self, shape: float, loc: float = 0.0, scale: float = 1.0):

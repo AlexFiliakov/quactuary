@@ -380,13 +380,13 @@ def _create_frequency_from_string(name: str, **params) -> FrequencyModel:
 
 def _create_severity_from_string(name: str, **params) -> SeverityModel:
     """Helper to create severity distribution from string."""
-    from quactuary.distributions.severity import Exponential, Gamma, LogNormal
+    from quactuary.distributions.severity import Exponential, Gamma, Lognormal
     
     if name.lower() == 'exponential':
         return Exponential(scale=params.get('scale', 1000))
     elif name.lower() == 'gamma':
-        return Gamma(a=params.get('a', 2), scale=params.get('scale', 500))
+        return Gamma(shape=params.get('shape', 2), scale=params.get('scale', 500))
     elif name.lower() == 'lognormal':
-        return LogNormal(mu=params.get('mu', 6), sigma=params.get('sigma', 1))
+        return Lognormal(shape=params.get('sigma', 1), scale=np.exp(params.get('mu', 6)))
     else:
         raise ValueError(f"Unknown severity distribution: {name}")

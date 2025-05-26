@@ -157,7 +157,7 @@ class TestZeroInflatedDistributions:
         data = np.zeros(n_samples)
         
         freq = Poisson(mu=3.0)
-        sev = Gamma(a=2.0, scale=500)
+        sev = Gamma(shape=2.0, scale=500)
         
         # Generate non-zero values
         for i in range(n_samples):
@@ -182,9 +182,9 @@ class TestZeroInflatedDistributions:
         sev = Exponential(scale=1000)
         
         # Generate standard compound data
-        np.random.seed(42)
+        np.random.seed(123)
         standard_data = []
-        for _ in range(500):
+        for _ in range(1000):
             n = freq.rvs()
             if n > 0:
                 standard_data.append(np.sum(sev.rvs(size=n)))
@@ -346,7 +346,7 @@ class TestIntegration:
     def test_parallel_simulation(self):
         """Test parallel computation support."""
         freq = Poisson(mu=10)
-        sev = Lognormal(s=1.0, scale=1000)
+        sev = Lognormal(shape=1.0, scale=1000)
         
         # Create optimized compound with parallel support
         from quactuary.distributions.compound_extensions import SimulatedCompoundOptimized

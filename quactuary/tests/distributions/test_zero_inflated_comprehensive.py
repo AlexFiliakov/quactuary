@@ -19,7 +19,8 @@ from quactuary.distributions.zero_inflated import (
     ZINegativeBinomialCompound,
     ZIBinomialCompound,
     ZeroInflatedMixtureEM,
-    detect_zero_inflation
+    detect_zero_inflation,
+    score_test_zi
 )
 from quactuary.distributions.compound import create_compound_distribution
 from quactuary.utils.numerical import stable_log, stable_exp
@@ -105,11 +106,14 @@ class TestZeroInflatedMixtureEMConvergence:
         def callback(params, ll, iteration):
             likelihoods.append(ll)
         
-        params, final_ll, n_iter = em.fit(
+        result = em.fit(
             samples,
             callback=callback,
             max_iter=50
         )
+        params = result['params']
+        final_ll = result['log_likelihood']
+        n_iter = result['iterations']
         
         # Check monotonic increase
         for i in range(1, len(likelihoods)):
@@ -132,7 +136,8 @@ class TestZeroInflatedMixtureEMConvergence:
         
         # Fit with EM
         em = ZeroInflatedMixtureEM(frequency_type='nbinom', severity_type='exponential')
-        params, _, _ = em.fit(samples)
+        result = em.fit(samples)
+        params = result['params']
         
         # Check constraints
         assert 0 <= params['zero_prob'] <= 1
@@ -162,16 +167,19 @@ class TestZeroInflatedMixtureEMConvergence:
         
         results = []
         for init_params in init_strategies:
-            params, ll, n_iter = em.fit(
+            result = em.fit(
                 samples,
                 init_params=init_params,
                 max_iter=100
             )
+            params = result['params']
+            ll = result['log_likelihood']
+            n_iter = result['iterations']
             results.append((params, ll, n_iter))
         
         # All should converge to similar parameters
         final_zero_probs = [r[0]['zero_prob'] for r in results]
-        final_mus = [r[0]['mu'] for r in results]
+        final_mus = [r[0]['lambda'] for r in results]  # Poisson uses 'lambda' not 'mu'
         
         # Check consistency across initializations
         assert np.std(final_zero_probs) < 0.05
@@ -384,7 +392,8 @@ class TestEdgeCasesZeroInflated:
         
         # Almost all mass at zero
         assert zi_compound_99.pdf(0) > 0.99
-        assert zi_compound_99.mean() < 0.01 * base_compound.mean()
+        # Mean should be approximately 1% of base compound mean
+        assert zi_compound_99.mean() <= 0.01 * base_compound.mean() * 1.0001  # Allow tiny numerical error
     
     def test_all_zeros_data(self):
         """Test parameter estimation with all zeros."""
@@ -395,7 +404,8 @@ class TestEdgeCasesZeroInflated:
         # Should handle gracefully
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            params, _, _ = em.fit(samples, max_iter=10)
+            result = em.fit(samples, max_iter=10)
+            params = result['params']
         
         # Zero probability should be very high
         assert params['zero_prob'] > 0.9
@@ -420,7 +430,8 @@ class TestEdgeCasesZeroInflated:
         
         # EM should estimate very low zero_prob
         em = ZeroInflatedMixtureEM(frequency_type='poisson', severity_type='exponential')
-        params, _, _ = em.fit(samples)
+        result = em.fit(samples)
+        params = result['params']
         
         assert params['zero_prob'] < 0.05
 

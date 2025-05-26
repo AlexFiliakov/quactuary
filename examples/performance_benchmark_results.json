@@ -1,0 +1,105 @@
+{
+  "compound_binomial": {
+    "mean_time": {
+      "QuActuary Analytical": 1.5867637780017685,
+      "SciPy Simulation": 4.1244648479984605,
+      "SciPy Vectorized": 2.1008841759996724
+    },
+    "std_time": {
+      "QuActuary Analytical": 0.1900076746487859,
+      "SciPy Simulation": 0.8397192862579571,
+      "SciPy Vectorized": 0.29674099129517956
+    },
+    "min_time": {
+      "QuActuary Analytical": 1.2956804000132252,
+      "SciPy Simulation": 2.9809590999793727,
+      "SciPy Vectorized": 1.5659065000072587
+    },
+    "max_time": {
+      "QuActuary Analytical": 2.057247600023402,
+      "SciPy Simulation": 6.865069099992979,
+      "SciPy Vectorized": 2.766313900006935
+    },
+    "peak_memory_mb": {
+      "QuActuary Analytical": 0.7429771423339844,
+      "SciPy Simulation": 0.618621826171875,
+      "SciPy Vectorized": 0.4229316711425781
+    }
+  },
+  "mixed_poisson": {
+    "mean_time": {
+      "QuActuary Poisson-Gamma": 0.007433358001871965,
+      "SciPy Negative Binomial": 0.0026181500020902603,
+      "Manual Hierarchical": 1.799535665998701
+    },
+    "std_time": {
+      "QuActuary Poisson-Gamma": 0.0008895835704403155,
+      "SciPy Negative Binomial": 0.0006224877317855735,
+      "Manual Hierarchical": 0.22940876640715924
+    },
+    "min_time": {
+      "QuActuary Poisson-Gamma": 0.006285499985096976,
+      "SciPy Negative Binomial": 0.002091799979098141,
+      "Manual Hierarchical": 1.381207300000824
+    },
+    "max_time": {
+      "QuActuary Poisson-Gamma": 0.010434700001496822,
+      "SciPy Negative Binomial": 0.005445900023914874,
+      "Manual Hierarchical": 2.391683000023477
+    },
+    "peak_memory_mb": {
+      "QuActuary Poisson-Gamma": 0.6958408355712891,
+      "SciPy Negative Binomial": 0.42089271545410156,
+      "Manual Hierarchical": 0.46502685546875
+    }
+  },
+  "zero_inflated": {
+    "model": {
+      "0": "ZI-Poisson",
+      "1": "ZI-NegBinom",
+      "2": "ZI-Binomial"
+    },
+    "sampling_time": {
+      "0": 0.6530408000107855,
+      "1": 3.1713181999803055,
+      "2": 0.3791728999931365
+    },
+    "pdf_time": {
+      "0": 0.0018684999959077686,
+      "1": 2.7618886999844108,
+      "2": 0.005971600010525435
+    },
+    "zero_fraction": {
+      "0": 0.2554,
+      "1": 0.2543,
+      "2": 0.2561
+    }
+  },
+  "memory_scaling": {
+    "portfolio_size": {
+      "0": 1000,
+      "1": 5000,
+      "2": 10000,
+      "3": 50000
+    },
+    "quactuary_mb": {
+      "0": 0.19779682159423828,
+      "1": 0.25921058654785156,
+      "2": 0.3375883102416992,
+      "3": 0.9788417816162109
+    },
+    "numpy_mb": {
+      "0": 0.512516975402832,
+      "1": 1.9288063049316406,
+      "2": 3.693035125732422,
+      "3": 17.91082000732422
+    },
+    "memory_ratio": {
+      "0": 2.5911284684554374,
+      "1": 7.441078432093951,
+      "2": 10.939463878617012,
+      "3": 18.297972505577803
+    }
+  },
+  "timestamp": "2025-05-26T12:27:15.738865"
+}

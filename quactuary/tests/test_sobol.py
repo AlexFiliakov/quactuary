@@ -309,7 +309,9 @@ class TestConvergence:
         sev = Pareto(b=2.0, scale=1000.0)
         
         # 95% VaR convergence
-        true_var_95 = sev.ppf(0.95)
+        # Pareto doesn't have ppf method, use scipy distribution directly
+        from scipy.stats import pareto
+        true_var_95 = pareto.ppf(0.95, b=2.0, scale=1000.0)
         
         def estimate_var(samples):
             return np.percentile(samples, 95)

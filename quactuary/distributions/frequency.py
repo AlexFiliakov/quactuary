@@ -447,6 +447,14 @@ class NegativeBinomial(FrequencyModel):
     def rvs(self, size: int = 1) -> pd.Series | np.integer:
         samples = self._dist.rvs(size=size)
         return pd.Series(samples) if size > 1 else samples[0]
+    
+    def mean(self) -> float:
+        """Return the mean of the distribution."""
+        return float(self._dist.mean())
+    
+    def var(self) -> float:
+        """Return the variance of the distribution."""
+        return float(self._dist.var())
 
 
 class PanjerABk(FrequencyModel):

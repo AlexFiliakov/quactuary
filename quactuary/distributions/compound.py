@@ -57,8 +57,15 @@ def create_compound_distribution(frequency: FrequencyModel, severity: SeverityMo
         return GeometricExponentialCompound(frequency, severity)
     elif freq_name == 'NegativeBinomial' and sev_name == 'Gamma':
         return NegativeBinomialGammaCompound(frequency, severity)
+    elif freq_name == 'Binomial' and sev_name == 'Exponential':
+        from quactuary.distributions.compound_binomial import BinomialExponentialCompound
+        return BinomialExponentialCompound(frequency, severity)
+    elif freq_name == 'Binomial' and sev_name == 'Gamma':
+        from quactuary.distributions.compound_binomial import BinomialGammaCompound
+        return BinomialGammaCompound(frequency, severity)
     elif freq_name == 'Binomial' and sev_name == 'Lognormal':
-        return BinomialLognormalApproximation(frequency, severity)
+        from quactuary.distributions.compound_binomial import BinomialLognormalCompound
+        return BinomialLognormalCompound(frequency, severity)
     else:
         # Default to Monte Carlo simulation
         return SimulatedCompound(frequency, severity)

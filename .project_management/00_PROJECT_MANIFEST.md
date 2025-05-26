@@ -4,7 +4,7 @@ current_milestone_id: M01
 highest_sprint_in_milestone: S01
 current_sprint_id: S01
 status: active
-last_updated: 2025-05-25 11:35
+last_updated: 2025-05-25 19:47
 ---
 
 # Project Manifest: quActuary
@@ -32,19 +32,21 @@ This project follows a milestone-based development approach.
 
 - [S01_M01_Classical_Optimization](./03_SPRINTS/S01_M01_Classical_Optimization/) - **Active**
   - Goal: Implement policy logic and optimize classical simulation
-  - Completed Tasks: TX01_S01_Policy_Logic (✓), TX02_S01_Compound_Distributions (✓), TX03_S01_Sobol_Sequences (✓), TX04_S01_Optimize_Classical_Simulation (✓), TX07_S01_Simplify_PricingModel (✓)
+  - Completed Tasks: TX01_S01_Policy_Logic (✓), TX02_S01_Compound_Distributions (✓), TX03_S01_Sobol_Sequences (✓), TX04_S01_Optimize_Classical_Simulation (✓), TX05_S01_Numerical_Stability (✓), TX06_S01_Extended_Distributions (✓), TX07_S01_Simplify_PricingModel (✓), TX08_S01_Simplify_Compounds (✓), TX09_S01_RunDev (✓), TX10_S01_Prune_Tests (✓), TX11_S01_Performance_Testing_Suite (✓), TX12_S01_Parallel_Processing_Stability (✓)
   - In Progress: None
   - Core Tasks: All completed
-  - Added Critical: T08_S01_Simplify_Compounds, T09_S01_RunDev, T10_S01_Prune_Tests
-  - Added Enhancement: T05_S01_Numerical_Stability, T06_S01_Extended_Distributions
-  - Performance Follow-Up: T11_S01_Testing_Suite, T12_S01_Parallel_Stability, T13_S01_Integration_Testing, T14_S01_Documentation
+  - Added Critical: All completed
+  - Added Enhancement: TX06_S01_Extended_Distributions (✓)
+  - Performance Follow-Up: TX11_S01_Testing_Suite (✓), TX12_S01_Parallel_Stability (✓), T13_S01_Integration_Testing, T14_S01_Documentation
+  - Critical Cleanup: T15_S01_Code_Cleanup_and_Simplification
 
 ## 4. Key Documentation
 
 - [Architecture Documentation](./01_PROJECT_DOCS/ARCHITECTURE.md)
 - [Current Milestone Requirements](./02_REQUIREMENTS/M01_Backend_Setup/)
 - [General Tasks](./04_GENERAL_TASKS/)
-  - New: T001_QMC_Enhancement_Testing - Follow-up testing and optimization for Sobol implementation
+  - T001_QMC_Enhancement_Testing - Follow-up testing and optimization for Sobol implementation
+  - T002_RunDev_Enhancements - Optional enhancements for run_dev.py script
 
 ## 5. Quick Links
 

@@ -206,3 +206,43 @@ print(f"Quantum portfolio TVaR: {quantum_TVaR}")
 ```
 
 Backends can be called as `ContextManager`s to be used across multiple statements. Again, all quantum circuits are taken care of behind the scenes.
+
+## Development
+
+### Development Environment Setup
+
+quActuary uses a centralized development script `run_dev.py` to streamline all development operations:
+
+```bash
+# Install development environment
+python run_dev.py install
+
+# Run tests
+python run_dev.py test
+python run_dev.py test --coverage
+python run_dev.py test --file test_pricing.py
+
+# Code quality
+python run_dev.py lint          # Run all linters
+python run_dev.py format         # Auto-format code
+
+# Documentation
+python run_dev.py docs           # Build documentation
+python run_dev.py docs --serve   # Build and serve locally
+
+# Utilities
+python run_dev.py coverage       # Generate coverage report
+python run_dev.py clean          # Clean build artifacts
+```
+
+### Available Commands
+
+- **test**: Run pytest with options for coverage, specific files, or patterns
+- **lint**: Run code quality tools (ruff, mypy, black)
+- **format**: Auto-format code using black
+- **install/build**: Install package in development mode with dependencies
+- **coverage**: Generate detailed coverage reports
+- **clean**: Remove build artifacts and caches
+- **docs**: Build Sphinx documentation with optional local server
+
+The script automatically detects virtual environments and provides helpful error messages. Use `python run_dev.py --help` or `python run_dev.py <command> --help` for detailed options.

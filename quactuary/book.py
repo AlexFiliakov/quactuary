@@ -96,6 +96,8 @@ from quactuary.distributions.frequency import FrequencyModel
 from quactuary.distributions.severity import SeverityModel
 from quactuary.distributions.qmc_wrapper import wrap_for_qmc
 from quactuary.sobol import get_qmc_simulator
+from quactuary.parallel_processing import ParallelSimulator, ParallelConfig
+# from quactuary.vectorized_simulation import VectorizedSimulator  # Avoid circular import
 
 locale.setlocale(locale.LC_ALL, '')
 
@@ -717,24 +719,39 @@ class Inforce:
         """
         return self.n_policies
 
-    def simulate(self, n_sims: int = 1) -> pd.Series | float:
+    def simulate(self, n_sims: int = 1, parallel: bool = False, n_workers: Optional[int] = None) -> pd.Series | float:
         """
         Generate random variates from frequency and severity, returning aggregate losses.
 
         Args:
             n_sims (int): Number of simulations to run.
+            parallel (bool): Whether to use parallel processing.
+            n_workers (int, optional): Number of parallel workers (None for auto).
 
         Returns:
             pd.Series: Series containing simulated aggregates.
 
         Examples:
             >>> bucket.simulate(n_sims=1_000)
+            >>> bucket.simulate(n_sims=100_000, parallel=True)
         """
         if n_sims is None or n_sims < 0 or not isinstance(n_sims, int):
             raise ValueError(
                 "Number of simulations must be a positive integer.")
         if n_sims == 0:
             return 0.0
+        
+        # Use vectorized simulation for better performance
+        if n_sims > 1000 or parallel:
+            # Lazy import to avoid circular dependency
+            from quactuary.vectorized_simulation import VectorizedSimulator
+            results = VectorizedSimulator.simulate_inforce_vectorized(
+                self, n_sims, parallel=parallel, n_workers=n_workers
+            )
+            if n_sims == 1:
+                return results[0]
+            else:
+                return pd.Series(results)
         
         # Wrap distributions for QMC if enabled
         if get_qmc_simulator() is not None:
@@ -878,25 +895,60 @@ class Portfolio(list[Inforce]):
         # Sum n_policies from each Inforce in the portfolio
         return sum(bucket.n_policies for bucket in self)
 
-    def simulate(self, n_sims: int = 1) -> pd.Series | float:
+    def simulate(self, n_sims: int = 1, parallel: bool = False, n_workers: Optional[int] = None) -> pd.Series | float:
         """
         Generate random variates from frequency and severity from all buckets in the portfolio, returning aggregate losses.
 
         Args:
             n_sims (int): Number of simulations to run.
+            parallel (bool): Whether to use parallel processing.
+            n_workers (int, optional): Number of parallel workers (None for auto).
 
         Returns:
             pd.Series: Series containing simulated aggregates.
 
         Examples:
             >>> portfolio.simulate(n_sims=1_000)
+            >>> portfolio.simulate(n_sims=100_000, parallel=True, n_workers=4)
         """
         if n_sims is None or n_sims < 0 or not isinstance(n_sims, int):
             raise ValueError(
                 "Number of simulations must be a positive integer.")
         if n_sims == 0:
             return 0.0
-        bucket_sims = [bucket.simulate(n_sims) for bucket in self]
+        if parallel and n_sims > 10000 and len(self) > 1:
+            # Use parallel processing for large portfolios
+            config = ParallelConfig(
+                n_workers=n_workers,
+                show_progress=True,
+                fallback_to_serial=True
+            )
+            simulator = ParallelSimulator(config)
+            
+            # Create function to simulate portfolio
+            def simulate_portfolio_batch(n_batch, n_policies):
+                # Lazy import to avoid circular dependency
+                from quactuary.vectorized_simulation import VectorizedSimulator
+                batch_results = np.zeros(n_batch)
+                for bucket in self:
+                    # Use vectorized simulation for each bucket
+                    bucket_results = VectorizedSimulator.simulate_inforce_vectorized(
+                        bucket, n_batch, parallel=False
+                    )
+                    batch_results += bucket_results
+                return batch_results
+            
+            # Run parallel simulation
+            total_policies = sum(bucket.n_policies for bucket in self)
+            results = simulator.simulate_parallel_multiprocessing(
+                simulate_portfolio_batch,
+                n_sims,
+                total_policies
+            )
+            return pd.Series(results)
+        
+        # Standard serial simulation
+        bucket_sims = [bucket.simulate(n_sims, parallel=False) for bucket in self]
         if n_sims == 1:
             return sum(bucket_sims)
         else:

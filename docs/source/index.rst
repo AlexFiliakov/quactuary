@@ -98,11 +98,15 @@ Documentation
    :maxdepth: 2
    :caption: API Reference:
 
+   quactuary
    quactuary.entities
-   quactuary.pricing
-   quactuary.distributions
-   quactuary.quantum
    quactuary.backend
+   quactuary.pricing
+   quactuary.quantum
+   quactuary.distributions
+   quactuary.memory_management
+   quactuary.parallel_processing
+   quactuary.vectorized_simulation
    quactuary.utils
    quactuary.future
 

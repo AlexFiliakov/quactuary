@@ -1,8 +1,8 @@
 .. _documentation_guidelines:
 
-***********************
+*************************
 Documentation Guidelines
-***********************
+*************************
 
 Good documentation is essential for making quactuary accessible and useful to both users and contributors. This guide covers our documentation standards, tools, and best practices.
 

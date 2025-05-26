@@ -25,10 +25,14 @@ Key Features:
     - Memory-efficient algorithms for large-scale portfolios
     - Integration with quantum computing frameworks
 
-Module contents
----------------
+Quick Start
+-----------
 
-.. automodule:: quactuary
-   :members:
-   :show-inheritance:
-   :undoc-members:
+The main entry points for users are:
+
+* :class:`~quactuary.PricingModel` - For portfolio pricing and risk calculations
+* :class:`~quactuary.Portfolio` - For managing collections of insurance policies  
+* :class:`~quactuary.PolicyTerms` - For defining individual policy characteristics
+* :class:`~quactuary.Inforce` - For grouping policies with similar characteristics
+
+For more details, see the individual module documentation below.

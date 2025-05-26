@@ -1,8 +1,8 @@
 .. _community_guidelines:
 
-*******************
+*********************
 Community Guidelines
-*******************
+*********************
 
 Welcome to the quactuary community! We're building an inclusive, collaborative environment where everyone can contribute to advancing quantum-accelerated actuarial modeling. These guidelines help ensure our community remains welcoming, productive, and enjoyable for all participants.
 
@@ -114,7 +114,7 @@ Language and Tone
    "This doesn't make sense."
 
 Technical Discussions
---------------------
+---------------------
 
 When discussing technical topics:
 
@@ -147,7 +147,7 @@ We especially welcome:
 5. **Join discussions**: Participate in feature planning and design conversations
 
 For Experienced Contributors
----------------------------
+----------------------------
 
 As you become more involved:
 
@@ -210,7 +210,7 @@ Research and Academic Contributions
 * **Educational content**: Create learning materials and courses
 
 Decision-Making Process
-======================
+=======================
 
 Project Governance
 ------------------

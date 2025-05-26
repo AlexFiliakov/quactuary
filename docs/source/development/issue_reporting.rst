@@ -452,7 +452,7 @@ Being Respectful
 * **Be understanding**: Not every request can be implemented
 
 Managing Expectations
---------------------
+---------------------
 
 * **Bug fixes**: Usually addressed quickly
 * **Feature requests**: May take longer or require discussion

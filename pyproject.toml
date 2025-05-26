@@ -11,8 +11,11 @@ readme = "README.md"
 license = "BSD-3-Clause"
 license-files = ["LICENSE"]
 authors = [ { name = "Alex Filiakov" } ]
-requires-python = ">=3.8"
-dynamic = ["version", "dependencies"]
+requires-python = ">=3.10"
+dynamic = ["version"]
+dependencies = [
+    "mcp[cli]>=1.9.1",
+]
 
 [project.urls]
 Homepage = "https://github.com/AlexFiliakov/quactuary"

@@ -289,7 +289,7 @@ def skip_if_unstable_environment():
 
 # Diagnostic utilities
 
-class TestDiagnostics:
+class DiagnosticsCollector:
     """Collect diagnostics during test execution."""
     
     def __init__(self):

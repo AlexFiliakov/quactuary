@@ -7,7 +7,7 @@ from typing import Dict, Any
 import pytest
 
 
-class TestEnvironment:
+class EnvironmentConfig:
     """Detects and configures test environment capabilities."""
     
     def __init__(self):
@@ -85,7 +85,7 @@ class TestEnvironment:
 
 
 # Global test environment instance
-TEST_ENV = TestEnvironment()
+TEST_ENV = EnvironmentConfig()
 
 
 def get_test_config() -> Dict[str, Any]:

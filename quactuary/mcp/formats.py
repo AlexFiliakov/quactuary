@@ -127,6 +127,19 @@ class DataFormats:
         result["metadata"]["created_at"] = datetime.now().isoformat()
         result["metadata"]["format_version"] = "1.0"
         return result
+    
+    @staticmethod
+    def portfolio_result(portfolio_id: str,
+                        statistics: Dict[str, Any],
+                        metadata: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        """Standard format for portfolio creation results."""
+        result = {
+            "portfolio_id": portfolio_id,
+            "statistics": statistics,
+            "metadata": metadata or {}
+        }
+        result["metadata"]["format_version"] = "1.0"
+        return result
 
 
 # Input validation helpers

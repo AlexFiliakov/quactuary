@@ -62,6 +62,7 @@ PLANNED_TOOLS: Dict[ToolCategory, List[str]] = {
         "pricing_simulate_portfolio",
         "pricing_calculate_var",
         "pricing_calculate_tvar",
+        "pricing_run_simulation",
         "pricing_compare_backends",
         "pricing_optimize_portfolio",
     ],
@@ -70,7 +71,8 @@ PLANNED_TOOLS: Dict[ToolCategory, List[str]] = {
         "dist_create_severity",
         "dist_create_compound",
         "dist_fit_parameters",
-        "dist_compare_distributions",
+        "dist_compare",
+        "dist_goodness_of_fit",
         "dist_generate_samples",
     ],
     ToolCategory.PORTFOLIO: [
@@ -86,10 +88,30 @@ PLANNED_TOOLS: Dict[ToolCategory, List[str]] = {
         "util_convert_format",
         "util_generate_test_data",
         "util_check_convergence",
+        # Workflow tools
+        "workflow_create_analysis",
+        "workflow_batch_process",
+        "workflow_schedule",
+        # Visualization tools
+        "viz_create_chart",
+        "report_generate",
+        "dashboard_data",
+        # Analytics tools
+        "analytics_scenario_analysis",
+        "analytics_stress_test",
+        "analytics_predictive_model",
+        # Data quality tools
+        "data_quality_check",
+        "data_lineage_trace",
+        "data_reconciliation",
     ],
     ToolCategory.BENCHMARKS: [
         "bench_run_performance_test",
         "bench_compare_methods",
         "bench_profile_simulation",
+        # Performance monitoring
+        "perf_benchmark_suite",
+        "perf_optimization_advisor",
+        "perf_resource_monitor",
     ],
 }

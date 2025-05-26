@@ -168,7 +168,10 @@ def create_tool_decorator(registry: ToolRegistry, category: ToolCategory):
         
         def decorator(func: Callable) -> Callable:
             # Use function name if tool name not provided
-            tool_name = name or f"{category.value}_{func.__name__}"
+            # Get the correct prefix for the category
+            from .categories import get_category_prefix
+            prefix = get_category_prefix(category)
+            tool_name = name or f"{prefix}{func.__name__}"
             
             # Use docstring if description not provided
             tool_description = description or (func.__doc__ or "").strip()

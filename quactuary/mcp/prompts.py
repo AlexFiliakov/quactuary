@@ -21,7 +21,7 @@ def register_prompts(mcp):
 - **Loss Ratio**: Incurred losses divided by earned premium
 - **Frequency**: Number of claims per exposure unit
 - **Severity**: Average cost per claim
-- **Pure Premium**: Frequency × Severity
+- **Pure Premium**: Frequency Ã— Severity
 - **VaR (Value at Risk)**: Loss amount at a given percentile
 - **TVaR (Tail Value at Risk)**: Average loss beyond VaR
 
@@ -39,7 +39,7 @@ def register_prompts(mcp):
 
 ## Portfolio Analysis
 - Aggregate Loss = Sum of individual claim amounts
-- Uses compound distributions (frequency × severity)
+- Uses compound distributions (frequency ï¿½ severity)
 - Monte Carlo simulation for complex cases
 """
 

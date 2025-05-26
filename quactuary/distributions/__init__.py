@@ -110,8 +110,8 @@ Notes:
     - See individual module documentation for detailed usage
 """
 
-from .frequency import FrequencyModel
-from .severity import SeverityModel
+from .frequency import FrequencyModel, Poisson, NegativeBinomial, Binomial, Geometric
+from .severity import SeverityModel, Lognormal, Exponential, Gamma, Pareto, Weibull
 from .compound import (
     CompoundDistribution,
     SimulatedCompound,
@@ -160,6 +160,9 @@ __all__ = [
     # Base models
     'FrequencyModel',
     'SeverityModel', 
+    # Individual distribution classes
+    'Poisson', 'NegativeBinomial', 'Binomial', 'Geometric',
+    'Lognormal', 'Exponential', 'Gamma', 'Pareto', 'Weibull',
     'CompoundDistribution',
     'SimulatedCompound',
     # Standard compound distributions

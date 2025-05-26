@@ -306,7 +306,7 @@ class TestConvergence:
     def test_tail_convergence(self):
         """Test convergence for tail statistics."""
         # Heavy-tailed distribution
-        sev = Pareto(a=2.0, scale=1000.0)
+        sev = Pareto(b=2.0, scale=1000.0)
         
         # 95% VaR convergence
         true_var_95 = sev.ppf(0.95)
@@ -337,6 +337,109 @@ class TestConvergence:
         
         # QMC should have lower variance in estimates
         assert qmc_std < mc_std * 0.9
+
+
+class TestQMCWrapperCoverage:
+    """Additional tests to improve QMC wrapper coverage."""
+    
+    def test_qmc_simulator_reset(self):
+        """Test QMCSimulator reset method."""
+        sim = QMCSimulator(method="sobol", scramble=True)
+        
+        # Generate some samples to create engines
+        samples1 = sim.generate_uniform(100, 2)
+        samples2 = sim.generate_uniform(50, 3)
+        
+        # Reset should clear all engines
+        sim.reset()
+        
+        # Generate again should work
+        samples3 = sim.generate_uniform(100, 2)
+        assert samples3.shape == (100, 2)
+    
+    def test_qmc_frequency_wrapper_ppf(self):
+        """Test QMCFrequencyWrapper ppf method."""
+        freq = Poisson(mu=5.0)
+        wrapper = QMCFrequencyWrapper(freq)
+        
+        # Test scalar input
+        assert wrapper.ppf(0.5) == freq.ppf(0.5)
+        
+        # Test array input
+        u_vals = np.array([0.1, 0.5, 0.9])
+        result = wrapper.ppf(u_vals)
+        expected = np.array([freq.ppf(u) for u in u_vals])
+        assert np.array_equal(result, expected)
+    
+    def test_qmc_severity_wrapper_binary_search(self):
+        """Test binary search for distributions without ppf."""
+        # Create a mock distribution without ppf
+        class MockDist:
+            def cdf(self, x):
+                # Simple linear CDF: F(x) = x/100 for x in [0, 100]
+                return np.clip(x / 100.0, 0, 1)
+            
+            def mean(self):
+                return 50.0
+            
+            def std(self):
+                return 28.87  # approx sqrt(100^2/12)
+        
+        mock_dist = MockDist()
+        wrapper = QMCSeverityWrapper(mock_dist)
+        
+        # Test ppf via binary search
+        assert abs(wrapper.ppf(0.5) - 50.0) < 0.001
+        assert abs(wrapper.ppf(0.25) - 25.0) < 0.001
+        assert abs(wrapper.ppf(0.75) - 75.0) < 0.001
+    
+    def test_wrap_for_qmc_preserves_attributes(self):
+        """Test that wrap_for_qmc preserves original attributes."""
+        # Test with frequency distribution
+        freq = NegativeBinomial(r=3, p=0.4)
+        wrapped_freq = wrap_for_qmc(freq)
+        
+        # Should preserve pmf
+        assert wrapped_freq.pmf(5) == freq.pmf(5)
+        
+        # Test with severity distribution
+        sev = Exponential(scale=1000)
+        wrapped_sev = wrap_for_qmc(sev)
+        
+        # Should preserve pdf and cdf
+        assert wrapped_sev.pdf(500) == sev.pdf(500)
+        assert wrapped_sev.cdf(500) == sev.cdf(500)
+    
+    def test_dimension_allocator_large_portfolio(self):
+        """Test dimension allocation for large portfolios."""
+        allocator = DimensionAllocator(total_dims=1000)
+        
+        # Allocate for many policies
+        policies = []
+        for i in range(100):
+            freq_dim, sev_dims = allocator.allocate_for_policy(
+                max_claims=10,
+                policy_id=f"policy_{i}"
+            )
+            policies.append((freq_dim, sev_dims))
+        
+        # Check all allocations are unique
+        all_dims = set()
+        for freq_dim, sev_dims in policies:
+            assert freq_dim not in all_dims
+            all_dims.add(freq_dim)
+            for dim in sev_dims:
+                assert dim not in all_dims
+                all_dims.add(dim)
+        
+        # Test dimension wrapping
+        freq_dim, sev_dims = allocator.allocate_for_policy(
+            max_claims=2000,  # More than available dimensions
+            policy_id="large_policy"
+        )
+        assert len(sev_dims) == 2000
+        # Should wrap around
+        assert max(sev_dims) < allocator.total_dims
 
 
 if __name__ == '__main__':

@@ -302,6 +302,219 @@ For working with examples and tutorials:
    # Start notebook server
    jupyter notebook
 
+IDE Integration with run_dev.py
+================================
+
+The quactuary project includes ``run_dev.py``, a centralized development script that integrates with various IDEs and editors.
+
+Terminal/Shell Integration
+--------------------------
+
+Enable tab completion for easier command discovery:
+
+.. code-block:: bash
+
+   # View tab completion setup instructions
+   python run_dev.py completion
+   
+   # For bash users, add to ~/.bashrc:
+   # Follow the bash completion instructions shown
+   
+   # For zsh users, add to ~/.zshrc:
+   # Follow the zsh completion instructions shown
+
+VS Code Integration
+-------------------
+
+Add these tasks to ``.vscode/tasks.json`` for quick access:
+
+.. code-block:: json
+
+   {
+       "version": "2.0.0",
+       "tasks": [
+           {
+               "label": "Run Tests",
+               "type": "shell",
+               "command": "python run_dev.py test",
+               "group": {
+                   "kind": "test",
+                   "isDefault": true
+               }
+           },
+           {
+               "label": "Run Tests with Coverage",
+               "type": "shell",
+               "command": "python run_dev.py test --coverage",
+               "group": "test"
+           },
+           {
+               "label": "Lint Code",
+               "type": "shell",
+               "command": "python run_dev.py lint",
+               "group": "build"
+           },
+           {
+               "label": "Format Code",
+               "type": "shell",
+               "command": "python run_dev.py format",
+               "group": "build"
+           },
+           {
+               "label": "Build Docs",
+               "type": "shell",
+               "command": "python run_dev.py docs",
+               "group": "build"
+           }
+       ]
+   }
+
+You can then run these tasks with ``Ctrl+Shift+P`` → "Tasks: Run Task".
+
+PyCharm Integration
+-------------------
+
+Set up Run Configurations:
+
+1. **Run Tests**: 
+   - Script path: ``run_dev.py``
+   - Parameters: ``test --coverage``
+   - Working directory: Project root
+
+2. **Lint**:
+   - Script path: ``run_dev.py``
+   - Parameters: ``lint``
+   - Working directory: Project root
+
+3. **Format**:
+   - Script path: ``run_dev.py``
+   - Parameters: ``format``
+   - Working directory: Project root
+
+You can also add external tools under Settings → Tools → External Tools.
+
+Vim/Neovim Integration
+----------------------
+
+Add these commands to your ``.vimrc`` or ``init.vim``:
+
+.. code-block:: vim
+
+   " Run tests
+   command! QuactuaryTest :!python run_dev.py test
+   command! QuactuaryCoverage :!python run_dev.py test --coverage
+   
+   " Code quality
+   command! QuactuaryLint :!python run_dev.py lint
+   command! QuactuaryFormat :!python run_dev.py format
+   
+   " Documentation
+   command! QuactuaryDocs :!python run_dev.py docs
+   
+   " Shortcuts
+   nnoremap <leader>qt :QuactuaryTest<CR>
+   nnoremap <leader>qc :QuactuaryCoverage<CR>
+   nnoremap <leader>ql :QuactuaryLint<CR>
+   nnoremap <leader>qf :QuactuaryFormat<CR>
+
+Sublime Text Integration
+------------------------
+
+Add a build system (Tools → Build System → New Build System):
+
+.. code-block:: json
+
+   {
+       "shell_cmd": "python run_dev.py test",
+       "working_dir": "${project_path}",
+       "variants": [
+           {
+               "name": "Test with Coverage",
+               "shell_cmd": "python run_dev.py test --coverage"
+           },
+           {
+               "name": "Lint",
+               "shell_cmd": "python run_dev.py lint"
+           },
+           {
+               "name": "Format",
+               "shell_cmd": "python run_dev.py format"
+           }
+       ]
+   }
+
+Emacs Integration
+-----------------
+
+Add to your Emacs configuration:
+
+.. code-block:: elisp
+
+   ;; Define quactuary development commands
+   (defun quactuary-test ()
+     "Run quactuary tests"
+     (interactive)
+     (compile "python run_dev.py test"))
+   
+   (defun quactuary-coverage ()
+     "Run quactuary tests with coverage"
+     (interactive)
+     (compile "python run_dev.py test --coverage"))
+   
+   (defun quactuary-lint ()
+     "Lint quactuary code"
+     (interactive)
+     (compile "python run_dev.py lint"))
+   
+   (defun quactuary-format ()
+     "Format quactuary code"
+     (interactive)
+     (shell-command "python run_dev.py format"))
+   
+   ;; Key bindings
+   (global-set-key (kbd "C-c q t") 'quactuary-test)
+   (global-set-key (kbd "C-c q c") 'quactuary-coverage)
+   (global-set-key (kbd "C-c q l") 'quactuary-lint)
+   (global-set-key (kbd "C-c q f") 'quactuary-format)
+
+Git Hooks Integration
+---------------------
+
+You can integrate ``run_dev.py`` with Git hooks for automatic quality checks:
+
+.. code-block:: bash
+
+   # .git/hooks/pre-commit
+   #!/bin/bash
+   python run_dev.py lint || exit 1
+   python run_dev.py test --failfast || exit 1
+
+Make the hook executable: ``chmod +x .git/hooks/pre-commit``
+
+Available run_dev.py Commands
+-----------------------------
+
+.. code-block:: bash
+
+   # Core commands
+   python run_dev.py test          # Run tests
+   python run_dev.py lint          # Run linters
+   python run_dev.py format        # Auto-format code
+   python run_dev.py coverage      # Generate coverage report
+   python run_dev.py docs          # Build documentation
+   python run_dev.py clean         # Clean build artifacts
+   
+   # Utility commands
+   python run_dev.py profile       # Performance profiling
+   python run_dev.py setup         # Initial environment setup
+   python run_dev.py version       # Show version info
+   python run_dev.py completion    # Tab completion setup
+   
+   # Common options
+   python run_dev.py test --coverage --verbose
+   python run_dev.py test --file tests/test_pricing.py
+   python run_dev.py docs --serve  # Build and serve docs locally
+
 Docker Environment (Optional)
 ==============================
 

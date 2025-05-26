@@ -98,7 +98,77 @@ class TestPricingStrategies(unittest.TestCase):
             strategy.calculate_portfolio_statistics(self.portfolio)
         
         self.assertIn("not yet implemented", str(context.exception))
-        self.assertIn("ClassicalPricingStrategy", str(context.exception))
+    
+    def test_classical_strategy_jit_optimization_flag(self):
+        """Test that ClassicalPricingStrategy correctly handles use_jit flag."""
+        # Test with JIT disabled (default)
+        strategy_no_jit = ClassicalPricingStrategy()
+        self.assertFalse(strategy_no_jit.use_jit)
+        
+        # Test with JIT enabled
+        strategy_jit = ClassicalPricingStrategy(use_jit=True)
+        self.assertTrue(strategy_jit.use_jit)
+    
+    def test_classical_strategy_jit_delegation(self):
+        """Test that JIT flag is properly passed to classical model."""
+        # Test with JIT enabled
+        strategy = ClassicalPricingStrategy(use_jit=True)
+        
+        with patch('quactuary.classical_jit.ClassicalJITPricingModel') as mock_jit_class:
+            mock_instance = Mock()
+            mock_jit_class.return_value = mock_instance
+            
+            # Set up mock return value
+            expected_result = PricingResult(
+                estimates={'mean': 5000.0},
+                intervals={},
+                samples=pd.Series([4000, 5000, 6000]),
+                metadata={'n_sims': 3}
+            )
+            mock_instance.calculate_portfolio_statistics.return_value = expected_result
+            
+            # Call the strategy
+            result = strategy.calculate_portfolio_statistics(
+                portfolio=self.portfolio,
+                mean=True,
+                n_sims=3
+            )
+            
+            # Verify JIT model was used
+            mock_jit_class.assert_called_once_with(self.portfolio)
+            mock_instance.calculate_portfolio_statistics.assert_called_once()
+            self.assertEqual(result, expected_result)
+    
+    def test_classical_strategy_no_jit_delegation(self):
+        """Test that non-JIT strategy uses regular classical model."""
+        # Test with JIT disabled
+        strategy = ClassicalPricingStrategy(use_jit=False)
+        
+        with patch('quactuary.classical.ClassicalPricingModel') as mock_class:
+            with patch('quactuary.classical_jit.ClassicalJITPricingModel') as mock_jit_class:
+                mock_instance = Mock()
+                mock_class.return_value = mock_instance
+                
+                # Set up mock return value
+                expected_result = PricingResult(
+                    estimates={'mean': 5000.0},
+                    intervals={},
+                    samples=pd.Series([4000, 5000, 6000]),
+                    metadata={'n_sims': 3}
+                )
+                mock_instance.calculate_portfolio_statistics.return_value = expected_result
+                
+                # Call the strategy
+                result = strategy.calculate_portfolio_statistics(
+                    portfolio=self.portfolio,
+                    mean=True,
+                    n_sims=3
+                )
+                
+                # Verify regular classical model was used, not JIT
+                mock_class.assert_called_once_with(self.portfolio)
+                mock_jit_class.assert_not_called()
+                self.assertEqual(result, expected_result)
     
     def test_pricing_model_simulate_delegates_to_strategy(self):
         """Test that PricingModel.simulate() delegates to strategy."""

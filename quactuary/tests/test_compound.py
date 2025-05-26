@@ -1,25 +1,37 @@
 """
-Tests for compound distributions.
+Consolidated tests for compound distributions.
 
-Validates analytical solutions against Monte Carlo simulations and tests
-performance improvements.
+This file consolidates all compound distribution tests into well-organized test classes:
+- TestCompoundDistributionFactory: Factory method and creation
+- TestAnalyticalSolutions: Poisson-Exponential, Poisson-Gamma, etc.
+- TestSimulatedCompound: Monte Carlo simulation tests
+- TestNumericalStability: Edge cases and numerical issues
 """
 
 import time
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 
 import numpy as np
 import pytest
 from scipy import stats
+from scipy.optimize import brentq
 
 from quactuary.distributions.compound import (
+    create_compound_distribution,
     CompoundDistribution,
     PoissonExponentialCompound,
     PoissonGammaCompound,
+    GeometricExponentialCompound,
+    NegativeBinomialGammaCompound,
     SimulatedCompound,
+    BinomialLognormalApproximation,
 )
 from quactuary.quantum import QuantumPricingModel
 
+
+# =============================================================================
+# Mock Distribution Classes
+# =============================================================================
 
 class MockPoisson:
     """Mock Poisson distribution for testing."""
@@ -33,11 +45,17 @@ class MockPoisson:
     def pmf(self, k):
         return stats.poisson.pmf(k, self.mu)
     
+    def ppf(self, q):
+        return stats.poisson.ppf(q, self.mu)
+    
     def mean(self):
         return self.mu
     
     def var(self):
         return self.mu
+    
+    def cdf(self, x):
+        return stats.poisson.cdf(x, self.mu)
 
 
 class MockExponential:
@@ -52,6 +70,12 @@ class MockExponential:
     def pdf(self, x):
         return stats.expon.pdf(x, scale=self.scale)
     
+    def cdf(self, x):
+        return stats.expon.cdf(x, scale=self.scale)
+    
+    def ppf(self, q):
+        return stats.expon.ppf(q, scale=self.scale)
+    
     def mean(self):
         return self.scale
     
@@ -62,250 +86,843 @@ class MockExponential:
 class MockGamma:
     """Mock Gamma distribution for testing."""
     def __init__(self, a, scale):
-        self.a = a
+        self.shape = a
         self.scale = scale
         self.__class__.__name__ = 'Gamma'
     
     def rvs(self, size=1):
-        return stats.gamma.rvs(a=self.a, scale=self.scale, size=size)
+        return stats.gamma.rvs(shape=self.shape, scale=self.scale, size=size)
     
     def pdf(self, x):
-        return stats.gamma.pdf(x, a=self.a, scale=self.scale)
+        return stats.gamma.pdf(x, shape=self.shape, scale=self.scale)
+    
+    def cdf(self, x):
+        return stats.gamma.cdf(x, shape=self.shape, scale=self.scale)
+    
+    def ppf(self, q):
+        return stats.gamma.ppf(q, shape=self.shape, scale=self.scale)
     
     def mean(self):
-        return self.a * self.scale
+        return self.shape * self.scale
     
     def var(self):
-        return self.a * self.scale ** 2
+        return self.shape * self.scale ** 2
 
 
-class TestCompoundDistribution:
-    """Test base compound distribution functionality."""
+class MockGeometric:
+    """Mock Geometric distribution for testing."""
+    def __init__(self, p):
+        self.p = p
+        self.__class__.__name__ = 'Geometric'
     
-    def test_factory_method_analytical(self):
-        """Test factory method returns analytical solution when available."""
+    def rvs(self, size=1):
+        return stats.geom.rvs(self.p, size=size) - 1  # Convert to "failures" parameterization
+    
+    def pmf(self, k):
+        return stats.geom.pmf(k + 1, self.p)  # Convert from "failures" parameterization
+    
+    def mean(self):
+        return (1 - self.p) / self.p
+    
+    def var(self):
+        return (1 - self.p) / (self.p ** 2)
+
+
+class MockNegativeBinomial:
+    """Mock Negative Binomial distribution for testing."""
+    def __init__(self, n, p):
+        self.n = n  # Number of failures
+        self.p = p  # Success probability
+        self.__class__.__name__ = 'NegativeBinomial'
+    
+    def rvs(self, size=1):
+        return stats.nbinom.rvs(self.n, self.p, size=size)
+    
+    def pmf(self, k):
+        return stats.nbinom.pmf(k, self.n, self.p)
+    
+    def ppf(self, q):
+        return stats.nbinom.ppf(q, self.n, self.p)
+    
+    def mean(self):
+        return self.n * (1 - self.p) / self.p
+    
+    def var(self):
+        return self.n * (1 - self.p) / (self.p ** 2)
+
+
+class MockBinomial:
+    """Mock Binomial distribution for testing."""
+    def __init__(self, n, p):
+        self.n = n  # Number of trials
+        self.p = p  # Success probability
+        self.__class__.__name__ = 'Binomial'
+    
+    def rvs(self, size=1):
+        return stats.binom.rvs(self.n, self.p, size=size)
+    
+    def pmf(self, k):
+        return stats.binom.pmf(k, self.n, self.p)
+    
+    def ppf(self, q):
+        return stats.binom.ppf(q, self.n, self.p)
+    
+    def mean(self):
+        return self.n * self.p
+    
+    def var(self):
+        return self.n * self.p * (1 - self.p)
+    
+    def cdf(self, x):
+        return stats.binom.cdf(x, self.n, self.p)
+
+
+class MockLognormal:
+    """Mock Lognormal distribution for testing."""
+    def __init__(self, mu, sigma):
+        self.mu = mu
+        self.sigma = sigma
+        self.__class__.__name__ = 'Lognormal'
+    
+    def rvs(self, size=1):
+        return stats.lognorm.rvs(s=self.sigma, scale=np.exp(self.mu), size=size)
+    
+    def pdf(self, x):
+        return stats.lognorm.pdf(x, s=self.sigma, scale=np.exp(self.mu))
+    
+    def mean(self):
+        return np.exp(self.mu + self.sigma**2 / 2)
+    
+    def var(self):
+        mean = self.mean()
+        return mean**2 * (np.exp(self.sigma**2) - 1)
+
+
+# =============================================================================
+# Test Classes
+# =============================================================================
+
+class TestCompoundDistributionFactory:
+    """Test factory method and compound distribution creation."""
+    
+    def test_factory_creates_poisson_exponential(self):
+        """Test factory returns PoissonExponential for appropriate inputs."""
         freq = MockPoisson(mu=5.0)
         sev = MockExponential(scale=1000.0)
         
-        compound = CompoundDistribution.create(freq, sev)
+        compound = create_compound_distribution(freq, sev)
         
         assert isinstance(compound, PoissonExponentialCompound)
         assert compound.has_analytical_solution()
     
-    def test_factory_method_simulated(self):
-        """Test factory method returns simulated when no analytical solution."""
+    def test_factory_creates_poisson_gamma(self):
+        """Test factory returns PoissonGamma for appropriate inputs."""
+        freq = MockPoisson(mu=3.0)
+        sev = MockGamma(shape=2.0, scale=500.0)
+        
+        compound = create_compound_distribution(freq, sev)
+        
+        assert isinstance(compound, PoissonGammaCompound)
+        assert compound.has_analytical_solution()
+    
+    def test_factory_creates_geometric_exponential(self):
+        """Test factory returns GeometricExponential for appropriate inputs."""
+        freq = MockGeometric(p=0.3)
+        sev = MockExponential(scale=200.0)
+        
+        compound = create_compound_distribution(freq, sev)
+        
+        assert isinstance(compound, GeometricExponentialCompound)
+        assert compound.has_analytical_solution()
+    
+    def test_factory_creates_negative_binomial_gamma(self):
+        """Test factory returns NegativeBinomialGamma for appropriate inputs."""
+        freq = MockNegativeBinomial(n=3, p=0.4)
+        sev = MockGamma(shape=1.5, scale=300.0)
+        
+        compound = create_compound_distribution(freq, sev)
+        
+        assert isinstance(compound, NegativeBinomialGammaCompound)
+        assert compound.has_analytical_solution()
+    
+    def test_factory_creates_binomial_lognormal(self):
+        """Test factory returns BinomialLognormal for appropriate inputs."""
+        freq = MockBinomial(n=50, p=0.2)
+        sev = MockLognormal(mu=5.0, sigma=1.0)
+        
+        compound = create_compound_distribution(freq, sev)
+        
+        assert isinstance(compound, BinomialLognormalApproximation)
+        assert compound.has_analytical_solution()
+    
+    def test_factory_creates_binomial_exponential(self):
+        """Test factory returns SimulatedCompound for Binomial-Exponential."""
+        freq = MockBinomial(n=20, p=0.3)
+        sev = MockExponential(scale=100.0)
+        
+        compound = create_compound_distribution(freq, sev)
+        
+        # In simplified version, falls back to simulated
+        assert isinstance(compound, SimulatedCompound)
+        assert not compound.has_analytical_solution()
+    
+    def test_factory_creates_binomial_gamma(self):
+        """Test factory returns SimulatedCompound for Binomial-Gamma."""
+        freq = MockBinomial(n=30, p=0.25)
+        sev = MockGamma(shape=2.0, scale=150.0)
+        
+        compound = create_compound_distribution(freq, sev)
+        
+        # In simplified version, falls back to simulated
+        assert isinstance(compound, SimulatedCompound)
+        assert not compound.has_analytical_solution()
+    
+    def test_factory_fallback_to_simulated(self):
+        """Test factory falls back to SimulatedCompound for unknown combinations."""
         freq = MockPoisson(mu=5.0)
         sev = Mock()  # Unknown severity type
         sev.__class__.__name__ = 'UnknownDist'
         sev.mean.return_value = 100
         sev.var.return_value = 1000
         
-        compound = CompoundDistribution.create(freq, sev)
+        compound = create_compound_distribution(freq, sev)
         
         assert isinstance(compound, SimulatedCompound)
         assert not compound.has_analytical_solution()
     
-    def test_registry_pattern(self):
-        """Test distribution registration works correctly."""
-        # Check that our distributions are registered
-        registry = CompoundDistribution._analytical_registry
+    def test_abstract_base_class(self):
+        """Test that CompoundDistribution is abstract and cannot be instantiated."""
+        freq = MockPoisson(mu=1.0)
+        sev = MockExponential(scale=100.0)
         
-        assert ('Poisson', 'Exponential') in registry
-        assert ('Poisson', 'Gamma') in registry
-        assert registry[('Poisson', 'Exponential')] == PoissonExponentialCompound
-        assert registry[('Poisson', 'Gamma')] == PoissonGammaCompound
+        # Create a concrete subclass that doesn't implement abstract methods
+        class IncompleteCompound(CompoundDistribution):
+            pass
+        
+        # Should not be able to instantiate
+        with pytest.raises(TypeError):
+            IncompleteCompound(freq, sev)
 
 
-class TestPoissonExponentialCompound:
-    """Test Poisson-Exponential compound distribution."""
+class TestAnalyticalSolutions:
+    """Test analytical compound distribution implementations."""
     
-    @pytest.fixture
-    def compound_dist(self):
+    # -------------------------------------------------------------------------
+    # Poisson-Exponential Tests
+    # -------------------------------------------------------------------------
+    
+    def test_poisson_exponential_mean_variance(self):
+        """Test mean and variance calculations for Poisson-Exponential."""
         freq = MockPoisson(mu=5.0)
         sev = MockExponential(scale=1000.0)
-        return PoissonExponentialCompound(freq, sev)
-    
-    def test_mean(self, compound_dist):
-        """Test mean calculation."""
-        expected = 5.0 * 1000.0  # λ * θ
-        assert compound_dist.mean() == expected
-    
-    def test_variance(self, compound_dist):
-        """Test variance calculation."""
-        expected = 5.0 * 1000.0**2 * 2  # λ * θ² * 2
-        assert compound_dist.var() == expected
-    
-    def test_std(self, compound_dist):
-        """Test standard deviation calculation."""
-        assert compound_dist.std() == np.sqrt(compound_dist.var())
-    
-    def test_pdf_at_zero(self, compound_dist):
-        """Test PDF has correct atom at zero."""
-        # P(S = 0) = e^(-λ)
-        expected = np.exp(-5.0)
+        compound = PoissonExponentialCompound(freq, sev)
         
-        # PDF at exactly 0 should reflect the atom
-        pdf_near_zero = compound_dist.pdf(0.01)
-        assert pdf_near_zero > 0
+        # E[S] = λ * θ
+        assert compound.mean() == 5.0 * 1000.0
+        
+        # Var[S] = λ * θ² * 2
+        assert compound.var() == 5.0 * 1000.0**2 * 2
+        
+        # Std[S] = sqrt(Var[S])
+        assert compound.std() == np.sqrt(compound.var())
     
-    def test_cdf_properties(self, compound_dist):
-        """Test CDF properties."""
+    def test_poisson_exponential_pdf(self):
+        """Test PDF calculation for Poisson-Exponential."""
+        freq = MockPoisson(mu=2.0)
+        sev = MockExponential(scale=100.0)
+        compound = PoissonExponentialCompound(freq, sev)
+        
+        # Test atom at zero
+        pdf_zero = compound.pdf(0.0)
+        assert isinstance(pdf_zero, (float, np.floating))
+        
+        # Test positive values
+        pdf_positive = compound.pdf(150.0)
+        assert pdf_positive > 0
+        
+        # Test negative values
+        assert compound.pdf(-10.0) == 0.0
+        
+        # Test array input
+        pdf_array = compound.pdf(np.array([-10.0, 0.0, 100.0]))
+        assert pdf_array[0] == 0.0
+        assert pdf_array[1] > 0.0
+        assert pdf_array[2] > 0.0
+    
+    def test_poisson_exponential_cdf(self):
+        """Test CDF calculation for Poisson-Exponential."""
+        freq = MockPoisson(mu=3.0)
+        sev = MockExponential(scale=200.0)
+        compound = PoissonExponentialCompound(freq, sev)
+        
         # CDF at 0 should be P(N = 0) = e^(-λ)
-        assert compound_dist.cdf(0) == pytest.approx(np.exp(-5.0))
+        assert compound.cdf(0) == pytest.approx(np.exp(-3.0))
         
         # CDF should be monotonic
-        x_values = np.linspace(0, 20000, 100)
-        cdf_values = compound_dist.cdf(x_values)
+        x_values = np.linspace(0, 5000, 50)
+        cdf_values = compound.cdf(x_values)
         assert np.all(np.diff(cdf_values) >= 0)
         
         # CDF should approach 1
-        assert compound_dist.cdf(100000) > 0.99
-    
-    def test_quantiles(self, compound_dist):
-        """Test quantile function."""
-        # Test some standard quantiles
-        q50 = compound_dist.ppf(0.5)
-        q95 = compound_dist.ppf(0.95)
+        assert compound.cdf(100000) > 0.99
         
+        # Test negative values
+        assert compound.cdf(-100) == 0.0
+    
+    def test_poisson_exponential_quantiles(self):
+        """Test quantile function for Poisson-Exponential."""
+        freq = MockPoisson(mu=4.0)
+        sev = MockExponential(scale=250.0)
+        compound = PoissonExponentialCompound(freq, sev)
+        
+        # Test scalar input
+        q50 = compound.ppf(0.5)
+        assert isinstance(q50, (float, np.floating))
         assert q50 > 0
-        assert q95 > q50
+        
+        # Test array input
+        quantiles = compound.ppf(np.array([0.25, 0.5, 0.75, 0.95]))
+        assert len(quantiles) == 4
+        assert np.all(np.diff(quantiles) > 0)
         
         # Verify inverse relationship
-        assert compound_dist.cdf(q50) == pytest.approx(0.5, abs=1e-3)
-        assert compound_dist.cdf(q95) == pytest.approx(0.95, abs=1e-3)
+        for q in [0.1, 0.5, 0.9]:
+            x = compound.ppf(q)
+            assert compound.cdf(x) == pytest.approx(q, abs=1e-3)
     
-    def test_random_generation(self, compound_dist):
-        """Test random variate generation."""
+    def test_poisson_exponential_random_generation(self):
+        """Test random variate generation for Poisson-Exponential."""
+        freq = MockPoisson(mu=5.0)
+        sev = MockExponential(scale=300.0)
+        compound = PoissonExponentialCompound(freq, sev)
+        
+        # Single sample
+        sample = compound.rvs(size=1)
+        assert isinstance(sample, (float, np.floating))
+        assert sample >= 0
+        
+        # Multiple samples
         np.random.seed(42)
-        samples = compound_dist.rvs(size=10000)
-        
-        # Check shape
+        samples = compound.rvs(size=10000)
         assert samples.shape == (10000,)
-        
-        # Check non-negative
         assert np.all(samples >= 0)
         
-        # Check mean and variance approximately match
-        assert np.mean(samples) == pytest.approx(compound_dist.mean(), rel=0.05)
-        assert np.var(samples) == pytest.approx(compound_dist.var(), rel=0.1)
+        # Check statistics
+        assert np.mean(samples) == pytest.approx(compound.mean(), rel=0.05)
+        assert np.var(samples) == pytest.approx(compound.var(), rel=0.1)
         
         # Check proportion of zeros
         p_zero_empirical = np.mean(samples == 0)
         p_zero_theoretical = np.exp(-5.0)
         assert p_zero_empirical == pytest.approx(p_zero_theoretical, abs=0.01)
-
-
-class TestPoissonGammaCompound:
-    """Test Poisson-Gamma (Tweedie) compound distribution."""
     
-    @pytest.fixture
-    def compound_dist(self):
+    # -------------------------------------------------------------------------
+    # Poisson-Gamma (Tweedie) Tests
+    # -------------------------------------------------------------------------
+    
+    def test_poisson_gamma_mean_variance(self):
+        """Test mean and variance calculations for Poisson-Gamma."""
         freq = MockPoisson(mu=3.0)
-        sev = MockGamma(a=2.0, scale=500.0)
-        return PoissonGammaCompound(freq, sev)
-    
-    def test_mean(self, compound_dist):
-        """Test mean calculation."""
-        # E[S] = λ * α / β = λ * α * scale
-        expected = 3.0 * 2.0 * 500.0
-        assert compound_dist.mean() == expected
-    
-    def test_variance(self, compound_dist):
-        """Test variance calculation."""
+        sev = MockGamma(shape=2.0, scale=500.0)
+        compound = PoissonGammaCompound(freq, sev)
+        
+        # E[S] = λ * α * scale
+        expected_mean = 3.0 * 2.0 * 500.0
+        assert compound.mean() == expected_mean
+        
         # Var[S] = λ * α * (α + 1) / β²
         lam = 3.0
         alpha = 2.0
         beta = 1.0 / 500.0
-        expected = lam * alpha * (alpha + 1) / (beta ** 2)
-        assert compound_dist.var() == expected
+        expected_var = lam * alpha * (alpha + 1) / (beta ** 2)
+        assert compound.var() == expected_var
     
-    def test_tweedie_parameters(self, compound_dist):
+    def test_poisson_gamma_tweedie_parameters(self):
         """Test Tweedie parameter calculations."""
+        freq = MockPoisson(mu=2.5)
+        sev = MockGamma(shape=1.5, scale=300.0)
+        compound = PoissonGammaCompound(freq, sev)
+        
         # p should be in (1, 2)
-        assert 1 < compound_dist.p < 2
+        assert 1 < compound.p < 2
         
         # Mean should match
-        assert compound_dist.mu == compound_dist.mean()
+        assert compound.mu == compound.mean()
         
         # Dispersion parameter should be positive
-        assert compound_dist.phi > 0
+        assert compound.phi > 0
     
-    def test_cdf_properties(self, compound_dist):
-        """Test CDF properties."""
-        # CDF at 0
-        assert compound_dist.cdf(0) == pytest.approx(np.exp(-3.0))
+    def test_poisson_gamma_pdf_cdf(self):
+        """Test PDF and CDF for Poisson-Gamma."""
+        freq = MockPoisson(mu=1.5)
+        sev = MockGamma(shape=2.0, scale=100.0)
+        compound = PoissonGammaCompound(freq, sev)
         
-        # Monotonicity
-        x_values = np.linspace(0, 10000, 50)
-        cdf_values = compound_dist.cdf(x_values)
+        # Test PDF at zero
+        pdf_zero = compound.pdf(0.0)
+        assert pdf_zero == pytest.approx(np.exp(-1.5))
+        
+        # Test PDF array
+        pdf_array = compound.pdf(np.array([0.0, 50.0, 100.0, 200.0]))
+        assert pdf_array[0] == pytest.approx(np.exp(-1.5))
+        assert np.all(pdf_array[1:] > 0)
+        
+        # Test CDF properties
+        assert compound.cdf(0) == pytest.approx(np.exp(-1.5))
+        x_values = np.linspace(0, 2000, 50)
+        cdf_values = compound.cdf(x_values)
         assert np.all(np.diff(cdf_values) >= 0)
     
-    def test_random_generation(self, compound_dist):
-        """Test random variate generation."""
-        np.random.seed(42)
-        samples = compound_dist.rvs(size=5000)
+    def test_poisson_gamma_random_generation(self):
+        """Test random variate generation for Poisson-Gamma."""
+        freq = MockPoisson(mu=4.0)
+        sev = MockGamma(shape=1.5, scale=200.0)
+        compound = PoissonGammaCompound(freq, sev)
         
-        # Basic checks
+        np.random.seed(42)
+        samples = compound.rvs(size=5000)
+        
         assert samples.shape == (5000,)
         assert np.all(samples >= 0)
+        assert np.mean(samples) == pytest.approx(compound.mean(), rel=0.1)
+        assert np.var(samples) == pytest.approx(compound.var(), rel=0.2)
+    
+    # -------------------------------------------------------------------------
+    # Geometric-Exponential Tests
+    # -------------------------------------------------------------------------
+    
+    def test_geometric_exponential_mean_variance(self):
+        """Test mean and variance for Geometric-Exponential."""
+        freq = MockGeometric(p=0.3)
+        sev = MockExponential(scale=200.0)
+        compound = GeometricExponentialCompound(freq, sev)
         
-        # Statistical checks
-        assert np.mean(samples) == pytest.approx(compound_dist.mean(), rel=0.1)
-        assert np.var(samples) == pytest.approx(compound_dist.var(), rel=0.2)
+        # E[S] = θ / p
+        assert compound.mean() == pytest.approx(200.0 / 0.3)
+        
+        # Var[S] = θ² * (2 - p) / p²
+        expected_var = 200.0**2 * (2 - 0.3) / (0.3**2)
+        assert compound.var() == pytest.approx(expected_var)
+    
+    def test_geometric_exponential_distribution(self):
+        """Test that Geometric-Exponential follows exponential distribution."""
+        freq = MockGeometric(p=0.4)
+        sev = MockExponential(scale=100.0)
+        compound = GeometricExponentialCompound(freq, sev)
+        
+        # Should follow Exponential(θ/(1-p))
+        expected_scale = 100.0 / (1 - 0.4)
+        
+        # Test PDF
+        x = 300.0
+        expected_pdf = stats.expon.pdf(x, scale=expected_scale)
+        assert compound.pdf(x) == pytest.approx(expected_pdf)
+    
+    def test_geometric_exponential_edge_cases(self):
+        """Test edge cases for Geometric-Exponential."""
+        # p near 1
+        freq = MockGeometric(p=0.999)
+        sev = MockExponential(scale=100.0)
+        compound = GeometricExponentialCompound(freq, sev)
+        assert compound.mean() < 101
+        
+        # p = 1 (degenerate case)
+        freq = MockGeometric(p=1.0)
+        compound = GeometricExponentialCompound(freq, sev)
+        assert compound.pdf(0) == 1.0
+        assert compound.pdf(10) == 0.0
+        assert compound.cdf(10) == 1.0
+        assert compound.ppf(0.5) == 0.0
+        
+        # p > 1 (impossible but handled)
+        freq = MockGeometric(p=1.5)
+        compound = GeometricExponentialCompound(freq, sev)
+        assert compound.pdf(10.0) == 0.0
+        assert compound.cdf(10.0) == 1.0
+    
+    # -------------------------------------------------------------------------
+    # Negative Binomial-Gamma Tests
+    # -------------------------------------------------------------------------
+    
+    def test_negative_binomial_gamma_mean_variance(self):
+        """Test mean and variance for NegativeBinomial-Gamma."""
+        freq = MockNegativeBinomial(n=3, p=0.4)
+        sev = MockGamma(shape=2.0, scale=150.0)
+        compound = NegativeBinomialGammaCompound(freq, sev)
+        
+        # Check mean calculation with caching
+        mean1 = compound.mean()
+        mean2 = compound.mean()  # Should use cache
+        assert mean1 == mean2
+        
+        # Check variance calculation with caching
+        var1 = compound.var()
+        var2 = compound.var()  # Should use cache
+        assert var1 == var2
+        
+        # Verify values
+        r = 3
+        p = 0.4
+        alpha = 2.0
+        beta = 1.0 / 150.0
+        expected_mean = r * (1 - p) / p * alpha / beta
+        assert mean1 == pytest.approx(expected_mean)
+    
+    def test_negative_binomial_gamma_zero_probability(self):
+        """Test probability mass at zero for NegativeBinomial-Gamma."""
+        freq = MockNegativeBinomial(n=3, p=0.4)
+        sev = MockGamma(shape=1.5, scale=200.0)
+        compound = NegativeBinomialGammaCompound(freq, sev)
+        
+        # P(S = 0) = p^r
+        expected_p_zero = 0.4 ** 3
+        assert compound.pdf(0) == pytest.approx(expected_p_zero)
+        assert compound.cdf(0) == pytest.approx(expected_p_zero)
+    
+    def test_negative_binomial_gamma_quantiles(self):
+        """Test quantile function for NegativeBinomial-Gamma."""
+        freq = MockNegativeBinomial(n=2, p=0.5)
+        sev = MockGamma(shape=2.5, scale=100.0)
+        compound = NegativeBinomialGammaCompound(freq, sev)
+        
+        # Very low quantile
+        assert compound.ppf(0.001) == 0.0
+        
+        # Test with brentq failure
+        with patch('scipy.optimize.brentq') as mock_brentq:
+            mock_brentq.side_effect = [Exception("Test"), 10000.0]
+            result = compound.ppf(0.999)
+            assert result == 10000.0
 
 
 class TestSimulatedCompound:
-    """Test simulated compound distribution fallback."""
+    """Test Monte Carlo simulation-based compound distributions."""
     
-    @pytest.fixture
-    def compound_dist(self):
+    def test_mean_variance_formulas(self):
+        """Test theoretical mean and variance formulas."""
         freq = MockPoisson(mu=4.0)
         sev = MockExponential(scale=750.0)
-        # Force simulated by creating directly
-        return SimulatedCompound(freq, sev)
-    
-    def test_mean_variance_formulas(self, compound_dist):
-        """Test theoretical mean and variance formulas."""
+        compound = SimulatedCompound(freq, sev)
+        
         # E[S] = E[N] * E[X]
-        assert compound_dist.mean() == 4.0 * 750.0
+        assert compound.mean() == 4.0 * 750.0
         
         # Var[S] = E[N] * Var[X] + Var[N] * E[X]²
         expected_var = 4.0 * 750.0**2 + 4.0 * 750.0**2
-        assert compound_dist.var() == expected_var
+        assert compound.var() == expected_var
     
-    def test_simulation_consistency(self, compound_dist):
-        """Test that simulation gives consistent results."""
-        np.random.seed(42)
+    def test_cache_generation(self):
+        """Test cache generation and management."""
+        freq = MockPoisson(mu=2.0)
+        sev = MockExponential(scale=100.0)
+        compound = SimulatedCompound(freq, sev)
         
-        # Generate samples
-        samples1 = compound_dist.rvs(size=1000)
+        # Initially no cache
+        assert compound._cache is None
         
-        # Reset seed and generate again
+        # Generate cache with specific seed
+        compound._generate_cache(random_state=42)
+        assert compound._cache is not None
+        assert len(compound._cache) == 10000
+        assert compound._cache_seed == 42
+        assert np.all(compound._cache >= 0)
+        
+        # Regenerate with same seed should give same results
+        cache1 = compound._cache.copy()
+        compound._generate_cache(random_state=42)
+        cache2 = compound._cache.copy()
+        assert np.array_equal(cache1, cache2)
+    
+    def test_pdf_estimation(self):
+        """Test PDF estimation via KDE."""
+        freq = MockPoisson(mu=3.0)
+        sev = MockExponential(scale=200.0)
+        compound = SimulatedCompound(freq, sev)
+        
+        # Should generate cache if needed
+        assert compound._cache is None
+        pdf_value = compound.pdf(500.0)
+        assert compound._cache is not None
+        assert pdf_value > 0
+        
+        # Test scalar and array inputs
+        pdf_scalar = compound.pdf(300.0)
+        assert isinstance(pdf_scalar, (float, np.floating))
+        
+        pdf_array = compound.pdf(np.array([100.0, 500.0, 1000.0]))
+        assert pdf_array.shape == (3,)
+        assert np.all(pdf_array >= 0)
+    
+    def test_cdf_empirical(self):
+        """Test empirical CDF calculation."""
+        freq = MockPoisson(mu=2.5)
+        sev = MockExponential(scale=150.0)
+        compound = SimulatedCompound(freq, sev)
+        
+        # Force specific cache
+        compound._generate_cache(random_state=42)
+        
+        # Test scalar input
+        cdf_scalar = compound.cdf(200.0)
+        assert isinstance(cdf_scalar, (float, np.floating))
+        assert 0 <= cdf_scalar <= 1
+        
+        # Test boundary conditions
+        assert compound.cdf(-100) == 0.0
+        assert compound.cdf(1e10) == 1.0
+        
+        # Test monotonicity
+        x_values = np.linspace(0, 1000, 20)
+        cdf_values = compound.cdf(x_values)
+        assert np.all(np.diff(cdf_values) >= 0)
+    
+    def test_ppf_empirical(self):
+        """Test empirical quantile function."""
+        freq = MockPoisson(mu=3.5)
+        sev = MockExponential(scale=200.0)
+        compound = SimulatedCompound(freq, sev)
+        
+        # Generate cache
+        compound._generate_cache(random_state=42)
+        
+        # Test scalar input
+        q50 = compound.ppf(0.5)
+        assert isinstance(q50, (float, np.floating))
+        
+        # Test standard quantiles
+        q01 = compound.ppf(0.01)
+        q50 = compound.ppf(0.50)
+        q99 = compound.ppf(0.99)
+        assert q01 < q50 < q99
+        
+        # Test array input
+        quantiles = compound.ppf(np.array([0.25, 0.75]))
+        assert len(quantiles) == 2
+        assert quantiles[0] < quantiles[1]
+    
+    def test_rvs_consistency(self):
+        """Test that RVS gives consistent results with seed."""
+        freq = MockPoisson(mu=2.0)
+        sev = MockExponential(scale=100.0)
+        compound = SimulatedCompound(freq, sev)
+        
+        # Single sample
+        single = compound.rvs(size=1)
+        assert isinstance(single, (float, np.floating, np.ndarray))
+        
+        # Test reproducibility
         np.random.seed(42)
-        samples2 = compound_dist.rvs(size=1000)
+        samples1 = compound.rvs(size=1000)
+        
+        np.random.seed(42)
+        samples2 = compound.rvs(size=1000)
         
         assert np.array_equal(samples1, samples2)
+
+
+class TestNumericalStability:
+    """Test edge cases and numerical stability issues."""
     
-    def test_pdf_estimation(self, compound_dist):
-        """Test PDF estimation via KDE."""
-        # Force cache generation
-        compound_dist._generate_cache(random_state=42)
+    def test_extreme_parameters(self):
+        """Test behavior with extreme parameter values."""
+        # Very small lambda
+        freq = MockPoisson(mu=0.01)
+        sev = MockExponential(scale=1000.0)
+        compound = PoissonExponentialCompound(freq, sev)
         
-        # Test PDF at mean
-        mean = compound_dist.mean()
-        pdf_at_mean = compound_dist.pdf(mean)
+        # Most probability mass should be at 0
+        assert compound.cdf(0) > 0.99
         
-        assert pdf_at_mean > 0
+        # Very large lambda
+        freq_large = MockPoisson(mu=1000.0)
+        compound_large = PoissonExponentialCompound(freq_large, sev)
+        assert compound_large.mean() == 1000.0 * 1000.0
+    
+    def test_series_convergence(self):
+        """Test series convergence in analytical solutions."""
+        # Small lambda - series should truncate early
+        freq_small = MockPoisson(mu=0.5)
+        sev = MockExponential(scale=100.0)
+        compound_small = PoissonExponentialCompound(freq_small, sev)
+        pdf_small = compound_small.pdf(50.0)
+        assert pdf_small > 0
         
-        # Test PDF array input
-        x_values = np.linspace(0, 10000, 10)
-        pdf_values = compound_dist.pdf(x_values)
-        assert pdf_values.shape == (10,)
-        assert np.all(pdf_values >= 0)
+        # Large lambda - series needs more terms
+        freq_large = MockPoisson(mu=50.0)
+        compound_large = PoissonExponentialCompound(freq_large, sev)
+        pdf_large = compound_large.pdf(5000.0)
+        assert pdf_large > 0
+    
+    def test_zero_claims_handling(self):
+        """Test proper handling of zero claims."""
+        freq = MockPoisson(mu=0.1)  # Very low frequency
+        sev = MockExponential(scale=1000.0)
+        compound = PoissonExponentialCompound(freq, sev)
+        
+        # Generate many samples
+        np.random.seed(42)
+        samples = compound.rvs(size=1000)
+        
+        # Should have many zeros
+        zero_proportion = np.mean(samples == 0)
+        expected_zeros = np.exp(-0.1)
+        assert zero_proportion == pytest.approx(expected_zeros, abs=0.05)
+        
+        # Test with mocked zero claims
+        with patch.object(stats.poisson, 'rvs', return_value=np.array([0, 5, 0, 3])):
+            samples = compound.rvs(size=4)
+            assert samples[0] == 0.0  # No claims
+            assert samples[2] == 0.0  # No claims
+            assert samples[1] > 0.0   # 5 claims
+            assert samples[3] > 0.0   # 3 claims
+    
+    def test_scalar_vs_array_consistency(self):
+        """Test that scalar and array inputs give consistent results."""
+        freq = MockPoisson(mu=3.0)
+        sev = MockGamma(shape=2.0, scale=150.0)
+        compound = PoissonGammaCompound(freq, sev)
+        
+        # Test scalar input
+        scalar_pdf = compound.pdf(500.0)
+        scalar_cdf = compound.cdf(500.0)
+        scalar_ppf = compound.ppf(0.75)
+        
+        # Test array input with single element
+        array_pdf = compound.pdf(np.array([500.0]))
+        array_cdf = compound.cdf(np.array([500.0]))
+        array_ppf = compound.ppf(np.array([0.75]))
+        
+        assert scalar_pdf == array_pdf[0]
+        assert scalar_cdf == array_cdf[0]
+        assert scalar_ppf == array_ppf[0]
+    
+    def test_empty_array_inputs(self):
+        """Test handling of empty array inputs."""
+        freq = MockPoisson(mu=2.0)
+        sev = MockExponential(scale=200.0)
+        compound = PoissonExponentialCompound(freq, sev)
+        
+        # Empty array
+        empty_pdf = compound.pdf(np.array([]))
+        empty_cdf = compound.cdf(np.array([]))
+        
+        assert empty_pdf.shape == (0,)
+        assert empty_cdf.shape == (0,)
+    
+    def test_boundary_quantiles(self):
+        """Test quantile function at extreme probabilities."""
+        freq = MockPoisson(mu=2.0)
+        sev = MockExponential(scale=150.0)
+        compound = PoissonExponentialCompound(freq, sev)
+        
+        # Very low quantile
+        assert compound.ppf(1e-10) == 0.0
+        
+        # Very high quantile
+        q999 = compound.ppf(0.999)
+        assert q999 > 0
+        
+        # Test at p_zero boundary
+        p_zero = np.exp(-2.0)
+        assert compound.ppf(p_zero * 0.5) == 0.0
+        assert compound.ppf(p_zero * 1.5) > 0.0
+    
+    def test_degenerate_cases(self):
+        """Test degenerate parameter cases."""
+        # Zero variance in frequency (p=0 for binomial)
+        freq = MockBinomial(n=10, p=0.0)
+        sev = MockLognormal(mu=5.0, sigma=1.0)
+        compound = BinomialLognormalApproximation(freq, sev)
+        
+        assert compound.mean() == 0.0
+        assert compound.var() == 0.0
+        assert compound.pdf(0) == 1.0
+        assert compound.pdf(100) == 0.0
+        
+        # Geometric with p=0 (infinite mean)
+        freq = MockGeometric(p=0.0)
+        sev = MockExponential(scale=100.0)
+        compound = GeometricExponentialCompound(freq, sev)
+        
+        assert compound.mean() == float('inf')
+        assert compound.var() == float('inf')
 
 
-class TestPerformance:
-    """Test performance improvements of analytical vs simulated."""
+class TestPanjerRecursion:
+    """Test Panjer recursion implementation."""
+    
+    def test_parameter_identification(self):
+        """Test Panjer parameter identification for different distributions."""
+        # Poisson
+        freq = MockPoisson(mu=2.5)
+        sev = MockExponential(scale=100.0)
+        panjer = PanjerRecursion(freq, sev, discretization_step=10.0)
+        assert panjer.a == 0
+        assert panjer.b == 2.5
+        assert panjer.p0 == pytest.approx(np.exp(-2.5))
+        
+        # Binomial
+        freq = MockBinomial(n=10, p=0.3)
+        panjer = PanjerRecursion(freq, sev, discretization_step=10.0)
+        expected_a = -0.3 / 0.7
+        expected_b = 11 * 0.3 / 0.7
+        assert panjer.a == pytest.approx(expected_a)
+        assert panjer.b == pytest.approx(expected_b)
+        assert panjer.p0 == pytest.approx(0.7 ** 10)
+        
+        # Negative Binomial
+        freq = MockNegativeBinomial(n=5, p=0.4)
+        panjer = PanjerRecursion(freq, sev, discretization_step=10.0)
+        assert panjer.a == pytest.approx(0.6)
+        assert panjer.b == pytest.approx(4 * 0.6)
+        assert panjer.p0 == pytest.approx(0.4 ** 5)
+    
+    def test_unsupported_frequency(self):
+        """Test error for unsupported frequency distribution."""
+        freq = Mock()
+        freq.__class__.__name__ = 'UnsupportedDist'
+        sev = MockExponential(scale=100.0)
+        
+        with pytest.raises(ValueError, match="not supported by Panjer recursion"):
+            PanjerRecursion(freq, sev)
+    
+    def test_aggregate_pmf_calculation(self):
+        """Test calculation of aggregate PMF."""
+        freq = MockPoisson(mu=1.5)
+        sev = MockExponential(scale=50.0)
+        panjer = PanjerRecursion(freq, sev, discretization_step=25.0, max_value=300.0)
+        
+        loss_values, pmf = panjer.calculate_aggregate_pmf()
+        
+        # Check structure
+        assert len(loss_values) == len(pmf)
+        assert loss_values[0] == 0
+        assert loss_values[-1] == 300.0
+        
+        # Check probabilities
+        assert np.all(pmf >= 0)
+        assert pmf[0] == pytest.approx(np.exp(-1.5))  # P(S = 0)
+    
+    def test_cdf_calculation(self):
+        """Test CDF calculation with interpolation."""
+        freq = MockPoisson(mu=1.0)
+        sev = MockExponential(scale=100.0)
+        panjer = PanjerRecursion(freq, sev, discretization_step=50.0)
+        
+        # Test scalar input
+        cdf_scalar = panjer.cdf(75.0)
+        assert isinstance(cdf_scalar, (float, np.floating))
+        assert 0 <= cdf_scalar <= 1
+        
+        # Test array input
+        x_array = np.array([0, 50, 100, 150])
+        cdf_array = panjer.cdf(x_array)
+        assert cdf_array.shape == (4,)
+        assert np.all(np.diff(cdf_array) >= 0)  # Monotonic
+
+
+class TestPerformanceAndIntegration:
+    """Test performance improvements and integration with other components."""
     
     def test_analytical_faster_than_simulated(self):
         """Verify analytical solutions are faster than simulation."""
@@ -333,14 +950,12 @@ class TestPerformance:
         simulated_time = time.time() - start
         
         # Analytical should be significantly faster
-        # Note: First call to simulated generates cache, so it's slower
         assert analytical_time < simulated_time * 0.5  # At least 2x faster
     
     def test_mean_calculation_performance(self):
         """Test that mean calculation is instant for analytical."""
         freq = MockPoisson(mu=10.0)
-        sev = MockGamma(a=3.0, scale=200.0)
-        
+        sev = MockGamma(shape=3.0, scale=200.0)
         compound = PoissonGammaCompound(freq, sev)
         
         # Should be essentially instant
@@ -350,13 +965,9 @@ class TestPerformance:
         elapsed = time.time() - start
         
         assert elapsed < 0.02  # Should take less than 20ms for 10k calculations
-
-
-class TestQuantumIntegration:
-    """Test quantum state preparation for analytical distributions."""
     
-    def test_quantum_state_preparation_basic(self):
-        """Test basic quantum state preparation for compound distributions."""
+    def test_quantum_integration(self):
+        """Test integration with quantum pricing models."""
         freq = MockPoisson(mu=2.0)
         sev = MockExponential(scale=500.0)
         
@@ -368,11 +979,10 @@ class TestQuantumIntegration:
         assert hasattr(compound, 'var')
         assert compound.has_analytical_solution()
         
-        # Basic quantum preparation test (placeholder until quantum circuits implemented)
+        # Verify that the analytical properties are accessible for quantum state preparation
         mean_val = compound.mean()
         var_val = compound.var()
         
-        # Verify that the analytical properties are accessible for quantum state preparation
         assert mean_val > 0
         assert var_val > 0
         assert np.isfinite(mean_val)
@@ -381,8 +991,7 @@ class TestQuantumIntegration:
     def test_quantum_compatible_parameters(self):
         """Test that compound distributions provide quantum-compatible parameters."""
         freq = MockPoisson(mu=3.0)
-        sev = MockGamma(a=2.0, scale=100.0)
-        
+        sev = MockGamma(shape=2.0, scale=100.0)
         compound = PoissonGammaCompound(freq, sev)
         
         # Parameters needed for quantum state preparation
@@ -398,8 +1007,57 @@ class TestQuantumIntegration:
         # All parameters should be finite and positive
         for key, value in params.items():
             assert np.isfinite(value), f"Parameter {key} is not finite"
-            if key != 'std':  # std can be zero in degenerate cases
-                assert value >= 0, f"Parameter {key} is negative"
+            assert value >= 0, f"Parameter {key} is negative"
+
+
+class TestBinomialCompounds:
+    """Test Binomial-based compound distributions."""
+    
+    def test_binomial_lognormal_approximation(self):
+        """Test Binomial-Lognormal approximation parameters."""
+        freq = MockBinomial(n=50, p=0.2)
+        sev = MockLognormal(mu=5.0, sigma=1.0)
+        compound = BinomialLognormalApproximation(freq, sev)
+        
+        # Test approximation parameters
+        mu_approx, sigma_approx = compound._get_approx_params()
+        
+        # Should be cached
+        mu_approx2, sigma_approx2 = compound._get_approx_params()
+        assert mu_approx == mu_approx2
+        assert sigma_approx == sigma_approx2
+        
+        # Parameters should be reasonable
+        assert mu_approx > 0
+        assert sigma_approx > 0
+    
+    def test_binomial_lognormal_rvs(self):
+        """Test RVS for Binomial-Lognormal."""
+        freq = MockBinomial(n=100, p=0.5)
+        sev = MockLognormal(mu=3.0, sigmshape=0.5)
+        compound = BinomialLognormalApproximation(freq, sev)
+        
+        # Mock to ensure we get both large and small counts
+        with patch.object(stats.binom, 'rvs', side_effect=[[5, 40, 0]]):
+            samples = compound.rvs(size=3, random_state=42)
+            
+            assert samples[0] > 0  # Small count - direct simulation
+            assert samples[1] > 0  # Large count - approximation
+            assert samples[2] == 0  # Zero count
+    
+    def test_binomial_exponential_gamma_factory(self):
+        """Test that factory falls back to simulated for Binomial-Exponential/Gamma."""
+        # Binomial-Exponential
+        freq = MockBinomial(n=20, p=0.3)
+        sev = MockExponential(scale=100.0)
+        compound = create_compound_distribution(freq, sev)
+        assert isinstance(compound, SimulatedCompound)
+        
+        # Binomial-Gamma
+        freq = MockBinomial(n=30, p=0.25)
+        sev = MockGamma(shape=2.0, scale=150.0)
+        compound = create_compound_distribution(freq, sev)
+        assert isinstance(compound, SimulatedCompound)
 
 
 if __name__ == '__main__':

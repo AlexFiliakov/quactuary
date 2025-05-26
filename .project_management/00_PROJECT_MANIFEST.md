@@ -4,8 +4,8 @@ current_milestone_id: M01
 highest_sprint_in_milestone: S01
 current_sprint_id: S01
 status: active
-last_general_task_id: T017
-last_updated: 2025-05-26 13:56
+last_general_task_id: T018
+last_updated: 2025-05-26 14:30
 ---
 
 # Project Manifest: quActuary
@@ -98,6 +98,7 @@ This project follows a milestone-based development approach.
   - TX015_Test_Architecture_Review - Comprehensive test architecture review and refactoring (✓)
   - TX016_Performance_Baseline_Establishment - Create adaptive performance testing infrastructure (✓)
   - T017_MCP_Implementation - Implement Model-Context-Protocol server for Claude Code integration
+  - T018_Fix_Remaining_Test_Failures - Fix all remaining test failures across distributions, performance, and integration
 
 ## 6. Quick Links
 

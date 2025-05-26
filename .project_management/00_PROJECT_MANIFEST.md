@@ -4,7 +4,8 @@ current_milestone_id: M01
 highest_sprint_in_milestone: S01
 current_sprint_id: S01
 status: active
-last_updated: 2025-05-25 19:47
+last_general_task_id: T007
+last_updated: 2025-05-25 23:53
 ---
 
 # Project Manifest: quActuary
@@ -40,15 +41,58 @@ This project follows a milestone-based development approach.
   - Performance Follow-Up: TX11_S01_Testing_Suite (✓), TX12_S01_Parallel_Stability (✓), T13_S01_Integration_Testing, T14_S01_Documentation
   - Critical Cleanup: T15_S01_Code_Cleanup_and_Simplification
 
-## 4. Key Documentation
+## 4. Planned Milestones Roadmap
+
+### M02 - Quantum Implementation (Planned)
+
+**Goal:** Integrate quantum algorithms with classical features to enhance runtime and accuracy
+
+**Planned Sprints:**
+- **S02_M02_Quantum_Foundation** - Set up quantum infrastructure with qiskit 1.4.2
+  - Install and configure quantum framework
+  - Create quantum module structure
+  - Implement basic utilities
+  
+- **S03_M02_Excess_Loss_Algorithm** - Implement Excess Loss quantum algorithm
+  - Port algorithm from reference notebook
+  - Create quantum circuit implementation
+  - Build classical interface
+  
+- **S04_M02_Quantum_Pricing_Algorithms** - Additional quantum algorithms
+  - Implement algorithms from research papers
+  - Create unified quantum API
+  - Algorithm-specific optimizations
+  
+- **S05_M02_Classical_Quantum_Integration** - Decision logic framework
+  - Design algorithm selection criteria
+  - Implement performance profiling
+  - Create seamless integration layer
+  
+- **S06_M02_Testing_And_Benchmarks** - Comprehensive validation
+  - Performance benchmarking
+  - Integration testing
+  - Documentation and examples
+
+**Key Resources:**
+- Excess Loss: https://github.com/AlexFiliakov/knowledge-pricing/blob/main/Quantum%20Excess%20Evaluation%20Algorithm.ipynb
+- Research: https://arxiv.org/html/2410.20841v1#S7.SS1
+- Additional: https://arxiv.org/pdf/1411.5949
+
+## 5. Key Documentation
 
 - [Architecture Documentation](./01_PROJECT_DOCS/ARCHITECTURE.md)
 - [Current Milestone Requirements](./02_REQUIREMENTS/M01_Backend_Setup/)
+- [Next Milestone Requirements](./02_REQUIREMENTS/S01_M02_Quantum_Implementation/)
 - [General Tasks](./04_GENERAL_TASKS/)
   - T001_QMC_Enhancement_Testing - Follow-up testing and optimization for Sobol implementation
   - T002_RunDev_Enhancements - Optional enhancements for run_dev.py script
+  - TX003_Fix_Parameter_Boundaries_Test - Quick win: Fix single test failure (✓)
+  - TX004_Fix_Benchmark_Infrastructure - Infrastructure: Fix 13 benchmark test failures (✓)
+  - TX005_Fix_Compound_Distribution_Failures - Core: Fix 47+ compound distribution test failures (✓)
+  - TX006_Fix_Pricing_Optimization_Tests - Integration: Fix pricing and optimization tests (✓)
+  - TX007_Fix_Utility_Performance_Tests - Cleanup: Fix remaining utility and performance tests (✓)
 
-## 5. Quick Links
+## 6. Quick Links
 
 - **Current Sprint:** [S01 Sprint Folder](./03_SPRINTS/S01_M01_Classical_Optimization/)
 - **Active Tasks:** Check sprint folder for T##_S01_*.md files

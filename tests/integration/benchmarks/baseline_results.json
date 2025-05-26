@@ -1,0 +1,101 @@
+{
+  "schema_version": "1.0",
+  "description": "Baseline performance results for integration testing",
+  "created": "2025-05-26",
+  "last_updated": "2025-05-26T09:11:40.376887",
+  "baselines": {
+    "speedup_targets": {
+      "small_portfolio": {
+        "target_speedup": 15.0,
+        "minimum_speedup": 5.0,
+        "typical_baseline_time_seconds": 2.5,
+        "expected_optimized_time_seconds": 0.5
+      },
+      "medium_portfolio": {
+        "target_speedup": 35.0,
+        "minimum_speedup": 10.0,
+        "typical_baseline_time_seconds": 25.0,
+        "expected_optimized_time_seconds": 2.5
+      },
+      "large_portfolio": {
+        "target_speedup": 25.0,
+        "minimum_speedup": 8.0,
+        "typical_baseline_time_seconds": 120.0,
+        "expected_optimized_time_seconds": 15.0
+      }
+    },
+    "memory_limits": {
+      "small_portfolio_mb": 1024,
+      "medium_portfolio_mb": 2048,
+      "large_portfolio_mb": 4096,
+      "extreme_portfolio_mb": 8192
+    },
+    "convergence_rates": {
+      "monte_carlo_expected": -0.5,
+      "qmc_target": -1.0,
+      "qmc_minimum": -0.8
+    },
+    "accuracy_tolerances": {
+      "mean_relative_error": 0.01,
+      "quantile_relative_error": 0.1,
+      "variance_relative_error": 0.05
+    }
+  },
+  "test_configurations": {
+    "optimization_combinations": [
+      {
+        "jit": true,
+        "qmc": false,
+        "parallel": false,
+        "vectorized": false
+      },
+      {
+        "jit": false,
+        "qmc": true,
+        "parallel": false,
+        "vectorized": false
+      },
+      {
+        "jit": true,
+        "qmc": true,
+        "parallel": false,
+        "vectorized": false
+      },
+      {
+        "jit": true,
+        "qmc": true,
+        "parallel": true,
+        "vectorized": true
+      }
+    ],
+    "portfolio_sizes": {
+      "tiny": 10,
+      "small": 100,
+      "medium": 1000,
+      "large": 5000,
+      "extreme": 10000
+    },
+    "simulation_counts": [
+      100,
+      500,
+      1000,
+      2000,
+      5000,
+      10000
+    ]
+  },
+  "environment_info": {
+    "python_version": "3.8+",
+    "numpy_version": "1.20+",
+    "platform": "linux",
+    "recommended_cores": 4,
+    "recommended_memory_gb": 8
+  },
+  "trend_analysis_test": {
+    "timestamp": "2025-05-26T09:11:40.361699",
+    "small_portfolio_time": 5.2,
+    "medium_portfolio_time": 25.8,
+    "large_portfolio_time": 120.5,
+    "memory_usage_mb": 512.3
+  }
+}

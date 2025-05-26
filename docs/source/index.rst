@@ -102,6 +102,7 @@ Documentation
    quactuary.entities
    quactuary.backend
    quactuary.pricing
+   api_reference/pricing_model
    quactuary.quantum
    quactuary.distributions
    quactuary.memory_management
@@ -109,6 +110,13 @@ Documentation
    quactuary.vectorized_simulation
    quactuary.utils
    quactuary.future
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Performance:
+
+   performance/benchmarks
+   performance/tuning_guide
 
 .. toctree::
    :maxdepth: 2

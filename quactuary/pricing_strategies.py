@@ -170,7 +170,9 @@ class ClassicalPricingStrategy(PricingStrategy):
         - JIT version can be 10-100x faster for large problems
     """
     
-    def __init__(self, use_jit: bool = True):
+    def __init__(self, use_jit: bool = True, use_parallel: bool = False,
+                 use_vectorization: bool = True, n_workers: Optional[int] = None,
+                 batch_size: Optional[int] = None):
         """
         Initialize the classical pricing strategy.
         
@@ -179,6 +181,11 @@ class ClassicalPricingStrategy(PricingStrategy):
                 Default is True. Set to False for better debugging or when
                 working with small portfolios where compilation overhead
                 isn't worth the speedup.
+            use_parallel (bool): Whether to use parallel processing. Default is False.
+            use_vectorization (bool): Whether to use vectorized operations. Default is True.
+            n_workers (Optional[int]): Number of parallel workers. If None, uses CPU count - 1.
+            batch_size (Optional[int]): Batch size for memory optimization. If None, processes
+                all data at once.
                 
         Examples:
             >>> # For production with large portfolios
@@ -186,8 +193,20 @@ class ClassicalPricingStrategy(PricingStrategy):
             >>> 
             >>> # For debugging or small calculations  
             >>> strategy = ClassicalPricingStrategy(use_jit=False)
+            >>> 
+            >>> # With all optimizations
+            >>> strategy = ClassicalPricingStrategy(
+            ...     use_jit=True,
+            ...     use_parallel=True,
+            ...     use_vectorization=True,
+            ...     n_workers=8
+            ... )
         """
         self.use_jit = use_jit
+        self.use_parallel = use_parallel
+        self.use_vectorization = use_vectorization
+        self.n_workers = n_workers
+        self.batch_size = batch_size
     
     def calculate_portfolio_statistics(
         self,

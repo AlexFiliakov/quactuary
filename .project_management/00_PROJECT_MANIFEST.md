@@ -4,8 +4,8 @@ current_milestone_id: M01
 highest_sprint_in_milestone: S01
 current_sprint_id: S01
 status: active
-last_general_task_id: T007
-last_updated: 2025-05-26 00:57
+last_general_task_id: T008
+last_updated: 2025-05-26 11:04
 ---
 
 # Project Manifest: quActuary
@@ -33,13 +33,12 @@ This project follows a milestone-based development approach.
 
 - [S01_M01_Classical_Optimization](./03_SPRINTS/S01_M01_Classical_Optimization/) - **Active**
   - Goal: Implement policy logic and optimize classical simulation
-  - Completed Tasks: TX01_S01_Policy_Logic (✓), TX02_S01_Compound_Distributions (✓), TX03_S01_Sobol_Sequences (✓), TX04_S01_Optimize_Classical_Simulation (✓), TX05_S01_Numerical_Stability (✓), TX06_S01_Extended_Distributions (✓), TX07_S01_Simplify_PricingModel (✓), TX08_S01_Simplify_Compounds (✓), TX09_S01_RunDev (✓), TX10_S01_Prune_Tests (✓), TX11_S01_Performance_Testing_Suite (✓), TX12_S01_Parallel_Processing_Stability (✓)
+  - Completed Tasks: TX01_S01_Policy_Logic (✓), TX02_S01_Compound_Distributions (✓), TX03_S01_Sobol_Sequences (✓), TX04_S01_Optimize_Classical_Simulation (✓), TX05_S01_Numerical_Stability (✓), TX06_S01_Extended_Distributions (✓), TX07_S01_Simplify_PricingModel (✓), TX08_S01_Simplify_Compounds (✓), TX09_S01_RunDev (✓), TX10_S01_Prune_Test_Suite (✓), TX11_S01_Code_Cleanup_and_Simplification (✓ Partial), TX12_S01_Parallel_Processing_Stability (✓), TX13_S01_Performance_Testing_Suite (✓), TX15_S01_Optimization_Documentation (✓), TX16_S01_Extended_Distribution_Testing (✓)
   - In Progress: None
   - Core Tasks: All completed
   - Added Critical: All completed
   - Added Enhancement: TX06_S01_Extended_Distributions (✓)
-  - Performance Follow-Up: TX11_S01_Testing_Suite (✓), TX12_S01_Parallel_Stability (✓), T13_S01_Integration_Testing, T14_S01_Documentation
-  - Critical Cleanup: T15_S01_Code_Cleanup_and_Simplification
+  - Remaining Tasks: T14_S01_Integration_Testing, T17_S01_Performance_Benchmarks_Notebook, T18_S01_Consolidate_Compound_Distributions, T19_S01_Merge_JIT_Implementations, T20_S01_Consolidate_Test_Files, T21_S01_Fix_JIT_Test_Failure
 
 ## 4. Planned Milestones Roadmap
 
@@ -90,7 +89,9 @@ This project follows a milestone-based development approach.
   - TX004_Fix_Benchmark_Infrastructure - Infrastructure: Fix 13 benchmark test failures (✓)
   - TX005_Fix_Compound_Distribution_Failures - Core: Fix 47+ compound distribution test failures (✓)
   - TX006_Fix_Pricing_Optimization_Tests - Integration: Fix pricing and optimization tests (✓)
+  - TX006_Automatic_Optimization_Selection - Intelligent automatic optimization selection (✓)
   - TX007_Fix_Utility_Performance_Tests - Cleanup: Fix remaining utility and performance tests (✓)
+  - T008_Optimization_Documentation_Extended - Extended optimization documentation tasks
 
 ## 6. Quick Links
 

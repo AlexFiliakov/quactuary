@@ -84,6 +84,7 @@ from quactuary.distributions.frequency import FrequencyModel
 from quactuary.distributions.severity import SeverityModel
 from quactuary.pricing_strategies import PricingStrategy, ClassicalPricingStrategy, get_strategy_for_backend
 from quactuary.sobol import set_qmc_simulator, reset_qmc_simulator, get_qmc_simulator
+from quactuary.optimization_selector import OptimizationSelector, OptimizationConfig
 
 
 class PricingModel:
@@ -99,10 +100,11 @@ class PricingModel:
     Attributes:
         portfolio (Portfolio): Wrapped inforce portfolio.
         strategy (PricingStrategy): Strategy object handling the actual calculations.
-        compound_distribution (Optional[CompoundDistribution]): Compound distribution for aggregate loss modeling.
+        compound_distribution (Optional[quactuary.distributions.compound.CompoundDistribution]): Compound distribution for aggregate loss modeling.
     """
 
-    def __init__(self, portfolio: Portfolio, strategy: Optional[PricingStrategy] = None):
+    def __init__(self, portfolio: Portfolio, strategy: Optional[PricingStrategy] = None,
+                 optimization_selector: Optional[OptimizationSelector] = None):
         """
         Initialize a PricingModel.
 
@@ -113,6 +115,9 @@ class PricingModel:
             strategy (Optional[PricingStrategy]): Pricing strategy to use. If None, automatically 
                 selects based on current backend configuration. You can provide a custom strategy
                 for specialized calculations or override the default classical strategy.
+            optimization_selector (Optional[OptimizationSelector]): Intelligent optimization selector
+                for automatic optimization strategy selection. If None, optimizations must be
+                manually specified.
 
         Examples:
             Using default classical strategy:
@@ -128,10 +133,16 @@ class PricingModel:
                 >>> from quactuary.pricing_strategies import ClassicalPricingStrategy
                 >>> jit_strategy = ClassicalPricingStrategy(use_jit=True)
                 >>> model = PricingModel(portfolio, strategy=jit_strategy)
+                
+            Using automatic optimization selection:
+                >>> from quactuary.optimization_selector import OptimizationSelector
+                >>> optimizer = OptimizationSelector(enable_ml=True)
+                >>> model = PricingModel(portfolio, optimization_selector=optimizer)
         """
         self.portfolio = portfolio
         self.strategy = strategy or ClassicalPricingStrategy()
         self.compound_distribution = None
+        self.optimization_selector = optimization_selector
 
     def simulate(
         self,
@@ -145,7 +156,9 @@ class PricingModel:
         qmc_method: Optional[str] = None,
         qmc_scramble: bool = True,
         qmc_skip: int = 1024,
-        qmc_seed: Optional[int] = None
+        qmc_seed: Optional[int] = None,
+        auto_optimize: bool = False,
+        optimization_config: Optional[OptimizationConfig] = None
     ) -> PricingResult:
         """
         Calculate portfolio statistics using the configured strategy.
@@ -177,6 +190,12 @@ class PricingModel:
                 can improve uniformity for some sequences. Default is 1024.
             qmc_seed (Optional[int]): Random seed for QMC scrambling. If None, uses a
                 random seed. Providing a seed ensures reproducibility.
+            auto_optimize (bool): Enable automatic optimization selection based on portfolio
+                characteristics and hardware capabilities. Requires optimization_selector to be
+                set. Default is False.
+            optimization_config (Optional[OptimizationConfig]): Manual optimization configuration
+                to override automatic selection. If provided with auto_optimize=True, this
+                config will be used as hints for the optimizer.
 
         Returns:
             PricingResult: Object containing calculated portfolio statistics:
@@ -228,6 +247,18 @@ class PricingModel:
                 ...     tail_value_at_risk=False,
                 ...     n_sims=20000
                 ... )
+            
+            Using automatic optimization selection:
+                >>> # Set up model with optimization selector
+                >>> from quactuary.optimization_selector import OptimizationSelector
+                >>> optimizer = OptimizationSelector()
+                >>> model = PricingModel(portfolio, optimization_selector=optimizer)
+                >>> 
+                >>> # Let the system choose optimal settings
+                >>> result = model.simulate(
+                ...     auto_optimize=True,
+                ...     n_sims=100000  # Large simulation - optimizer will select best approach
+                ... )
 
         Notes:
             - Quasi-Monte Carlo methods can significantly reduce the number of simulations
@@ -236,6 +267,45 @@ class PricingModel:
             - TVaR is always >= VaR for the same confidence level
             - Increasing n_sims improves accuracy but increases computation time linearly
         """
+        # Handle automatic optimization selection
+        effective_n_sims = n_sims or 10000  # Default if not specified
+        effective_config = optimization_config
+        
+        if auto_optimize:
+            if self.optimization_selector is None:
+                raise ValueError("auto_optimize=True requires optimization_selector to be set")
+            
+            # Analyze portfolio and predict best strategy
+            profile = self.optimization_selector.analyze_portfolio(
+                self.portfolio, effective_n_sims
+            )
+            predicted_config = self.optimization_selector.predict_best_strategy(profile)
+            
+            # Merge with any manual config provided
+            if optimization_config:
+                # Manual config takes precedence
+                effective_config = optimization_config
+            else:
+                effective_config = predicted_config
+                
+            # Apply optimization config
+            if effective_config:
+                # Update QMC settings from config
+                if effective_config.use_qmc and effective_config.qmc_method:
+                    qmc_method = effective_config.qmc_method
+                    
+                # Create optimized strategy if needed
+                if backend is None and isinstance(self.strategy, ClassicalPricingStrategy):
+                    # Replace strategy with optimized version
+                    from quactuary.pricing_strategies import ClassicalPricingStrategy
+                    self.strategy = ClassicalPricingStrategy(
+                        use_jit=effective_config.use_jit,
+                        use_parallel=effective_config.use_parallel,
+                        use_vectorization=effective_config.use_vectorization,
+                        n_workers=effective_config.n_workers,
+                        batch_size=effective_config.batch_size
+                    )
+        
         # Configure QMC if requested
         qmc_was_configured = get_qmc_simulator() is not None
         if qmc_method is not None:
@@ -275,7 +345,7 @@ class PricingModel:
             if qmc_method is not None and not qmc_was_configured:
                 reset_qmc_simulator()
     
-    def set_compound_distribution(self, frequency: FrequencyModel, severity: SeverityModel):
+    def set_compound_distribution(self, frequency: "FrequencyModel", severity: "SeverityModel"):
         """
         Set compound distribution for aggregate loss modeling.
         
@@ -288,9 +358,9 @@ class PricingModel:
         Poisson with certain severity distributions).
         
         Args:
-            frequency (FrequencyModel): Frequency distribution model determining the number
+            frequency (quactuary.distributions.frequency.FrequencyModel): Frequency distribution model determining the number
                 of losses. Common choices include Poisson, NegativeBinomial, or Binomial.
-            severity (SeverityModel): Severity distribution model for individual loss amounts.
+            severity (quactuary.distributions.severity.SeverityModel): Severity distribution model for individual loss amounts.
                 Common choices include Lognormal, Gamma, Pareto, or Weibull.
 
         Examples:

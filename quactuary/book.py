@@ -82,6 +82,8 @@ Notes:
     - Portfolio simulation leverages bucketing for efficiency
     - All monetary values in consistent currency units
 """
+from __future__ import annotations
+
 import locale
 from dataclasses import dataclass
 from datetime import date
@@ -655,8 +657,8 @@ class Inforce:
 
     Args:
         n_policies (int): Number of policies in this bucket.
-        freq (FrequencyModel): Claim count distribution.
-        sev (SeverityModel): Claim severity distribution.
+        freq (quactuary.distributions.frequency.FrequencyModel): Claim count distribution.
+        sev (quactuary.distributions.severity.SeverityModel): Claim severity distribution.
         terms (PolicyTerms): Policy terms and layer definitions.
         name (str, optional): Bucket label. Defaults to "Unnamed Bucket".
 

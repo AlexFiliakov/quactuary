@@ -8,3 +8,4 @@ portfolios, and related business objects.
    :members:
    :show-inheritance:
    :undoc-members:
+   :no-index:

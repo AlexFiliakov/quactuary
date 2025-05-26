@@ -18,12 +18,14 @@ import warnings
 from quactuary.backend import set_backend
 from quactuary.book import LOB, PolicyTerms, Inforce, Portfolio
 from quactuary.distributions.frequency import (
-    Poisson, NegativeBinomial, Binomial, Geometric, 
-    ZeroInflatedPoisson, ZeroInflatedNegativeBinomial
+    Poisson, NegativeBinomial, Binomial, Geometric
+)
+from quactuary.distributions.zero_inflated import (
+    ZeroInflatedCompound
 )
 from quactuary.distributions.severity import (
     Exponential, Lognormal, Pareto, Gamma, Weibull,
-    ContinuousUniformSeverity, TruncatedNormal
+    ContinuousUniformSeverity
 )
 from quactuary.distributions.compound import CompoundDistribution
 from quactuary.pricing import PricingModel
@@ -76,9 +78,11 @@ class QMCStressTester:
             elif freq_idx == 3:
                 freq = Geometric(p=0.1 / (1 + i * 0.1))
             elif freq_idx == 4:
-                freq = ZeroInflatedPoisson(pi=0.3, mu=3 + i * 0.2)
+                # Use regular Poisson as ZI frequency doesn't exist
+                freq = Poisson(mu=3 + i * 0.2)
             else:
-                freq = ZeroInflatedNegativeBinomial(pi=0.2, n=5 + i, p=0.4)
+                # Use regular NegativeBinomial as ZI frequency doesn't exist
+                freq = NegativeBinomial(r=5 + i, p=0.4)
             
             # Vary severity distributions
             sev_idx = i % 5
@@ -198,8 +202,8 @@ class QMCStressTester:
                     per_occ_retention=50_000,
                     coverage="occ"
                 ),
-                frequency=ZeroInflatedPoisson(pi=0.7 + i * 0.02, mu=1 + i * 0.2),
-                severity=TruncatedNormal(mu=20_000, sigma=10_000, a=5_000, b=100_000),
+                frequency=Poisson(mu=(1 - (0.7 + i * 0.02)) * (1 + i * 0.2)),  # Adjusted for zero inflation
+                severity=Lognormal(shape=0.5, scale=np.exp(np.log(20_000) - 0.5**2/2)),  # Similar to truncated normal
                 name=f"Sparse_Bucket_{i+1}"
             )
             inforces.append(inforce)
@@ -569,7 +573,7 @@ class QMCStressTester:
                 per_occ_retention=10_000_000,  # Very high deductible
                 coverage="occ"
             ),
-            frequency=ZeroInflatedPoisson(pi=0.99, mu=0.1),
+            frequency=Poisson(mu=0.001),  # Very low rate (0.99 zero inflation * 0.1 rate)
             severity=Exponential(scale=1000),
             name="Zero Claims"
         )

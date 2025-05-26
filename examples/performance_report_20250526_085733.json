@@ -1,0 +1,235 @@
+{
+  "timestamp": "2025-05-26T08:57:33.309729",
+  "summary": {
+    "total_benchmarks": 18,
+    "portfolio_sizes": [
+      100,
+      500,
+      1000
+    ],
+    "simulation_counts": [
+      1000,
+      5000
+    ],
+    "optimizations_tested": [
+      "baseline",
+      "qmc",
+      "qmc_no_scramble"
+    ]
+  },
+  "performance_metrics": {
+    "average_speedup": {
+      "qmc": 64.314964834272,
+      "qmc_no_scramble": 67.98978140660853
+    },
+    "memory_efficiency": {
+      "baseline": 289.1647135416667,
+      "qmc": 289.1848958333333,
+      "qmc_no_scramble": 289.1868489583333
+    },
+    "best_configuration": {
+      "overall": "qmc",
+      "memory": "baseline"
+    }
+  },
+  "detailed_results": [
+    {
+      "timestamp": "2025-05-26T08:57:30.273229",
+      "portfolio_size": 100,
+      "n_simulations": 1000,
+      "optimization": "baseline",
+      "execution_time": 1.6211721897125244,
+      "memory_delta": 51.6875,
+      "peak_memory": 288.9765625,
+      "mean_estimate": 38697380.68793072,
+      "var_estimate": 52069016.360880345
+    },
+    {
+      "timestamp": "2025-05-26T08:57:30.277488",
+      "portfolio_size": 100,
+      "n_simulations": 1000,
+      "optimization": "qmc",
+      "execution_time": 0.004258394241333008,
+      "memory_delta": 0.0,
+      "peak_memory": 288.98046875,
+      "mean_estimate": 38345934.2680372,
+      "var_estimate": 52116207.637961924
+    },
+    {
+      "timestamp": "2025-05-26T08:57:30.283527",
+      "portfolio_size": 100,
+      "n_simulations": 1000,
+      "optimization": "qmc_no_scramble",
+      "execution_time": 0.004025459289550781,
+      "memory_delta": 0.0,
+      "peak_memory": 288.98828125,
+      "mean_estimate": 38552453.45272435,
+      "var_estimate": 52623299.119645976
+    },
+    {
+      "timestamp": "2025-05-26T08:57:30.300808",
+      "portfolio_size": 100,
+      "n_simulations": 5000,
+      "optimization": "baseline",
+      "execution_time": 0.01728057861328125,
+      "memory_delta": 0.11328125,
+      "peak_memory": 289.1015625,
+      "mean_estimate": 38487911.756588124,
+      "var_estimate": 51525195.4604033
+    },
+    {
+      "timestamp": "2025-05-26T08:57:30.321486",
+      "portfolio_size": 100,
+      "n_simulations": 5000,
+      "optimization": "qmc",
+      "execution_time": 0.020677566528320312,
+      "memory_delta": 0.0390625,
+      "peak_memory": 289.140625,
+      "mean_estimate": 38562581.58251057,
+      "var_estimate": 51550332.12718078
+    },
+    {
+      "timestamp": "2025-05-26T08:57:30.339622",
+      "portfolio_size": 100,
+      "n_simulations": 5000,
+      "optimization": "qmc_no_scramble",
+      "execution_time": 0.01813650131225586,
+      "memory_delta": 0.0,
+      "peak_memory": 289.140625,
+      "mean_estimate": 38534305.498396695,
+      "var_estimate": 51530334.301541455
+    },
+    {
+      "timestamp": "2025-05-26T08:57:30.361092",
+      "portfolio_size": 500,
+      "n_simulations": 1000,
+      "optimization": "baseline",
+      "execution_time": 0.018455028533935547,
+      "memory_delta": 0.0,
+      "peak_memory": 289.18359375,
+      "mean_estimate": 192829314.60556078,
+      "var_estimate": 220020138.87857267
+    },
+    {
+      "timestamp": "2025-05-26T08:57:30.377839",
+      "portfolio_size": 500,
+      "n_simulations": 1000,
+      "optimization": "qmc",
+      "execution_time": 0.016747474670410156,
+      "memory_delta": 0.0,
+      "peak_memory": 289.18359375,
+      "mean_estimate": 192005393.27039313,
+      "var_estimate": 222080693.53855848
+    },
+    {
+      "timestamp": "2025-05-26T08:57:30.396440",
+      "portfolio_size": 500,
+      "n_simulations": 1000,
+      "optimization": "qmc_no_scramble",
+      "execution_time": 0.0186007022857666,
+      "memory_delta": 0.00390625,
+      "peak_memory": 289.1875,
+      "mean_estimate": 192799019.65044397,
+      "var_estimate": 223360491.50000596
+    },
+    {
+      "timestamp": "2025-05-26T08:57:30.475697",
+      "portfolio_size": 500,
+      "n_simulations": 5000,
+      "optimization": "baseline",
+      "execution_time": 0.07925748825073242,
+      "memory_delta": 0.0,
+      "peak_memory": 289.1875,
+      "mean_estimate": 192516912.9281656,
+      "var_estimate": 221147918.953939
+    },
+    {
+      "timestamp": "2025-05-26T08:57:30.552955",
+      "portfolio_size": 500,
+      "n_simulations": 5000,
+      "optimization": "qmc",
+      "execution_time": 0.0767509937286377,
+      "memory_delta": 0.078125,
+      "peak_memory": 289.265625,
+      "mean_estimate": 192773426.26737875,
+      "var_estimate": 223248256.93102282
+    },
+    {
+      "timestamp": "2025-05-26T08:57:30.629293",
+      "portfolio_size": 500,
+      "n_simulations": 5000,
+      "optimization": "qmc_no_scramble",
+      "execution_time": 0.07633709907531738,
+      "memory_delta": 0.0,
+      "peak_memory": 289.265625,
+      "mean_estimate": 192604761.603036,
+      "var_estimate": 220512814.05466682
+    },
+    {
+      "timestamp": "2025-05-26T08:57:30.674823",
+      "portfolio_size": 1000,
+      "n_simulations": 1000,
+      "optimization": "baseline",
+      "execution_time": 0.03910470008850098,
+      "memory_delta": 0.0,
+      "peak_memory": 289.26953125,
+      "mean_estimate": 385772508.01336473,
+      "var_estimate": 425388815.4597833
+    },
+    {
+      "timestamp": "2025-05-26T08:57:30.710856",
+      "portfolio_size": 1000,
+      "n_simulations": 1000,
+      "optimization": "qmc",
+      "execution_time": 0.03603219985961914,
+      "memory_delta": 0.0,
+      "peak_memory": 289.26953125,
+      "mean_estimate": 383802655.0773257,
+      "var_estimate": 422700413.51982003
+    },
+    {
+      "timestamp": "2025-05-26T08:57:30.744824",
+      "portfolio_size": 1000,
+      "n_simulations": 1000,
+      "optimization": "qmc_no_scramble",
+      "execution_time": 0.033968448638916016,
+      "memory_delta": 0.0,
+      "peak_memory": 289.26953125,
+      "mean_estimate": 384915252.59204626,
+      "var_estimate": 425239991.38663477
+    },
+    {
+      "timestamp": "2025-05-26T08:57:30.887452",
+      "portfolio_size": 1000,
+      "n_simulations": 5000,
+      "optimization": "baseline",
+      "execution_time": 0.14262819290161133,
+      "memory_delta": 0.0,
+      "peak_memory": 289.26953125,
+      "mean_estimate": 385428535.9132256,
+      "var_estimate": 425478124.81432706
+    },
+    {
+      "timestamp": "2025-05-26T08:57:31.013245",
+      "portfolio_size": 1000,
+      "n_simulations": 5000,
+      "optimization": "qmc",
+      "execution_time": 0.1257929801940918,
+      "memory_delta": 0.0,
+      "peak_memory": 289.26953125,
+      "mean_estimate": 384899224.9931486,
+      "var_estimate": 426311281.4852846
+    },
+    {
+      "timestamp": "2025-05-26T08:57:31.147998",
+      "portfolio_size": 1000,
+      "n_simulations": 5000,
+      "optimization": "qmc_no_scramble",
+      "execution_time": 0.13273835182189941,
+      "memory_delta": 0.0,
+      "peak_memory": 289.26953125,
+      "mean_estimate": 385428783.8194444,
+      "var_estimate": 425555106.14170575
+    }
+  ]
+}

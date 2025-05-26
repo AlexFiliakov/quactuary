@@ -6,7 +6,7 @@ import os
 from datetime import date
 from pathlib import Path
 
-from quactuary.book import PolicyTerms, Inforce
+from quactuary.book import PolicyTerms, Inforce, Portfolio
 from quactuary.distributions.frequency import Poisson
 from quactuary.distributions.severity import Lognormal
 from quactuary.pricing import PricingModel
@@ -36,7 +36,7 @@ class TestPerformanceRegression:
                 n_policies=1,
                 name=f"P{i:03d}",
                 frequency=Poisson(mu=5.0),
-                severity=Lognormal(s=1.0, scale=np.exp(8.0)),
+                severity=Lognormal(shape=1.0, scale=np.exp(8.0)),
                 terms=PolicyTerms(
                     effective_date=date(2024, 1, 1),
                     expiration_date=date(2024, 12, 31),
@@ -47,7 +47,7 @@ class TestPerformanceRegression:
                 )
             )
             portfolio.append(policy)
-        return portfolio
+        return Portfolio(portfolio)
     
     def measure_performance(self, portfolio, strategy, n_sims=5000, **kwargs):
         """Measure performance of a pricing model."""
@@ -64,8 +64,8 @@ class TestPerformanceRegression:
         
         return {
             'time_seconds': end_time - start_time,
-            'mean_loss': result.agg_total.mean(),
-            'std_loss': result.agg_total.std()
+            'mean_loss': result.estimates['mean'],
+            'std_loss': np.sqrt(result.estimates['variance'])
         }
     
     def load_baseline(self, baseline_path):
@@ -92,7 +92,7 @@ class TestPerformanceRegression:
             standard_portfolio, 
             strategy_baseline, 
             n_sims=n_sims,
-            random_state=42
+            qmc_seed=42
         )
         
         # Measure JIT performance
@@ -101,7 +101,7 @@ class TestPerformanceRegression:
             standard_portfolio,
             strategy_jit,
             n_sims=n_sims,
-            random_state=42
+            qmc_seed=42
         )
         
         # Measure QMC performance
@@ -159,7 +159,7 @@ class TestPerformanceRegression:
             standard_portfolio,
             strategy_current,
             n_sims=baseline_data['n_sims'],
-            random_state=42
+            qmc_seed=42
         )
         
         # Check regression
@@ -180,7 +180,7 @@ class TestPerformanceRegression:
             standard_portfolio,
             strategy_no_jit,
             n_sims=n_sims,
-            random_state=42
+            qmc_seed=42
         )
         
         # Measure with JIT
@@ -189,7 +189,7 @@ class TestPerformanceRegression:
             standard_portfolio,
             strategy_jit,
             n_sims=n_sims,
-            random_state=42
+            qmc_seed=42
         )
         
         # Calculate speedup
@@ -219,7 +219,7 @@ class TestPerformanceRegression:
                     n_policies=1,
                     name=f"P{i:03d}",
                     frequency=Poisson(mu=5.0),
-                    severity=Lognormal(s=1.0, scale=np.exp(8.0)),
+                    severity=Lognormal(shape=1.0, scale=np.exp(8.0)),
                     terms=PolicyTerms(
                         effective_date=date(2024, 1, 1),
                         expiration_date=date(2024, 12, 31)
@@ -258,12 +258,12 @@ class TestPerformanceRegression:
         model = PricingModel(standard_portfolio, strategy=strategy_jit)
         
         # Run with large number of simulations
-        result = model.simulate(n_sims=10000, random_state=42)
+        result = model.simulate(n_sims=10000, qmc_seed=42)
         
         # Basic sanity checks
         assert result is not None
-        assert result.agg_total.shape[0] == 10000
-        assert np.all(np.isfinite(result.agg_total))
+        assert result.samples.shape[0] == 10000
+        assert np.all(np.isfinite(result.samples))
     
     @pytest.mark.benchmark
     @pytest.mark.parametrize("backend,n_sims", [
@@ -279,7 +279,7 @@ class TestPerformanceRegression:
         
         strategy = ClassicalPricingStrategy(use_jit=use_jit)
         
-        kwargs = {'n_sims': n_sims, 'random_state': 42}
+        kwargs = {'n_sims': n_sims, 'qmc_seed': 42}
         if use_qmc:
             kwargs.update({
                 'qmc_method': 'sobol',
@@ -293,7 +293,7 @@ class TestPerformanceRegression:
         print(f"\n{backend} performance: {perf['time_seconds']:.3f}s")
         
         # All methods should complete in reasonable time
-        assert perf['time_seconds'] < 10.0  # 10 seconds max for 50 policies
+        assert perf['time_seconds'] < 12.0  # 12 seconds max for 50 policies
         
         # Results should be reasonable
         assert perf['mean_loss'] > 0

@@ -54,8 +54,9 @@ class TestPricingStrategies(unittest.TestCase):
         self.assertEqual(model.strategy, custom_strategy)
     
     def test_classical_strategy_delegation(self):
-        """Test that ClassicalPricingStrategy delegates to ClassicalPricingModel."""
-        strategy = ClassicalPricingStrategy()
+        """Test that ClassicalPricingStrategy delegates correctly."""
+        # With JIT disabled, should use regular classical model
+        strategy = ClassicalPricingStrategy(use_jit=False)
         
         # Mock the classical model to avoid actual computation
         with patch('quactuary.classical.ClassicalPricingModel') as mock_class:
@@ -101,11 +102,15 @@ class TestPricingStrategies(unittest.TestCase):
     
     def test_classical_strategy_jit_optimization_flag(self):
         """Test that ClassicalPricingStrategy correctly handles use_jit flag."""
-        # Test with JIT disabled (default)
-        strategy_no_jit = ClassicalPricingStrategy()
+        # Test with JIT enabled (default)
+        strategy_default = ClassicalPricingStrategy()
+        self.assertTrue(strategy_default.use_jit)
+        
+        # Test with JIT disabled
+        strategy_no_jit = ClassicalPricingStrategy(use_jit=False)
         self.assertFalse(strategy_no_jit.use_jit)
         
-        # Test with JIT enabled
+        # Test with JIT explicitly enabled
         strategy_jit = ClassicalPricingStrategy(use_jit=True)
         self.assertTrue(strategy_jit.use_jit)
     
@@ -135,8 +140,17 @@ class TestPricingStrategies(unittest.TestCase):
             )
             
             # Verify JIT model was used
-            mock_jit_class.assert_called_once_with(self.portfolio)
-            mock_instance.calculate_portfolio_statistics.assert_called_once()
+            mock_jit_class.assert_called_once_with()
+            mock_instance.calculate_portfolio_statistics.assert_called_once_with(
+                portfolio=self.portfolio,
+                mean=True,
+                variance=True,
+                value_at_risk=True,
+                tail_value_at_risk=True,
+                tail_alpha=0.05,
+                n_sims=3,
+                use_jit=True
+            )
             self.assertEqual(result, expected_result)
     
     def test_classical_strategy_no_jit_delegation(self):
@@ -166,7 +180,7 @@ class TestPricingStrategies(unittest.TestCase):
                 )
                 
                 # Verify regular classical model was used, not JIT
-                mock_class.assert_called_once_with(self.portfolio)
+                mock_class.assert_called_once_with()
                 mock_jit_class.assert_not_called()
                 self.assertEqual(result, expected_result)
     

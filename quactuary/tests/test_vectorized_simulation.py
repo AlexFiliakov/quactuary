@@ -19,7 +19,7 @@ class TestVectorizedSimulator:
     def sample_distributions(self):
         """Create sample frequency and severity distributions."""
         freq_dist = Poisson(mu=5.0)
-        sev_dist = Lognormal(s=1.0, scale=np.exp(8.0))
+        sev_dist = Lognormal(shape=1.0, scale=np.exp(8.0))
         return freq_dist, sev_dist
     
     @pytest.fixture
@@ -206,7 +206,7 @@ class TestVectorizedSimulator:
     def test_zero_frequency_handling(self, sample_distributions, sample_policy_terms):
         """Test handling of zero frequency scenarios."""
         # Create distribution with very low lambda to get zeros
-        freq_dist = PoissonDistribution(lambda_=0.01)
+        freq_dist = Poisson(mu=0.01)
         _, sev_dist = sample_distributions
         
         retained, ceded, total = VectorizedSimulator.simulate_inforce_vectorized(
@@ -228,9 +228,9 @@ class TestVectorizedSimulator:
     
     def test_extreme_values(self, sample_policy_terms):
         """Test handling of extreme severity values."""
-        freq_dist = PoissonDistribution(lambda_=2.0)
+        freq_dist = Poisson(mu=2.0)
         # High severity distribution
-        sev_dist = LogNormalDistribution(mu=12.0, sigma=2.0)
+        sev_dist = Lognormal(shape=2.0, scale=np.exp(12.0))
         
         retained, ceded, total = VectorizedSimulator.simulate_inforce_vectorized(
             frequency_dist=freq_dist,

@@ -215,7 +215,7 @@ class TestParallelSimulatorExtended:
 class TestParallelPerformance:
     """Test performance aspects of parallel processing."""
     
-    def test_speedup_measurement(self, mock_cpu_count):
+    def test_speedup_measurement(self):
         """Test that parallel processing provides speedup."""
         # This is a conceptual test - actual speedup depends on hardware
         config_serial = ParallelConfig(n_workers=1)

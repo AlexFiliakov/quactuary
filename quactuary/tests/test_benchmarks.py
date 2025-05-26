@@ -20,38 +20,44 @@ class TestBenchmarkResult:
         """Test creating a BenchmarkResult instance."""
         result = BenchmarkResult(
             name="test_benchmark",
-            time_seconds=1.5,
-            memory_mb=100.5,
-            iterations=1000,
-            mean_loss=50000.0,
-            var_loss=10000.0,
-            tvar_loss=75000.0,
-            parameters={"n_simulations": 1000}
+            portfolio_size=100,
+            n_simulations=1000,
+            execution_time=1.5,
+            memory_used=100.5,
+            memory_peak=150.0,
+            samples_per_second=666.67,
+            metadata={"test": "data"}
         )
         
         assert result.name == "test_benchmark"
-        assert result.time_seconds == 1.5
-        assert result.memory_mb == 100.5
-        assert result.iterations == 1000
-        assert result.mean_loss == 50000.0
-        assert result.var_loss == 10000.0
-        assert result.tvar_loss == 75000.0
-        assert result.parameters == {"n_simulations": 1000}
+        assert result.portfolio_size == 100
+        assert result.n_simulations == 1000
+        assert result.execution_time == 1.5
+        assert result.memory_used == 100.5
+        assert result.memory_peak == 150.0
+        assert result.samples_per_second == 666.67
+        assert result.metadata == {"test": "data"}
     
     def test_benchmark_result_to_dict(self):
         """Test converting BenchmarkResult to dictionary."""
         result = BenchmarkResult(
             name="test",
-            time_seconds=1.0,
-            memory_mb=50.0,
-            iterations=100
+            portfolio_size=50,
+            n_simulations=100,
+            execution_time=1.0,
+            memory_used=50.0,
+            memory_peak=75.0,
+            samples_per_second=5000.0
         )
         
-        result_dict = asdict(result)
+        result_dict = result.to_dict()
         assert result_dict["name"] == "test"
-        assert result_dict["time_seconds"] == 1.0
-        assert result_dict["memory_mb"] == 50.0
-        assert result_dict["iterations"] == 100
+        assert result_dict["portfolio_size"] == 50
+        assert result_dict["n_simulations"] == 100
+        assert result_dict["execution_time"] == 1.0
+        assert result_dict["memory_used"] == 50.0
+        assert result_dict["memory_peak"] == 75.0
+        assert result_dict["samples_per_second"] == 5000.0
 
 
 class TestPerformanceBenchmark:
@@ -64,6 +70,9 @@ class TestPerformanceBenchmark:
             mock_process = Mock()
             mock_process.memory_info.return_value = Mock(rss=100 * 1024 * 1024)  # 100 MB
             mock.Process.return_value = mock_process
+            # Mock system info functions to return actual values
+            mock.cpu_count.return_value = 4
+            mock.virtual_memory.return_value = Mock(total=8 * 1024**3)  # 8 GB
             yield mock
     
     @pytest.fixture
@@ -74,189 +83,287 @@ class TestPerformanceBenchmark:
     def test_initialization(self, benchmark):
         """Test PerformanceBenchmark initialization."""
         assert benchmark.results == []
-        assert benchmark.suite_name is not None
-        assert hasattr(benchmark, 'process')
+        assert benchmark.output_dir == "./benchmark_results"
+        assert os.path.exists(benchmark.output_dir)
     
     def test_measure_performance_context_manager(self, benchmark, mock_psutil):
         """Test the measure_performance context manager."""
-        with benchmark.measure_performance("test_operation") as perf:
+        with benchmark.measure_performance("test_operation") as track_mem:
             # Simulate some work
             import time
             time.sleep(0.01)
-            perf["iterations"] = 100
-            perf["mean_loss"] = 50000.0
+            # Call the tracking function
+            track_mem()
         
-        # Check that result was recorded
-        assert len(benchmark.results) == 1
-        result = benchmark.results[0]
-        assert result.name == "test_operation"
-        assert result.time_seconds > 0
-        assert result.memory_mb > 0
-        assert result.iterations == 100
-        assert result.mean_loss == 50000.0
+        # Check that measurement was recorded
+        assert hasattr(benchmark, 'last_measurement')
+        assert benchmark.last_measurement['name'] == "test_operation"
+        assert benchmark.last_measurement['execution_time'] > 0
+        assert 'memory_used' in benchmark.last_measurement
+        assert 'memory_peak' in benchmark.last_measurement
     
-    def test_create_test_portfolio(self, benchmark):
+    def test_create_test_portfolios(self, benchmark):
         """Test portfolio creation for benchmarking."""
-        portfolio = benchmark._create_test_portfolio(size=10)
+        portfolios = benchmark.create_test_portfolios()
         
-        assert len(portfolio) == 10
-        # Check that portfolios have required attributes
-        for policy in portfolio:
-            assert hasattr(policy, 'policy_id')
-            assert hasattr(policy, 'frequency_dist')
-            assert hasattr(policy, 'severity_dist')
-            assert hasattr(policy, 'policy_terms')
+        assert 'small' in portfolios
+        assert 'medium' in portfolios
+        assert 'large' in portfolios
+        assert 'xlarge' in portfolios
+        
+        # Check small portfolio
+        small_portfolio = portfolios['small']
+        total_policies = sum(bucket.n_policies for bucket in small_portfolio)
+        assert total_policies == 10
+        
+        # Check medium portfolio
+        medium_portfolio = portfolios['medium']
+        total_policies = sum(bucket.n_policies for bucket in medium_portfolio)
+        assert total_policies == 100
+        
+        # Check large portfolio
+        large_portfolio = portfolios['large']
+        total_policies = sum(bucket.n_policies for bucket in large_portfolio)
+        assert total_policies == 1000
+        
+        # Check xlarge portfolio
+        xlarge_portfolio = portfolios['xlarge']
+        total_policies = sum(bucket.n_policies for bucket in xlarge_portfolio)
+        assert total_policies == 10000
     
-    @patch('quactuary.benchmarks.simulate_portfolio')
-    def test_run_baseline_benchmark(self, mock_simulate, benchmark):
+    @patch('quactuary.benchmarks.PricingModel')
+    def test_run_baseline_benchmark(self, mock_pricing_model, benchmark):
         """Test running baseline benchmark."""
-        # Mock simulation results
-        mock_results = Mock()
-        mock_results.mean.return_value = 50000.0
-        mock_results.var.return_value = 10000.0
-        mock_results.percentile.return_value = 75000.0
-        mock_simulate.return_value = (mock_results, Mock())
+        # Mock pricing model and simulation results
+        mock_model_instance = Mock()
+        mock_pricing_model.return_value = mock_model_instance
+        
+        mock_result = Mock()
+        mock_result.estimates = {
+            'mean': 50000.0,
+            'VaR': 75000.0,
+            'TVaR': 80000.0
+        }
+        mock_model_instance.simulate.return_value = mock_result
+        
+        # Create test portfolio
+        portfolios = benchmark.create_test_portfolios()
+        small_portfolio = portfolios['small']
         
         # Run benchmark
-        benchmark.run_baseline_benchmark(portfolio_size=10, n_simulations=1000)
+        result = benchmark.benchmark_baseline(small_portfolio, n_sims=1000, name="test")
         
         # Verify results
-        assert len(benchmark.results) == 1
-        result = benchmark.results[0]
-        assert result.name == "baseline_classical"
-        assert result.mean_loss == 50000.0
-        assert result.var_loss == 75000.0  # VaR at 95%
-        assert result.tvar_loss == 75000.0  # TVaR at 95%
-        assert result.parameters["portfolio_size"] == 10
-        assert result.parameters["n_simulations"] == 1000
+        assert result.name == "baseline_test"
+        assert result.portfolio_size == 10
+        assert result.n_simulations == 1000
+        assert result.metadata['mean'] == 50000.0
+        assert result.metadata['var_95'] == 75000.0
+        assert result.metadata['tvar_95'] == 80000.0
     
-    @patch('quactuary.benchmarks.simulate_portfolio')
-    def test_run_jit_benchmark(self, mock_simulate, benchmark):
+    @patch('quactuary.benchmarks.PricingModel')
+    def test_run_jit_benchmark(self, mock_pricing_model, benchmark):
         """Test running JIT benchmark."""
-        # Mock simulation results
-        mock_results = Mock()
-        mock_results.mean.return_value = 50000.0
-        mock_results.var.return_value = 10000.0
-        mock_results.percentile.return_value = 75000.0
-        mock_simulate.return_value = (mock_results, Mock())
+        # Mock pricing model and simulation results
+        mock_model_instance = Mock()
+        mock_pricing_model.return_value = mock_model_instance
+        
+        mock_result = Mock()
+        mock_result.estimates = {
+            'mean': 50000.0,
+            'VaR': 75000.0,
+            'TVaR': 80000.0
+        }
+        mock_model_instance.simulate.return_value = mock_result
+        
+        # Create test portfolio
+        portfolios = benchmark.create_test_portfolios()
+        small_portfolio = portfolios['small']
         
         # Run benchmark
-        benchmark.run_jit_benchmark(portfolio_size=10, n_simulations=1000)
+        result = benchmark.benchmark_jit(small_portfolio, n_sims=1000, name="test")
         
         # Verify results
-        assert len(benchmark.results) == 1
-        result = benchmark.results[0]
-        assert result.name == "jit_optimized"
-        assert result.parameters["use_jit"] is True
+        assert result.name == "jit_test"
+        assert result.portfolio_size == 10
+        assert result.n_simulations == 1000
+        assert result.metadata['jit_enabled'] is True
     
-    @patch('quactuary.benchmarks.simulate_portfolio')
-    def test_run_qmc_benchmark(self, mock_simulate, benchmark):
+    @patch('quactuary.benchmarks.PricingModel')
+    def test_run_qmc_benchmark(self, mock_pricing_model, benchmark):
         """Test running QMC benchmark."""
-        # Mock simulation results
-        mock_results = Mock()
-        mock_results.mean.return_value = 50000.0
-        mock_results.var.return_value = 10000.0
-        mock_results.percentile.return_value = 75000.0
-        mock_simulate.return_value = (mock_results, Mock())
+        # Mock pricing model and simulation results
+        mock_model_instance = Mock()
+        mock_pricing_model.return_value = mock_model_instance
+        
+        mock_result = Mock()
+        mock_result.estimates = {
+            'mean': 50000.0,
+            'VaR': 75000.0,
+            'TVaR': 80000.0
+        }
+        mock_model_instance.simulate.return_value = mock_result
+        
+        # Create test portfolio
+        portfolios = benchmark.create_test_portfolios()
+        small_portfolio = portfolios['small']
         
         # Run benchmark
-        benchmark.run_qmc_benchmark(portfolio_size=10, n_simulations=1000)
+        result = benchmark.benchmark_qmc(small_portfolio, n_sims=1000, name="test")
         
         # Verify results
-        assert len(benchmark.results) == 1
-        result = benchmark.results[0]
-        assert result.name == "qmc_sobol"
-        assert result.parameters["use_qmc"] is True
+        assert result.name == "qmc_test"
+        assert result.portfolio_size == 10
+        assert result.n_simulations == 1000
+        assert result.metadata['qmc_method'] == 'sobol'
     
     def test_save_results(self, benchmark):
         """Test saving benchmark results."""
         # Add a test result
         benchmark.results.append(BenchmarkResult(
             name="test",
-            time_seconds=1.0,
-            memory_mb=50.0,
-            iterations=100
+            portfolio_size=100,
+            n_simulations=1000,
+            execution_time=1.0,
+            memory_used=50.0,
+            memory_peak=75.0,
+            samples_per_second=100000.0
         ))
         
         # Save to temporary file
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
-            temp_filename = f.name
-        
-        try:
-            benchmark.save_results(temp_filename)
+        with tempfile.TemporaryDirectory() as temp_dir:
+            benchmark.output_dir = temp_dir
+            benchmark.save_results()
+            
+            # Check that file was created
+            files = os.listdir(temp_dir)
+            assert len(files) == 1
+            assert files[0].startswith("benchmark_results_")
+            assert files[0].endswith(".json")
             
             # Load and verify
-            with open(temp_filename, 'r') as f:
+            with open(os.path.join(temp_dir, files[0]), 'r') as f:
                 data = json.load(f)
             
-            assert data["suite_name"] == benchmark.suite_name
+            assert 'timestamp' in data
+            assert 'system_info' in data
             assert len(data["results"]) == 1
             assert data["results"][0]["name"] == "test"
-        finally:
-            os.unlink(temp_filename)
     
     def test_generate_report(self, benchmark):
         """Test report generation."""
         # Add multiple results
         benchmark.results.extend([
             BenchmarkResult(
-                name="baseline",
-                time_seconds=2.0,
-                memory_mb=100.0,
-                iterations=1000,
-                mean_loss=50000.0
+                name="baseline_test_1000",
+                portfolio_size=100,
+                n_simulations=1000,
+                execution_time=2.0,
+                memory_used=100.0,
+                memory_peak=150.0,
+                samples_per_second=50000.0,
+                metadata={'mean': 50000.0}
             ),
             BenchmarkResult(
-                name="optimized",
-                time_seconds=1.0,
-                memory_mb=80.0,
-                iterations=1000,
-                mean_loss=50000.0
+                name="jit_test_1000",
+                portfolio_size=100,
+                n_simulations=1000,
+                execution_time=1.0,
+                memory_used=80.0,
+                memory_peak=120.0,
+                samples_per_second=100000.0,
+                metadata={'mean': 50000.0, 'jit_enabled': True}
             )
         ])
         
-        report = benchmark.generate_report()
+        # Capture printed output
+        import io
+        import sys
+        captured_output = io.StringIO()
+        sys.stdout = captured_output
         
-        assert "Performance Benchmark Report" in report
+        try:
+            benchmark.generate_report()
+            report = captured_output.getvalue()
+        finally:
+            sys.stdout = sys.__stdout__
+        
+        assert "BENCHMARK SUMMARY" in report
         assert "baseline" in report
-        assert "optimized" in report
-        assert "2.00s" in report  # baseline time
-        assert "1.00s" in report  # optimized time
-        assert "Speedup: 2.00x" in report
+        assert "jit" in report
+        assert "Performance Summary" in report
     
     def test_empty_report(self, benchmark):
         """Test report generation with no results."""
-        report = benchmark.generate_report()
-        assert "No benchmark results to report" in report
+        # Capture printed output
+        import io
+        import sys
+        captured_output = io.StringIO()
+        sys.stdout = captured_output
+        
+        try:
+            benchmark.generate_report()
+            report = captured_output.getvalue()
+        finally:
+            sys.stdout = sys.__stdout__
+        
+        assert "No results to report" in report
 
 
 class TestRunBaselineProfiling:
     """Test the run_baseline_profiling function."""
     
-    @patch('quactuary.benchmarks.PerformanceBenchmark')
-    def test_run_baseline_profiling(self, mock_benchmark_class):
+    @patch('quactuary.benchmarks.PricingModel')
+    def test_run_baseline_profiling(self, mock_pricing_model):
         """Test running baseline profiling."""
-        mock_instance = Mock()
-        mock_benchmark_class.return_value = mock_instance
+        # Mock pricing model
+        mock_model_instance = Mock()
+        mock_pricing_model.return_value = mock_model_instance
+        mock_model_instance.simulate.return_value = Mock()
         
-        # Call function
-        run_baseline_profiling(portfolio_size=10, n_simulations=100)
-        
-        # Verify benchmark methods were called
-        mock_instance.run_baseline_benchmark.assert_called_once_with(10, 100)
-        mock_instance.run_jit_benchmark.assert_called_once_with(10, 100)
-        mock_instance.run_qmc_benchmark.assert_called_once_with(10, 100)
-        mock_instance.generate_report.assert_called_once()
+        # Mock cProfile and pstats at the import location
+        with patch('cProfile.Profile') as mock_profile:
+            with patch('pstats.Stats') as mock_stats:
+                # Mock profiler
+                mock_profiler = Mock()
+                mock_profile.return_value = mock_profiler
+                
+                # Mock stats
+                mock_stats_instance = Mock()
+                mock_stats.return_value = mock_stats_instance
+                
+                # Call function
+                stats = run_baseline_profiling()
+                
+                # Verify profiler was used
+                mock_profiler.enable.assert_called_once()
+                mock_profiler.disable.assert_called_once()
+                
+                # Verify stats were generated
+                assert stats == mock_stats_instance
+                mock_stats_instance.sort_stats.assert_called_once_with('cumulative')
+                mock_stats_instance.print_stats.assert_called_once_with(20)
     
-    @patch('quactuary.benchmarks.PerformanceBenchmark')
-    @patch('builtins.print')
-    def test_profiling_output(self, mock_print, mock_benchmark_class):
-        """Test that profiling prints output."""
-        mock_instance = Mock()
-        mock_instance.generate_report.return_value = "Test Report"
-        mock_benchmark_class.return_value = mock_instance
+    @patch('quactuary.benchmarks.PricingModel')
+    def test_profiling_output(self, mock_pricing_model):
+        """Test that profiling returns stats."""
+        # Mock pricing model
+        mock_model_instance = Mock()
+        mock_pricing_model.return_value = mock_model_instance
+        mock_model_instance.simulate.return_value = Mock()
         
-        run_baseline_profiling()
-        
-        # Verify print was called with report
-        mock_print.assert_called_with("Test Report")
+        # Mock cProfile and pstats at the import location
+        with patch('cProfile.Profile') as mock_profile:
+            with patch('pstats.Stats') as mock_stats:
+                # Mock profiler
+                mock_profiler = Mock()
+                mock_profile.return_value = mock_profiler
+                
+                # Mock stats
+                mock_stats_instance = Mock()
+                mock_stats.return_value = mock_stats_instance
+                
+                result = run_baseline_profiling()
+                
+                # Verify result is the stats instance
+                assert result == mock_stats_instance

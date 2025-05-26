@@ -206,9 +206,9 @@ class TestQMCWrappers:
             freq = Poisson(mu=3.0)
             wrapped = QMCFrequencyWrapper(freq)
             
-            # Test attributes are delegated
-            assert wrapped.mu == 3.0
+            # Test methods are delegated
             assert wrapped.pmf(2) == freq.pmf(2)
+            assert wrapped.cdf(2) == freq.cdf(2)
             
             # Test sampling
             samples = wrapped.rvs(size=100)
@@ -227,8 +227,9 @@ class TestQMCWrappers:
             sev = Exponential(scale=1000.0)
             wrapped = QMCSeverityWrapper(sev)
             
-            # Test attributes are delegated
-            assert wrapped.scale == 1000.0
+            # Test methods are delegated
+            assert wrapped.pdf(500.0) == sev.pdf(500.0)
+            assert wrapped.cdf(500.0) == sev.cdf(500.0)
             
             # Test sampling
             samples = wrapped.rvs(size=100)
@@ -245,7 +246,7 @@ class TestQMCWrappers:
     def test_wrap_for_qmc(self):
         """Test automatic wrapping function."""
         freq = Poisson(mu=2.0)
-        sev = Pareto(a=2.5, scale=1000.0)
+        sev = Pareto(b=2.5, scale=1000.0)
         
         wrapped_freq = wrap_for_qmc(freq)
         wrapped_sev = wrap_for_qmc(sev)

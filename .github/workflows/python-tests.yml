@@ -34,6 +34,11 @@ jobs:
         run: |
           pytest --cov=quactuary --cov-report=xml --cov-report=term
 
+      - name: Test MCP Server
+        run: |
+          pytest tests/test_mcp/
+          mcp dev mcp/server.py --test-only
+
       - name: Convert coverage XML to JSON badge
         run: |
           python ./scripts/coverage_to_json.py coverage.xml > coverage.json

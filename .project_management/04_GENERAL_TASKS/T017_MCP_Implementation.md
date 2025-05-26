@@ -61,10 +61,10 @@ MCP will allow Claude Code to:
 - [x] **S2.1**: Design tool categorization schema (pricing, distributions, portfolio, utilities)
 - [x] **S2.2**: Define standard input/output formats and error handling patterns
 - [x] **S2.3**: Create base classes for tool registration and execution
-- [ ] **S2.4**: Implement configuration management system
+- [x] **S2.4**: Implement configuration management system
 
 ### Subtask 3: Pricing and Risk Tools Implementation
-- [ ] **S3.1**: Implement `price_portfolio` tool for portfolio pricing
+- [x] **S3.1**: Implement `price_portfolio` tool for portfolio pricing
 - [ ] **S3.2**: Implement `calculate_var` and `calculate_tvar` risk measure tools
 - [ ] **S3.3**: Implement `run_simulation` tool for Monte Carlo/QMC simulations
 - [ ] **S3.4**: Implement `compare_backends` tool for classical vs quantum comparison
@@ -104,7 +104,7 @@ MCP will allow Claude Code to:
 - [ ] **S6.5**: Create resource discovery and metadata system
 
 ### Subtask 7: Prompts and Context Management
-- [ ] **S7.1**: Design context prompts for actuarial domain knowledge
+- [x] **S7.1**: Design context prompts for actuarial domain knowledge
 - [ ] **S7.2**: Implement calculation guidance prompts
 - [ ] **S7.3**: Create error handling and troubleshooting prompts
 - [ ] **S7.4**: Implement best practices and optimization prompts
@@ -170,3 +170,8 @@ MCP will allow Claude Code to:
 [2025-05-26 15:22] S1.4 completed - Created test infrastructure with __init__.py, conftest.py, test_tools.py, and updated README
 [2025-05-26 15:23] S2.1 completed - Created categories.py with ToolCategory enum, metadata, and planned tools listing
 [2025-05-26 15:24] S2.2 completed - Created formats.py with MCPToolInput/Output classes, error handling, and standard formats
+[2025-05-26 15:26] S2.3 completed - Created base.py with MCPTool base class, ToolRegistry, SimpleTool, and decorator factory
+[2025-05-26 15:27] S2.4 completed - Enhanced config.py with ConfigManager class, tool limits, performance settings
+[2025-05-26 15:29] S3.1 completed - Implemented pricing_simulate_portfolio tool with full error handling and validation
+[2025-05-26 15:31] Implemented prompts.py with 3 actuarial guides and resources.py with schemas and examples
+[2025-05-26 15:31] Core MCP infrastructure complete - server should now start and accept connections

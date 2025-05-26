@@ -22,6 +22,17 @@ setup(
             "sphinx-rtd-theme",
             "sphinx-sitemap",
             "sphinxcontrib-napoleon"
+        ],
+        "mcp": [
+            "mcp>=0.9.0"
         ]
+    },
+    entry_points={
+        "console_scripts": [
+            "quactuary-mcp=quactuary.mcp.server:main",
+        ],
+        "mcp_servers": [
+            "quactuary=quactuary.mcp.server:mcp",
+        ],
     },
 )

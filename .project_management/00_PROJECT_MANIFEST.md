@@ -4,8 +4,8 @@ current_milestone_id: M01
 highest_sprint_in_milestone: S01
 current_sprint_id: S01
 status: active
-last_general_task_id: T016
-last_updated: 2025-05-26 12:30
+last_general_task_id: T017
+last_updated: 2025-05-26 13:56
 ---
 
 # Project Manifest: quActuary
@@ -38,7 +38,7 @@ This project follows a milestone-based development approach.
   - Core Tasks: All completed
   - Added Critical: All completed
   - Added Enhancement: TX06_S01_Extended_Distributions (✓)
-  - Remaining Tasks: T17_S01_Performance_Benchmarks_Notebook, T18_S01_Consolidate_Compound_Distributions, T19_S01_Merge_JIT_Implementations, T20_S01_Consolidate_Test_Files, T21_S01_Fix_JIT_Test_Failure
+  - Remaining Tasks: TX17_S01_Performance_Benchmarks_Notebook (✓), T18_S01_Consolidate_Compound_Distributions, T19_S01_Merge_JIT_Implementations, T20_S01_Consolidate_Test_Files, TX21_S01_Fix_JIT_Test_Failure (✓)
 
 ## 4. Planned Milestones Roadmap
 
@@ -93,10 +93,11 @@ This project follows a milestone-based development approach.
   - TX007_Fix_Utility_Performance_Tests - Cleanup: Fix remaining utility and performance tests (✓)
   - T008_Optimization_Documentation_Extended - Extended optimization documentation tasks
   - TX011_Fix_Integration_Tests - Fixed integration test failures, reduced from 50+ to 8 (✓)
-  - T013_Integration_Test_Cleanup_Followup - Follow-up task for remaining 8 integration test failures
-  - T014_API_Documentation_Update - Document API changes and best practices discovered in T011
-  - T015_Test_Architecture_Review - Review and refactor test architecture for reliability
-  - T016_Performance_Baseline_Establishment - Create adaptive performance testing infrastructure
+  - TX013_Integration_Test_Cleanup_Followup - Follow-up task for remaining 8 integration test failures (✓)
+  - TX014_API_Documentation_Update - Document API changes and best practices discovered in T011 (✓)
+  - TX015_Test_Architecture_Review - Comprehensive test architecture review and refactoring (✓)
+  - TX016_Performance_Baseline_Establishment - Create adaptive performance testing infrastructure (✓)
+  - T017_MCP_Implementation - Implement Model-Context-Protocol server for Claude Code integration
 
 ## 6. Quick Links
 

@@ -5,7 +5,7 @@ highest_sprint_in_milestone: S01
 current_sprint_id: S01
 status: active
 last_general_task_id: T007
-last_updated: 2025-05-25 23:53
+last_updated: 2025-05-26 00:57
 ---
 
 # Project Manifest: quActuary
@@ -85,7 +85,7 @@ This project follows a milestone-based development approach.
 - [Next Milestone Requirements](./02_REQUIREMENTS/S01_M02_Quantum_Implementation/)
 - [General Tasks](./04_GENERAL_TASKS/)
   - T001_QMC_Enhancement_Testing - Follow-up testing and optimization for Sobol implementation
-  - T002_RunDev_Enhancements - Optional enhancements for run_dev.py script
+  - TX002_RunDev_Enhancements - Optional enhancements for run_dev.py script (✓)
   - TX003_Fix_Parameter_Boundaries_Test - Quick win: Fix single test failure (✓)
   - TX004_Fix_Benchmark_Infrastructure - Infrastructure: Fix 13 benchmark test failures (✓)
   - TX005_Fix_Compound_Distribution_Failures - Core: Fix 47+ compound distribution test failures (✓)

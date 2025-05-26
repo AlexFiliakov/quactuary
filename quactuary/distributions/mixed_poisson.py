@@ -102,6 +102,16 @@ class PoissonGammaMixture(MixedPoissonDistribution):
     def conditional_var(self, n: int) -> float:
         """Var[λ|N=n] for posterior inference."""
         return (self.alpha + n) / (self.beta + 1)**2
+    
+    def pmf(self, k: Union[int, np.ndarray]) -> Union[float, np.ndarray]:
+        """Probability mass function."""
+        return self._dist.pmf(k)
+    
+    def rvs(self, size: int = 1, random_state: Optional[int] = None) -> Union[int, np.ndarray]:
+        """Generate random variates."""
+        if random_state is not None:
+            np.random.seed(random_state)
+        return self._dist.rvs(size=size)
 
 
 class PoissonInverseGaussianMixture(MixedPoissonDistribution):
@@ -297,6 +307,33 @@ class HierarchicalPoissonMixture(MixedPoissonDistribution):
         
         return results
     
+    def pmf(self, k: Union[int, np.ndarray]) -> Union[float, np.ndarray]:
+        """
+        Probability mass function using Monte Carlo approximation.
+        
+        For hierarchical models, exact PMF is intractable, so we use
+        Monte Carlo integration.
+        """
+        k = np.atleast_1d(k).astype(int)
+        result = np.zeros_like(k, dtype=float)
+        
+        # Monte Carlo samples for approximation
+        n_samples = 10000
+        np.random.seed(42)  # For reproducibility
+        
+        # Simulate portfolio counts
+        sim = self.simulate_portfolio(size=n_samples)
+        total_counts = sim['total']
+        
+        # Estimate PMF from empirical distribution
+        for i, ki in enumerate(k):
+            if ki < 0:
+                result[i] = 0.0
+            else:
+                result[i] = np.mean(total_counts == ki)
+        
+        return result[0] if np.isscalar(k) else result
+    
     def rvs(self, size: int = 1, random_state: Optional[int] = None) -> Union[int, np.ndarray]:
         """Generate random variates (total counts only)."""
         sim = self.simulate_portfolio(size, random_state)
@@ -395,6 +432,30 @@ class TimeVaryingPoissonMixture(MixedPoissonDistribution):
         conditional_vars = integrated  # For Poisson
         
         return np.mean(conditional_vars) + np.var(conditional_means)
+    
+    def pmf(self, k: Union[int, np.ndarray]) -> Union[float, np.ndarray]:
+        """
+        Probability mass function using Monte Carlo integration.
+        
+        For time-varying intensity, we integrate over the parameter distribution.
+        """
+        k = np.atleast_1d(k).astype(int)
+        result = np.zeros_like(k, dtype=float)
+        
+        # Monte Carlo integration
+        n_samples = 5000
+        param_samples = self._param_dist.rvs(size=n_samples)
+        lambdas = self.integrated_intensity(param_samples)
+        
+        for i, ki in enumerate(k):
+            if ki < 0:
+                result[i] = 0.0
+            else:
+                # Average Poisson PMF over parameter distribution
+                pmf_values = stats.poisson.pmf(ki, lambdas)
+                result[i] = np.mean(pmf_values)
+        
+        return result[0] if np.isscalar(k) else result
     
     def rvs(self, size: int = 1, random_state: Optional[int] = None) -> Union[int, np.ndarray]:
         """Generate random variates."""

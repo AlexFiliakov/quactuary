@@ -64,7 +64,7 @@ Implement classical insurance simulations of standard policy features and optimi
 ### Performance Optimization Follow-Up Tasks (Extracted from T04)
 - [T12_S01_Parallel_Processing_Stability](./TX12_S01_Parallel_Processing_Stability.md) ✅ COMPLETE
 - [T13_S01_Performance_Testing_Suite](./TX13_S01_Performance_Testing_Suite.md) ✅ COMPLETE
-- [T14_S01_Integration_Testing](./T14_S01_Integration_Testing.md) (NEW - High Priority)
+- [T14_S01_Integration_Testing](./TX14_S01_Integration_Testing.md) ✅ COMPLETE
 - [T15_S01_Optimization_Documentation](./TX15_S01_Optimization_Documentation.md) ✅ COMPLETE
 
 ### Additional Testing Task (From Mathematical Reference Review)
@@ -81,7 +81,7 @@ Implement classical insurance simulations of standard policy features and optimi
 
 ## Sprint Progress Summary
 
-### Completed Tasks (16/22 - 73%)
+### Completed Tasks (17/22 - 77%)
 ✅ Core functionality implemented:
 - Policy logic with all retention and limit features
 - Compound distribution analytical solutions (Poisson-Exponential, Tweedie, etc.)
@@ -96,10 +96,10 @@ Implement classical insurance simulations of standard policy features and optimi
 - Performance testing suite with comprehensive coverage
 - Optimization documentation completed
 - Code cleanup partially completed (40%, subtasks extracted)
+- Integration testing framework completed with subtask extraction
 
-### Remaining Tasks (6/22 - 27%)
+### Remaining Tasks (5/22 - 23%)
 ⏳ Quality assurance and cleanup:
-- T14: Integration testing (High priority)
 - T17: Performance benchmarks notebook (Medium priority)
 - T18: Consolidate compound distributions (Medium priority)
 - T19: Merge JIT implementations (Medium priority)

@@ -4,8 +4,8 @@ current_milestone_id: M01
 highest_sprint_in_milestone: S01
 current_sprint_id: S01
 status: active
-last_general_task_id: T008
-last_updated: 2025-05-26 11:04
+last_general_task_id: T016
+last_updated: 2025-05-26 12:30
 ---
 
 # Project Manifest: quActuary
@@ -33,12 +33,12 @@ This project follows a milestone-based development approach.
 
 - [S01_M01_Classical_Optimization](./03_SPRINTS/S01_M01_Classical_Optimization/) - **Active**
   - Goal: Implement policy logic and optimize classical simulation
-  - Completed Tasks: TX01_S01_Policy_Logic (✓), TX02_S01_Compound_Distributions (✓), TX03_S01_Sobol_Sequences (✓), TX04_S01_Optimize_Classical_Simulation (✓), TX05_S01_Numerical_Stability (✓), TX06_S01_Extended_Distributions (✓), TX07_S01_Simplify_PricingModel (✓), TX08_S01_Simplify_Compounds (✓), TX09_S01_RunDev (✓), TX10_S01_Prune_Test_Suite (✓), TX11_S01_Code_Cleanup_and_Simplification (✓ Partial), TX12_S01_Parallel_Processing_Stability (✓), TX13_S01_Performance_Testing_Suite (✓), TX15_S01_Optimization_Documentation (✓), TX16_S01_Extended_Distribution_Testing (✓)
+  - Completed Tasks: TX01_S01_Policy_Logic (✓), TX02_S01_Compound_Distributions (✓), TX03_S01_Sobol_Sequences (✓), TX04_S01_Optimize_Classical_Simulation (✓), TX05_S01_Numerical_Stability (✓), TX06_S01_Extended_Distributions (✓), TX07_S01_Simplify_PricingModel (✓), TX08_S01_Simplify_Compounds (✓), TX09_S01_RunDev (✓), TX10_S01_Prune_Test_Suite (✓), TX11_S01_Code_Cleanup_and_Simplification (✓ Partial), TX12_S01_Parallel_Processing_Stability (✓), TX13_S01_Performance_Testing_Suite (✓), TX14_S01_Integration_Testing (✓), TX15_S01_Optimization_Documentation (✓), TX16_S01_Extended_Distribution_Testing (✓)
   - In Progress: None
   - Core Tasks: All completed
   - Added Critical: All completed
   - Added Enhancement: TX06_S01_Extended_Distributions (✓)
-  - Remaining Tasks: T14_S01_Integration_Testing, T17_S01_Performance_Benchmarks_Notebook, T18_S01_Consolidate_Compound_Distributions, T19_S01_Merge_JIT_Implementations, T20_S01_Consolidate_Test_Files, T21_S01_Fix_JIT_Test_Failure
+  - Remaining Tasks: T17_S01_Performance_Benchmarks_Notebook, T18_S01_Consolidate_Compound_Distributions, T19_S01_Merge_JIT_Implementations, T20_S01_Consolidate_Test_Files, T21_S01_Fix_JIT_Test_Failure
 
 ## 4. Planned Milestones Roadmap
 
@@ -92,6 +92,11 @@ This project follows a milestone-based development approach.
   - TX006_Automatic_Optimization_Selection - Intelligent automatic optimization selection (✓)
   - TX007_Fix_Utility_Performance_Tests - Cleanup: Fix remaining utility and performance tests (✓)
   - T008_Optimization_Documentation_Extended - Extended optimization documentation tasks
+  - TX011_Fix_Integration_Tests - Fixed integration test failures, reduced from 50+ to 8 (✓)
+  - T013_Integration_Test_Cleanup_Followup - Follow-up task for remaining 8 integration test failures
+  - T014_API_Documentation_Update - Document API changes and best practices discovered in T011
+  - T015_Test_Architecture_Review - Review and refactor test architecture for reliability
+  - T016_Performance_Baseline_Establishment - Create adaptive performance testing infrastructure
 
 ## 6. Quick Links
 

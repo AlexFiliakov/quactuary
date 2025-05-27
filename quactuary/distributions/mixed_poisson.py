@@ -283,7 +283,7 @@ class PoissonInverseGaussianMixture(MixedPoissonDistribution):
                 result[i] = 0.0
             else:
                 # Sum PMF up to k
-                result[i] = sum(self.pmf(j) for j in range(ki + 1))
+                result[i] = sum(self.pmf(j) for j in range(int(ki) + 1))
         
         return result[0] if np.isscalar(k) else result
     

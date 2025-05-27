@@ -233,7 +233,7 @@ class TestEdgeworthExpansion:
         assert np.sum(pdf_vals < 0) < 5  # Allow few negative values
         
         # Should integrate to approximately 1
-        integral = np.trapz(pdf_vals, x)
+        integral = np.trapezoid(pdf_vals, x)
         assert 0.95 < integral < 1.05
     
     def test_edgeworth_validation(self):

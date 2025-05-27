@@ -542,7 +542,7 @@ class TestNumericalStability:
         x_grid = np.linspace(0.1, x_test, 1000)
         
         # Numerical integration
-        pdf_integral = np.trapz(compound.pdf(x_grid), x_grid)
+        pdf_integral = np.trapezoid(compound.pdf(x_grid), x_grid)
         p0 = compound.pdf(0)
         
         # Should match CDF

@@ -59,7 +59,7 @@ class TestBinomialExponentialCompound:
             # Numerical integration of PDF should approximate CDF
             # Start integration from small positive value to exclude discrete mass at 0
             x_grid = np.linspace(0.001, x, 1000)
-            pdf_integral = np.trapz(compound.pdf(x_grid), x_grid)
+            pdf_integral = np.trapezoid(compound.pdf(x_grid), x_grid)
             p0 = compound.pdf(0)
             
             assert np.isclose(compound.cdf(x), p0 + pdf_integral, rtol=1e-2)
@@ -219,7 +219,7 @@ class TestBinomialLognormalCompound:
         
         # Integrate continuous part
         pdf_vals = compound.pdf(x_grid[1:])
-        integral = np.trapz(pdf_vals, x_grid[1:])
+        integral = np.trapezoid(pdf_vals, x_grid[1:])
         
         total = p0 + integral
         assert np.isclose(total, 1.0, rtol=1e-2)

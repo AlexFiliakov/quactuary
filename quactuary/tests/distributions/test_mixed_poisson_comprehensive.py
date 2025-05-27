@@ -81,12 +81,12 @@ class TestPoissonGammaMixture:
         # Test mixing density integrates to 1
         lambda_values = np.linspace(0, 20, 1000)
         densities = pg_mixture.mixing_density(lambda_values)
-        integral = np.trapz(densities, lambda_values)
+        integral = np.trapezoid(densities, lambda_values)
         
         assert np.isclose(integral, 1.0, rtol=1e-3)
         
         # Test mean of mixing distribution
-        mean_lambda = np.trapz(lambda_values * densities, lambda_values)
+        mean_lambda = np.trapezoid(lambda_values * densities, lambda_values)
         expected_mean = alpha / beta
         
         assert np.isclose(mean_lambda, expected_mean, rtol=1e-3)
@@ -181,7 +181,7 @@ class TestPoissonInverseGaussianMixture:
         densities = pig_mixture.mixing_density(lambda_values)
         
         # Should integrate to 1
-        integral = np.trapz(densities, lambda_values)
+        integral = np.trapezoid(densities, lambda_values)
         assert np.isclose(integral, 1.0, rtol=1e-2)
         
         # Check mode location (for IG, mode is at specific point)

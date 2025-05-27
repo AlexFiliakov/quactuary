@@ -332,7 +332,7 @@ class TestPropertyBasedZeroInflated:
             
             # Separate handling for discrete mass at 0
             p_zero = zi_compound.pdf(0)
-            continuous_integral = np.trapz(
+            continuous_integral = np.trapezoid(
                 zi_compound.pdf(x_grid[1:]), 
                 x_grid[1:]
             )

@@ -288,6 +288,52 @@
         "jit_enabled": true,
         "warmup_runs": 5
       }
+    },
+    {
+      "test_name": "jit_pricing_after_warmup",
+      "timestamp": "2025-05-26T22:35:04.380986",
+      "hardware_profile": {
+        "cpu_count": 8,
+        "cpu_freq_mhz": 1801.0,
+        "cpu_model": "Unknown",
+        "total_memory_gb": 13.849052429199219,
+        "platform_system": "Windows",
+        "platform_machine": "AMD64",
+        "python_version": "3.12.7",
+        "profile_hash": "125b5514",
+        "performance_score": 1.2612731553649903
+      },
+      "raw_time": 0.0009307999862357974,
+      "normalized_time": 0.0007379844582250228,
+      "sample_size": 10000,
+      "percentiles": {},
+      "metadata": {
+        "jit_enabled": true,
+        "warmup_runs": 5
+      }
+    },
+    {
+      "test_name": "jit_pricing_after_warmup",
+      "timestamp": "2025-05-26T22:52:15.486992",
+      "hardware_profile": {
+        "cpu_count": 8,
+        "cpu_freq_mhz": 1801.0,
+        "cpu_model": "Unknown",
+        "total_memory_gb": 13.849052429199219,
+        "platform_system": "Windows",
+        "platform_machine": "AMD64",
+        "python_version": "3.12.7",
+        "profile_hash": "125b5514",
+        "performance_score": 1.2612731553649903
+      },
+      "raw_time": 0.0012258000206202269,
+      "normalized_time": 0.0009718751369646822,
+      "sample_size": 10000,
+      "percentiles": {},
+      "metadata": {
+        "jit_enabled": true,
+        "warmup_runs": 5
+      }
     }
   ],
   "medium_portfolio_full_metrics": [
@@ -519,6 +565,46 @@
       "sample_size": 1000000,
       "percentiles": {},
       "metadata": {}
+    },
+    {
+      "test_name": "numpy_operations",
+      "timestamp": "2025-05-26T22:35:04.854361",
+      "hardware_profile": {
+        "cpu_count": 8,
+        "cpu_freq_mhz": 1801.0,
+        "cpu_model": "Unknown",
+        "total_memory_gb": 13.849052429199219,
+        "platform_system": "Windows",
+        "platform_machine": "AMD64",
+        "python_version": "3.12.7",
+        "profile_hash": "125b5514",
+        "performance_score": 1.2612731553649903
+      },
+      "raw_time": 0.059345100016798824,
+      "normalized_time": 0.04705174272866007,
+      "sample_size": 1000000,
+      "percentiles": {},
+      "metadata": {}
+    },
+    {
+      "test_name": "numpy_operations",
+      "timestamp": "2025-05-26T22:52:15.895602",
+      "hardware_profile": {
+        "cpu_count": 8,
+        "cpu_freq_mhz": 1801.0,
+        "cpu_model": "Unknown",
+        "total_memory_gb": 13.849052429199219,
+        "platform_system": "Windows",
+        "platform_machine": "AMD64",
+        "python_version": "3.12.7",
+        "profile_hash": "125b5514",
+        "performance_score": 1.2612731553649903
+      },
+      "raw_time": 0.045859500009100884,
+      "normalized_time": 0.03635968926638255,
+      "sample_size": 1000000,
+      "percentiles": {},
+      "metadata": {}
     }
   ],
   "comparison_baseline": [
@@ -670,6 +756,50 @@
       },
       "raw_time": 0.0009880000143311918,
       "normalized_time": 0.0007833354813971934,
+      "sample_size": 10000,
+      "percentiles": {},
+      "metadata": {
+        "method": "baseline"
+      }
+    },
+    {
+      "test_name": "comparison_baseline",
+      "timestamp": "2025-05-26T22:35:05.296795",
+      "hardware_profile": {
+        "cpu_count": 8,
+        "cpu_freq_mhz": 1801.0,
+        "cpu_model": "Unknown",
+        "total_memory_gb": 13.849052429199219,
+        "platform_system": "Windows",
+        "platform_machine": "AMD64",
+        "python_version": "3.12.7",
+        "profile_hash": "125b5514",
+        "performance_score": 1.2612731553649903
+      },
+      "raw_time": 0.001088600023649633,
+      "normalized_time": 0.0008630961651876363,
+      "sample_size": 10000,
+      "percentiles": {},
+      "metadata": {
+        "method": "baseline"
+      }
+    },
+    {
+      "test_name": "comparison_baseline",
+      "timestamp": "2025-05-26T22:52:16.279259",
+      "hardware_profile": {
+        "cpu_count": 8,
+        "cpu_freq_mhz": 1801.0,
+        "cpu_model": "Unknown",
+        "total_memory_gb": 13.849052429199219,
+        "platform_system": "Windows",
+        "platform_machine": "AMD64",
+        "python_version": "3.12.7",
+        "profile_hash": "125b5514",
+        "performance_score": 1.2612731553649903
+      },
+      "raw_time": 0.0009191999852191657,
+      "normalized_time": 0.000728787401293073,
       "sample_size": 10000,
       "percentiles": {},
       "metadata": {
@@ -832,6 +962,52 @@
       },
       "raw_time": 0.0007381000032182783,
       "normalized_time": 0.0005852023410461671,
+      "sample_size": 10000,
+      "percentiles": {},
+      "metadata": {
+        "method": "qmc",
+        "qmc_type": "sobol"
+      }
+    },
+    {
+      "test_name": "comparison_qmc",
+      "timestamp": "2025-05-26T22:35:05.703774",
+      "hardware_profile": {
+        "cpu_count": 8,
+        "cpu_freq_mhz": 1801.0,
+        "cpu_model": "Unknown",
+        "total_memory_gb": 13.849052429199219,
+        "platform_system": "Windows",
+        "platform_machine": "AMD64",
+        "python_version": "3.12.7",
+        "profile_hash": "125b5514",
+        "performance_score": 1.2612731553649903
+      },
+      "raw_time": 0.0008740999910514802,
+      "normalized_time": 0.0006930298859794023,
+      "sample_size": 10000,
+      "percentiles": {},
+      "metadata": {
+        "method": "qmc",
+        "qmc_type": "sobol"
+      }
+    },
+    {
+      "test_name": "comparison_qmc",
+      "timestamp": "2025-05-26T22:52:16.661328",
+      "hardware_profile": {
+        "cpu_count": 8,
+        "cpu_freq_mhz": 1801.0,
+        "cpu_model": "Unknown",
+        "total_memory_gb": 13.849052429199219,
+        "platform_system": "Windows",
+        "platform_machine": "AMD64",
+        "python_version": "3.12.7",
+        "profile_hash": "125b5514",
+        "performance_score": 1.2612731553649903
+      },
+      "raw_time": 0.0008328999974764884,
+      "normalized_time": 0.000660364484833154,
       "sample_size": 10000,
       "percentiles": {},
       "metadata": {

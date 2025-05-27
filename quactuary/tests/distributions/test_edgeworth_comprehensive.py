@@ -238,7 +238,7 @@ class TestEdgeworthPDFCDF:
             # Numerical integration
             x_grid = np.linspace(x_min, x_max, 10000)
             pdf_values = edgeworth.pdf(x_grid, order=order)
-            integral = np.trapz(pdf_values, x_grid)
+            integral = np.trapezoid(pdf_values, x_grid)
             
             # Relaxed tolerance for order 3 which has approximation errors
             rtol = 3e-3 if order == 3 else 1e-3

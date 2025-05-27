@@ -21,6 +21,10 @@ Main Components:
     - `backend`: Quantum/classical backend management
     - `classical`: Traditional Monte Carlo implementations
     - `quantum`: Quantum algorithm implementations (experimental)
+    - `quantum.state_preparation`: Quantum state preparation utilities
+    - `quantum.circuits`: Circuit building and templates
+    - `quantum.algorithms`: Quantum algorithm implementations
+    - `quantum.utils`: Validation and optimization utilities
 
 Quick Start:
     Basic portfolio pricing:
@@ -48,7 +52,17 @@ Quick Start:
         >>> 
         >>> # Create compound distribution
         >>> compound = CompoundDistribution.create(frequency, severity)
-        >>> print(f"Expected aggregate loss: ${compound.mean():,.2f}")
+    
+    Using quantum module (experimental):
+        >>> from quactuary.quantum.base_quantum import QuantumAlgorithm
+        >>> from quactuary.quantum.circuits.builders import CircuitBuilder
+        >>> 
+        >>> # Build quantum circuits
+        >>> builder = CircuitBuilder(num_qubits=4)
+        >>> circuit = (builder
+        ...           .add_hadamard_layer()
+        ...           .add_entangling_layer('linear')
+        ...           .build())
 
     Switching to quantum backend:
         >>> import quactuary as qa

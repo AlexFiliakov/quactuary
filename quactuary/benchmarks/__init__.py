@@ -7,9 +7,16 @@ and convergence characteristics.
 
 from .qmc_convergence_benchmark import (
     create_test_portfolio,
-    run_convergence_test,
-    plot_convergence_results
+    run_convergence_test
 )
+
+# Import plot function only if matplotlib is available
+try:
+    from .qmc_convergence_benchmark import plot_convergence_results
+    _has_plot = True
+except ImportError:
+    _has_plot = False
+    plot_convergence_results = None
 
 from .qmc_stress_test import QMCStressTester
 
@@ -33,9 +40,11 @@ BenchmarkResult = benchmarks_module.BenchmarkResult
 
 __all__ = [
     'create_test_portfolio',
-    'run_convergence_test', 
-    'plot_convergence_results',
+    'run_convergence_test',
     'QMCStressTester',
     'PerformanceBenchmark',
     'BenchmarkResult'
 ]
+
+if _has_plot:
+    __all__.append('plot_convergence_results')

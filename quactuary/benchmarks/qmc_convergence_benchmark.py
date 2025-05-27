@@ -9,8 +9,13 @@ import numpy as np
 import pandas as pd
 import time
 from datetime import date
-import matplotlib.pyplot as plt
 from typing import List, Dict, Tuple
+
+try:
+    import matplotlib.pyplot as plt
+    HAS_MATPLOTLIB = True
+except ImportError:
+    HAS_MATPLOTLIB = False
 
 from quactuary.backend import set_backend
 from quactuary.book import LOB, PolicyTerms, Inforce, Portfolio
@@ -276,6 +281,10 @@ def run_convergence_test(portfolio: Portfolio,
 
 def plot_convergence_results(results: Dict[str, pd.DataFrame], title: str = ""):
     """Plot convergence results."""
+    if not HAS_MATPLOTLIB:
+        print("Warning: matplotlib not available. Skipping plot generation.")
+        return None
+    
     fig, axes = plt.subplots(2, 2, figsize=(12, 10))
     
     # RMSE plot
@@ -375,8 +384,9 @@ def main():
         
         # Plot results
         fig = plot_convergence_results(results, f"{size.capitalize()} Portfolio")
-        plt.savefig(f'qmc_convergence_{size}.png', dpi=150, bbox_inches='tight')
-        plt.close()
+        if fig is not None and HAS_MATPLOTLIB:
+            plt.savefig(f'qmc_convergence_{size}.png', dpi=150, bbox_inches='tight')
+            plt.close()
     
     # Save detailed results
     for size, results in all_results.items():

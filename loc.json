@@ -1,11 +1,11 @@
 {"header" : {
   "cloc_url"           : "github.com/AlDanial/cloc",
   "cloc_version"       : "1.98",
-  "elapsed_seconds"    : 0.1857008934021,
+  "elapsed_seconds"    : 0.193130970001221,
   "n_files"            : 120,
-  "n_lines"            : 38921,
-  "files_per_second"   : 646.200445251295,
-  "lines_per_second"   : 209589.729413547},
+  "n_lines"            : 38940,
+  "files_per_second"   : 621.340016048392,
+  "lines_per_second"   : 201624.835207703},
 "./performance_baselines/baselines.json" :{
   "blank": 0,
   "comment": 0,
@@ -82,9 +82,9 @@
   "code": 312,
   "language": "Jupyter Notebook"},
 "./quactuary/benchmarks/qmc_convergence_benchmark.py" :{
-  "blank": 58,
+  "blank": 60,
   "comment": 35,
-  "code": 300,
+  "code": 308,
   "language": "Python"},
 "./quactuary/performance_baseline.py" :{
   "blank": 69,
@@ -436,6 +436,11 @@
   "comment": 40,
   "code": 32,
   "language": "reStructuredText"},
+"./quactuary/benchmarks/__init__.py" :{
+  "blank": 9,
+  "comment": 9,
+  "code": 32,
+  "language": "Python"},
 "./docs/source/quactuary.future.rst" :{
   "blank": 20,
   "comment": 27,
@@ -456,11 +461,6 @@
   "comment": 0,
   "code": 26,
   "language": "INI"},
-"./quactuary/benchmarks/__init__.py" :{
-  "blank": 7,
-  "comment": 8,
-  "code": 26,
-  "language": "Python"},
 "./quactuary/utils/validation.py" :{
   "blank": 37,
   "comment": 100,
@@ -607,7 +607,7 @@
   "code": 0,
   "language": "Python"},
 "SUM": {
-  "blank": 6863,
-  "comment": 15225,
-  "code": 16833,
+  "blank": 6867,
+  "comment": 15226,
+  "code": 16847,
   "nFiles": 120} }

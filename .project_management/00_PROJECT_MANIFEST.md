@@ -4,8 +4,8 @@ current_milestone_id: M01
 highest_sprint_in_milestone: S01
 current_sprint_id: S01
 status: active
-last_general_task_id: T018
-last_updated: 2025-05-26 14:30
+last_general_task_id: T022
+last_updated: 2025-05-26 23:19
 ---
 
 # Project Manifest: quActuary
@@ -27,18 +27,16 @@ This project follows a milestone-based development approach.
 ## 2. Current Focus
 
 - **Milestone:** M01 - Classical Optimization Foundation
-- **Sprint:** S01 - Optimize Classical Simulations
+- **Sprint:** None - S01 completed on 2025-05-26
+- **Note:** Sprint S01_M01_Classical_Optimization has been successfully completed. Open tasks migrated to General Tasks.
 
 ## 3. Sprints in Current Milestone
 
-- [S01_M01_Classical_Optimization](./03_SPRINTS/S01_M01_Classical_Optimization/) - **Active**
+- [S01_M01_Classical_Optimization](./03_SPRINTS/S01_M01_Classical_Optimization/) - **Completed**
   - Goal: Implement policy logic and optimize classical simulation
-  - Completed Tasks: TX01_S01_Policy_Logic (✓), TX02_S01_Compound_Distributions (✓), TX03_S01_Sobol_Sequences (✓), TX04_S01_Optimize_Classical_Simulation (✓), TX05_S01_Numerical_Stability (✓), TX06_S01_Extended_Distributions (✓), TX07_S01_Simplify_PricingModel (✓), TX08_S01_Simplify_Compounds (✓), TX09_S01_RunDev (✓), TX10_S01_Prune_Test_Suite (✓), TX11_S01_Code_Cleanup_and_Simplification (✓ Partial), TX12_S01_Parallel_Processing_Stability (✓), TX13_S01_Performance_Testing_Suite (✓), TX14_S01_Integration_Testing (✓), TX15_S01_Optimization_Documentation (✓), TX16_S01_Extended_Distribution_Testing (✓)
-  - In Progress: None
-  - Core Tasks: All completed
-  - Added Critical: All completed
-  - Added Enhancement: TX06_S01_Extended_Distributions (✓)
-  - Remaining Tasks: TX17_S01_Performance_Benchmarks_Notebook (✓), T18_S01_Consolidate_Compound_Distributions, T19_S01_Merge_JIT_Implementations, T20_S01_Consolidate_Test_Files, TX21_S01_Fix_JIT_Test_Failure (✓)
+  - Status: Sprint closed on 2025-05-26. Remaining open tasks migrated to General Tasks (T019-T022)
+  - Completed Tasks: TX01_S01_Policy_Logic (✓), TX02_S01_Compound_Distributions (✓), TX03_S01_Sobol_Sequences (✓), TX04_S01_Optimize_Classical_Simulation (✓), TX05_S01_Numerical_Stability (✓), TX06_S01_Extended_Distributions (✓), TX07_S01_Simplify_PricingModel (✓), TX08_S01_Simplify_Compounds (✓), TX09_S01_RunDev (✓), TX10_S01_Prune_Test_Suite (✓), TX11_S01_Code_Cleanup_and_Simplification (✓), TX12_S01_Parallel_Processing_Stability (✓), TX13_S01_Performance_Testing_Suite (✓), TX14_S01_Integration_Testing (✓), TX15_S01_Optimization_Documentation (✓), TX16_S01_Extended_Distribution_Testing (✓), TX17_S01_Performance_Benchmarks_Notebook (✓), TX21_S01_Fix_JIT_Test_Failure (✓)
+  - Migrated to General: T18_S01 → T019, T19_S01 → T020, T20_S01 → T021, T22_S01 → T022
 
 ## 4. Planned Milestones Roadmap
 

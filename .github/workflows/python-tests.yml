@@ -36,8 +36,8 @@ jobs:
 
       - name: Test MCP Server
         run: |
-          pytest tests/test_mcp/
-          mcp dev mcp/server.py --test-only
+          pytest quactuary/tests/test_mcp/
+          mcp dev quactuary/mcp/server.py --test-only
 
       - name: Convert coverage XML to JSON badge
         run: |

@@ -14,6 +14,7 @@ Features
 - Comprehensive severity distributions: Exponential, Gamma, Lognormal, Pareto, Continuous Uniform, etc.
 - Mixture models, empirical distributions, and QMC wrappers.
 - Classical and quantum pricing models with backend switching.
+- **MCP Server Integration**: Use quActuary tools directly in Claude via Model Context Protocol.
 
 Installation
 ------------
@@ -21,6 +22,12 @@ Installation
 .. code-block:: powershell
 
    pip install quactuary
+
+To use the MCP Server integration:
+
+.. code-block:: powershell
+
+   pip install quactuary[mcp]
 
 Getting Started
 ---------------
@@ -105,6 +112,7 @@ Documentation
    api_reference/pricing_model
    quactuary.quantum
    quactuary.distributions
+   quactuary.mcp
    quactuary.memory_management
    quactuary.parallel_processing
    quactuary.vectorized_simulation

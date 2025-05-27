@@ -9,6 +9,7 @@ Subpackages
 
    quactuary.distributions
    quactuary.future
+   quactuary.mcp
    quactuary.utils
 
 Package Overview
@@ -24,6 +25,7 @@ Key Features:
     - High-performance parallel and vectorized simulations
     - Memory-efficient algorithms for large-scale portfolios
     - Integration with quantum computing frameworks
+    - MCP Server for LLM integration (Claude, etc.)
 
 Quick Start
 -----------
@@ -34,5 +36,10 @@ The main entry points for users are:
 * :class:`~quactuary.Portfolio` - For managing collections of insurance policies  
 * :class:`~quactuary.PolicyTerms` - For defining individual policy characteristics
 * :class:`~quactuary.Inforce` - For grouping policies with similar characteristics
+
+For LLM integration:
+
+* :mod:`~quactuary.mcp` - MCP Server for using quActuary tools in Claude
+* Run ``quactuary-mcp`` or ``python -m quactuary.mcp.server`` to start the server
 
 For more details, see the individual module documentation below.

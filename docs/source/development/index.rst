@@ -18,6 +18,7 @@ quactuary is an open-source project that welcomes contributions from the communi
    testing_guidelines
    performance_testing
    documentation_guidelines
+   mcp_development
    submitting_changes
    issue_reporting
    community_guidelines
@@ -56,6 +57,7 @@ We welcome many different types of contributions:
   * Performance improvements
   * Algorithm implementations
   * Test coverage improvements
+  * MCP tool development
 
 **Documentation**
   * API documentation improvements

@@ -21,6 +21,42 @@ Class Overview
    :undoc-members:
    :show-inheritance:
 
+Constructor
+-----------
+
+.. code-block:: python
+
+   PricingModel(
+       portfolio: Portfolio,
+       backend: Optional[Backend] = None,
+       optimization_selector: Optional[OptimizationSelector] = None
+   )
+
+**Parameters:**
+
+* **portfolio** (:class:`Portfolio`) - The portfolio of policies to simulate
+* **backend** (:class:`Backend`, optional) - Computational backend (classical/quantum). Defaults to current backend setting.
+* **optimization_selector** (:class:`OptimizationSelector`, optional) - ML-based optimization selector. If None, creates default selector.
+
+**Example:**
+
+.. code-block:: python
+
+   from quactuary import PricingModel, Portfolio
+   from quactuary.optimization import OptimizationSelector
+   
+   # Basic usage
+   model = PricingModel(portfolio)
+   
+   # With custom optimization selector
+   selector = OptimizationSelector(model_path="custom_model.pkl")
+   model = PricingModel(portfolio, optimization_selector=selector)
+   
+   # With quantum backend
+   from quactuary import set_backend
+   set_backend("quantum")
+   model = PricingModel(portfolio)
+
 Core Methods
 ============
 
@@ -44,9 +80,15 @@ simulate()
        memory_limit_gb: Optional[float] = None,
        use_qmc: bool = False,
        qmc_engine: str = 'sobol',
+       qmc_method: Optional[str] = None,
+       qmc_scramble: bool = True,
+       qmc_skip: int = 0,
+       qmc_seed: Optional[int] = None,
        progress_bar: bool = True,
        checkpoint_interval: Optional[int] = None,
        random_state: Optional[int] = None,
+       auto_optimize: bool = True,
+       optimization_config: Optional[Dict[str, Any]] = None,
        **kwargs
    ) -> SimulationResults
 
@@ -83,6 +125,18 @@ simulate()
    * - ``qmc_engine``
      - ``str``
      - QMC engine: 'sobol', 'halton', 'latin_hypercube'
+   * - ``qmc_method``
+     - ``str | None``
+     - QMC generation method (engine-specific)
+   * - ``qmc_scramble``
+     - ``bool``
+     - Apply Owen scrambling to QMC sequences (default: True)
+   * - ``qmc_skip``
+     - ``int``
+     - Number of initial QMC points to skip (default: 0)
+   * - ``qmc_seed``
+     - ``int | None``
+     - Seed for QMC scrambling
    * - ``progress_bar``
      - ``bool``
      - Show progress bar during simulation (default: True)
@@ -92,6 +146,12 @@ simulate()
    * - ``random_state``
      - ``int | None``
      - Random seed for reproducibility
+   * - ``auto_optimize``
+     - ``bool``
+     - Enable ML-based automatic optimization selection (default: True)
+   * - ``optimization_config``
+     - ``dict | None``
+     - Manual optimization configuration overrides
 
 **Returns:**
 
@@ -132,6 +192,28 @@ Explicit optimization configuration:
        qmc_engine='sobol'
    )
 
+Advanced QMC configuration:
+
+.. code-block:: python
+
+   # Enhanced QMC with scrambling and optimized parameters
+   results = model.simulate(
+       n_simulations=100_000,
+       use_qmc=True,
+       qmc_engine='sobol',
+       qmc_scramble=True,      # Owen scrambling for better uniformity
+       qmc_skip=1000,          # Skip first 1000 points
+       qmc_seed=42             # Reproducible scrambling
+   )
+   
+   # Halton sequence for lower dimensions
+   results = model.simulate(
+       n_simulations=50_000,
+       use_qmc=True,
+       qmc_engine='halton',
+       qmc_scramble=True
+   )
+
 Memory-constrained environment:
 
 .. code-block:: python
@@ -144,47 +226,73 @@ Memory-constrained environment:
        parallel=False  # Reduce memory usage
    )
 
-**Auto-Detection Logic:**
-
-The ``simulate()`` method automatically selects optimizations when parameters are ``None``:
+Automatic optimization with ML-based selection:
 
 .. code-block:: python
 
-   def auto_detect_optimizations(portfolio, n_simulations):
-       """Logic for automatic optimization detection."""
-       
-       # JIT compilation
-       if len(portfolio) > 100 or n_simulations > 50_000:
-           use_jit = True
-       else:
-           use_jit = False
-       
-       # Parallel processing  
-       if len(portfolio) > 50 and n_simulations > 10_000:
-           parallel = True
-           max_workers = min(os.cpu_count(), len(portfolio) // 10)
-       else:
-           parallel = False
-           max_workers = 1
-       
-       # Memory management
-       estimated_memory = estimate_memory_gb(len(portfolio), n_simulations)
-       available_memory = psutil.virtual_memory().available / 1e9
-       
-       if estimated_memory > available_memory * 0.8:
-           memory_limit_gb = available_memory * 0.7
-           checkpoint_interval = n_simulations // 100
-       else:
-           memory_limit_gb = None
-           checkpoint_interval = None
-       
-       return {
-           'use_jit': use_jit,
-           'parallel': parallel,
-           'max_workers': max_workers,
-           'memory_limit_gb': memory_limit_gb,
-           'checkpoint_interval': checkpoint_interval
+   # Let the ML model choose optimal settings
+   results = model.simulate(
+       n_simulations=500_000,
+       auto_optimize=True  # Uses OptimizationSelector
+   )
+   
+   # View selected optimizations
+   print(f"Selected strategy: {results.optimization_strategy}")
+   print(f"JIT used: {results.metadata['use_jit']}")
+   print(f"Parallel used: {results.metadata['parallel']}")
+
+Manual optimization override:
+
+.. code-block:: python
+
+   # Override automatic optimization
+   results = model.simulate(
+       n_simulations=100_000,
+       auto_optimize=False,
+       optimization_config={
+           'use_jit': True,
+           'parallel': True,
+           'max_workers': 4,
+           'batch_size': 10000
        }
+   )
+
+**Auto-Detection Logic:**
+
+The ``simulate()`` method uses ML-based optimization selection when ``auto_optimize=True``:
+
+.. code-block:: python
+
+   # The OptimizationSelector uses a trained model to predict optimal settings
+   # based on portfolio characteristics and system resources
+   
+   def select_optimizations(portfolio, n_simulations):
+       """ML-based optimization selection."""
+       
+       # Extract features
+       features = {
+           'n_policies': len(portfolio),
+           'n_simulations': n_simulations,
+           'avg_frequency': portfolio.average_frequency,
+           'severity_complexity': portfolio.severity_complexity_score,
+           'has_dependencies': portfolio.has_correlations,
+           'available_memory_gb': psutil.virtual_memory().available / 1e9,
+           'cpu_count': os.cpu_count()
+       }
+       
+       # ML model predicts optimal strategy
+       strategy = optimization_selector.predict_strategy(features)
+       
+       # Strategy includes:
+       # - use_jit: Whether to use JIT compilation
+       # - parallel: Whether to use parallel processing
+       # - max_workers: Optimal number of workers
+       # - batch_size: Optimal batch size for processing
+       # - use_qmc: Whether QMC would improve convergence
+       
+       return strategy
+
+For manual control, set ``auto_optimize=False`` and provide ``optimization_config``.
 
 **Performance Considerations:**
 
@@ -192,6 +300,8 @@ The ``simulate()`` method automatically selects optimizations when parameters ar
 * **Parallel Processing**: Overhead makes it unsuitable for small portfolios (< 50 policies)
 * **Memory Management**: Automatic batching when memory limit is approached
 * **QMC Convergence**: Often achieves better precision with fewer simulations
+* **QMC Scrambling**: Owen scrambling improves uniformity and convergence rates
+* **QMC Skip**: Skipping initial points can improve sequence quality for some applications
 
 .. validate_portfolio()
 .. ---------------------

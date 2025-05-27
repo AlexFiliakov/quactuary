@@ -16,6 +16,7 @@ This guide provides detailed information on using the quactuary package effectiv
    optimization_config
    testing_best_practices
    api_migration
+   mcp_integration
 
 Getting Started
 ---------------
@@ -28,6 +29,7 @@ The quactuary package provides tools for actuarial loss modeling with both class
 * Risk measure calculations (VaR, TVaR)
 * Performance optimization (JIT, parallel, QMC)
 * Quantum computing integration
+* MCP Server for LLM integration (Claude, etc.)
 
 Performance Optimization
 ------------------------
@@ -58,6 +60,11 @@ Development
 ~~~~~~~~~~~
 
 * **Testing Best Practices** (:doc:`testing_best_practices`) - Write robust tests for stochastic methods and numerical computations
+
+LLM Integration
+~~~~~~~~~~~~~~~
+
+* **MCP Integration Guide** (:doc:`mcp_integration`) - Use quActuary tools directly in Claude and other LLM assistants via Model Context Protocol
 
 Basic Usage
 -----------

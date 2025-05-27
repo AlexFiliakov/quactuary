@@ -38,7 +38,9 @@ author = 'Alex Filiakov, ACAS'
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.napoleon',
-    'sphinx_sitemap'
+    'sphinx_sitemap',
+    'sphinx.ext.intersphinx',
+    'sphinx.ext.viewcode'
 ]
 
 # Napoleon settings
@@ -48,6 +50,13 @@ napoleon_include_init_with_doc = True
 
 # Sitemap settings
 html_baseurl = 'https://docs.quactuary.com/'
+
+# Intersphinx mappings
+intersphinx_mapping = {
+    'python': ('https://docs.python.org/3', None),
+    'numpy': ('https://numpy.org/doc/stable/', None),
+    'scipy': ('https://docs.scipy.org/doc/scipy/', None),
+}
 
 templates_path = ['_templates']
 exclude_patterns = []

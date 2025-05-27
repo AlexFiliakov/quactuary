@@ -27,9 +27,10 @@ Set up the quantum computing environment by installing and configuring qiskit 1.
 ## Subtasks
 - [ ] Add qiskit==1.4.2 to requirements.txt
 - [ ] Install qiskit and verify installation
-- [ ] Create a simple test circuit to verify simulators work
+- [ ] Create a simple test circuit to verify simulators work by implementing the working example `quactuary\examples\pilot_quantum_excess_evaluation_algorithm.ipynb` under the existing quActuary API using `from qiskit_aer import AerSimulator` only, no connection to IBM Quantum Cloud yet.
+- [ ] Thoroughly test the pilot implementation
 - [ ] Update setup.py with quantum dependencies
-- [ ] Document installation process in README
+- [ ] Document installation process in README.md
 
 ## Implementation Guidelines
 
@@ -39,6 +40,7 @@ Set up the quantum computing environment by installing and configuring qiskit 1.
 pip install qiskit==1.4.2
 pip install qiskit-aer==0.15.1  # Simulators
 pip install qiskit-visualization  # Optional: for circuit visualization
+pip install qiskit-algorithms # For amplitude estimation
 
 # Additional dependencies for actuarial applications
 pip install scipy>=1.10.0  # For distributions

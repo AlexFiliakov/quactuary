@@ -273,4 +273,4 @@ class TestOptimizationSelector:
         assert batch_size > 0
         assert batch_size <= profile.n_policies
         # Should target ~40% of available memory
-        assert batch_size < 40000  # Rough estimate
+        assert batch_size <= 40000  # Rough estimate

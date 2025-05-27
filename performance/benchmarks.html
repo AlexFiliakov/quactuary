@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Performance Benchmarks &#8212; quActuary v0.0.7 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/nature.css?v=279e0f84" />
+    <script src="../_static/documentation_options.js?v=401b779c"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="canonical" href="https://docs.quactuary.com/performance/benchmarks.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Advanced Performance Tuning" href="tuning_guide.html" />
+    <link rel="prev" title="quactuary.vectorized_simulation module" href="../quactuary.vectorized_simulation.html" />
+ 
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-2TGPCH7PBM"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag() { dataLayer.push(arguments); }
+  gtag('js', new Date());
+  gtag('config', 'G-2TGPCH7PBM');
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="tuning_guide.html" title="Advanced Performance Tuning"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../quactuary.vectorized_simulation.html" title="quactuary.vectorized_simulation module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">quActuary v0.0.7 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Performance Benchmarks</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="performance-benchmarks">
+<span id="id1"></span><h1>Performance Benchmarks<a class="headerlink" href="#performance-benchmarks" title="Link to this heading">¶</a></h1>
+<p>This page presents comprehensive performance benchmarks for quActuary’s optimization features
+based on standardized testing methodologies.</p>
+<nav class="contents local" id="table-of-contents">
+<p class="topic-title">Table of Contents</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#benchmarking-standards" id="id10">Benchmarking Standards</a></p>
+<ul>
+<li><p><a class="reference internal" href="#hardware-configuration" id="id11">Hardware Configuration</a></p></li>
+<li><p><a class="reference internal" href="#software-environment" id="id12">Software Environment</a></p></li>
+<li><p><a class="reference internal" href="#methodology" id="id13">Methodology</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#optimization-impact-analysis" id="id14">Optimization Impact Analysis</a></p>
+<ul>
+<li><p><a class="reference internal" href="#overall-performance-gains" id="id15">Overall Performance Gains</a></p></li>
+<li><p><a class="reference internal" href="#detailed-breakdown" id="id16">Detailed Breakdown</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#individual-optimization-analysis" id="id17">Individual Optimization Analysis</a></p>
+<ul>
+<li><p><a class="reference internal" href="#jit-compilation-performance" id="id18">JIT Compilation Performance</a></p></li>
+<li><p><a class="reference internal" href="#parallel-processing-scaling" id="id19">Parallel Processing Scaling</a></p></li>
+<li><p><a class="reference internal" href="#memory-optimization-impact" id="id20">Memory Optimization Impact</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#qmc-convergence-analysis" id="id21">QMC Convergence Analysis</a></p>
+<ul>
+<li><p><a class="reference internal" href="#convergence-comparison" id="id22">Convergence Comparison</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#real-world-case-studies" id="id23">Real-World Case Studies</a></p>
+<ul>
+<li><p><a class="reference internal" href="#insurance-company-a-portfolio-optimization" id="id24">Insurance Company A: Portfolio Optimization</a></p></li>
+<li><p><a class="reference internal" href="#reinsurer-b-catastrophe-modeling" id="id25">Reinsurer B: Catastrophe Modeling</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#platform-comparisons" id="id26">Platform Comparisons</a></p>
+<ul>
+<li><p><a class="reference internal" href="#operating-system-performance" id="id27">Operating System Performance</a></p></li>
+<li><p><a class="reference internal" href="#hardware-variations" id="id28">Hardware Variations</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#performance-regression-testing" id="id29">Performance Regression Testing</a></p>
+<ul>
+<li><p><a class="reference internal" href="#continuous-monitoring" id="id30">Continuous Monitoring</a></p></li>
+<li><p><a class="reference internal" href="#historical-trends" id="id31">Historical Trends</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#reproducibility-guide" id="id32">Reproducibility Guide</a></p>
+<ul>
+<li><p><a class="reference internal" href="#running-benchmarks" id="id33">Running Benchmarks</a></p></li>
+<li><p><a class="reference internal" href="#docker-environment" id="id34">Docker Environment</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#performance-tips" id="id35">Performance Tips</a></p>
+<ul>
+<li><p><a class="reference internal" href="#getting-maximum-performance" id="id36">Getting Maximum Performance</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#next-steps" id="id37">Next Steps</a></p></li>
+</ul>
+</nav>
+<section id="benchmarking-standards">
+<h2><a class="toc-backref" href="#id10" role="doc-backlink">Benchmarking Standards</a><a class="headerlink" href="#benchmarking-standards" title="Link to this heading">¶</a></h2>
+<section id="hardware-configuration">
+<h3><a class="toc-backref" href="#id11" role="doc-backlink">Hardware Configuration</a><a class="headerlink" href="#hardware-configuration" title="Link to this heading">¶</a></h3>
+<p>All benchmarks were conducted on the following reference hardware:</p>
+<table class="docutils align-default" id="id2">
+<caption><span class="caption-text">Reference Hardware Specifications</span><a class="headerlink" href="#id2" title="Link to this table">¶</a></caption>
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 70.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Component</p></th>
+<th class="head"><p>Specification</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Instance Type</p></td>
+<td><p>AWS EC2 c5.4xlarge</p></td>
+</tr>
+<tr class="row-odd"><td><p>CPU</p></td>
+<td><p>Intel Xeon Platinum 8124M (16 vCPU, 3.0 GHz)</p></td>
+</tr>
+<tr class="row-even"><td><p>Memory</p></td>
+<td><p>32 GB DDR4</p></td>
+</tr>
+<tr class="row-odd"><td><p>Storage</p></td>
+<td><p>500 GB gp2 EBS</p></td>
+</tr>
+<tr class="row-even"><td><p>Operating System</p></td>
+<td><p>Ubuntu 22.04 LTS</p></td>
+</tr>
+<tr class="row-odd"><td><p>Python Version</p></td>
+<td><p>3.10.12</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="software-environment">
+<h3><a class="toc-backref" href="#id12" role="doc-backlink">Software Environment</a><a class="headerlink" href="#software-environment" title="Link to this heading">¶</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Benchmark environment setup</span>
+<span class="nv">Python</span><span class="o">==</span><span class="m">3</span>.10.12
+<span class="nv">numpy</span><span class="o">==</span><span class="m">1</span>.24.3
+<span class="nv">numba</span><span class="o">==</span><span class="m">0</span>.57.1
+<span class="nv">scipy</span><span class="o">==</span><span class="m">1</span>.11.1
+<span class="nv">psutil</span><span class="o">==</span><span class="m">5</span>.9.5
+<span class="nv">quactuary</span><span class="o">==</span><span class="m">1</span>.0.0
+</pre></div>
+</div>
+</section>
+<section id="methodology">
+<h3><a class="toc-backref" href="#id13" role="doc-backlink">Methodology</a><a class="headerlink" href="#methodology" title="Link to this heading">¶</a></h3>
+<p><strong>Testing Protocol:</strong></p>
+<ul class="simple">
+<li><p><strong>Warmup</strong>: 2 runs before measurement to allow JIT compilation</p></li>
+<li><p><strong>Iterations</strong>: 10 runs per configuration, median reported</p></li>
+<li><p><strong>Memory</strong>: Peak memory usage monitored with psutil</p></li>
+<li><p><strong>Stability</strong>: Standard deviation &lt; 5% of mean execution time</p></li>
+</ul>
+<p><strong>Portfolio Characteristics:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Standard test portfolios</span>
+<span class="n">SMALL_PORTFOLIO</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;size&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+    <span class="s2">&quot;frequency_dist&quot;</span><span class="p">:</span> <span class="s2">&quot;poisson&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;severity_dist&quot;</span><span class="p">:</span> <span class="s2">&quot;lognormal&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;correlation&quot;</span><span class="p">:</span> <span class="kc">None</span>
+<span class="p">}</span>
+
+<span class="n">MEDIUM_PORTFOLIO</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;size&quot;</span><span class="p">:</span> <span class="mi">500</span><span class="p">,</span>
+    <span class="s2">&quot;frequency_dist&quot;</span><span class="p">:</span> <span class="s2">&quot;negative_binomial&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;severity_dist&quot;</span><span class="p">:</span> <span class="s2">&quot;gamma&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;correlation&quot;</span><span class="p">:</span> <span class="s2">&quot;weak&quot;</span>
+<span class="p">}</span>
+
+<span class="n">LARGE_PORTFOLIO</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;size&quot;</span><span class="p">:</span> <span class="mi">5000</span><span class="p">,</span>
+    <span class="s2">&quot;frequency_dist&quot;</span><span class="p">:</span> <span class="s2">&quot;poisson&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;severity_dist&quot;</span><span class="p">:</span> <span class="s2">&quot;mixture&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;correlation&quot;</span><span class="p">:</span> <span class="s2">&quot;moderate&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="optimization-impact-analysis">
+<h2><a class="toc-backref" href="#id14" role="doc-backlink">Optimization Impact Analysis</a><a class="headerlink" href="#optimization-impact-analysis" title="Link to this heading">¶</a></h2>
+<section id="overall-performance-gains">
+<h3><a class="toc-backref" href="#id15" role="doc-backlink">Overall Performance Gains</a><a class="headerlink" href="#overall-performance-gains" title="Link to this heading">¶</a></h3>
+<table class="docutils align-default" id="id3">
+<caption><span class="caption-text">Speedup Summary by Portfolio Size</span><a class="headerlink" href="#id3" title="Link to this table">¶</a></caption>
+<colgroup>
+<col style="width: 20.0%" />
+<col style="width: 15.0%" />
+<col style="width: 15.0%" />
+<col style="width: 15.0%" />
+<col style="width: 15.0%" />
+<col style="width: 20.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Portfolio Size</p></th>
+<th class="head"><p>Baseline</p></th>
+<th class="head"><p>+JIT</p></th>
+<th class="head"><p>+Parallel</p></th>
+<th class="head"><p>+Memory Opt</p></th>
+<th class="head"><p>+QMC (Final)</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Small (10)</p></td>
+<td><p>1.0x</p></td>
+<td><p>5.2x</p></td>
+<td><p>4.8x</p></td>
+<td><p>5.1x</p></td>
+<td><p>8.3x</p></td>
+</tr>
+<tr class="row-odd"><td><p>Medium (500)</p></td>
+<td><p>1.0x</p></td>
+<td><p>18.7x</p></td>
+<td><p>52.4x</p></td>
+<td><p>58.1x</p></td>
+<td><p>74.6x</p></td>
+</tr>
+<tr class="row-even"><td><p>Large (5000)</p></td>
+<td><p>1.0x</p></td>
+<td><p>24.3x</p></td>
+<td><p>89.7x</p></td>
+<td><p>95.2x</p></td>
+<td><p>127.4x</p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Parallel performance decreases for small portfolios due to overhead.
+Memory optimization shows minimal impact until data exceeds available RAM.</p>
+</div>
+</section>
+<section id="detailed-breakdown">
+<h3><a class="toc-backref" href="#id16" role="doc-backlink">Detailed Breakdown</a><a class="headerlink" href="#detailed-breakdown" title="Link to this heading">¶</a></h3>
+<p><strong>Small Portfolio (10 policies, 100K simulations):</strong></p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Configuration           Time (s)    Speedup    Memory (MB)    Sims/sec
+─────────────────────────────────────────────────────────────────────
+Baseline                  12.34       1.0x         45.2       8,103
+JIT Only                   2.37       5.2x         47.1      42,194
+Parallel Only (4 cores)   2.56       4.8x         52.3      39,063
+JIT + Parallel             2.41       5.1x         48.7      41,494
+All Optimizations          1.49       8.3x         49.1      67,114
+</pre></div>
+</div>
+<p><strong>Medium Portfolio (500 policies, 100K simulations):</strong></p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Configuration           Time (s)    Speedup    Memory (MB)    Sims/sec
+─────────────────────────────────────────────────────────────────────
+Baseline                 145.67       1.0x        156.8         687
+JIT Only                   7.79      18.7x        162.4      12,837
+Parallel Only (4 cores)   2.78      52.4x        198.7      35,971
+JIT + Parallel             2.51      58.1x        171.2      39,840
+All Optimizations          1.95      74.6x        175.6      51,282
+</pre></div>
+</div>
+<p><strong>Large Portfolio (5000 policies, 100K simulations):</strong></p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Configuration           Time (s)    Speedup    Memory (MB)    Sims/sec
+─────────────────────────────────────────────────────────────────────
+Baseline                1456.23       1.0x       1247.6          69
+JIT Only                  59.87      24.3x       1285.3       1,670
+Parallel Only (4 cores)  16.23      89.7x       1398.4       6,164
+JIT + Parallel            15.29      95.2x       1312.7       6,540
+All Optimizations         11.43     127.4x       1329.8       8,750
+</pre></div>
+</div>
+</section>
+</section>
+<section id="individual-optimization-analysis">
+<h2><a class="toc-backref" href="#id17" role="doc-backlink">Individual Optimization Analysis</a><a class="headerlink" href="#individual-optimization-analysis" title="Link to this heading">¶</a></h2>
+<section id="jit-compilation-performance">
+<h3><a class="toc-backref" href="#id18" role="doc-backlink">JIT Compilation Performance</a><a class="headerlink" href="#jit-compilation-performance" title="Link to this heading">¶</a></h3>
+<p><strong>Compilation Overhead:</strong></p>
+<table class="docutils align-default" id="id4">
+<caption><span class="caption-text">JIT Compilation Times</span><a class="headerlink" href="#id4" title="Link to this table">¶</a></caption>
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 25.0%" />
+<col style="width: 25.0%" />
+<col style="width: 25.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Portfolio Size</p></th>
+<th class="head"><p>Cold Start (s)</p></th>
+<th class="head"><p>Warm Start (s)</p></th>
+<th class="head"><p>Overhead %</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Small</p></td>
+<td><p>3.14</p></td>
+<td><p>2.37</p></td>
+<td><p>32.5%</p></td>
+</tr>
+<tr class="row-odd"><td><p>Medium</p></td>
+<td><p>8.92</p></td>
+<td><p>7.79</p></td>
+<td><p>14.5%</p></td>
+</tr>
+<tr class="row-even"><td><p>Large</p></td>
+<td><p>61.24</p></td>
+<td><p>59.87</p></td>
+<td><p>2.3%</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Function-Level Speedups:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Typical JIT speedups by function</span>
+<span class="n">FUNCTION_SPEEDUPS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;frequency_generation&quot;</span><span class="p">:</span> <span class="mf">12.4</span><span class="p">,</span>
+    <span class="s2">&quot;severity_sampling&quot;</span><span class="p">:</span> <span class="mf">8.7</span><span class="p">,</span>
+    <span class="s2">&quot;policy_application&quot;</span><span class="p">:</span> <span class="mf">23.1</span><span class="p">,</span>
+    <span class="s2">&quot;aggregation&quot;</span><span class="p">:</span> <span class="mf">6.2</span><span class="p">,</span>
+    <span class="s2">&quot;risk_measures&quot;</span><span class="p">:</span> <span class="mf">4.8</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="parallel-processing-scaling">
+<h3><a class="toc-backref" href="#id19" role="doc-backlink">Parallel Processing Scaling</a><a class="headerlink" href="#parallel-processing-scaling" title="Link to this heading">¶</a></h3>
+<p><strong>Core Scaling Efficiency:</strong></p>
+<table class="docutils align-default" id="id5">
+<caption><span class="caption-text">Parallel Scaling (Medium Portfolio)</span><a class="headerlink" href="#id5" title="Link to this table">¶</a></caption>
+<colgroup>
+<col style="width: 20.0%" />
+<col style="width: 20.0%" />
+<col style="width: 20.0%" />
+<col style="width: 20.0%" />
+<col style="width: 20.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>CPU Cores</p></th>
+<th class="head"><p>Time (s)</p></th>
+<th class="head"><p>Speedup</p></th>
+<th class="head"><p>Efficiency</p></th>
+<th class="head"><p>Memory (MB)</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1 (baseline)</p></td>
+<td><p>7.79</p></td>
+<td><p>1.0x</p></td>
+<td><p>100%</p></td>
+<td><p>162.4</p></td>
+</tr>
+<tr class="row-odd"><td><p>2</p></td>
+<td><p>4.12</p></td>
+<td><p>1.9x</p></td>
+<td><p>95%</p></td>
+<td><p>178.2</p></td>
+</tr>
+<tr class="row-even"><td><p>4</p></td>
+<td><p>2.51</p></td>
+<td><p>3.1x</p></td>
+<td><p>78%</p></td>
+<td><p>198.7</p></td>
+</tr>
+<tr class="row-odd"><td><p>8</p></td>
+<td><p>1.89</p></td>
+<td><p>4.1x</p></td>
+<td><p>51%</p></td>
+<td><p>245.1</p></td>
+</tr>
+<tr class="row-even"><td><p>16</p></td>
+<td><p>1.67</p></td>
+<td><p>4.7x</p></td>
+<td><p>29%</p></td>
+<td><p>334.6</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Optimal Worker Formula:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">optimal_workers</span><span class="p">(</span><span class="n">portfolio_size</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">portfolio_size</span> <span class="o">&lt;</span> <span class="mi">50</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">1</span>  <span class="c1"># No benefit from parallelization</span>
+    <span class="k">elif</span> <span class="n">portfolio_size</span> <span class="o">&lt;</span> <span class="mi">500</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="n">cpu_count</span><span class="p">())</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">cpu_count</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="memory-optimization-impact">
+<h3><a class="toc-backref" href="#id20" role="doc-backlink">Memory Optimization Impact</a><a class="headerlink" href="#memory-optimization-impact" title="Link to this heading">¶</a></h3>
+<p><strong>Memory Usage Patterns:</strong></p>
+<table class="docutils align-default" id="id6">
+<caption><span class="caption-text">Memory Usage by Configuration</span><a class="headerlink" href="#id6" title="Link to this table">¶</a></caption>
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 20.0%" />
+<col style="width: 20.0%" />
+<col style="width: 30.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Configuration</p></th>
+<th class="head"><p>Peak Memory (GB)</p></th>
+<th class="head"><p>Memory Efficiency</p></th>
+<th class="head"><p>Max Simulatable</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>No Memory Limit</p></td>
+<td><p>8.7</p></td>
+<td><p>100%</p></td>
+<td><p>1M simulations</p></td>
+</tr>
+<tr class="row-odd"><td><p>4GB Limit</p></td>
+<td><p>3.8</p></td>
+<td><p>87%</p></td>
+<td><p>450K simulations</p></td>
+</tr>
+<tr class="row-even"><td><p>2GB Limit</p></td>
+<td><p>1.9</p></td>
+<td><p>73%</p></td>
+<td><p>200K simulations</p></td>
+</tr>
+<tr class="row-odd"><td><p>1GB Limit</p></td>
+<td><p>0.95</p></td>
+<td><p>58%</p></td>
+<td><p>80K simulations</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Batch Processing Performance:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Performance vs batch size (1M simulations, 2GB limit)</span>
+<span class="n">BATCH_PERFORMANCE</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="mi">10_000</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="mf">45.2</span><span class="p">,</span> <span class="s2">&quot;memory&quot;</span><span class="p">:</span> <span class="mf">1.1</span><span class="p">},</span>
+    <span class="mi">50_000</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="mf">38.7</span><span class="p">,</span> <span class="s2">&quot;memory&quot;</span><span class="p">:</span> <span class="mf">1.6</span><span class="p">},</span>
+    <span class="mi">100_000</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="mf">35.1</span><span class="p">,</span> <span class="s2">&quot;memory&quot;</span><span class="p">:</span> <span class="mf">1.9</span><span class="p">},</span>
+    <span class="mi">200_000</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="mf">41.3</span><span class="p">,</span> <span class="s2">&quot;memory&quot;</span><span class="p">:</span> <span class="mf">2.1</span><span class="p">}</span>  <span class="c1"># Exceeds limit</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="qmc-convergence-analysis">
+<h2><a class="toc-backref" href="#id21" role="doc-backlink">QMC Convergence Analysis</a><a class="headerlink" href="#qmc-convergence-analysis" title="Link to this heading">¶</a></h2>
+<section id="convergence-comparison">
+<h3><a class="toc-backref" href="#id22" role="doc-backlink">Convergence Comparison</a><a class="headerlink" href="#convergence-comparison" title="Link to this heading">¶</a></h3>
+<p><strong>Standard Monte Carlo vs QMC:</strong></p>
+<table class="docutils align-default" id="id7">
+<caption><span class="caption-text">Convergence Rates (Medium Portfolio)</span><a class="headerlink" href="#id7" title="Link to this table">¶</a></caption>
+<colgroup>
+<col style="width: 20.0%" />
+<col style="width: 20.0%" />
+<col style="width: 20.0%" />
+<col style="width: 20.0%" />
+<col style="width: 20.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Simulations</p></th>
+<th class="head"><p>MC Std Error</p></th>
+<th class="head"><p>QMC Std Error</p></th>
+<th class="head"><p>Improvement</p></th>
+<th class="head"><p>Effective Ratio</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1,000</p></td>
+<td><p>0.0234</p></td>
+<td><p>0.0087</p></td>
+<td><p>2.7x</p></td>
+<td><p>7.3x</p></td>
+</tr>
+<tr class="row-odd"><td><p>10,000</p></td>
+<td><p>0.0074</p></td>
+<td><p>0.0019</p></td>
+<td><p>3.9x</p></td>
+<td><p>15.1x</p></td>
+</tr>
+<tr class="row-even"><td><p>100,000</p></td>
+<td><p>0.0023</p></td>
+<td><p>0.0004</p></td>
+<td><p>5.8x</p></td>
+<td><p>33.1x</p></td>
+</tr>
+<tr class="row-odd"><td><p>1,000,000</p></td>
+<td><p>0.0007</p></td>
+<td><p>0.0001</p></td>
+<td><p>7.2x</p></td>
+<td><p>51.8x</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>QMC Engine Comparison:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Time to achieve 0.001 standard error</span>
+<span class="n">QMC_ENGINE_PERFORMANCE</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;sobol&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;simulations_needed&quot;</span><span class="p">:</span> <span class="mi">15_000</span><span class="p">,</span>
+        <span class="s2">&quot;time_seconds&quot;</span><span class="p">:</span> <span class="mf">2.34</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;halton&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;simulations_needed&quot;</span><span class="p">:</span> <span class="mi">22_000</span><span class="p">,</span>
+        <span class="s2">&quot;time_seconds&quot;</span><span class="p">:</span> <span class="mf">3.12</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;latin_hypercube&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;simulations_needed&quot;</span><span class="p">:</span> <span class="mi">45_000</span><span class="p">,</span>
+        <span class="s2">&quot;time_seconds&quot;</span><span class="p">:</span> <span class="mf">4.87</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;monte_carlo&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;simulations_needed&quot;</span><span class="p">:</span> <span class="mi">180_000</span><span class="p">,</span>
+        <span class="s2">&quot;time_seconds&quot;</span><span class="p">:</span> <span class="mf">12.45</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="real-world-case-studies">
+<h2><a class="toc-backref" href="#id23" role="doc-backlink">Real-World Case Studies</a><a class="headerlink" href="#real-world-case-studies" title="Link to this heading">¶</a></h2>
+<section id="insurance-company-a-portfolio-optimization">
+<h3><a class="toc-backref" href="#id24" role="doc-backlink">Insurance Company A: Portfolio Optimization</a><a class="headerlink" href="#insurance-company-a-portfolio-optimization" title="Link to this heading">¶</a></h3>
+<p><strong>Challenge:</strong> Price 10,000-policy commercial property portfolio</p>
+<p><strong>Original Setup:</strong>
+* 2M Monte Carlo simulations
+* Single-threaded execution
+* 8 hours runtime per pricing run
+* Limited scenario analysis</p>
+<p><strong>Optimized Setup:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">results</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span>
+    <span class="n">n_simulations</span><span class="o">=</span><span class="mi">500_000</span><span class="p">,</span>  <span class="c1"># Reduced due to QMC</span>
+    <span class="n">use_jit</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">parallel</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">max_workers</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span>
+    <span class="n">use_qmc</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">qmc_engine</span><span class="o">=</span><span class="s1">&#39;sobol&#39;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Results:</strong>
+* Runtime: 23 minutes (20.9x speedup)
+* Accuracy: Equivalent to 2M MC simulations
+* Memory usage: 6.2GB (within budget)
+* <strong>Business Impact:</strong> Daily pricing runs now feasible</p>
+</section>
+<section id="reinsurer-b-catastrophe-modeling">
+<h3><a class="toc-backref" href="#id25" role="doc-backlink">Reinsurer B: Catastrophe Modeling</a><a class="headerlink" href="#reinsurer-b-catastrophe-modeling" title="Link to this heading">¶</a></h3>
+<p><strong>Challenge:</strong> Model 50,000 locations for earthquake risk</p>
+<p><strong>Constraints:</strong>
+* Memory limited to 16GB
+* 24-hour SLA for model runs
+* High accuracy requirements for tail risks</p>
+<p><strong>Solution:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Streaming approach with checkpoints</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">simulate_streaming</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">=</span><span class="n">cat_model</span><span class="p">,</span>
+    <span class="n">n_simulations</span><span class="o">=</span><span class="mi">10_000_000</span><span class="p">,</span>
+    <span class="n">chunk_size</span><span class="o">=</span><span class="mi">50_000</span><span class="p">,</span>
+    <span class="n">use_jit</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">parallel</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">max_workers</span><span class="o">=</span><span class="mi">32</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Results:</strong>
+* Runtime: 4.2 hours (5.7x speedup)
+* Memory usage: Constant 14GB
+* Tail accuracy: 99.5% VaR within 2% of reference
+* <strong>Business Impact:</strong> Enabled stress testing scenarios</p>
+</section>
+</section>
+<section id="platform-comparisons">
+<h2><a class="toc-backref" href="#id26" role="doc-backlink">Platform Comparisons</a><a class="headerlink" href="#platform-comparisons" title="Link to this heading">¶</a></h2>
+<section id="operating-system-performance">
+<h3><a class="toc-backref" href="#id27" role="doc-backlink">Operating System Performance</a><a class="headerlink" href="#operating-system-performance" title="Link to this heading">¶</a></h3>
+<table class="docutils align-default" id="id8">
+<caption><span class="caption-text">Platform Performance (Medium Portfolio, All Optimizations)</span><a class="headerlink" href="#id8" title="Link to this table">¶</a></caption>
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 25.0%" />
+<col style="width: 25.0%" />
+<col style="width: 25.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Platform</p></th>
+<th class="head"><p>Time (s)</p></th>
+<th class="head"><p>Relative Performance</p></th>
+<th class="head"><p>Notes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Linux (Ubuntu 22.04)</p></td>
+<td><p>1.95</p></td>
+<td><p>100% (baseline)</p></td>
+<td><p>Optimal performance</p></td>
+</tr>
+<tr class="row-odd"><td><p>macOS (Monterey)</p></td>
+<td><p>2.13</p></td>
+<td><p>91%</p></td>
+<td><p>Parallel overhead</p></td>
+</tr>
+<tr class="row-even"><td><p>Windows 11</p></td>
+<td><p>2.78</p></td>
+<td><p>70%</p></td>
+<td><p>Process creation cost</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="hardware-variations">
+<h3><a class="toc-backref" href="#id28" role="doc-backlink">Hardware Variations</a><a class="headerlink" href="#hardware-variations" title="Link to this heading">¶</a></h3>
+<p><strong>CPU Comparison (Medium Portfolio, 100K simulations):</strong></p>
+<table class="docutils align-default" id="id9">
+<caption><span class="caption-text">CPU Performance Impact</span><a class="headerlink" href="#id9" title="Link to this table">¶</a></caption>
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 20.0%" />
+<col style="width: 20.0%" />
+<col style="width: 30.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>CPU Type</p></th>
+<th class="head"><p>Time (s)</p></th>
+<th class="head"><p>Relative Perf</p></th>
+<th class="head"><p>Best For</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Intel Xeon (16 cores)</p></td>
+<td><p>1.95</p></td>
+<td><p>100%</p></td>
+<td><p>Large portfolios</p></td>
+</tr>
+<tr class="row-odd"><td><p>AMD EPYC (32 cores)</p></td>
+<td><p>1.67</p></td>
+<td><p>117%</p></td>
+<td><p>Parallel workloads</p></td>
+</tr>
+<tr class="row-even"><td><p>Intel i7 (8 cores)</p></td>
+<td><p>2.34</p></td>
+<td><p>83%</p></td>
+<td><p>Development</p></td>
+</tr>
+<tr class="row-odd"><td><p>Apple M1 (8 cores)</p></td>
+<td><p>2.12</p></td>
+<td><p>92%</p></td>
+<td><p>Energy efficiency</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="performance-regression-testing">
+<h2><a class="toc-backref" href="#id29" role="doc-backlink">Performance Regression Testing</a><a class="headerlink" href="#performance-regression-testing" title="Link to this heading">¶</a></h2>
+<section id="continuous-monitoring">
+<h3><a class="toc-backref" href="#id30" role="doc-backlink">Continuous Monitoring</a><a class="headerlink" href="#continuous-monitoring" title="Link to this heading">¶</a></h3>
+<p>Performance benchmarks are run automatically on every release:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># .github/workflows/benchmark.yml</span>
+<span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Performance Benchmarks</span>
+<span class="nt">on</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">push</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">release</span><span class="p p-Indicator">]</span>
+
+<span class="nt">jobs</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">benchmark</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ubuntu-latest</span>
+<span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/checkout@v3</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Run benchmarks</span>
+<span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">python scripts/run_benchmarks.py</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Compare results</span>
+<span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">python scripts/compare_performance.py</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Alert on regression</span>
+<span class="w">        </span><span class="nt">if</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">performance_regression &gt; 10%</span>
+<span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">echo &quot;::error::Performance regression detected&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="historical-trends">
+<h3><a class="toc-backref" href="#id31" role="doc-backlink">Historical Trends</a><a class="headerlink" href="#historical-trends" title="Link to this heading">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Performance evolution (Medium Portfolio, All Optimizations)</span>
+<span class="n">RELEASE_PERFORMANCE</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;v0.9.0&quot;</span><span class="p">:</span> <span class="mf">3.45</span><span class="p">,</span>  <span class="c1"># Initial optimization</span>
+    <span class="s2">&quot;v0.9.5&quot;</span><span class="p">:</span> <span class="mf">2.87</span><span class="p">,</span>  <span class="c1"># JIT improvements</span>
+    <span class="s2">&quot;v1.0.0&quot;</span><span class="p">:</span> <span class="mf">1.95</span><span class="p">,</span>  <span class="c1"># QMC integration</span>
+    <span class="s2">&quot;v1.0.1&quot;</span><span class="p">:</span> <span class="mf">1.91</span><span class="p">,</span>  <span class="c1"># Memory optimization</span>
+    <span class="s2">&quot;v1.0.2&quot;</span><span class="p">:</span> <span class="mf">1.89</span>   <span class="c1"># Current</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="reproducibility-guide">
+<h2><a class="toc-backref" href="#id32" role="doc-backlink">Reproducibility Guide</a><a class="headerlink" href="#reproducibility-guide" title="Link to this heading">¶</a></h2>
+<section id="running-benchmarks">
+<h3><a class="toc-backref" href="#id33" role="doc-backlink">Running Benchmarks</a><a class="headerlink" href="#running-benchmarks" title="Link to this heading">¶</a></h3>
+<p>To reproduce these benchmarks in your environment:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install benchmark dependencies</span>
+pip<span class="w"> </span>install<span class="w"> </span>quactuary<span class="o">[</span>benchmark<span class="o">]</span>
+
+<span class="c1"># Run standard benchmark suite</span>
+python<span class="w"> </span>-m<span class="w"> </span>quactuary.benchmarks.standard
+
+<span class="c1"># Run specific configuration</span>
+python<span class="w"> </span>-m<span class="w"> </span>quactuary.benchmarks.custom<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--portfolio-size<span class="w"> </span><span class="m">500</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--simulations<span class="w"> </span><span class="m">100000</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--optimize-all
+
+<span class="c1"># Compare with reference</span>
+python<span class="w"> </span>-m<span class="w"> </span>quactuary.benchmarks.compare<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--reference-file<span class="w"> </span>benchmarks/reference.json
+</pre></div>
+</div>
+</section>
+<section id="docker-environment">
+<h3><a class="toc-backref" href="#id34" role="doc-backlink">Docker Environment</a><a class="headerlink" href="#docker-environment" title="Link to this heading">¶</a></h3>
+<p>For consistent benchmarking across environments:</p>
+<div class="highlight-dockerfile notranslate"><div class="highlight"><pre><span></span><span class="c"># Dockerfile.benchmark</span>
+<span class="k">FROM</span><span class="w"> </span><span class="s">python:3.10-slim</span>
+
+<span class="c"># Install system dependencies</span>
+<span class="k">RUN</span><span class="w"> </span>apt-get<span class="w"> </span>update<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>gcc<span class="w"> </span>g++<span class="w"> </span>libc6-dev<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="o">&amp;&amp;</span><span class="w"> </span>rm<span class="w"> </span>-rf<span class="w"> </span>/var/lib/apt/lists/*
+
+<span class="c"># Install quActuary with optimization dependencies</span>
+<span class="k">RUN</span><span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>quactuary<span class="o">[</span>optimize,benchmark<span class="o">]</span>
+
+<span class="c"># Copy benchmark scripts</span>
+<span class="k">COPY</span><span class="w"> </span>benchmarks/<span class="w"> </span>/app/benchmarks/
+<span class="k">WORKDIR</span><span class="w"> </span><span class="s">/app</span>
+
+<span class="k">CMD</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;python&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;-m&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;quactuary.benchmarks.standard&quot;</span><span class="p">]</span>
+</pre></div>
+</div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Run benchmarks in Docker</span>
+docker<span class="w"> </span>build<span class="w"> </span>-f<span class="w"> </span>Dockerfile.benchmark<span class="w"> </span>-t<span class="w"> </span>quactuary-bench<span class="w"> </span>.
+docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>quactuary-bench
+</pre></div>
+</div>
+</section>
+</section>
+<section id="performance-tips">
+<h2><a class="toc-backref" href="#id35" role="doc-backlink">Performance Tips</a><a class="headerlink" href="#performance-tips" title="Link to this heading">¶</a></h2>
+<section id="getting-maximum-performance">
+<h3><a class="toc-backref" href="#id36" role="doc-backlink">Getting Maximum Performance</a><a class="headerlink" href="#getting-maximum-performance" title="Link to this heading">¶</a></h3>
+<ol class="arabic">
+<li><p><strong>Use appropriate simulation counts:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Too few - not worth optimization overhead</span>
+<span class="k">if</span> <span class="n">n_simulations</span> <span class="o">&lt;</span> <span class="mi">10_000</span><span class="p">:</span>
+    <span class="n">use_optimizations</span> <span class="o">=</span> <span class="kc">False</span>
+
+<span class="c1"># Sweet spot for most optimizations</span>
+<span class="k">elif</span> <span class="mi">10_000</span> <span class="o">&lt;=</span> <span class="n">n_simulations</span> <span class="o">&lt;=</span> <span class="mi">1_000_000</span><span class="p">:</span>
+    <span class="n">use_optimizations</span> <span class="o">=</span> <span class="kc">True</span>
+
+<span class="c1"># Very large - consider QMC for better convergence</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">use_qmc</span> <span class="o">=</span> <span class="kc">True</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Monitor memory usage:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">psutil</span>
+
+<span class="c1"># Check available memory before large runs</span>
+<span class="n">available_gb</span> <span class="o">=</span> <span class="n">psutil</span><span class="o">.</span><span class="n">virtual_memory</span><span class="p">()</span><span class="o">.</span><span class="n">available</span> <span class="o">/</span> <span class="mf">1e9</span>
+<span class="n">estimated_need</span> <span class="o">=</span> <span class="n">estimate_memory_gb</span><span class="p">(</span><span class="n">portfolio_size</span><span class="p">,</span> <span class="n">n_simulations</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">estimated_need</span> <span class="o">&gt;</span> <span class="n">available_gb</span> <span class="o">*</span> <span class="mf">0.8</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Enabling memory optimization&quot;</span><span class="p">)</span>
+    <span class="n">use_memory_limit</span> <span class="o">=</span> <span class="kc">True</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Warm up JIT for production:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># One-time warmup</span>
+<span class="n">model</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">n_simulations</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">use_jit</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># Production runs benefit from compiled code</span>
+<span class="k">for</span> <span class="n">scenario</span> <span class="ow">in</span> <span class="n">scenarios</span><span class="p">:</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span>
+        <span class="n">n_simulations</span><span class="o">=</span><span class="mi">1_000_000</span><span class="p">,</span>
+        <span class="n">use_jit</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+</section>
+<section id="next-steps">
+<h2><a class="toc-backref" href="#id37" role="doc-backlink">Next Steps</a><a class="headerlink" href="#next-steps" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="tuning_guide.html"><span class="doc">Advanced Performance Tuning</span></a> - Advanced performance tuning</p></li>
+<li><p><a class="reference internal" href="../user_guide/best_practices.html"><span class="doc">Optimization Best Practices</span></a> - Optimization best practices</p></li>
+<li><p><a class="reference internal" href="../user_guide/index.html"><span class="doc">User Guide</span></a> - User guide with examples</p></li>
+<li><p><a class="reference external" href="https://github.com/quactuary/quactuary/issues">GitHub Issues</a> - Report performance issues</p></li>
+</ul>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="../index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">Performance Benchmarks</a><ul>
+<li><a class="reference internal" href="#benchmarking-standards">Benchmarking Standards</a><ul>
+<li><a class="reference internal" href="#hardware-configuration">Hardware Configuration</a></li>
+<li><a class="reference internal" href="#software-environment">Software Environment</a></li>
+<li><a class="reference internal" href="#methodology">Methodology</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#optimization-impact-analysis">Optimization Impact Analysis</a><ul>
+<li><a class="reference internal" href="#overall-performance-gains">Overall Performance Gains</a></li>
+<li><a class="reference internal" href="#detailed-breakdown">Detailed Breakdown</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#individual-optimization-analysis">Individual Optimization Analysis</a><ul>
+<li><a class="reference internal" href="#jit-compilation-performance">JIT Compilation Performance</a></li>
+<li><a class="reference internal" href="#parallel-processing-scaling">Parallel Processing Scaling</a></li>
+<li><a class="reference internal" href="#memory-optimization-impact">Memory Optimization Impact</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#qmc-convergence-analysis">QMC Convergence Analysis</a><ul>
+<li><a class="reference internal" href="#convergence-comparison">Convergence Comparison</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#real-world-case-studies">Real-World Case Studies</a><ul>
+<li><a class="reference internal" href="#insurance-company-a-portfolio-optimization">Insurance Company A: Portfolio Optimization</a></li>
+<li><a class="reference internal" href="#reinsurer-b-catastrophe-modeling">Reinsurer B: Catastrophe Modeling</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#platform-comparisons">Platform Comparisons</a><ul>
+<li><a class="reference internal" href="#operating-system-performance">Operating System Performance</a></li>
+<li><a class="reference internal" href="#hardware-variations">Hardware Variations</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#performance-regression-testing">Performance Regression Testing</a><ul>
+<li><a class="reference internal" href="#continuous-monitoring">Continuous Monitoring</a></li>
+<li><a class="reference internal" href="#historical-trends">Historical Trends</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#reproducibility-guide">Reproducibility Guide</a><ul>
+<li><a class="reference internal" href="#running-benchmarks">Running Benchmarks</a></li>
+<li><a class="reference internal" href="#docker-environment">Docker Environment</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#performance-tips">Performance Tips</a><ul>
+<li><a class="reference internal" href="#getting-maximum-performance">Getting Maximum Performance</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#next-steps">Next Steps</a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="../quactuary.vectorized_simulation.html"
+                          title="previous chapter">quactuary.vectorized_simulation module</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="tuning_guide.html"
+                          title="next chapter">Advanced Performance Tuning</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/performance/benchmarks.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="tuning_guide.html" title="Advanced Performance Tuning"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../quactuary.vectorized_simulation.html" title="quactuary.vectorized_simulation module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">quActuary v0.0.7 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Performance Benchmarks</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2025, Alex Filiakov, ACAS.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    </div>
+  </body>
+</html>

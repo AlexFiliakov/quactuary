@@ -5,17 +5,17 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>quactuary.pricing module &#8212; quActuary v0.0.6 documentation</title>
+    <title>quactuary.pricing module &#8212; quActuary v0.0.7 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="_static/nature.css?v=279e0f84" />
-    <script src="_static/documentation_options.js?v=e463f385"></script>
+    <script src="_static/documentation_options.js?v=401b779c"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="canonical" href="https://docs.quactuary.com/quactuary.pricing.html" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="quactuary.distributions package" href="quactuary.distributions.html" />
-    <link rel="prev" title="quactuary.entities module" href="quactuary.entities.html" />
+    <link rel="next" title="PricingModel API" href="api_reference/pricing_model.html" />
+    <link rel="prev" title="quactuary.backend module" href="quactuary.backend.html" />
  
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-2TGPCH7PBM"></script>
@@ -34,15 +34,12 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
-          <a href="quactuary.distributions.html" title="quactuary.distributions package"
+          <a href="api_reference/pricing_model.html" title="PricingModel API"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="quactuary.entities.html" title="quactuary.entities module"
+          <a href="quactuary.backend.html" title="quactuary.backend module"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">quActuary v0.0.6 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">quActuary v0.0.7 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">quactuary.pricing module</a></li> 
       </ul>
     </div>  
@@ -52,215 +49,9 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <section id="module-quactuary.pricing">
-<span id="quactuary-pricing-module"></span><h1>quactuary.pricing module<a class="headerlink" href="#module-quactuary.pricing" title="Link to this heading">¶</a></h1>
-<p>Pricing module for actuarial loss models.</p>
-<p>This module provides classes to price excess loss and compute risk measures for insurance portfolios,
-using classical simulation methods (Monte Carlo, FFT) with optional quantum acceleration via Qiskit.</p>
-<p class="rubric">Notes</p>
-<p>Classical methods include Monte Carlo and FFT via external libraries.
-Quantum acceleration uses Qiskit backends managed by BackendManager.</p>
-<p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">quactuary.pricing</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExcessLossModel</span><span class="p">,</span> <span class="n">RiskMeasureModel</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">ExcessLossModel</span><span class="p">(</span><span class="n">inforce</span><span class="p">,</span> <span class="n">deductible</span><span class="o">=</span><span class="mf">1000.0</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mf">10000.0</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">compute_excess_loss</span><span class="p">()</span>
-</pre></div>
-</div>
-<dl class="py class">
-<dt class="sig sig-object py" id="quactuary.pricing.ActuarialModel">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">quactuary.pricing.</span></span><span class="sig-name descname"><span class="pre">ActuarialModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inforce</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deductible</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kw</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quactuary.pricing.ActuarialModel" title="Link to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="quactuary.quantum.html#quactuary.quantum.QuantumModelMixin" title="quactuary.quantum.QuantumModelMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">QuantumModelMixin</span></code></a></p>
-<p>Base class for actuarial pricing models with optional quantum support.</p>
-<p>Provides common interface for portfolio-based loss models using classical or quantum backends.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>inforce</strong> (<a class="reference internal" href="quactuary.entities.html#quactuary.entities.Inforce" title="quactuary.entities.Inforce"><em>Inforce</em></a><em> or </em><a class="reference internal" href="quactuary.entities.html#quactuary.entities.Portfolio" title="quactuary.entities.Portfolio"><em>Portfolio</em></a>) – Policy inforce data.</p></li>
-<li><p><strong>deductible</strong> (<em>Optional</em><em>[</em><em>float</em><em>]</em>) – Layer deductible.</p></li>
-<li><p><strong>limit</strong> (<em>Optional</em><em>[</em><em>float</em><em>]</em>) – Layer limit.</p></li>
-<li><p><strong>backend</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="quactuary.backend.html#quactuary.backend.BackendManager" title="quactuary.backend.BackendManager"><em>BackendManager</em></a><em>]</em>) – Execution backend override.</p></li>
-<li><p><strong>**kw</strong> – Additional model-specific settings.</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="quactuary.pricing.ActuarialModel.portfolio">
-<span class="sig-name descname"><span class="pre">portfolio</span></span><a class="headerlink" href="#quactuary.pricing.ActuarialModel.portfolio" title="Link to this definition">¶</a></dt>
-<dd><p>Wrapped inforce portfolio.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="quactuary.entities.html#quactuary.entities.Portfolio" title="quactuary.entities.Portfolio">Portfolio</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="quactuary.pricing.ActuarialModel.layer_deductible">
-<span class="sig-name descname"><span class="pre">layer_deductible</span></span><a class="headerlink" href="#quactuary.pricing.ActuarialModel.layer_deductible" title="Link to this definition">¶</a></dt>
-<dd><p>Deductible for the layer.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Optional[float]</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="quactuary.pricing.ActuarialModel.layer_limit">
-<span class="sig-name descname"><span class="pre">layer_limit</span></span><a class="headerlink" href="#quactuary.pricing.ActuarialModel.layer_limit" title="Link to this definition">¶</a></dt>
-<dd><p>Limit for the layer.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Optional[float]</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="quactuary.pricing.ActuarialModel.backend">
-<span class="sig-name descname"><span class="pre">backend</span></span><a class="headerlink" href="#quactuary.pricing.ActuarialModel.backend" title="Link to this definition">¶</a></dt>
-<dd><p>Backend manager for execution.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="quactuary.backend.html#quactuary.backend.BackendManager" title="quactuary.backend.BackendManager">BackendManager</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="quactuary.pricing.ActuarialModel.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inforce</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deductible</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kw</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quactuary.pricing.ActuarialModel.__init__" title="Link to this definition">¶</a></dt>
-<dd><p>Initialize an ActuarialModel.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>inforce</strong> (<a class="reference internal" href="quactuary.entities.html#quactuary.entities.Inforce" title="quactuary.entities.Inforce"><em>Inforce</em></a><em> or </em><a class="reference internal" href="quactuary.entities.html#quactuary.entities.Portfolio" title="quactuary.entities.Portfolio"><em>Portfolio</em></a>) – Policy inforce data.</p></li>
-<li><p><strong>deductible</strong> (<em>Optional</em><em>[</em><em>float</em><em>]</em>) – Layer deductible.</p></li>
-<li><p><strong>limit</strong> (<em>Optional</em><em>[</em><em>float</em><em>]</em>) – Layer limit.</p></li>
-<li><p><strong>backend</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="quactuary.backend.html#quactuary.backend.BackendManager" title="quactuary.backend.BackendManager"><em>BackendManager</em></a><em>]</em>) – Execution backend.</p></li>
-<li><p><strong>**kw</strong> – Additional settings (ignored).</p></li>
-</ul>
-</dd>
-<dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>TypeError</strong> – If inforce is not an Inforce or Portfolio.</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="quactuary.pricing.ExcessLossModel">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">quactuary.pricing.</span></span><span class="sig-name descname"><span class="pre">ExcessLossModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inforce</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deductible</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kw</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quactuary.pricing.ExcessLossModel" title="Link to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#quactuary.pricing.ActuarialModel" title="quactuary.pricing.ActuarialModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">ActuarialModel</span></code></a></p>
-<p>Pricing model for aggregate excess loss.</p>
-<p>Computes the loss exceeding a deductible up to a layer limit for an insurance portfolio.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>inforce</strong> (<a class="reference internal" href="quactuary.entities.html#quactuary.entities.Inforce" title="quactuary.entities.Inforce"><em>Inforce</em></a><em> or </em><a class="reference internal" href="quactuary.entities.html#quactuary.entities.Portfolio" title="quactuary.entities.Portfolio"><em>Portfolio</em></a>) – Portfolio data.</p></li>
-<li><p><strong>deductible</strong> (<em>Optional</em><em>[</em><em>float</em><em>]</em>) – Layer deductible.</p></li>
-<li><p><strong>limit</strong> (<em>Optional</em><em>[</em><em>float</em><em>]</em>) – Layer limit.</p></li>
-<li><p><strong>**kw</strong> – Additional settings.</p></li>
-</ul>
-</dd>
-</dl>
-<p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">ExcessLossModel</span><span class="p">(</span><span class="n">inforce</span><span class="p">,</span> <span class="n">deductible</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">losses</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">compute_excess_loss</span><span class="p">()</span>
-</pre></div>
-</div>
-<dl class="py method">
-<dt class="sig sig-object py" id="quactuary.pricing.ExcessLossModel.compute_excess_loss">
-<span class="sig-name descname"><span class="pre">compute_excess_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">backend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quactuary.pricing.ExcessLossModel.compute_excess_loss" title="Link to this definition">¶</a></dt>
-<dd><p>Compute aggregate excess loss for the portfolio.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>backend</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="quactuary.backend.html#quactuary.backend.BackendManager" title="quactuary.backend.BackendManager"><em>BackendManager</em></a><em>]</em>) – Execution backend override.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Excess loss result (e.g., numeric array or DataFrame).</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Any</p>
-</dd>
-<dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>NotImplementedError</strong> – Method not yet implemented.</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="quactuary.pricing.RiskMeasureModel">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">quactuary.pricing.</span></span><span class="sig-name descname"><span class="pre">RiskMeasureModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inforce</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deductible</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kw</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quactuary.pricing.RiskMeasureModel" title="Link to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#quactuary.pricing.ActuarialModel" title="quactuary.pricing.ActuarialModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">ActuarialModel</span></code></a></p>
-<p>Pricing model for risk measures (VaR, TVaR).</p>
-<p>Computes quantile-based risk metrics for insurance portfolios, with optional quantum acceleration.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>inforce</strong> (<a class="reference internal" href="quactuary.entities.html#quactuary.entities.Inforce" title="quactuary.entities.Inforce"><em>Inforce</em></a><em> or </em><a class="reference internal" href="quactuary.entities.html#quactuary.entities.Portfolio" title="quactuary.entities.Portfolio"><em>Portfolio</em></a>) – Portfolio data.</p></li>
-<li><p><strong>deductible</strong> (<em>Optional</em><em>[</em><em>float</em><em>]</em>) – Layer deductible.</p></li>
-<li><p><strong>limit</strong> (<em>Optional</em><em>[</em><em>float</em><em>]</em>) – Layer limit.</p></li>
-<li><p><strong>**kw</strong> – Additional settings.</p></li>
-</ul>
-</dd>
-</dl>
-<p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rm</span> <span class="o">=</span> <span class="n">RiskMeasureModel</span><span class="p">(</span><span class="n">inforce</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">var</span> <span class="o">=</span> <span class="n">rm</span><span class="o">.</span><span class="n">value_at_risk</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">0.99</span><span class="p">)</span>
-</pre></div>
-</div>
-<dl class="py method">
-<dt class="sig sig-object py" id="quactuary.pricing.RiskMeasureModel.tail_value_at_risk">
-<span class="sig-name descname"><span class="pre">tail_value_at_risk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.95</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quactuary.pricing.RiskMeasureModel.tail_value_at_risk" title="Link to this definition">¶</a></dt>
-<dd><p>Compute the Tail Value at Risk (TVaR) at the given confidence level.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>alpha</strong> (<em>float</em><em>, </em><em>optional</em>) – Confidence level (0 &lt; alpha &lt; 1). Defaults to 0.95.</p></li>
-<li><p><strong>backend</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="quactuary.backend.html#quactuary.backend.BackendManager" title="quactuary.backend.BackendManager"><em>BackendManager</em></a><em>]</em>) – Execution backend override.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Estimated TVaR value.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>float</p>
-</dd>
-<dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>NotImplementedError</strong> – Method not yet implemented.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="quactuary.pricing.RiskMeasureModel.value_at_risk">
-<span class="sig-name descname"><span class="pre">value_at_risk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.95</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quactuary.pricing.RiskMeasureModel.value_at_risk" title="Link to this definition">¶</a></dt>
-<dd><p>Compute the Value at Risk (VaR) at the given confidence level.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>alpha</strong> (<em>float</em><em>, </em><em>optional</em>) – Confidence level (0 &lt; alpha &lt; 1). Defaults to 0.95.</p></li>
-<li><p><strong>backend</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="quactuary.backend.html#quactuary.backend.BackendManager" title="quactuary.backend.BackendManager"><em>BackendManager</em></a><em>]</em>) – Execution backend override.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Estimated VaR value.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>float</p>
-</dd>
-<dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>NotImplementedError</strong> – Method not yet implemented.</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
+  <section id="quactuary-pricing-module">
+<h1>quactuary.pricing module<a class="headerlink" href="#quactuary-pricing-module" title="Link to this heading">¶</a></h1>
+<p>Core pricing models and simulation frameworks for actuarial calculations.</p>
 </section>
 
 
@@ -271,40 +62,14 @@ Quantum acceleration uses Qiskit backends managed by BackendManager.</p>
       <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
   <div>
-    <h3><a href="index.html">Table of Contents</a></h3>
-    <ul>
-<li><a class="reference internal" href="#">quactuary.pricing module</a><ul>
-<li><a class="reference internal" href="#quactuary.pricing.ActuarialModel"><code class="docutils literal notranslate"><span class="pre">ActuarialModel</span></code></a><ul>
-<li><a class="reference internal" href="#quactuary.pricing.ActuarialModel.portfolio"><code class="docutils literal notranslate"><span class="pre">ActuarialModel.portfolio</span></code></a></li>
-<li><a class="reference internal" href="#quactuary.pricing.ActuarialModel.layer_deductible"><code class="docutils literal notranslate"><span class="pre">ActuarialModel.layer_deductible</span></code></a></li>
-<li><a class="reference internal" href="#quactuary.pricing.ActuarialModel.layer_limit"><code class="docutils literal notranslate"><span class="pre">ActuarialModel.layer_limit</span></code></a></li>
-<li><a class="reference internal" href="#quactuary.pricing.ActuarialModel.backend"><code class="docutils literal notranslate"><span class="pre">ActuarialModel.backend</span></code></a></li>
-<li><a class="reference internal" href="#quactuary.pricing.ActuarialModel.__init__"><code class="docutils literal notranslate"><span class="pre">ActuarialModel.__init__()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#quactuary.pricing.ExcessLossModel"><code class="docutils literal notranslate"><span class="pre">ExcessLossModel</span></code></a><ul>
-<li><a class="reference internal" href="#quactuary.pricing.ExcessLossModel.compute_excess_loss"><code class="docutils literal notranslate"><span class="pre">ExcessLossModel.compute_excess_loss()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#quactuary.pricing.RiskMeasureModel"><code class="docutils literal notranslate"><span class="pre">RiskMeasureModel</span></code></a><ul>
-<li><a class="reference internal" href="#quactuary.pricing.RiskMeasureModel.tail_value_at_risk"><code class="docutils literal notranslate"><span class="pre">RiskMeasureModel.tail_value_at_risk()</span></code></a></li>
-<li><a class="reference internal" href="#quactuary.pricing.RiskMeasureModel.value_at_risk"><code class="docutils literal notranslate"><span class="pre">RiskMeasureModel.value_at_risk()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-
-  </div>
-  <div>
     <h4>Previous topic</h4>
-    <p class="topless"><a href="quactuary.entities.html"
-                          title="previous chapter">quactuary.entities module</a></p>
+    <p class="topless"><a href="quactuary.backend.html"
+                          title="previous chapter">quactuary.backend module</a></p>
   </div>
   <div>
     <h4>Next topic</h4>
-    <p class="topless"><a href="quactuary.distributions.html"
-                          title="next chapter">quactuary.distributions package</a></p>
+    <p class="topless"><a href="api_reference/pricing_model.html"
+                          title="next chapter">PricingModel API</a></p>
   </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
@@ -334,15 +99,12 @@ Quantum acceleration uses Qiskit backends managed by BackendManager.</p>
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
-          <a href="quactuary.distributions.html" title="quactuary.distributions package"
+          <a href="api_reference/pricing_model.html" title="PricingModel API"
              >next</a> |</li>
         <li class="right" >
-          <a href="quactuary.entities.html" title="quactuary.entities module"
+          <a href="quactuary.backend.html" title="quactuary.backend module"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">quActuary v0.0.6 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">quActuary v0.0.7 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">quactuary.pricing module</a></li> 
       </ul>
     </div>

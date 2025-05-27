@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Distribution Parameter Reference &#8212; quActuary v0.0.7 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/nature.css?v=279e0f84" />
+    <script src="../_static/documentation_options.js?v=401b779c"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="canonical" href="https://docs.quactuary.com/user_guide/distribution_parameters.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Optimization Configuration Guide" href="optimization_config.html" />
+    <link rel="prev" title="Numerical Stability Guide" href="numerical_stability.html" />
+ 
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-2TGPCH7PBM"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag() { dataLayer.push(arguments); }
+  gtag('js', new Date());
+  gtag('config', 'G-2TGPCH7PBM');
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="optimization_config.html" title="Optimization Configuration Guide"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="numerical_stability.html" title="Numerical Stability Guide"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">quActuary v0.0.7 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">User Guide</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Distribution Parameter Reference</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="distribution-parameter-reference">
+<h1>Distribution Parameter Reference<a class="headerlink" href="#distribution-parameter-reference" title="Link to this heading">¶</a></h1>
+<p>This guide documents the parameter naming conventions used across all distribution classes in quActuary.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>As of version 0.2.0, all distributions use <code class="docutils literal notranslate"><span class="pre">loc</span></code> for location parameters (not <code class="docutils literal notranslate"><span class="pre">location</span></code> or <code class="docutils literal notranslate"><span class="pre">threshold</span></code>).
+This was standardized to ensure consistency across the API.</p>
+</div>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">¶</a></h2>
+<p>quActuary uses consistent parameter naming conventions across its distribution classes:</p>
+<ul class="simple">
+<li><p><strong>Location parameter</strong>: Always use <code class="docutils literal notranslate"><span class="pre">loc</span></code></p></li>
+<li><p><strong>Scale parameter</strong>: Always use <code class="docutils literal notranslate"><span class="pre">scale</span></code></p></li>
+<li><p><strong>Shape parameters</strong>: Vary by distribution type but follow statistical conventions</p></li>
+</ul>
+</section>
+<section id="parameter-naming-by-distribution-type">
+<h2>Parameter Naming by Distribution Type<a class="headerlink" href="#parameter-naming-by-distribution-type" title="Link to this heading">¶</a></h2>
+<section id="frequency-distributions">
+<h3>Frequency Distributions<a class="headerlink" href="#frequency-distributions" title="Link to this heading">¶</a></h3>
+<table class="docutils align-default" id="id1">
+<caption><span class="caption-text">Frequency Distribution Parameters</span><a class="headerlink" href="#id1" title="Link to this table">¶</a></caption>
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 70.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Distribution</p></th>
+<th class="head"><p>Parameters</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Binomial</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">n</span></code> (number of trials), <code class="docutils literal notranslate"><span class="pre">p</span></code> (probability of success)</p></td>
+</tr>
+<tr class="row-odd"><td><p>DeterministicFrequency</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">value</span></code> (fixed frequency value)</p></td>
+</tr>
+<tr class="row-even"><td><p>DiscreteUniformFrequency</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">low</span></code> (minimum value), <code class="docutils literal notranslate"><span class="pre">high</span></code> (maximum value)</p></td>
+</tr>
+<tr class="row-odd"><td><p>EmpiricalFrequency</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">pmf_values</span></code> (dictionary of value: probability pairs)</p></td>
+</tr>
+<tr class="row-even"><td><p>Geometric</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">p</span></code> (probability of success)</p></td>
+</tr>
+<tr class="row-odd"><td><p>Hypergeometric</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">M</span></code> (population size), <code class="docutils literal notranslate"><span class="pre">n</span></code> (number of draws), <code class="docutils literal notranslate"><span class="pre">N</span></code> (success states)</p></td>
+</tr>
+<tr class="row-even"><td><p>MixedFrequency</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">components</span></code> (list of distributions), <code class="docutils literal notranslate"><span class="pre">weights</span></code> (mixing weights)</p></td>
+</tr>
+<tr class="row-odd"><td><p>NegativeBinomial</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">r</span></code> (number of successes), <code class="docutils literal notranslate"><span class="pre">p</span></code> (probability of success)</p></td>
+</tr>
+<tr class="row-even"><td><p>PanjerABk</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">a</span></code>, <code class="docutils literal notranslate"><span class="pre">b</span></code>, <code class="docutils literal notranslate"><span class="pre">k</span></code> (Panjer parameters), <code class="docutils literal notranslate"><span class="pre">tol</span></code> (tolerance), <code class="docutils literal notranslate"><span class="pre">max_iter</span></code> (max iterations)</p></td>
+</tr>
+<tr class="row-odd"><td><p>Poisson</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">mu</span></code> (mean/rate parameter)</p></td>
+</tr>
+<tr class="row-even"><td><p>TriangularFrequency</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">c</span></code> (mode), <code class="docutils literal notranslate"><span class="pre">loc</span></code> (minimum), <code class="docutils literal notranslate"><span class="pre">scale</span></code> (maximum - minimum)</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="severity-distributions">
+<h3>Severity Distributions<a class="headerlink" href="#severity-distributions" title="Link to this heading">¶</a></h3>
+<table class="docutils align-default" id="id2">
+<caption><span class="caption-text">Severity Distribution Parameters</span><a class="headerlink" href="#id2" title="Link to this table">¶</a></caption>
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 70.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Distribution</p></th>
+<th class="head"><p>Parameters</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Beta</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">a</span></code>, <code class="docutils literal notranslate"><span class="pre">b</span></code> (shape parameters), <code class="docutils literal notranslate"><span class="pre">loc</span></code>, <code class="docutils literal notranslate"><span class="pre">scale</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>ChiSquared</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">df</span></code> (degrees of freedom), <code class="docutils literal notranslate"><span class="pre">loc</span></code>, <code class="docutils literal notranslate"><span class="pre">scale</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>ConstantSeverity</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">value</span></code> (fixed severity value)</p></td>
+</tr>
+<tr class="row-odd"><td><p>ContinuousUniformSeverity</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">loc</span></code> (minimum), <code class="docutils literal notranslate"><span class="pre">scale</span></code> (maximum - minimum)</p></td>
+</tr>
+<tr class="row-even"><td><p>DiscretizedSeverity</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">sev_dist</span></code> (underlying distribution), <code class="docutils literal notranslate"><span class="pre">min_val</span></code>, <code class="docutils literal notranslate"><span class="pre">max_val</span></code>, <code class="docutils literal notranslate"><span class="pre">bins</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>EmpiricalSeverity</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">values</span></code> (data values), <code class="docutils literal notranslate"><span class="pre">probs</span></code> (probabilities)</p></td>
+</tr>
+<tr class="row-even"><td><p>Exponential</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">scale</span></code> (rate = 1/scale), <code class="docutils literal notranslate"><span class="pre">loc</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Gamma</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">shape</span></code> (alpha), <code class="docutils literal notranslate"><span class="pre">loc</span></code>, <code class="docutils literal notranslate"><span class="pre">scale</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>InverseGamma</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">shape</span></code> (alpha), <code class="docutils literal notranslate"><span class="pre">loc</span></code>, <code class="docutils literal notranslate"><span class="pre">scale</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>InverseGaussian</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">shape</span></code> (lambda), <code class="docutils literal notranslate"><span class="pre">loc</span></code>, <code class="docutils literal notranslate"><span class="pre">scale</span></code> (mu)</p></td>
+</tr>
+<tr class="row-even"><td><p>InverseWeibull</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">shape</span></code> (c), <code class="docutils literal notranslate"><span class="pre">loc</span></code>, <code class="docutils literal notranslate"><span class="pre">scale</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Lognormal</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">shape</span></code> (sigma), <code class="docutils literal notranslate"><span class="pre">loc</span></code>, <code class="docutils literal notranslate"><span class="pre">scale</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>MixedSeverity</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">components</span></code> (list of distributions), <code class="docutils literal notranslate"><span class="pre">weights</span></code> (mixing weights)</p></td>
+</tr>
+<tr class="row-odd"><td><p>Pareto</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">b</span></code> (shape/alpha), <code class="docutils literal notranslate"><span class="pre">loc</span></code>, <code class="docutils literal notranslate"><span class="pre">scale</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>StudentsT</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">df</span></code> (degrees of freedom), <code class="docutils literal notranslate"><span class="pre">loc</span></code>, <code class="docutils literal notranslate"><span class="pre">scale</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>TriangularSeverity</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">c</span></code> (mode), <code class="docutils literal notranslate"><span class="pre">loc</span></code> (minimum), <code class="docutils literal notranslate"><span class="pre">scale</span></code> (maximum - minimum)</p></td>
+</tr>
+<tr class="row-even"><td><p>Weibull</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">shape</span></code> (c), <code class="docutils literal notranslate"><span class="pre">loc</span></code>, <code class="docutils literal notranslate"><span class="pre">scale</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="compound-distributions">
+<h3>Compound Distributions<a class="headerlink" href="#compound-distributions" title="Link to this heading">¶</a></h3>
+<p>All compound distributions use the same parameter structure:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">frequency</span></code>: A frequency distribution instance</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">severity</span></code>: A severity distribution instance</p></li>
+</ul>
+</section>
+<section id="mixed-poisson-distributions">
+<h3>Mixed Poisson Distributions<a class="headerlink" href="#mixed-poisson-distributions" title="Link to this heading">¶</a></h3>
+<table class="docutils align-default" id="id3">
+<caption><span class="caption-text">Mixed Poisson Distribution Parameters</span><a class="headerlink" href="#id3" title="Link to this table">¶</a></caption>
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 70.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Distribution</p></th>
+<th class="head"><p>Parameters</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>PoissonGammaMixture</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">alpha</span></code>, <code class="docutils literal notranslate"><span class="pre">beta</span></code> (Gamma mixing parameters)</p></td>
+</tr>
+<tr class="row-odd"><td><p>PoissonInverseGaussianMixture</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">mu</span></code> (mean), <code class="docutils literal notranslate"><span class="pre">lambda_shape</span></code> (shape parameter)</p></td>
+</tr>
+<tr class="row-even"><td><p>HierarchicalPoissonMixture</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">portfolio_alpha</span></code>, <code class="docutils literal notranslate"><span class="pre">portfolio_beta</span></code>, <code class="docutils literal notranslate"><span class="pre">group_alpha</span></code>, <code class="docutils literal notranslate"><span class="pre">n_groups</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>TimeVaryingPoissonMixture</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">base_rate</span></code>, <code class="docutils literal notranslate"><span class="pre">intensity_func</span></code>, <code class="docutils literal notranslate"><span class="pre">param_dist</span></code>, <code class="docutils literal notranslate"><span class="pre">time_horizon</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="zero-inflated-distributions">
+<h3>Zero-Inflated Distributions<a class="headerlink" href="#zero-inflated-distributions" title="Link to this heading">¶</a></h3>
+<p>All zero-inflated distributions use:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">frequency</span></code>: Base frequency distribution</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">severity</span></code>: Base severity distribution</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">zero_prob</span></code>: Probability of zero claims</p></li>
+</ul>
+</section>
+</section>
+<section id="migration-guide">
+<h2>Migration Guide<a class="headerlink" href="#migration-guide" title="Link to this heading">¶</a></h2>
+<p>If you’re updating from an older version, here are the key parameter changes:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Old (pre-0.2.0)</span>
+<span class="n">lognormal</span> <span class="o">=</span> <span class="n">Lognormal</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">location</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>  <span class="c1"># WRONG</span>
+<span class="n">pareto</span> <span class="o">=</span> <span class="n">Pareto</span><span class="p">(</span><span class="n">b</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mf">1000.0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>        <span class="c1"># WRONG</span>
+
+<span class="c1"># New (0.2.0+)</span>
+<span class="n">lognormal</span> <span class="o">=</span> <span class="n">Lognormal</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>       <span class="c1"># CORRECT</span>
+<span class="n">pareto</span> <span class="o">=</span> <span class="n">Pareto</span><span class="p">(</span><span class="n">b</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="mf">1000.0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>             <span class="c1"># CORRECT</span>
+</pre></div>
+</div>
+</section>
+<section id="best-practices">
+<h2>Best Practices<a class="headerlink" href="#best-practices" title="Link to this heading">¶</a></h2>
+<ol class="arabic">
+<li><p><strong>Always use keyword arguments</strong> when creating distributions to avoid confusion:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Good</span>
+<span class="n">dist</span> <span class="o">=</span> <span class="n">Gamma</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+
+<span class="c1"># Avoid</span>
+<span class="n">dist</span> <span class="o">=</span> <span class="n">Gamma</span><span class="p">(</span><span class="mf">2.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Check parameter bounds</strong> - some distributions have restrictions:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Pareto requires loc &gt; 0 (minimum value)</span>
+<span class="n">pareto</span> <span class="o">=</span> <span class="n">Pareto</span><span class="p">(</span><span class="n">b</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="mf">1000.0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>  <span class="c1"># loc must be positive</span>
+
+<span class="c1"># Beta requires 0 &lt;= x &lt;= 1 after transformation</span>
+<span class="n">beta</span> <span class="o">=</span> <span class="n">Beta</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="mf">3.0</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Use consistent units</strong> across frequency and severity when creating compounds:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">freq</span> <span class="o">=</span> <span class="n">Poisson</span><span class="p">(</span><span class="n">mu</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>  <span class="c1"># 10 claims per period</span>
+<span class="n">sev</span> <span class="o">=</span> <span class="n">Lognormal</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>  <span class="c1"># severity in dollars</span>
+<span class="n">compound</span> <span class="o">=</span> <span class="n">CompoundPoisson</span><span class="p">(</span><span class="n">frequency</span><span class="o">=</span><span class="n">freq</span><span class="p">,</span> <span class="n">severity</span><span class="o">=</span><span class="n">sev</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+<section id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Link to this heading">¶</a></h2>
+<section id="creating-common-distributions">
+<h3>Creating Common Distributions<a class="headerlink" href="#creating-common-distributions" title="Link to this heading">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">quactuary.distributions</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Poisson</span><span class="p">,</span> <span class="n">NegativeBinomial</span><span class="p">,</span>
+    <span class="n">Lognormal</span><span class="p">,</span> <span class="n">Pareto</span><span class="p">,</span> <span class="n">Gamma</span><span class="p">,</span>
+    <span class="n">CompoundPoisson</span>
+<span class="p">)</span>
+
+<span class="c1"># Frequency distributions</span>
+<span class="n">poisson_freq</span> <span class="o">=</span> <span class="n">Poisson</span><span class="p">(</span><span class="n">mu</span><span class="o">=</span><span class="mf">5.0</span><span class="p">)</span>
+<span class="n">negbin_freq</span> <span class="o">=</span> <span class="n">NegativeBinomial</span><span class="p">(</span><span class="n">r</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+
+<span class="c1"># Severity distributions</span>
+<span class="n">lognormal_sev</span> <span class="o">=</span> <span class="n">Lognormal</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">1000.0</span><span class="p">)</span>
+<span class="n">pareto_sev</span> <span class="o">=</span> <span class="n">Pareto</span><span class="p">(</span><span class="n">b</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="mf">1000.0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+<span class="n">gamma_sev</span> <span class="o">=</span> <span class="n">Gamma</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">500.0</span><span class="p">)</span>
+
+<span class="c1"># Compound distribution</span>
+<span class="n">compound</span> <span class="o">=</span> <span class="n">CompoundPoisson</span><span class="p">(</span>
+    <span class="n">frequency</span><span class="o">=</span><span class="n">poisson_freq</span><span class="p">,</span>
+    <span class="n">severity</span><span class="o">=</span><span class="n">lognormal_sev</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="working-with-zero-inflated-models">
+<h3>Working with Zero-Inflated Models<a class="headerlink" href="#working-with-zero-inflated-models" title="Link to this heading">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">quactuary.distributions</span><span class="w"> </span><span class="kn">import</span> <span class="n">ZeroInflatedCompound</span>
+
+<span class="c1"># 20% chance of zero claims</span>
+<span class="n">zi_compound</span> <span class="o">=</span> <span class="n">ZeroInflatedCompound</span><span class="p">(</span>
+    <span class="n">frequency</span><span class="o">=</span><span class="n">Poisson</span><span class="p">(</span><span class="n">mu</span><span class="o">=</span><span class="mf">5.0</span><span class="p">),</span>
+    <span class="n">severity</span><span class="o">=</span><span class="n">Gamma</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">1000.0</span><span class="p">),</span>
+    <span class="n">zero_prob</span><span class="o">=</span><span class="mf">0.2</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="see-also">
+<h2>See Also<a class="headerlink" href="#see-also" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="../quactuary.distributions.html"><span class="doc">quactuary.distributions package</span></a> - Full API documentation</p></li>
+<li><p><a class="reference internal" href="testing_best_practices.html"><span class="doc">Testing Best Practices</span></a> - Testing with stochastic distributions</p></li>
+<li><p><a class="reference internal" href="best_practices.html"><span class="doc">Optimization Best Practices</span></a> - Best practices for using distributions</p></li>
+</ul>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="../index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">Distribution Parameter Reference</a><ul>
+<li><a class="reference internal" href="#overview">Overview</a></li>
+<li><a class="reference internal" href="#parameter-naming-by-distribution-type">Parameter Naming by Distribution Type</a><ul>
+<li><a class="reference internal" href="#frequency-distributions">Frequency Distributions</a></li>
+<li><a class="reference internal" href="#severity-distributions">Severity Distributions</a></li>
+<li><a class="reference internal" href="#compound-distributions">Compound Distributions</a></li>
+<li><a class="reference internal" href="#mixed-poisson-distributions">Mixed Poisson Distributions</a></li>
+<li><a class="reference internal" href="#zero-inflated-distributions">Zero-Inflated Distributions</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#migration-guide">Migration Guide</a></li>
+<li><a class="reference internal" href="#best-practices">Best Practices</a></li>
+<li><a class="reference internal" href="#examples">Examples</a><ul>
+<li><a class="reference internal" href="#creating-common-distributions">Creating Common Distributions</a></li>
+<li><a class="reference internal" href="#working-with-zero-inflated-models">Working with Zero-Inflated Models</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#see-also">See Also</a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="numerical_stability.html"
+                          title="previous chapter">Numerical Stability Guide</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="optimization_config.html"
+                          title="next chapter">Optimization Configuration Guide</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/user_guide/distribution_parameters.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="optimization_config.html" title="Optimization Configuration Guide"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="numerical_stability.html" title="Numerical Stability Guide"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">quActuary v0.0.7 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >User Guide</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Distribution Parameter Reference</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2025, Alex Filiakov, ACAS.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    </div>
+  </body>
+</html>

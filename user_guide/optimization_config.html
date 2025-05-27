@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Optimization Configuration Guide &#8212; quActuary v0.0.7 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/nature.css?v=279e0f84" />
+    <script src="../_static/documentation_options.js?v=401b779c"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="canonical" href="https://docs.quactuary.com/user_guide/optimization_config.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Testing Best Practices" href="testing_best_practices.html" />
+    <link rel="prev" title="Distribution Parameter Reference" href="distribution_parameters.html" />
+ 
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-2TGPCH7PBM"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag() { dataLayer.push(arguments); }
+  gtag('js', new Date());
+  gtag('config', 'G-2TGPCH7PBM');
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="testing_best_practices.html" title="Testing Best Practices"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="distribution_parameters.html" title="Distribution Parameter Reference"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">quActuary v0.0.7 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">User Guide</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Optimization Configuration Guide</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="optimization-configuration-guide">
+<h1>Optimization Configuration Guide<a class="headerlink" href="#optimization-configuration-guide" title="Link to this heading">¶</a></h1>
+<p>This guide explains how to use <code class="docutils literal notranslate"><span class="pre">OptimizationConfig</span></code> to control performance optimizations in quActuary.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">Added in version 0.2.0: </span>The unified <code class="docutils literal notranslate"><span class="pre">OptimizationConfig</span></code> replaced individual optimization parameters.</p>
+</div>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">¶</a></h2>
+<p>quActuary provides automatic and manual optimization configuration through the <code class="docutils literal notranslate"><span class="pre">OptimizationConfig</span></code> class. The system can automatically select optimal settings based on your data size and system resources, or you can manually configure specific optimizations.</p>
+</section>
+<section id="quick-start">
+<h2>Quick Start<a class="headerlink" href="#quick-start" title="Link to this heading">¶</a></h2>
+<section id="using-auto-optimization">
+<h3>Using Auto-Optimization<a class="headerlink" href="#using-auto-optimization" title="Link to this heading">¶</a></h3>
+<p>The simplest way to get optimal performance is to use <code class="docutils literal notranslate"><span class="pre">auto_optimize=True</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">quactuary.pricing</span><span class="w"> </span><span class="kn">import</span> <span class="n">PricingModel</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">PricingModel</span><span class="p">(</span><span class="n">portfolio</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span>
+    <span class="n">auto_optimize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">n_sims</span><span class="o">=</span><span class="mi">100000</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>The system will automatically:</p>
+<ul class="simple">
+<li><p>Analyze your portfolio size and complexity</p></li>
+<li><p>Check available system resources (memory, CPU cores)</p></li>
+<li><p>Select the best combination of optimizations</p></li>
+<li><p>Apply fallback strategies if needed</p></li>
+</ul>
+</section>
+<section id="manual-configuration">
+<h3>Manual Configuration<a class="headerlink" href="#manual-configuration" title="Link to this heading">¶</a></h3>
+<p>For fine-grained control, create an <code class="docutils literal notranslate"><span class="pre">OptimizationConfig</span></code> instance:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">quactuary.optimization_selector</span><span class="w"> </span><span class="kn">import</span> <span class="n">OptimizationConfig</span>
+
+<span class="n">config</span> <span class="o">=</span> <span class="n">OptimizationConfig</span><span class="p">(</span>
+    <span class="n">use_jit</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">use_parallel</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">n_workers</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+    <span class="n">use_qmc</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">qmc_method</span><span class="o">=</span><span class="s2">&quot;sobol&quot;</span>
+<span class="p">)</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span>
+    <span class="n">optimization_config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+    <span class="n">n_sims</span><span class="o">=</span><span class="mi">100000</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="configuration-options">
+<h2>Configuration Options<a class="headerlink" href="#configuration-options" title="Link to this heading">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">OptimizationConfig</span></code> class supports the following options:</p>
+<table class="docutils align-default" id="id1">
+<caption><span class="caption-text">OptimizationConfig Parameters</span><a class="headerlink" href="#id1" title="Link to this table">¶</a></caption>
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 15.0%" />
+<col style="width: 60.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">use_jit</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p></td>
+<td><p>Enable Just-In-Time compilation for faster execution</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">use_parallel</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p></td>
+<td><p>Enable parallel processing across multiple CPU cores</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">use_qmc</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p></td>
+<td><p>Use Quasi-Monte Carlo sequences for better convergence</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">qmc_method</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+<td><p>QMC sequence type: <code class="docutils literal notranslate"><span class="pre">&quot;sobol&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;halton&quot;</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">use_vectorization</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">True</span></code></p></td>
+<td><p>Use NumPy vectorized operations (recommended)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">use_memory_optimization</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p></td>
+<td><p>Enable batch processing for memory-constrained systems</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">parallel_backend</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+<td><p>Backend for parallelization: <code class="docutils literal notranslate"><span class="pre">&quot;joblib&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;multiprocessing&quot;</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">batch_size</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+<td><p>Batch size for memory optimization (auto-calculated if None)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">n_workers</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+<td><p>Number of parallel workers (defaults to CPU count - 1)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">fallback_chain</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[]</span></code></p></td>
+<td><p>List of fallback strategies if primary fails</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">user_preferences</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+<td><p>Custom preferences for optimization selection</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="how-auto-optimization-works">
+<h2>How Auto-Optimization Works<a class="headerlink" href="#how-auto-optimization-works" title="Link to this heading">¶</a></h2>
+<p>When <code class="docutils literal notranslate"><span class="pre">auto_optimize=True</span></code>, the system follows this decision process:</p>
+<ol class="arabic">
+<li><p><strong>Portfolio Analysis</strong></p>
+<ul class="simple">
+<li><p>Number of policies and simulations</p></li>
+<li><p>Distribution complexity</p></li>
+<li><p>Total memory requirements</p></li>
+</ul>
+</li>
+<li><p><strong>Resource Assessment</strong></p>
+<ul class="simple">
+<li><p>Available system memory</p></li>
+<li><p>Number of CPU cores</p></li>
+<li><p>Memory safety margins</p></li>
+</ul>
+</li>
+<li><p><strong>Strategy Selection</strong></p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Data Points = n_policies × n_simulations
+
+If Data Points &lt; 1M:
+    → Use vectorization only (fast for small data)
+
+If 1M ≤ Data Points &lt; 100M:
+    → Use JIT + Vectorization + QMC
+
+If Data Points ≥ 100M:
+    → Use all optimizations (JIT, Parallel, QMC, Vectorization)
+
+If Memory Required &gt; 80% Available:
+    → Enable memory optimization with batching
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+<section id="common-optimization-combinations">
+<h2>Common Optimization Combinations<a class="headerlink" href="#common-optimization-combinations" title="Link to this heading">¶</a></h2>
+<section id="small-portfolios-1-000-policies">
+<h3>Small Portfolios (&lt; 1,000 policies)<a class="headerlink" href="#small-portfolios-1-000-policies" title="Link to this heading">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Let auto-optimize handle it</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">auto_optimize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">n_sims</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span>
+
+<span class="c1"># Or manually optimize for speed</span>
+<span class="n">config</span> <span class="o">=</span> <span class="n">OptimizationConfig</span><span class="p">(</span>
+    <span class="n">use_jit</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">use_vectorization</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="medium-portfolios-1-000-100-000-policies">
+<h3>Medium Portfolios (1,000 - 100,000 policies)<a class="headerlink" href="#medium-portfolios-1-000-100-000-policies" title="Link to this heading">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Good balance of speed and accuracy</span>
+<span class="n">config</span> <span class="o">=</span> <span class="n">OptimizationConfig</span><span class="p">(</span>
+    <span class="n">use_jit</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">use_qmc</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">qmc_method</span><span class="o">=</span><span class="s2">&quot;sobol&quot;</span><span class="p">,</span>
+    <span class="n">use_vectorization</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="large-portfolios-100-000-policies">
+<h3>Large Portfolios (&gt; 100,000 policies)<a class="headerlink" href="#large-portfolios-100-000-policies" title="Link to this heading">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Maximum performance</span>
+<span class="n">config</span> <span class="o">=</span> <span class="n">OptimizationConfig</span><span class="p">(</span>
+    <span class="n">use_jit</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">use_parallel</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">n_workers</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>  <span class="c1"># Adjust based on your CPU</span>
+    <span class="n">use_qmc</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">qmc_method</span><span class="o">=</span><span class="s2">&quot;sobol&quot;</span><span class="p">,</span>
+    <span class="n">use_memory_optimization</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">batch_size</span><span class="o">=</span><span class="mi">50000</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="memory-constrained-systems">
+<h3>Memory-Constrained Systems<a class="headerlink" href="#memory-constrained-systems" title="Link to this heading">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Optimize for low memory usage</span>
+<span class="n">config</span> <span class="o">=</span> <span class="n">OptimizationConfig</span><span class="p">(</span>
+    <span class="n">use_memory_optimization</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">batch_size</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span>  <span class="c1"># Small batches</span>
+    <span class="n">use_parallel</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>  <span class="c1"># Save memory</span>
+    <span class="n">use_vectorization</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="advanced-usage">
+<h2>Advanced Usage<a class="headerlink" href="#advanced-usage" title="Link to this heading">¶</a></h2>
+<section id="combining-auto-and-manual-configuration">
+<h3>Combining Auto and Manual Configuration<a class="headerlink" href="#combining-auto-and-manual-configuration" title="Link to this heading">¶</a></h3>
+<p>You can provide hints to the auto-optimizer:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Force parallel but let system choose workers</span>
+<span class="n">config</span> <span class="o">=</span> <span class="n">OptimizationConfig</span><span class="p">(</span>
+    <span class="n">use_parallel</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span>
+    <span class="n">auto_optimize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">optimization_config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>  <span class="c1"># Used as hints</span>
+    <span class="n">n_sims</span><span class="o">=</span><span class="mi">100000</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="custom-fallback-chains">
+<h3>Custom Fallback Chains<a class="headerlink" href="#custom-fallback-chains" title="Link to this heading">¶</a></h3>
+<p>Define fallback strategies if primary optimization fails:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">config</span> <span class="o">=</span> <span class="n">OptimizationConfig</span><span class="p">(</span>
+    <span class="n">use_parallel</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">use_jit</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">fallback_chain</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;jit_only&quot;</span><span class="p">,</span> <span class="s2">&quot;vectorized_only&quot;</span><span class="p">,</span> <span class="s2">&quot;basic&quot;</span><span class="p">]</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="runtime-monitoring">
+<h3>Runtime Monitoring<a class="headerlink" href="#runtime-monitoring" title="Link to this heading">¶</a></h3>
+<p>The system monitors performance and can adapt:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Enable verbose output to see optimization decisions</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;quactuary.optimization&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span>
+    <span class="n">auto_optimize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">n_sims</span><span class="o">=</span><span class="mi">100000</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="performance-guidelines">
+<h2>Performance Guidelines<a class="headerlink" href="#performance-guidelines" title="Link to this heading">¶</a></h2>
+<ol class="arabic simple">
+<li><p><strong>Start with auto-optimization</strong> - It handles most cases well</p></li>
+<li><p><strong>Use QMC for better convergence</strong> - Reduces simulations needed by 10-100x</p></li>
+<li><p><strong>Enable JIT for repeated calculations</strong> - Compilation overhead pays off</p></li>
+<li><p><strong>Use parallel for large portfolios</strong> - Scales well up to CPU core count</p></li>
+<li><p><strong>Enable memory optimization only when needed</strong> - Adds overhead</p></li>
+</ol>
+</section>
+<section id="troubleshooting">
+<h2>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Link to this heading">¶</a></h2>
+<section id="common-issues-and-solutions">
+<h3>Common Issues and Solutions<a class="headerlink" href="#common-issues-and-solutions" title="Link to this heading">¶</a></h3>
+<p><strong>Issue</strong>: Auto-optimization chooses suboptimal strategy</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Solution: Provide hints</span>
+<span class="n">config</span> <span class="o">=</span> <span class="n">OptimizationConfig</span><span class="p">(</span><span class="n">use_qmc</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># Force QMC</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">auto_optimize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">optimization_config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Issue</strong>: Out of memory errors</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Solution: Enable memory optimization</span>
+<span class="n">config</span> <span class="o">=</span> <span class="n">OptimizationConfig</span><span class="p">(</span>
+    <span class="n">use_memory_optimization</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">batch_size</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>  <span class="c1"># Very small batches</span>
+    <span class="n">use_parallel</span><span class="o">=</span><span class="kc">False</span>  <span class="c1"># Disable parallel to save memory</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Issue</strong>: Slow performance on small data</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Solution: Disable heavy optimizations</span>
+<span class="n">config</span> <span class="o">=</span> <span class="n">OptimizationConfig</span><span class="p">(</span>
+    <span class="n">use_jit</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>  <span class="c1"># JIT has compilation overhead</span>
+    <span class="n">use_parallel</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>  <span class="c1"># Parallel has communication overhead</span>
+    <span class="n">use_vectorization</span><span class="o">=</span><span class="kc">True</span>  <span class="c1"># Keep only vectorization</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="best-practices">
+<h2>Best Practices<a class="headerlink" href="#best-practices" title="Link to this heading">¶</a></h2>
+<ol class="arabic">
+<li><p><strong>Profile before optimizing manually</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Use built-in profiling</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span>
+    <span class="n">auto_optimize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">profile</span><span class="o">=</span><span class="kc">True</span>  <span class="c1"># Shows timing breakdown</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Consider your use case</strong></p>
+<ul class="simple">
+<li><p>One-time calculations: Skip JIT (compilation overhead)</p></li>
+<li><p>Repeated calculations: Enable JIT</p></li>
+<li><p>High accuracy needed: Use QMC</p></li>
+<li><p>Large portfolios: Enable parallel</p></li>
+</ul>
+</li>
+<li><p><strong>Monitor resource usage</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">quactuary.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_system_info</span>
+
+<span class="n">info</span> <span class="o">=</span> <span class="n">get_system_info</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Available memory: </span><span class="si">{</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;memory_available_gb&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> GB&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;CPU cores: </span><span class="si">{</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;cpu_count&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+<section id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Link to this heading">¶</a></h2>
+<section id="example-1-insurance-portfolio-pricing">
+<h3>Example 1: Insurance Portfolio Pricing<a class="headerlink" href="#example-1-insurance-portfolio-pricing" title="Link to this heading">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">quactuary.pricing</span><span class="w"> </span><span class="kn">import</span> <span class="n">PricingModel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">quactuary.entities</span><span class="w"> </span><span class="kn">import</span> <span class="n">Portfolio</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">quactuary.optimization_selector</span><span class="w"> </span><span class="kn">import</span> <span class="n">OptimizationConfig</span>
+
+<span class="c1"># Large commercial insurance portfolio</span>
+<span class="n">portfolio</span> <span class="o">=</span> <span class="n">Portfolio</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s2">&quot;commercial_portfolio.pkl&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Portfolio size: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">portfolio</span><span class="p">)</span><span class="si">}</span><span class="s2"> policies&quot;</span><span class="p">)</span>
+
+<span class="c1"># Let system optimize</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">PricingModel</span><span class="p">(</span><span class="n">portfolio</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span>
+    <span class="n">auto_optimize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">n_sims</span><span class="o">=</span><span class="mi">1000000</span><span class="p">,</span>
+    <span class="n">confidence_levels</span><span class="o">=</span><span class="p">[</span><span class="mf">0.95</span><span class="p">,</span> <span class="mf">0.99</span><span class="p">,</span> <span class="mf">0.999</span><span class="p">]</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Optimization used: </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">optimization_info</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="example-2-reinsurance-treaty-analysis">
+<h3>Example 2: Reinsurance Treaty Analysis<a class="headerlink" href="#example-2-reinsurance-treaty-analysis" title="Link to this heading">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># High-accuracy simulation for treaty pricing</span>
+<span class="n">config</span> <span class="o">=</span> <span class="n">OptimizationConfig</span><span class="p">(</span>
+    <span class="n">use_qmc</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">qmc_method</span><span class="o">=</span><span class="s2">&quot;sobol&quot;</span><span class="p">,</span>
+    <span class="n">use_jit</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">use_parallel</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">n_workers</span><span class="o">=</span><span class="mi">16</span>  <span class="c1"># High-end server</span>
+<span class="p">)</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">PricingModel</span><span class="p">(</span><span class="n">portfolio</span><span class="p">,</span> <span class="n">reinsurance</span><span class="o">=</span><span class="n">treaty</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span>
+    <span class="n">optimization_config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+    <span class="n">n_sims</span><span class="o">=</span><span class="mi">10000000</span>  <span class="c1"># 10M simulations</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="example-3-quick-exploratory-analysis">
+<h3>Example 3: Quick Exploratory Analysis<a class="headerlink" href="#example-3-quick-exploratory-analysis" title="Link to this heading">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Fast iteration during model development</span>
+<span class="n">config</span> <span class="o">=</span> <span class="n">OptimizationConfig</span><span class="p">(</span>
+    <span class="n">use_vectorization</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># Fast for small data</span>
+    <span class="n">use_jit</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>  <span class="c1"># Skip compilation</span>
+    <span class="n">use_parallel</span><span class="o">=</span><span class="kc">False</span>  <span class="c1"># Skip overhead</span>
+<span class="p">)</span>
+
+<span class="k">for</span> <span class="n">threshold</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">5000</span><span class="p">,</span> <span class="mi">10000</span><span class="p">]:</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">PricingModel</span><span class="p">(</span><span class="n">portfolio</span><span class="p">,</span> <span class="n">excess_threshold</span><span class="o">=</span><span class="n">threshold</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span>
+        <span class="n">optimization_config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+        <span class="n">n_sims</span><span class="o">=</span><span class="mi">10000</span>  <span class="c1"># Small sample</span>
+    <span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Threshold </span><span class="si">{</span><span class="n">threshold</span><span class="si">}</span><span class="s2">: Mean = </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">mean</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="see-also">
+<h2>See Also<a class="headerlink" href="#see-also" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="../performance/tuning_guide.html"><span class="doc">Advanced Performance Tuning</span></a> - Performance tuning and optimization guide</p></li>
+<li><p><a class="reference internal" href="optimization_overview.html"><span class="doc">Optimization Overview</span></a> - Optimization overview and concepts</p></li>
+<li><p><a class="reference internal" href="../performance/benchmarks.html"><span class="doc">Performance Benchmarks</span></a> - Performance benchmarks and comparisons</p></li>
+</ul>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="../index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">Optimization Configuration Guide</a><ul>
+<li><a class="reference internal" href="#overview">Overview</a></li>
+<li><a class="reference internal" href="#quick-start">Quick Start</a><ul>
+<li><a class="reference internal" href="#using-auto-optimization">Using Auto-Optimization</a></li>
+<li><a class="reference internal" href="#manual-configuration">Manual Configuration</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#configuration-options">Configuration Options</a></li>
+<li><a class="reference internal" href="#how-auto-optimization-works">How Auto-Optimization Works</a></li>
+<li><a class="reference internal" href="#common-optimization-combinations">Common Optimization Combinations</a><ul>
+<li><a class="reference internal" href="#small-portfolios-1-000-policies">Small Portfolios (&lt; 1,000 policies)</a></li>
+<li><a class="reference internal" href="#medium-portfolios-1-000-100-000-policies">Medium Portfolios (1,000 - 100,000 policies)</a></li>
+<li><a class="reference internal" href="#large-portfolios-100-000-policies">Large Portfolios (&gt; 100,000 policies)</a></li>
+<li><a class="reference internal" href="#memory-constrained-systems">Memory-Constrained Systems</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#advanced-usage">Advanced Usage</a><ul>
+<li><a class="reference internal" href="#combining-auto-and-manual-configuration">Combining Auto and Manual Configuration</a></li>
+<li><a class="reference internal" href="#custom-fallback-chains">Custom Fallback Chains</a></li>
+<li><a class="reference internal" href="#runtime-monitoring">Runtime Monitoring</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#performance-guidelines">Performance Guidelines</a></li>
+<li><a class="reference internal" href="#troubleshooting">Troubleshooting</a><ul>
+<li><a class="reference internal" href="#common-issues-and-solutions">Common Issues and Solutions</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#best-practices">Best Practices</a></li>
+<li><a class="reference internal" href="#examples">Examples</a><ul>
+<li><a class="reference internal" href="#example-1-insurance-portfolio-pricing">Example 1: Insurance Portfolio Pricing</a></li>
+<li><a class="reference internal" href="#example-2-reinsurance-treaty-analysis">Example 2: Reinsurance Treaty Analysis</a></li>
+<li><a class="reference internal" href="#example-3-quick-exploratory-analysis">Example 3: Quick Exploratory Analysis</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#see-also">See Also</a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="distribution_parameters.html"
+                          title="previous chapter">Distribution Parameter Reference</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="testing_best_practices.html"
+                          title="next chapter">Testing Best Practices</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/user_guide/optimization_config.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="testing_best_practices.html" title="Testing Best Practices"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="distribution_parameters.html" title="Distribution Parameter Reference"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">quActuary v0.0.7 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >User Guide</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Optimization Configuration Guide</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2025, Alex Filiakov, ACAS.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    </div>
+  </body>
+</html>

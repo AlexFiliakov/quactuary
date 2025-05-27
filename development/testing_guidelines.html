@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Testing Guidelines &#8212; quActuary v0.0.7 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/nature.css?v=279e0f84" />
+    <script src="../_static/documentation_options.js?v=401b779c"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="canonical" href="https://docs.quactuary.com/development/testing_guidelines.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Performance Testing Guide" href="performance_testing.html" />
+    <link rel="prev" title="Code Standards" href="code_standards.html" />
+ 
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-2TGPCH7PBM"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag() { dataLayer.push(arguments); }
+  gtag('js', new Date());
+  gtag('config', 'G-2TGPCH7PBM');
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="performance_testing.html" title="Performance Testing Guide"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="code_standards.html" title="Code Standards"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">quActuary v0.0.7 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Development Guidelines</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Testing Guidelines</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="testing-guidelines">
+<span id="id1"></span><h1>Testing Guidelines<a class="headerlink" href="#testing-guidelines" title="Link to this heading">¶</a></h1>
+<p>This document outlines our testing standards and practices for quactuary. Comprehensive testing ensures code quality, prevents regressions, and gives contributors confidence in their changes.</p>
+<nav class="contents local" id="table-of-contents">
+<p class="topic-title">Table of Contents</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#testing-philosophy" id="id2">Testing Philosophy</a></p></li>
+<li><p><a class="reference internal" href="#testing-framework" id="id3">Testing Framework</a></p></li>
+<li><p><a class="reference internal" href="#test-organization" id="id4">Test Organization</a></p>
+<ul>
+<li><p><a class="reference internal" href="#directory-structure" id="id5">Directory Structure</a></p></li>
+<li><p><a class="reference internal" href="#test-file-naming" id="id6">Test File Naming</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#types-of-tests" id="id7">Types of Tests</a></p>
+<ul>
+<li><p><a class="reference internal" href="#unit-tests" id="id8">Unit Tests</a></p></li>
+<li><p><a class="reference internal" href="#integration-tests" id="id9">Integration Tests</a></p></li>
+<li><p><a class="reference internal" href="#performance-tests" id="id10">Performance Tests</a></p></li>
+<li><p><a class="reference internal" href="#property-based-tests" id="id11">Property-Based Tests</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#test-fixtures" id="id12">Test Fixtures</a></p></li>
+<li><p><a class="reference internal" href="#parametrized-tests" id="id13">Parametrized Tests</a></p></li>
+<li><p><a class="reference internal" href="#coverage-requirements" id="id14">Coverage Requirements</a></p>
+<ul>
+<li><p><a class="reference internal" href="#coverage-configuration" id="id15">Coverage Configuration</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#mock-and-patch" id="id16">Mock and Patch</a></p></li>
+<li><p><a class="reference internal" href="#error-and-edge-case-testing" id="id17">Error and Edge Case Testing</a></p></li>
+<li><p><a class="reference internal" href="#continuous-integration" id="id18">Continuous Integration</a></p></li>
+<li><p><a class="reference internal" href="#test-markers" id="id19">Test Markers</a></p></li>
+<li><p><a class="reference internal" href="#writing-good-tests" id="id20">Writing Good Tests</a></p>
+<ul>
+<li><p><a class="reference internal" href="#best-practices" id="id21">Best Practices</a></p></li>
+<li><p><a class="reference internal" href="#example-of-a-well-written-test" id="id22">Example of a Well-Written Test</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#common-testing-pitfalls" id="id23">Common Testing Pitfalls</a></p>
+<ul>
+<li><p><a class="reference internal" href="#avoid-these-mistakes" id="id24">Avoid These Mistakes</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#testing-new-features" id="id25">Testing New Features</a></p></li>
+</ul>
+</nav>
+<section id="testing-philosophy">
+<h2><a class="toc-backref" href="#id2" role="doc-backlink">Testing Philosophy</a><a class="headerlink" href="#testing-philosophy" title="Link to this heading">¶</a></h2>
+<p>We believe in:</p>
+<ul class="simple">
+<li><p><strong>Test-driven development</strong>: Write tests before or alongside code</p></li>
+<li><p><strong>Comprehensive coverage</strong>: Aim for ≥90% code coverage on new code</p></li>
+<li><p><strong>Fast feedback</strong>: Tests should run quickly to enable rapid iteration</p></li>
+<li><p><strong>Clear test cases</strong>: Tests should be readable and document expected behavior</p></li>
+<li><p><strong>Realistic scenarios</strong>: Test with data that resembles real-world usage</p></li>
+</ul>
+</section>
+<section id="testing-framework">
+<h2><a class="toc-backref" href="#id3" role="doc-backlink">Testing Framework</a><a class="headerlink" href="#testing-framework" title="Link to this heading">¶</a></h2>
+<p>We use <a class="reference external" href="https://docs.pytest.org/">pytest</a> as our primary testing framework:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Run all tests</span>
+pytest
+
+<span class="c1"># Run with coverage</span>
+pytest<span class="w"> </span>--cov<span class="o">=</span>quactuary
+
+<span class="c1"># Run specific test file</span>
+pytest<span class="w"> </span>tests/test_pricing.py
+
+<span class="c1"># Run with verbose output</span>
+pytest<span class="w"> </span>-v
+
+<span class="c1"># Run in parallel (faster for large test suites)</span>
+pytest<span class="w"> </span>-n<span class="w"> </span>auto
+</pre></div>
+</div>
+</section>
+<section id="test-organization">
+<h2><a class="toc-backref" href="#id4" role="doc-backlink">Test Organization</a><a class="headerlink" href="#test-organization" title="Link to this heading">¶</a></h2>
+<section id="directory-structure">
+<h3><a class="toc-backref" href="#id5" role="doc-backlink">Directory Structure</a><a class="headerlink" href="#directory-structure" title="Link to this heading">¶</a></h3>
+<p>Tests are organized to mirror the source code structure:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>tests/
+├── __init__.py
+├── conftest.py                 # Shared fixtures
+├── test_pricing.py             # Tests for quactuary.pricing
+├── test_classical.py           # Tests for quactuary.classical
+├── test_quantum.py             # Tests for quactuary.quantum
+├── distributions/
+│   ├── __init__.py
+│   ├── test_frequency.py       # Frequency distribution tests
+│   ├── test_severity.py        # Severity distribution tests
+│   └── test_compound.py        # Compound distribution tests
+├── backend/
+│   ├── test_backend.py         # Backend management tests
+│   └── test_imports.py         # Import and dependency tests
+└── integration/
+    ├── test_end_to_end.py      # Full workflow tests
+    └── test_performance.py     # Performance regression tests
+</pre></div>
+</div>
+</section>
+<section id="test-file-naming">
+<h3><a class="toc-backref" href="#id6" role="doc-backlink">Test File Naming</a><a class="headerlink" href="#test-file-naming" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Test files: <code class="docutils literal notranslate"><span class="pre">test_*.py</span></code></p></li>
+<li><p>Test classes: <code class="docutils literal notranslate"><span class="pre">Test*</span></code> (if using classes)</p></li>
+<li><p>Test functions: <code class="docutils literal notranslate"><span class="pre">test_*</span></code></p></li>
+</ul>
+</section>
+</section>
+<section id="types-of-tests">
+<h2><a class="toc-backref" href="#id7" role="doc-backlink">Types of Tests</a><a class="headerlink" href="#types-of-tests" title="Link to this heading">¶</a></h2>
+<section id="unit-tests">
+<h3><a class="toc-backref" href="#id8" role="doc-backlink">Unit Tests</a><a class="headerlink" href="#unit-tests" title="Link to this heading">¶</a></h3>
+<p>Test individual functions and methods in isolation:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">quactuary.distributions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Poisson</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestPoisson</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Test suite for Poisson distribution.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_initialization</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test Poisson distribution initialization.&quot;&quot;&quot;</span>
+        <span class="c1"># Test valid initialization</span>
+        <span class="n">dist</span> <span class="o">=</span> <span class="n">Poisson</span><span class="p">(</span><span class="n">lambda_</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">dist</span><span class="o">.</span><span class="n">_dist</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mf">2.0</span>
+
+        <span class="c1"># Test parameter validation</span>
+        <span class="k">with</span> <span class="n">pytest</span><span class="o">.</span><span class="n">raises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="n">match</span><span class="o">=</span><span class="s2">&quot;lambda_ must be positive&quot;</span><span class="p">):</span>
+            <span class="n">Poisson</span><span class="p">(</span><span class="n">lambda_</span><span class="o">=-</span><span class="mf">1.0</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_pmf_calculation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test probability mass function calculation.&quot;&quot;&quot;</span>
+        <span class="n">dist</span> <span class="o">=</span> <span class="n">Poisson</span><span class="p">(</span><span class="n">lambda_</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>
+
+        <span class="c1"># Test known values</span>
+        <span class="k">assert</span> <span class="nb">abs</span><span class="p">(</span><span class="n">dist</span><span class="o">.</span><span class="n">pmf</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">-</span> <span class="mf">0.1353</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">1e-3</span>
+        <span class="k">assert</span> <span class="nb">abs</span><span class="p">(</span><span class="n">dist</span><span class="o">.</span><span class="n">pmf</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">-</span> <span class="mf">0.2707</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">1e-3</span>
+
+        <span class="c1"># Test edge cases</span>
+        <span class="k">assert</span> <span class="n">dist</span><span class="o">.</span><span class="n">pmf</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">==</span> <span class="mf">0.0</span>
+        <span class="k">assert</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">dist</span><span class="o">.</span><span class="n">pmf</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mf">1.0</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_sampling</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test random sample generation.&quot;&quot;&quot;</span>
+        <span class="n">dist</span> <span class="o">=</span> <span class="n">Poisson</span><span class="p">(</span><span class="n">lambda_</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>
+
+        <span class="c1"># Test single sample</span>
+        <span class="n">sample</span> <span class="o">=</span> <span class="n">dist</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sample</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">))</span>
+        <span class="k">assert</span> <span class="n">sample</span> <span class="o">&gt;=</span> <span class="mi">0</span>
+
+        <span class="c1"># Test multiple samples</span>
+        <span class="n">samples</span> <span class="o">=</span> <span class="n">dist</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1000</span>
+        <span class="k">assert</span> <span class="nb">all</span><span class="p">(</span><span class="n">s</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">samples</span><span class="p">)</span>
+
+        <span class="c1"># Test statistical properties</span>
+        <span class="n">mean_sample</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">abs</span><span class="p">(</span><span class="n">mean_sample</span> <span class="o">-</span> <span class="mf">2.0</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">0.2</span>  <span class="c1"># Should be close to lambda</span>
+</pre></div>
+</div>
+</section>
+<section id="integration-tests">
+<h3><a class="toc-backref" href="#id9" role="doc-backlink">Integration Tests</a><a class="headerlink" href="#integration-tests" title="Link to this heading">¶</a></h3>
+<p>Test interactions between components:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">quactuary.pricing</span><span class="w"> </span><span class="kn">import</span> <span class="n">PricingModel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">quactuary.book</span><span class="w"> </span><span class="kn">import</span> <span class="n">Portfolio</span><span class="p">,</span> <span class="n">Inforce</span><span class="p">,</span> <span class="n">PolicyTerms</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">quactuary.distributions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Poisson</span><span class="p">,</span> <span class="n">LogNormal</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestPricingIntegration</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Integration tests for pricing workflow.&quot;&quot;&quot;</span>
+
+    <span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">sample_portfolio</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a sample portfolio for testing.&quot;&quot;&quot;</span>
+        <span class="n">terms</span> <span class="o">=</span> <span class="n">PolicyTerms</span><span class="p">(</span>
+            <span class="n">effective_date</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">(</span><span class="mi">2024</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+            <span class="n">expiration_date</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">(</span><span class="mi">2025</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+            <span class="n">per_occ_retention</span><span class="o">=</span><span class="mf">1000.0</span><span class="p">,</span>
+            <span class="n">per_occ_limit</span><span class="o">=</span><span class="mf">100000.0</span>
+        <span class="p">)</span>
+
+        <span class="n">inforce</span> <span class="o">=</span> <span class="n">Inforce</span><span class="p">(</span>
+            <span class="n">n_policies</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+            <span class="n">frequency</span><span class="o">=</span><span class="n">Poisson</span><span class="p">(</span><span class="n">lambda_</span><span class="o">=</span><span class="mf">1.5</span><span class="p">),</span>
+            <span class="n">severity</span><span class="o">=</span><span class="n">LogNormal</span><span class="p">(</span><span class="n">mu</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+            <span class="n">terms</span><span class="o">=</span><span class="n">terms</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">Portfolio</span><span class="p">([</span><span class="n">inforce</span><span class="p">])</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_end_to_end_pricing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample_portfolio</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test complete pricing workflow.&quot;&quot;&quot;</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">PricingModel</span><span class="p">(</span><span class="n">sample_portfolio</span><span class="p">)</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span>
+            <span class="n">mean</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">variance</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">value_at_risk</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">tail_value_at_risk</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">n_sims</span><span class="o">=</span><span class="mi">1000</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Verify result structure</span>
+        <span class="k">assert</span> <span class="s1">&#39;mean&#39;</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">estimates</span>
+        <span class="k">assert</span> <span class="s1">&#39;variance&#39;</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">estimates</span>
+        <span class="k">assert</span> <span class="s1">&#39;VaR&#39;</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">estimates</span>
+        <span class="k">assert</span> <span class="s1">&#39;TVaR&#39;</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">estimates</span>
+
+        <span class="c1"># Verify statistical relationships</span>
+        <span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">estimates</span><span class="p">[</span><span class="s1">&#39;mean&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span>
+        <span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">estimates</span><span class="p">[</span><span class="s1">&#39;variance&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span>
+        <span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">estimates</span><span class="p">[</span><span class="s1">&#39;TVaR&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">result</span><span class="o">.</span><span class="n">estimates</span><span class="p">[</span><span class="s1">&#39;VaR&#39;</span><span class="p">]</span>
+
+        <span class="c1"># Verify metadata</span>
+        <span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;n_sims&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1000</span>
+        <span class="k">assert</span> <span class="s1">&#39;run_date&#39;</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">metadata</span>
+</pre></div>
+</div>
+</section>
+<section id="performance-tests">
+<h3><a class="toc-backref" href="#id10" role="doc-backlink">Performance Tests</a><a class="headerlink" href="#performance-tests" title="Link to this heading">¶</a></h3>
+<p>Test performance characteristics and prevent regressions:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">quactuary.pricing_strategies</span><span class="w"> </span><span class="kn">import</span> <span class="n">ClassicalPricingStrategy</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestPerformance</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Performance regression tests.&quot;&quot;&quot;</span>
+
+    <span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">slow</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_large_portfolio_performance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">large_portfolio</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test performance with large portfolios.&quot;&quot;&quot;</span>
+        <span class="n">strategy</span> <span class="o">=</span> <span class="n">ClassicalPricingStrategy</span><span class="p">(</span><span class="n">use_jit</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">strategy</span><span class="o">.</span><span class="n">calculate_portfolio_statistics</span><span class="p">(</span>
+            <span class="n">large_portfolio</span><span class="p">,</span> <span class="n">n_sims</span><span class="o">=</span><span class="mi">10000</span>
+        <span class="p">)</span>
+        <span class="n">elapsed</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span>
+
+        <span class="c1"># Should complete within reasonable time</span>
+        <span class="k">assert</span> <span class="n">elapsed</span> <span class="o">&lt;</span> <span class="mi">60</span>  <span class="c1"># 1 minute threshold</span>
+        <span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">estimates</span><span class="p">[</span><span class="s1">&#39;mean&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_jit_speedup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample_portfolio</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test that JIT provides speedup over pure Python.&quot;&quot;&quot;</span>
+        <span class="c1"># Test JIT version</span>
+        <span class="n">jit_strategy</span> <span class="o">=</span> <span class="n">ClassicalPricingStrategy</span><span class="p">(</span><span class="n">use_jit</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">jit_result</span> <span class="o">=</span> <span class="n">jit_strategy</span><span class="o">.</span><span class="n">calculate_portfolio_statistics</span><span class="p">(</span>
+            <span class="n">sample_portfolio</span><span class="p">,</span> <span class="n">n_sims</span><span class="o">=</span><span class="mi">10000</span>
+        <span class="p">)</span>
+        <span class="n">jit_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span>
+
+        <span class="c1"># Test pure Python version</span>
+        <span class="n">py_strategy</span> <span class="o">=</span> <span class="n">ClassicalPricingStrategy</span><span class="p">(</span><span class="n">use_jit</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">py_result</span> <span class="o">=</span> <span class="n">py_strategy</span><span class="o">.</span><span class="n">calculate_portfolio_statistics</span><span class="p">(</span>
+            <span class="n">sample_portfolio</span><span class="p">,</span> <span class="n">n_sims</span><span class="o">=</span><span class="mi">10000</span>
+        <span class="p">)</span>
+        <span class="n">py_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span>
+
+        <span class="c1"># JIT should be faster (after warmup)</span>
+        <span class="c1"># Note: This test may be flaky on first run due to compilation</span>
+        <span class="n">speedup</span> <span class="o">=</span> <span class="n">py_time</span> <span class="o">/</span> <span class="n">jit_time</span>
+        <span class="k">assert</span> <span class="n">speedup</span> <span class="o">&gt;</span> <span class="mf">0.5</span>  <span class="c1"># Should be at least somewhat faster</span>
+</pre></div>
+</div>
+</section>
+<section id="property-based-tests">
+<h3><a class="toc-backref" href="#id11" role="doc-backlink">Property-Based Tests</a><a class="headerlink" href="#property-based-tests" title="Link to this heading">¶</a></h3>
+<p>Use <a class="reference external" href="https://hypothesis.readthedocs.io/">hypothesis</a> for property-based testing:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">hypothesis</span><span class="w"> </span><span class="kn">import</span> <span class="n">given</span><span class="p">,</span> <span class="n">strategies</span> <span class="k">as</span> <span class="n">st</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestDistributionProperties</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Property-based tests for distributions.&quot;&quot;&quot;</span>
+
+    <span class="nd">@given</span><span class="p">(</span><span class="n">lambda_</span><span class="o">=</span><span class="n">st</span><span class="o">.</span><span class="n">floats</span><span class="p">(</span><span class="n">min_value</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="mi">100</span><span class="p">))</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_poisson_mean_property</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lambda_</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test that Poisson distribution has correct mean.&quot;&quot;&quot;</span>
+        <span class="n">dist</span> <span class="o">=</span> <span class="n">Poisson</span><span class="p">(</span><span class="n">lambda_</span><span class="o">=</span><span class="n">lambda_</span><span class="p">)</span>
+
+        <span class="c1"># Generate large sample to test mean</span>
+        <span class="n">samples</span> <span class="o">=</span> <span class="p">[</span><span class="n">dist</span><span class="o">.</span><span class="n">rvs</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10000</span><span class="p">)]</span>
+        <span class="n">sample_mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span>
+
+        <span class="c1"># Sample mean should be close to theoretical mean</span>
+        <span class="k">assert</span> <span class="nb">abs</span><span class="p">(</span><span class="n">sample_mean</span> <span class="o">-</span> <span class="n">lambda_</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">0.1</span> <span class="o">*</span> <span class="n">lambda_</span>
+
+    <span class="nd">@given</span><span class="p">(</span>
+        <span class="n">n_sims</span><span class="o">=</span><span class="n">st</span><span class="o">.</span><span class="n">integers</span><span class="p">(</span><span class="n">min_value</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="mi">10000</span><span class="p">),</span>
+        <span class="n">alpha</span><span class="o">=</span><span class="n">st</span><span class="o">.</span><span class="n">floats</span><span class="p">(</span><span class="n">min_value</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="mf">0.99</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_var_properties</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_sims</span><span class="p">,</span> <span class="n">alpha</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test VaR calculation properties.&quot;&quot;&quot;</span>
+        <span class="c1"># Generate random data</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">exponential</span><span class="p">(</span><span class="n">scale</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">n_sims</span><span class="p">)</span>
+
+        <span class="n">var</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">alpha</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span>
+
+        <span class="c1"># VaR should be positive for positive data</span>
+        <span class="k">assert</span> <span class="n">var</span> <span class="o">&gt;</span> <span class="mi">0</span>
+
+        <span class="c1"># Proportion of data above VaR should be approximately alpha</span>
+        <span class="n">proportion_above</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">data</span> <span class="o">&gt;</span> <span class="n">var</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">abs</span><span class="p">(</span><span class="n">proportion_above</span> <span class="o">-</span> <span class="n">alpha</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">0.05</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="test-fixtures">
+<h2><a class="toc-backref" href="#id12" role="doc-backlink">Test Fixtures</a><a class="headerlink" href="#test-fixtures" title="Link to this heading">¶</a></h2>
+<p>Use pytest fixtures for reusable test data:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># conftest.py</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">quactuary.book</span><span class="w"> </span><span class="kn">import</span> <span class="n">Portfolio</span><span class="p">,</span> <span class="n">Inforce</span><span class="p">,</span> <span class="n">PolicyTerms</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">quactuary.distributions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Poisson</span><span class="p">,</span> <span class="n">LogNormal</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">sample_policy_terms</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Standard policy terms for testing.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">PolicyTerms</span><span class="p">(</span>
+        <span class="n">effective_date</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">(</span><span class="mi">2024</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+        <span class="n">expiration_date</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">(</span><span class="mi">2025</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+        <span class="n">per_occ_retention</span><span class="o">=</span><span class="mf">1000.0</span><span class="p">,</span>
+        <span class="n">per_occ_limit</span><span class="o">=</span><span class="mf">100000.0</span><span class="p">,</span>
+        <span class="n">coinsurance</span><span class="o">=</span><span class="mf">0.8</span>
+    <span class="p">)</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">simple_inforce</span><span class="p">(</span><span class="n">sample_policy_terms</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Simple inforce bucket for testing.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">Inforce</span><span class="p">(</span>
+        <span class="n">n_policies</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
+        <span class="n">frequency</span><span class="o">=</span><span class="n">Poisson</span><span class="p">(</span><span class="n">lambda_</span><span class="o">=</span><span class="mf">1.0</span><span class="p">),</span>
+        <span class="n">severity</span><span class="o">=</span><span class="n">LogNormal</span><span class="p">(</span><span class="n">mu</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">1.5</span><span class="p">),</span>
+        <span class="n">terms</span><span class="o">=</span><span class="n">sample_policy_terms</span>
+    <span class="p">)</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">sample_portfolio</span><span class="p">(</span><span class="n">simple_inforce</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Simple portfolio for testing.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">Portfolio</span><span class="p">([</span><span class="n">simple_inforce</span><span class="p">])</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">large_portfolio</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Large portfolio for performance testing.&quot;&quot;&quot;</span>
+    <span class="c1"># Create multiple inforce buckets</span>
+    <span class="n">buckets</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">):</span>
+        <span class="n">terms</span> <span class="o">=</span> <span class="n">PolicyTerms</span><span class="p">(</span>
+            <span class="n">effective_date</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">(</span><span class="mi">2024</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+            <span class="n">expiration_date</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">(</span><span class="mi">2025</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+            <span class="n">per_occ_retention</span><span class="o">=</span><span class="mf">1000.0</span> <span class="o">*</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span>
+            <span class="n">per_occ_limit</span><span class="o">=</span><span class="mf">100000.0</span>
+        <span class="p">)</span>
+
+        <span class="n">bucket</span> <span class="o">=</span> <span class="n">Inforce</span><span class="p">(</span>
+            <span class="n">n_policies</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>
+            <span class="n">frequency</span><span class="o">=</span><span class="n">Poisson</span><span class="p">(</span><span class="n">lambda_</span><span class="o">=</span><span class="mf">1.5</span> <span class="o">+</span> <span class="n">i</span> <span class="o">*</span> <span class="mf">0.1</span><span class="p">),</span>
+            <span class="n">severity</span><span class="o">=</span><span class="n">LogNormal</span><span class="p">(</span><span class="n">mu</span><span class="o">=</span><span class="mi">7</span> <span class="o">+</span> <span class="n">i</span> <span class="o">*</span> <span class="mf">0.1</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">1.5</span><span class="p">),</span>
+            <span class="n">terms</span><span class="o">=</span><span class="n">terms</span>
+        <span class="p">)</span>
+        <span class="n">buckets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">bucket</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">Portfolio</span><span class="p">(</span><span class="n">buckets</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="parametrized-tests">
+<h2><a class="toc-backref" href="#id13" role="doc-backlink">Parametrized Tests</a><a class="headerlink" href="#parametrized-tests" title="Link to this heading">¶</a></h2>
+<p>Use pytest parametrization for testing multiple scenarios:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestRiskMeasures</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Test risk measure calculations with various parameters.&quot;&quot;&quot;</span>
+
+    <span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">parametrize</span><span class="p">(</span><span class="s2">&quot;confidence_level&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mf">0.90</span><span class="p">,</span> <span class="mf">0.95</span><span class="p">,</span> <span class="mf">0.99</span><span class="p">])</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_var_calculation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample_portfolio</span><span class="p">,</span> <span class="n">confidence_level</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test VaR calculation at different confidence levels.&quot;&quot;&quot;</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">PricingModel</span><span class="p">(</span><span class="n">sample_portfolio</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span>
+            <span class="n">value_at_risk</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">tail_alpha</span><span class="o">=</span><span class="mi">1</span> <span class="o">-</span> <span class="n">confidence_level</span><span class="p">,</span>
+            <span class="n">n_sims</span><span class="o">=</span><span class="mi">5000</span>
+        <span class="p">)</span>
+
+        <span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">estimates</span><span class="p">[</span><span class="s1">&#39;VaR&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span>
+        <span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;tail_alpha&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">confidence_level</span>
+
+    <span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">parametrize</span><span class="p">(</span><span class="s2">&quot;n_sims&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">5000</span><span class="p">,</span> <span class="mi">10000</span><span class="p">])</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_convergence_with_sample_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample_portfolio</span><span class="p">,</span> <span class="n">n_sims</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test that results stabilize with larger sample sizes.&quot;&quot;&quot;</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">PricingModel</span><span class="p">(</span><span class="n">sample_portfolio</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">n_sims</span><span class="o">=</span><span class="n">n_sims</span><span class="p">)</span>
+
+        <span class="c1"># Basic sanity checks</span>
+        <span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">estimates</span><span class="p">[</span><span class="s1">&#39;mean&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span>
+        <span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;n_sims&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">n_sims</span>
+
+    <span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">parametrize</span><span class="p">(</span><span class="s2">&quot;distribution_type,params&quot;</span><span class="p">,</span> <span class="p">[</span>
+        <span class="p">(</span><span class="s2">&quot;poisson&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;lambda_&quot;</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">}),</span>
+        <span class="p">(</span><span class="s2">&quot;poisson&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;lambda_&quot;</span><span class="p">:</span> <span class="mf">5.0</span><span class="p">}),</span>
+        <span class="p">(</span><span class="s2">&quot;poisson&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;lambda_&quot;</span><span class="p">:</span> <span class="mf">10.0</span><span class="p">}),</span>
+    <span class="p">])</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_frequency_distributions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">distribution_type</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test different frequency distribution parameters.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">distribution_type</span> <span class="o">==</span> <span class="s2">&quot;poisson&quot;</span><span class="p">:</span>
+            <span class="n">dist</span> <span class="o">=</span> <span class="n">Poisson</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">)</span>
+
+        <span class="c1"># Test basic properties</span>
+        <span class="k">assert</span> <span class="n">dist</span><span class="o">.</span><span class="n">pmf</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span>
+        <span class="k">assert</span> <span class="n">dist</span><span class="o">.</span><span class="n">pmf</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span>
+        <span class="n">samples</span> <span class="o">=</span> <span class="n">dist</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span> <span class="o">==</span> <span class="mi">100</span>
+</pre></div>
+</div>
+</section>
+<section id="coverage-requirements">
+<h2><a class="toc-backref" href="#id14" role="doc-backlink">Coverage Requirements</a><a class="headerlink" href="#coverage-requirements" title="Link to this heading">¶</a></h2>
+<p>We require <strong>≥90% test coverage</strong> for all new code. Check coverage with:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Run tests with coverage report</span>
+pytest<span class="w"> </span>--cov<span class="o">=</span>quactuary<span class="w"> </span>--cov-report<span class="o">=</span>html<span class="w"> </span>--cov-report<span class="o">=</span>term
+
+<span class="c1"># View detailed HTML report</span>
+open<span class="w"> </span>htmlcov/index.html
+</pre></div>
+</div>
+<section id="coverage-configuration">
+<h3><a class="toc-backref" href="#id15" role="doc-backlink">Coverage Configuration</a><a class="headerlink" href="#coverage-configuration" title="Link to this heading">¶</a></h3>
+<p>Configure coverage in <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code>:</p>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[tool.coverage.run]</span>
+<span class="n">source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;quactuary&quot;</span><span class="p">]</span>
+<span class="n">omit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;*/tests/*&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;*/test_*&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;setup.py&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;*/venv/*&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;*/__pycache__/*&quot;</span>
+<span class="p">]</span>
+
+<span class="k">[tool.coverage.report]</span>
+<span class="n">exclude_lines</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;pragma: no cover&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;def __repr__&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;if self.debug:&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;if settings.DEBUG&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;raise AssertionError&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;raise NotImplementedError&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;if 0:&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;if __name__ == .__main__.:&quot;</span>
+<span class="p">]</span>
+<span class="n">show_missing</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+<span class="n">precision</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="mock-and-patch">
+<h2><a class="toc-backref" href="#id16" role="doc-backlink">Mock and Patch</a><a class="headerlink" href="#mock-and-patch" title="Link to this heading">¶</a></h2>
+<p>Use mocking for external dependencies and expensive operations:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">unittest.mock</span><span class="w"> </span><span class="kn">import</span> <span class="n">Mock</span><span class="p">,</span> <span class="n">patch</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestBackendIntegration</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Test backend switching and integration.&quot;&quot;&quot;</span>
+
+    <span class="nd">@patch</span><span class="p">(</span><span class="s1">&#39;quactuary.backend.Aer.get_backend&#39;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_quantum_backend_initialization</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mock_aer</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test quantum backend setup with mocked Qiskit.&quot;&quot;&quot;</span>
+        <span class="c1"># Mock the Qiskit backend</span>
+        <span class="n">mock_backend</span> <span class="o">=</span> <span class="n">Mock</span><span class="p">()</span>
+        <span class="n">mock_backend</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">return_value</span> <span class="o">=</span> <span class="s2">&quot;aer_simulator&quot;</span>
+        <span class="n">mock_aer</span><span class="o">.</span><span class="n">return_value</span> <span class="o">=</span> <span class="n">mock_backend</span>
+
+        <span class="kn">from</span><span class="w"> </span><span class="nn">quactuary.backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">set_backend</span>
+        <span class="n">backend_manager</span> <span class="o">=</span> <span class="n">set_backend</span><span class="p">(</span><span class="s1">&#39;quantum&#39;</span><span class="p">,</span> <span class="n">provider</span><span class="o">=</span><span class="s1">&#39;AerSimulator&#39;</span><span class="p">)</span>
+
+        <span class="k">assert</span> <span class="n">backend_manager</span><span class="o">.</span><span class="n">backend_type</span> <span class="o">==</span> <span class="s1">&#39;quantum&#39;</span>
+        <span class="n">mock_aer</span><span class="o">.</span><span class="n">assert_called_once_with</span><span class="p">(</span><span class="s1">&#39;aer_simulator&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_expensive_calculation_mocked</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample_portfolio</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test expensive calculation with mocked results.&quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="n">patch</span><span class="p">(</span><span class="s1">&#39;quactuary.classical.ClassicalPricingModel.calculate_portfolio_statistics&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">mock_calc</span><span class="p">:</span>
+            <span class="c1"># Mock the expensive calculation</span>
+            <span class="n">mock_result</span> <span class="o">=</span> <span class="n">Mock</span><span class="p">()</span>
+            <span class="n">mock_result</span><span class="o">.</span><span class="n">estimates</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;mean&#39;</span><span class="p">:</span> <span class="mf">50000.0</span><span class="p">,</span> <span class="s1">&#39;VaR&#39;</span><span class="p">:</span> <span class="mf">75000.0</span><span class="p">}</span>
+            <span class="n">mock_calc</span><span class="o">.</span><span class="n">return_value</span> <span class="o">=</span> <span class="n">mock_result</span>
+
+            <span class="n">model</span> <span class="o">=</span> <span class="n">PricingModel</span><span class="p">(</span><span class="n">sample_portfolio</span><span class="p">)</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">simulate</span><span class="p">()</span>
+
+            <span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">estimates</span><span class="p">[</span><span class="s1">&#39;mean&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mf">50000.0</span>
+            <span class="n">mock_calc</span><span class="o">.</span><span class="n">assert_called_once</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="error-and-edge-case-testing">
+<h2><a class="toc-backref" href="#id17" role="doc-backlink">Error and Edge Case Testing</a><a class="headerlink" href="#error-and-edge-case-testing" title="Link to this heading">¶</a></h2>
+<p>Test error conditions and edge cases thoroughly:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">TestErrorHandling</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Test error conditions and edge cases.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_invalid_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test handling of invalid parameters.&quot;&quot;&quot;</span>
+        <span class="c1"># Test invalid probability</span>
+        <span class="k">with</span> <span class="n">pytest</span><span class="o">.</span><span class="n">raises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="n">match</span><span class="o">=</span><span class="s2">&quot;must be between 0 and 1&quot;</span><span class="p">):</span>
+            <span class="n">model</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">tail_alpha</span><span class="o">=</span><span class="mf">1.5</span><span class="p">)</span>
+
+        <span class="c1"># Test negative simulation count</span>
+        <span class="k">with</span> <span class="n">pytest</span><span class="o">.</span><span class="n">raises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="n">match</span><span class="o">=</span><span class="s2">&quot;must be positive&quot;</span><span class="p">):</span>
+            <span class="n">model</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">n_sims</span><span class="o">=-</span><span class="mi">100</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_empty_portfolio</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test behavior with empty portfolio.&quot;&quot;&quot;</span>
+        <span class="n">empty_portfolio</span> <span class="o">=</span> <span class="n">Portfolio</span><span class="p">([])</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">PricingModel</span><span class="p">(</span><span class="n">empty_portfolio</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">pytest</span><span class="o">.</span><span class="n">raises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="n">match</span><span class="o">=</span><span class="s2">&quot;Portfolio must contain&quot;</span><span class="p">):</span>
+            <span class="n">model</span><span class="o">.</span><span class="n">simulate</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_extreme_values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test behavior with extreme parameter values.&quot;&quot;&quot;</span>
+        <span class="c1"># Very small lambda</span>
+        <span class="n">small_dist</span> <span class="o">=</span> <span class="n">Poisson</span><span class="p">(</span><span class="n">lambda_</span><span class="o">=</span><span class="mf">1e-10</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">small_dist</span><span class="o">.</span><span class="n">pmf</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">0.99</span>
+
+        <span class="c1"># Very large lambda</span>
+        <span class="n">large_dist</span> <span class="o">=</span> <span class="n">Poisson</span><span class="p">(</span><span class="n">lambda_</span><span class="o">=</span><span class="mf">1e6</span><span class="p">)</span>
+        <span class="n">samples</span> <span class="o">=</span> <span class="n">large_dist</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">1e5</span>
+</pre></div>
+</div>
+</section>
+<section id="continuous-integration">
+<h2><a class="toc-backref" href="#id18" role="doc-backlink">Continuous Integration</a><a class="headerlink" href="#continuous-integration" title="Link to this heading">¶</a></h2>
+<p>Our CI pipeline runs tests automatically on:</p>
+<ul class="simple">
+<li><p><strong>All pull requests</strong></p></li>
+<li><p><strong>Commits to main branch</strong></p></li>
+<li><p><strong>Multiple Python versions</strong> (3.8, 3.9, 3.10, 3.11, 3.12)</p></li>
+<li><p><strong>Multiple operating systems</strong> (Ubuntu, Windows, macOS)</p></li>
+</ul>
+</section>
+<section id="test-markers">
+<h2><a class="toc-backref" href="#id19" role="doc-backlink">Test Markers</a><a class="headerlink" href="#test-markers" title="Link to this heading">¶</a></h2>
+<p>Use pytest markers to categorize tests:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">slow</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_large_simulation</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Test that takes a long time to run.&quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">quantum</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_quantum_algorithm</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Test that requires quantum backend.&quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">integration</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_end_to_end_workflow</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Integration test.&quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+<p>Run specific test categories:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Run only fast tests</span>
+pytest<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;not slow&quot;</span>
+
+<span class="c1"># Run only quantum tests</span>
+pytest<span class="w"> </span>-m<span class="w"> </span>quantum
+
+<span class="c1"># Run integration tests</span>
+pytest<span class="w"> </span>-m<span class="w"> </span>integration
+</pre></div>
+</div>
+</section>
+<section id="writing-good-tests">
+<h2><a class="toc-backref" href="#id20" role="doc-backlink">Writing Good Tests</a><a class="headerlink" href="#writing-good-tests" title="Link to this heading">¶</a></h2>
+<section id="best-practices">
+<h3><a class="toc-backref" href="#id21" role="doc-backlink">Best Practices</a><a class="headerlink" href="#best-practices" title="Link to this heading">¶</a></h3>
+<ol class="arabic simple">
+<li><p><strong>Test one thing</strong>: Each test should focus on a single behavior</p></li>
+<li><p><strong>Use descriptive names</strong>: Test names should clearly indicate what they test</p></li>
+<li><p><strong>Arrange-Act-Assert</strong>: Structure tests with clear setup, action, and verification</p></li>
+<li><p><strong>Test edge cases</strong>: Include boundary conditions and error cases</p></li>
+<li><p><strong>Keep tests fast</strong>: Avoid unnecessary delays or expensive operations</p></li>
+<li><p><strong>Make tests deterministic</strong>: Avoid flaky tests that pass/fail randomly</p></li>
+</ol>
+</section>
+<section id="example-of-a-well-written-test">
+<h3><a class="toc-backref" href="#id22" role="doc-backlink">Example of a Well-Written Test</a><a class="headerlink" href="#example-of-a-well-written-test" title="Link to this heading">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">test_portfolio_var_calculation_with_policy_terms</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Test VaR calculation correctly applies policy terms.&quot;&quot;&quot;</span>
+    <span class="c1"># Arrange</span>
+    <span class="n">terms</span> <span class="o">=</span> <span class="n">PolicyTerms</span><span class="p">(</span>
+        <span class="n">effective_date</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">(</span><span class="mi">2024</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+        <span class="n">expiration_date</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">(</span><span class="mi">2025</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+        <span class="n">per_occ_retention</span><span class="o">=</span><span class="mf">5000.0</span><span class="p">,</span>  <span class="c1"># $5k deductible</span>
+        <span class="n">per_occ_limit</span><span class="o">=</span><span class="mf">50000.0</span><span class="p">,</span>     <span class="c1"># $50k limit</span>
+        <span class="n">coinsurance</span><span class="o">=</span><span class="mf">0.8</span>            <span class="c1"># 80% insurer share</span>
+    <span class="p">)</span>
+
+    <span class="n">inforce</span> <span class="o">=</span> <span class="n">Inforce</span><span class="p">(</span>
+        <span class="n">n_policies</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+        <span class="n">frequency</span><span class="o">=</span><span class="n">Poisson</span><span class="p">(</span><span class="n">lambda_</span><span class="o">=</span><span class="mf">2.0</span><span class="p">),</span>
+        <span class="n">severity</span><span class="o">=</span><span class="n">LogNormal</span><span class="p">(</span><span class="n">mu</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>  <span class="c1"># High severity</span>
+        <span class="n">terms</span><span class="o">=</span><span class="n">terms</span>
+    <span class="p">)</span>
+
+    <span class="n">portfolio</span> <span class="o">=</span> <span class="n">Portfolio</span><span class="p">([</span><span class="n">inforce</span><span class="p">])</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">PricingModel</span><span class="p">(</span><span class="n">portfolio</span><span class="p">)</span>
+
+    <span class="c1"># Act</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span>
+        <span class="n">value_at_risk</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">tail_alpha</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
+        <span class="n">n_sims</span><span class="o">=</span><span class="mi">10000</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Assert</span>
+    <span class="n">var_95</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">estimates</span><span class="p">[</span><span class="s1">&#39;VaR&#39;</span><span class="p">]</span>
+
+    <span class="c1"># VaR should be positive but bounded by policy terms</span>
+    <span class="k">assert</span> <span class="n">var_95</span> <span class="o">&gt;</span> <span class="mi">0</span>
+    <span class="k">assert</span> <span class="n">var_95</span> <span class="o">&lt;=</span> <span class="mi">100</span> <span class="o">*</span> <span class="mi">50000</span> <span class="o">*</span> <span class="mf">0.8</span>  <span class="c1"># Max possible loss per policy * policies * coinsurance</span>
+
+    <span class="c1"># Should be affected by retention (lower than ground-up VaR)</span>
+    <span class="c1"># This is a behavioral test - we expect retention to reduce VaR</span>
+    <span class="k">assert</span> <span class="n">var_95</span> <span class="o">&lt;</span> <span class="mi">100</span> <span class="o">*</span> <span class="mi">100000</span>  <span class="c1"># Less than if no retention</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="common-testing-pitfalls">
+<h2><a class="toc-backref" href="#id23" role="doc-backlink">Common Testing Pitfalls</a><a class="headerlink" href="#common-testing-pitfalls" title="Link to this heading">¶</a></h2>
+<section id="avoid-these-mistakes">
+<h3><a class="toc-backref" href="#id24" role="doc-backlink">Avoid These Mistakes</a><a class="headerlink" href="#avoid-these-mistakes" title="Link to this heading">¶</a></h3>
+<ol class="arabic simple">
+<li><p><strong>Testing implementation details</strong>: Test behavior, not internal implementation</p></li>
+<li><p><strong>Brittle assertions</strong>: Avoid overly specific numeric assertions for stochastic processes</p></li>
+<li><p><strong>Missing edge cases</strong>: Don’t forget to test boundary conditions</p></li>
+<li><p><strong>Slow tests</strong>: Minimize use of large simulations in unit tests</p></li>
+<li><p><strong>Flaky tests</strong>: Ensure tests pass consistently</p></li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Bad - tests implementation detail</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_internal_cache_structure</span><span class="p">():</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">PricingModel</span><span class="p">(</span><span class="n">portfolio</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="s1">&#39;_cache&#39;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">_cache</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span>
+
+<span class="c1"># Good - tests behavior</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_repeated_calls_return_consistent_results</span><span class="p">():</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">PricingModel</span><span class="p">(</span><span class="n">portfolio</span><span class="p">)</span>
+    <span class="n">result1</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">n_sims</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">random_seed</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+    <span class="n">result2</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">n_sims</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">random_seed</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">result1</span><span class="o">.</span><span class="n">estimates</span><span class="p">[</span><span class="s1">&#39;mean&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">result2</span><span class="o">.</span><span class="n">estimates</span><span class="p">[</span><span class="s1">&#39;mean&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="testing-new-features">
+<h2><a class="toc-backref" href="#id25" role="doc-backlink">Testing New Features</a><a class="headerlink" href="#testing-new-features" title="Link to this heading">¶</a></h2>
+<p>When adding new features:</p>
+<ol class="arabic simple">
+<li><p><strong>Write tests first</strong> (TDD approach)</p></li>
+<li><p><strong>Test happy path</strong> and edge cases</p></li>
+<li><p><strong>Include integration tests</strong> if the feature interacts with other components</p></li>
+<li><p><strong>Add performance tests</strong> if the feature affects performance</p></li>
+<li><p><strong>Update documentation</strong> and examples</p></li>
+</ol>
+<p>Our testing standards help ensure that quactuary remains reliable, performant, and maintainable as it grows!</p>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="../index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">Testing Guidelines</a><ul>
+<li><a class="reference internal" href="#testing-philosophy">Testing Philosophy</a></li>
+<li><a class="reference internal" href="#testing-framework">Testing Framework</a></li>
+<li><a class="reference internal" href="#test-organization">Test Organization</a><ul>
+<li><a class="reference internal" href="#directory-structure">Directory Structure</a></li>
+<li><a class="reference internal" href="#test-file-naming">Test File Naming</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#types-of-tests">Types of Tests</a><ul>
+<li><a class="reference internal" href="#unit-tests">Unit Tests</a></li>
+<li><a class="reference internal" href="#integration-tests">Integration Tests</a></li>
+<li><a class="reference internal" href="#performance-tests">Performance Tests</a></li>
+<li><a class="reference internal" href="#property-based-tests">Property-Based Tests</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#test-fixtures">Test Fixtures</a></li>
+<li><a class="reference internal" href="#parametrized-tests">Parametrized Tests</a></li>
+<li><a class="reference internal" href="#coverage-requirements">Coverage Requirements</a><ul>
+<li><a class="reference internal" href="#coverage-configuration">Coverage Configuration</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#mock-and-patch">Mock and Patch</a></li>
+<li><a class="reference internal" href="#error-and-edge-case-testing">Error and Edge Case Testing</a></li>
+<li><a class="reference internal" href="#continuous-integration">Continuous Integration</a></li>
+<li><a class="reference internal" href="#test-markers">Test Markers</a></li>
+<li><a class="reference internal" href="#writing-good-tests">Writing Good Tests</a><ul>
+<li><a class="reference internal" href="#best-practices">Best Practices</a></li>
+<li><a class="reference internal" href="#example-of-a-well-written-test">Example of a Well-Written Test</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#common-testing-pitfalls">Common Testing Pitfalls</a><ul>
+<li><a class="reference internal" href="#avoid-these-mistakes">Avoid These Mistakes</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#testing-new-features">Testing New Features</a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="code_standards.html"
+                          title="previous chapter">Code Standards</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="performance_testing.html"
+                          title="next chapter">Performance Testing Guide</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/development/testing_guidelines.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="performance_testing.html" title="Performance Testing Guide"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="code_standards.html" title="Code Standards"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">quActuary v0.0.7 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Development Guidelines</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Testing Guidelines</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2025, Alex Filiakov, ACAS.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    </div>
+  </body>
+</html>

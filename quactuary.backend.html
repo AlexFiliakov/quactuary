@@ -5,17 +5,17 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>quactuary.backend module &#8212; quActuary v0.0.6 documentation</title>
+    <title>quactuary.backend module &#8212; quActuary v0.0.7 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="_static/nature.css?v=279e0f84" />
-    <script src="_static/documentation_options.js?v=e463f385"></script>
+    <script src="_static/documentation_options.js?v=401b779c"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="canonical" href="https://docs.quactuary.com/quactuary.backend.html" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="quactuary.utils module" href="quactuary.utils.html" />
-    <link rel="prev" title="quactuary.quantum module" href="quactuary.quantum.html" />
+    <link rel="next" title="quactuary.pricing module" href="quactuary.pricing.html" />
+    <link rel="prev" title="quactuary.book module (entities)" href="quactuary.entities.html" />
  
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-2TGPCH7PBM"></script>
@@ -34,15 +34,12 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
-          <a href="quactuary.utils.html" title="quactuary.utils module"
+          <a href="quactuary.pricing.html" title="quactuary.pricing module"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="quactuary.quantum.html" title="quactuary.quantum module"
+          <a href="quactuary.entities.html" title="quactuary.book module (entities)"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">quActuary v0.0.6 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">quActuary v0.0.7 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">quactuary.backend module</a></li> 
       </ul>
     </div>  
@@ -52,146 +49,9 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <section id="module-quactuary.backend">
-<span id="quactuary-backend-module"></span><h1>quactuary.backend module<a class="headerlink" href="#module-quactuary.backend" title="Link to this heading">¶</a></h1>
-<p>Backend selection and execution module.</p>
-<p>Provides plumbing to choose between quantum (Qiskit) and classical
-execution backends. Abstracts backend management so user-facing models
-receive numeric results regardless of execution mode.</p>
-<p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">quactuary.backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_backend</span><span class="p">,</span> <span class="n">set_backend</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">manager</span> <span class="o">=</span> <span class="n">get_backend</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">set_backend</span><span class="p">(</span><span class="s1">&#39;quantum&#39;</span><span class="p">,</span> <span class="n">provider</span><span class="o">=</span><span class="s1">&#39;AerSimulator&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-<dl class="py class">
-<dt class="sig sig-object py" id="quactuary.backend.BackendManager">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">quactuary.backend.</span></span><span class="sig-name descname"><span class="pre">BackendManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">backend</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quactuary.backend.BackendManager" title="Link to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Manager for quantum and classical backends.</p>
-<p>Manages backend assignments and executes quantum circuits or classical simulations.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="quactuary.backend.BackendManager.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">backend</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quactuary.backend.BackendManager.__init__" title="Link to this definition">¶</a></dt>
-<dd><p>Initialize a BackendManager.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>backend</strong> – Backend instance (e.g., Qiskit backend or custom classical engine).</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="quactuary.backend.BackendManager.get_backend">
-<span class="sig-name descname"><span class="pre">get_backend</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#quactuary.backend.BackendManager.get_backend" title="Link to this definition">¶</a></dt>
-<dd><p>Retrieve the active backend.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>The current backend instance.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="quactuary.backend.BackendManager.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">circuit</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quactuary.backend.BackendManager.run" title="Link to this definition">¶</a></dt>
-<dd><p>Execute a circuit on the active backend.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>circuit</strong> – QuantumCircuit or equivalent object to run.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Execution result or job output.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Result</p>
-</dd>
-</dl>
-<p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">backend_manager</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">qc</span><span class="p">)</span>
-</pre></div>
-</div>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="quactuary.backend.BackendManager.set_backend">
-<span class="sig-name descname"><span class="pre">set_backend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">backend</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quactuary.backend.BackendManager.set_backend" title="Link to this definition">¶</a></dt>
-<dd><p>Override the active backend.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>backend</strong> – New backend instance.</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="quactuary.backend.get_backend">
-<span class="sig-prename descclassname"><span class="pre">quactuary.backend.</span></span><span class="sig-name descname"><span class="pre">get_backend</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#quactuary.backend.get_backend" title="Link to this definition">¶</a></dt>
-<dd><p>Retrieve or initialize the global BackendManager.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Singleton backend manager instance.</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#quactuary.backend.BackendManager" title="quactuary.backend.BackendManager">BackendManager</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="quactuary.backend.set_backend">
-<span class="sig-prename descclassname"><span class="pre">quactuary.backend.</span></span><span class="sig-name descname"><span class="pre">set_backend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">provider</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quactuary.backend.set_backend" title="Link to this definition">¶</a></dt>
-<dd><p>Configure the global execution backend.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>mode</strong> (<em>str</em>) – Type of execution (‘quantum’ or ‘classical’).</p></li>
-<li><p><strong>provider</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – Quantum provider name (‘AerSimulator’, ‘IBMQ’).</p></li>
-<li><p><strong>**kwargs</strong> – Additional settings (e.g., backend credentials, simulation parameters).</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The newly assigned backend instance.</p>
-</dd>
-<dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>ImportError</strong> – If Qiskit or packaging dependencies are missing for quantum mode.</p></li>
-<li><p><strong>ValueError</strong> – If mode or provider is unsupported.</p></li>
-</ul>
-</dd>
-</dl>
-<p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">set_backend</span><span class="p">(</span><span class="s1">&#39;quantum&#39;</span><span class="p">,</span> <span class="n">provider</span><span class="o">=</span><span class="s1">&#39;AerSimulator&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">set_backend</span><span class="p">(</span><span class="s1">&#39;classical&#39;</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="s1">&#39;numpy&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="quactuary.backend.use_backend">
-<span class="sig-prename descclassname"><span class="pre">quactuary.backend.</span></span><span class="sig-name descname"><span class="pre">use_backend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">provider</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quactuary.backend.use_backend" title="Link to this definition">¶</a></dt>
-<dd><p>Context manager for temporary backend configuration.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>mode</strong> (<em>str</em>) – Execution mode override (‘quantum’ or ‘classical’).</p></li>
-<li><p><strong>provider</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – Quantum provider name.</p></li>
-<li><p><strong>**kwargs</strong> – Additional backend settings.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Yields<span class="colon">:</span></dt>
-<dd class="field-even"><p><em>BackendManager</em> – Manager with temporary backend applied.</p>
-</dd>
-</dl>
-<p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">use_backend</span><span class="p">(</span><span class="s1">&#39;quantum&#39;</span><span class="p">,</span> <span class="n">provider</span><span class="o">=</span><span class="s1">&#39;AerSimulator&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">mgr</span><span class="p">:</span>
-<span class="gp">... </span>    <span class="n">result</span> <span class="o">=</span> <span class="n">mgr</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">circuit</span><span class="p">)</span>
-</pre></div>
-</div>
-</dd></dl>
-
+  <section id="quactuary-backend-module">
+<h1>quactuary.backend module<a class="headerlink" href="#quactuary-backend-module" title="Link to this heading">¶</a></h1>
+<p>Backend management for classical and quantum computing environments.</p>
 </section>
 
 
@@ -202,33 +62,14 @@ receive numeric results regardless of execution mode.</p>
       <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
   <div>
-    <h3><a href="index.html">Table of Contents</a></h3>
-    <ul>
-<li><a class="reference internal" href="#">quactuary.backend module</a><ul>
-<li><a class="reference internal" href="#quactuary.backend.BackendManager"><code class="docutils literal notranslate"><span class="pre">BackendManager</span></code></a><ul>
-<li><a class="reference internal" href="#quactuary.backend.BackendManager.__init__"><code class="docutils literal notranslate"><span class="pre">BackendManager.__init__()</span></code></a></li>
-<li><a class="reference internal" href="#quactuary.backend.BackendManager.get_backend"><code class="docutils literal notranslate"><span class="pre">BackendManager.get_backend()</span></code></a></li>
-<li><a class="reference internal" href="#quactuary.backend.BackendManager.run"><code class="docutils literal notranslate"><span class="pre">BackendManager.run()</span></code></a></li>
-<li><a class="reference internal" href="#quactuary.backend.BackendManager.set_backend"><code class="docutils literal notranslate"><span class="pre">BackendManager.set_backend()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#quactuary.backend.get_backend"><code class="docutils literal notranslate"><span class="pre">get_backend()</span></code></a></li>
-<li><a class="reference internal" href="#quactuary.backend.set_backend"><code class="docutils literal notranslate"><span class="pre">set_backend()</span></code></a></li>
-<li><a class="reference internal" href="#quactuary.backend.use_backend"><code class="docutils literal notranslate"><span class="pre">use_backend()</span></code></a></li>
-</ul>
-</li>
-</ul>
-
-  </div>
-  <div>
     <h4>Previous topic</h4>
-    <p class="topless"><a href="quactuary.quantum.html"
-                          title="previous chapter">quactuary.quantum module</a></p>
+    <p class="topless"><a href="quactuary.entities.html"
+                          title="previous chapter">quactuary.book module (entities)</a></p>
   </div>
   <div>
     <h4>Next topic</h4>
-    <p class="topless"><a href="quactuary.utils.html"
-                          title="next chapter">quactuary.utils module</a></p>
+    <p class="topless"><a href="quactuary.pricing.html"
+                          title="next chapter">quactuary.pricing module</a></p>
   </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
@@ -258,15 +99,12 @@ receive numeric results regardless of execution mode.</p>
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
-          <a href="quactuary.utils.html" title="quactuary.utils module"
+          <a href="quactuary.pricing.html" title="quactuary.pricing module"
              >next</a> |</li>
         <li class="right" >
-          <a href="quactuary.quantum.html" title="quactuary.quantum module"
+          <a href="quactuary.entities.html" title="quactuary.book module (entities)"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">quActuary v0.0.6 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">quActuary v0.0.7 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">quactuary.backend module</a></li> 
       </ul>
     </div>

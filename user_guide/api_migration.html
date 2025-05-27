@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>API Migration Guide &#8212; quActuary v0.0.7 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/nature.css?v=279e0f84" />
+    <script src="../_static/documentation_options.js?v=401b779c"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="canonical" href="https://docs.quactuary.com/user_guide/api_migration.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="MCP Server Integration Guide" href="mcp_integration.html" />
+    <link rel="prev" title="Testing Best Practices" href="testing_best_practices.html" />
+ 
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-2TGPCH7PBM"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag() { dataLayer.push(arguments); }
+  gtag('js', new Date());
+  gtag('config', 'G-2TGPCH7PBM');
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="mcp_integration.html" title="MCP Server Integration Guide"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="testing_best_practices.html" title="Testing Best Practices"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">quActuary v0.0.7 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">User Guide</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">API Migration Guide</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="api-migration-guide">
+<h1>API Migration Guide<a class="headerlink" href="#api-migration-guide" title="Link to this heading">¶</a></h1>
+<p>This guide helps you migrate from older versions of quActuary to the current API (v0.2.0+).</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Version 0.2.0 introduced several breaking changes to improve API consistency and usability.
+This guide covers all major changes and provides migration examples.</p>
+</div>
+<section id="distribution-parameter-changes">
+<h2>Distribution Parameter Changes<a class="headerlink" href="#distribution-parameter-changes" title="Link to this heading">¶</a></h2>
+<section id="location-parameter-standardization">
+<h3>Location Parameter Standardization<a class="headerlink" href="#location-parameter-standardization" title="Link to this heading">¶</a></h3>
+<p><strong>Change</strong>: All distributions now use <code class="docutils literal notranslate"><span class="pre">loc</span></code> for location parameters.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Old API (pre-0.2.0)</span>
+<span class="n">lognormal</span> <span class="o">=</span> <span class="n">Lognormal</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">location</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>  <span class="c1"># DEPRECATED</span>
+<span class="n">pareto</span> <span class="o">=</span> <span class="n">Pareto</span><span class="p">(</span><span class="n">b</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mf">1000.0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>        <span class="c1"># DEPRECATED</span>
+
+<span class="c1"># New API (0.2.0+)</span>
+<span class="n">lognormal</span> <span class="o">=</span> <span class="n">Lognormal</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>       <span class="c1"># CORRECT</span>
+<span class="n">pareto</span> <span class="o">=</span> <span class="n">Pareto</span><span class="p">(</span><span class="n">b</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="mf">1000.0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>             <span class="c1"># CORRECT</span>
+</pre></div>
+</div>
+<p><strong>Affected Distributions</strong>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Lognormal</span></code>: <code class="docutils literal notranslate"><span class="pre">location</span></code> → <code class="docutils literal notranslate"><span class="pre">loc</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Pareto</span></code>: <code class="docutils literal notranslate"><span class="pre">threshold</span></code> → <code class="docutils literal notranslate"><span class="pre">loc</span></code></p></li>
+<li><p>All other severity distributions: Already used <code class="docutils literal notranslate"><span class="pre">loc</span></code></p></li>
+</ul>
+</section>
+</section>
+<section id="optimization-api-changes">
+<h2>Optimization API Changes<a class="headerlink" href="#optimization-api-changes" title="Link to this heading">¶</a></h2>
+<section id="optimizationconfig-introduction">
+<h3>OptimizationConfig Introduction<a class="headerlink" href="#optimizationconfig-introduction" title="Link to this heading">¶</a></h3>
+<p><strong>Change</strong>: Individual optimization parameters replaced with <code class="docutils literal notranslate"><span class="pre">OptimizationConfig</span></code> class.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Old API (pre-0.2.0)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span>
+    <span class="n">n_sims</span><span class="o">=</span><span class="mi">100000</span><span class="p">,</span>
+    <span class="n">use_jit</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>           <span class="c1"># DEPRECATED</span>
+    <span class="n">use_parallel</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>      <span class="c1"># DEPRECATED</span>
+    <span class="n">n_workers</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>           <span class="c1"># DEPRECATED</span>
+    <span class="n">use_qmc</span><span class="o">=</span><span class="kc">True</span>           <span class="c1"># DEPRECATED</span>
+<span class="p">)</span>
+
+<span class="c1"># New API (0.2.0+)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">quactuary.optimization_selector</span><span class="w"> </span><span class="kn">import</span> <span class="n">OptimizationConfig</span>
+
+<span class="n">config</span> <span class="o">=</span> <span class="n">OptimizationConfig</span><span class="p">(</span>
+    <span class="n">use_jit</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">use_parallel</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">n_workers</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+    <span class="n">use_qmc</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span>
+    <span class="n">n_sims</span><span class="o">=</span><span class="mi">100000</span><span class="p">,</span>
+    <span class="n">optimization_config</span><span class="o">=</span><span class="n">config</span>  <span class="c1"># CORRECT</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="auto-optimization">
+<h3>Auto-Optimization<a class="headerlink" href="#auto-optimization" title="Link to this heading">¶</a></h3>
+<p><strong>New Feature</strong>: Automatic optimization selection based on data size and system resources.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># New in 0.2.0</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span>
+    <span class="n">n_sims</span><span class="o">=</span><span class="mi">100000</span><span class="p">,</span>
+    <span class="n">auto_optimize</span><span class="o">=</span><span class="kc">True</span>  <span class="c1"># Let system choose optimal settings</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="testing-tolerance-changes">
+<h2>Testing Tolerance Changes<a class="headerlink" href="#testing-tolerance-changes" title="Link to this heading">¶</a></h2>
+<section id="stochastic-method-tolerances">
+<h3>Stochastic Method Tolerances<a class="headerlink" href="#stochastic-method-tolerances" title="Link to this heading">¶</a></h3>
+<p><strong>Change</strong>: Recommended tolerances for stochastic tests have been relaxed.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Old approach (often failed randomly)</span>
+<span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">mean</span> <span class="o">==</span> <span class="n">pytest</span><span class="o">.</span><span class="n">approx</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">rel</span><span class="o">=</span><span class="mf">0.001</span><span class="p">)</span>  <span class="c1"># Too strict</span>
+
+<span class="c1"># New approach (stable tests)</span>
+<span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">mean</span> <span class="o">==</span> <span class="n">pytest</span><span class="o">.</span><span class="n">approx</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">rel</span><span class="o">=</span><span class="mf">0.05</span><span class="p">)</span>   <span class="c1"># 5% for small samples</span>
+<span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">mean</span> <span class="o">==</span> <span class="n">pytest</span><span class="o">.</span><span class="n">approx</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">rel</span><span class="o">=</span><span class="mf">0.02</span><span class="p">)</span>   <span class="c1"># 2% for large samples</span>
+</pre></div>
+</div>
+</section>
+<section id="hardware-dependent-test-handling">
+<h3>Hardware-Dependent Test Handling<a class="headerlink" href="#hardware-dependent-test-handling" title="Link to this heading">¶</a></h3>
+<p><strong>Change</strong>: Use <code class="docutils literal notranslate"><span class="pre">pytest.mark.skip</span></code> for tests that depend on specific hardware.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># New approach</span>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">skip</span><span class="p">(</span><span class="n">reason</span><span class="o">=</span><span class="s2">&quot;Requires stable baseline from CI environment&quot;</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_performance_regression</span><span class="p">():</span>
+    <span class="c1"># Performance-sensitive test</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="complete-migration-examples">
+<h2>Complete Migration Examples<a class="headerlink" href="#complete-migration-examples" title="Link to this heading">¶</a></h2>
+<section id="example-1-basic-portfolio-pricing">
+<h3>Example 1: Basic Portfolio Pricing<a class="headerlink" href="#example-1-basic-portfolio-pricing" title="Link to this heading">¶</a></h3>
+<p><strong>Old Code</strong>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">quactuary.distributions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Poisson</span><span class="p">,</span> <span class="n">Lognormal</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">quactuary.pricing</span><span class="w"> </span><span class="kn">import</span> <span class="n">PricingModel</span>
+
+<span class="c1"># Create distributions (old parameter names)</span>
+<span class="n">freq</span> <span class="o">=</span> <span class="n">Poisson</span><span class="p">(</span><span class="mf">5.0</span><span class="p">)</span>  <span class="c1"># Positional argument</span>
+<span class="n">sev</span> <span class="o">=</span> <span class="n">Lognormal</span><span class="p">(</span><span class="mf">1.5</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1000.0</span><span class="p">)</span>  <span class="c1"># Positional arguments</span>
+
+<span class="c1"># Run simulation (old optimization API)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">PricingModel</span><span class="p">(</span><span class="n">portfolio</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span>
+    <span class="n">n_sims</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span>
+    <span class="n">use_jit</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">use_parallel</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>New Code</strong>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">quactuary.distributions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Poisson</span><span class="p">,</span> <span class="n">Lognormal</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">quactuary.pricing</span><span class="w"> </span><span class="kn">import</span> <span class="n">PricingModel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">quactuary.optimization_selector</span><span class="w"> </span><span class="kn">import</span> <span class="n">OptimizationConfig</span>
+
+<span class="c1"># Create distributions (explicit parameter names)</span>
+<span class="n">freq</span> <span class="o">=</span> <span class="n">Poisson</span><span class="p">(</span><span class="n">mu</span><span class="o">=</span><span class="mf">5.0</span><span class="p">)</span>
+<span class="n">sev</span> <span class="o">=</span> <span class="n">Lognormal</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">1000.0</span><span class="p">)</span>
+
+<span class="c1"># Run simulation (new optimization API)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">PricingModel</span><span class="p">(</span><span class="n">portfolio</span><span class="p">)</span>
+
+<span class="c1"># Option 1: Manual configuration</span>
+<span class="n">config</span> <span class="o">=</span> <span class="n">OptimizationConfig</span><span class="p">(</span><span class="n">use_jit</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">use_parallel</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">n_sims</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span> <span class="n">optimization_config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+
+<span class="c1"># Option 2: Auto-optimization (recommended)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">n_sims</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span> <span class="n">auto_optimize</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="example-2-complex-distribution-setup">
+<h3>Example 2: Complex Distribution Setup<a class="headerlink" href="#example-2-complex-distribution-setup" title="Link to this heading">¶</a></h3>
+<p><strong>Old Code</strong>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Mixed parameter styles</span>
+<span class="n">pareto</span> <span class="o">=</span> <span class="n">Pareto</span><span class="p">(</span><span class="mf">2.0</span><span class="p">,</span> <span class="mf">1000.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>  <span class="c1"># Positional</span>
+<span class="n">beta</span> <span class="o">=</span> <span class="n">Beta</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">location</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># Mixed named</span>
+<span class="n">uniform</span> <span class="o">=</span> <span class="n">ContinuousUniformSeverity</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>  <span class="c1"># Min/max style</span>
+</pre></div>
+</div>
+<p><strong>New Code</strong>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Consistent named parameters</span>
+<span class="n">pareto</span> <span class="o">=</span> <span class="n">Pareto</span><span class="p">(</span><span class="n">b</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="mf">1000.0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+<span class="n">beta</span> <span class="o">=</span> <span class="n">Beta</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">uniform</span> <span class="o">=</span> <span class="n">ContinuousUniformSeverity</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>  <span class="c1"># scale is width</span>
+</pre></div>
+</div>
+</section>
+<section id="example-3-test-migration">
+<h3>Example 3: Test Migration<a class="headerlink" href="#example-3-test-migration" title="Link to this heading">¶</a></h3>
+<p><strong>Old Test</strong>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">test_simulation_mean</span><span class="p">():</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">n_sims</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">abs</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">mean</span> <span class="o">-</span> <span class="mi">1000</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span>  <span class="c1"># Absolute tolerance</span>
+</pre></div>
+</div>
+<p><strong>New Test</strong>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_simulation_mean</span><span class="p">():</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>  <span class="c1"># Ensure reproducibility</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">n_sims</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span>  <span class="c1"># Larger sample</span>
+    <span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">mean</span> <span class="o">==</span> <span class="n">pytest</span><span class="o">.</span><span class="n">approx</span><span class="p">(</span><span class="mi">1000</span><span class="p">,</span> <span class="n">rel</span><span class="o">=</span><span class="mf">0.05</span><span class="p">)</span>  <span class="c1"># Relative tolerance</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="automated-migration-script">
+<h2>Automated Migration Script<a class="headerlink" href="#automated-migration-script" title="Link to this heading">¶</a></h2>
+<p>For large codebases, use this script to help identify areas needing updates:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Migration helper script for quActuary 0.2.0</span>
+<span class="sd">Identifies potential API usage that needs updating.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">glob</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">check_file</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check a file for old API patterns.&quot;&quot;&quot;</span>
+    <span class="n">issues</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">content</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="n">content</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Check for old parameter names</span>
+    <span class="n">patterns</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span><span class="sa">r</span><span class="s1">&#39;location\s*=&#39;</span><span class="p">,</span> <span class="s1">&#39;Use &quot;loc&quot; instead of &quot;location&quot;&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="sa">r</span><span class="s1">&#39;threshold\s*=&#39;</span><span class="p">,</span> <span class="s1">&#39;Use &quot;loc&quot; instead of &quot;threshold&quot;&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\.simulate\([^)]*use_jit\s*=&#39;</span><span class="p">,</span> <span class="s1">&#39;Use OptimizationConfig instead&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="sa">r</span><span class="s1">&#39;\.simulate\([^)]*use_parallel\s*=&#39;</span><span class="p">,</span> <span class="s1">&#39;Use OptimizationConfig instead&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="sa">r</span><span class="s1">&#39;Lognormal\s*\(\s*[\d.]+\s*,\s*[\d.]+\s*,&#39;</span><span class="p">,</span> <span class="s1">&#39;Use named parameters&#39;</span><span class="p">),</span>
+        <span class="p">(</span><span class="sa">r</span><span class="s1">&#39;Pareto\s*\(\s*[\d.]+\s*,\s*[\d.]+\s*,&#39;</span><span class="p">,</span> <span class="s1">&#39;Use named parameters&#39;</span><span class="p">),</span>
+    <span class="p">]</span>
+
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">lines</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">pattern</span><span class="p">,</span> <span class="n">message</span> <span class="ow">in</span> <span class="n">patterns</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+                <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">issues</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+    <span class="c1"># Find all Python files</span>
+    <span class="n">files</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s1">&#39;**/*.py&#39;</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">files</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s1">&#39;**/*.ipynb&#39;</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+
+    <span class="n">all_issues</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+        <span class="n">issues</span> <span class="o">=</span> <span class="n">check_file</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+        <span class="n">all_issues</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">issues</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">all_issues</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Migration issues found:&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">issue</span> <span class="ow">in</span> <span class="n">all_issues</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">issue</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No migration issues found!&quot;</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="troubleshooting">
+<h2>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Link to this heading">¶</a></h2>
+<section id="common-migration-issues">
+<h3>Common Migration Issues<a class="headerlink" href="#common-migration-issues" title="Link to this heading">¶</a></h3>
+<p><strong>Issue</strong>: <code class="docutils literal notranslate"><span class="pre">TypeError:</span> <span class="pre">__init__()</span> <span class="pre">got</span> <span class="pre">an</span> <span class="pre">unexpected</span> <span class="pre">keyword</span> <span class="pre">argument</span> <span class="pre">'location'</span></code></p>
+<p><strong>Solution</strong>: Change <code class="docutils literal notranslate"><span class="pre">location</span></code> to <code class="docutils literal notranslate"><span class="pre">loc</span></code> in distribution initialization.</p>
+<p><strong>Issue</strong>: <code class="docutils literal notranslate"><span class="pre">TypeError:</span> <span class="pre">simulate()</span> <span class="pre">got</span> <span class="pre">an</span> <span class="pre">unexpected</span> <span class="pre">keyword</span> <span class="pre">argument</span> <span class="pre">'use_jit'</span></code></p>
+<p><strong>Solution</strong>: Create an <code class="docutils literal notranslate"><span class="pre">OptimizationConfig</span></code> object with your settings.</p>
+<p><strong>Issue</strong>: Tests failing with <code class="docutils literal notranslate"><span class="pre">AssertionError</span></code> on numerical comparisons</p>
+<p><strong>Solution</strong>: Update to use <code class="docutils literal notranslate"><span class="pre">pytest.approx()</span></code> with appropriate tolerances.</p>
+</section>
+<section id="getting-help">
+<h3>Getting Help<a class="headerlink" href="#getting-help" title="Link to this heading">¶</a></h3>
+<p>If you encounter issues not covered in this guide:</p>
+<ol class="arabic simple">
+<li><p>Check the <a class="reference internal" href="../quactuary.html"><span class="doc">quactuary package</span></a> for current parameter names</p></li>
+<li><p>Review the <a class="reference internal" href="distribution_parameters.html"><span class="doc">Distribution Parameter Reference</span></a> for distribution specifics</p></li>
+<li><p>See <a class="reference internal" href="optimization_config.html"><span class="doc">Optimization Configuration Guide</span></a> for optimization details</p></li>
+<li><p>File an issue on <a class="reference external" href="https://github.com/quactuary/quactuary/issues">GitHub</a></p></li>
+</ol>
+</section>
+</section>
+<section id="version-history">
+<h2>Version History<a class="headerlink" href="#version-history" title="Link to this heading">¶</a></h2>
+<p><strong>v0.2.0</strong> (2025-05-26)</p>
+<ul class="simple">
+<li><p>Standardized distribution location parameters to <code class="docutils literal notranslate"><span class="pre">loc</span></code></p></li>
+<li><p>Introduced <code class="docutils literal notranslate"><span class="pre">OptimizationConfig</span></code> for unified optimization control</p></li>
+<li><p>Added <code class="docutils literal notranslate"><span class="pre">auto_optimize</span></code> feature for automatic optimization selection</p></li>
+<li><p>Updated test tolerance recommendations</p></li>
+<li><p>Improved API consistency across all modules</p></li>
+</ul>
+<p><strong>v0.1.x</strong></p>
+<ul class="simple">
+<li><p>Initial release with mixed parameter naming conventions</p></li>
+<li><p>Individual optimization parameters in <code class="docutils literal notranslate"><span class="pre">simulate()</span></code> method</p></li>
+</ul>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="../index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">API Migration Guide</a><ul>
+<li><a class="reference internal" href="#distribution-parameter-changes">Distribution Parameter Changes</a><ul>
+<li><a class="reference internal" href="#location-parameter-standardization">Location Parameter Standardization</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#optimization-api-changes">Optimization API Changes</a><ul>
+<li><a class="reference internal" href="#optimizationconfig-introduction">OptimizationConfig Introduction</a></li>
+<li><a class="reference internal" href="#auto-optimization">Auto-Optimization</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#testing-tolerance-changes">Testing Tolerance Changes</a><ul>
+<li><a class="reference internal" href="#stochastic-method-tolerances">Stochastic Method Tolerances</a></li>
+<li><a class="reference internal" href="#hardware-dependent-test-handling">Hardware-Dependent Test Handling</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#complete-migration-examples">Complete Migration Examples</a><ul>
+<li><a class="reference internal" href="#example-1-basic-portfolio-pricing">Example 1: Basic Portfolio Pricing</a></li>
+<li><a class="reference internal" href="#example-2-complex-distribution-setup">Example 2: Complex Distribution Setup</a></li>
+<li><a class="reference internal" href="#example-3-test-migration">Example 3: Test Migration</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#automated-migration-script">Automated Migration Script</a></li>
+<li><a class="reference internal" href="#troubleshooting">Troubleshooting</a><ul>
+<li><a class="reference internal" href="#common-migration-issues">Common Migration Issues</a></li>
+<li><a class="reference internal" href="#getting-help">Getting Help</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#version-history">Version History</a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="testing_best_practices.html"
+                          title="previous chapter">Testing Best Practices</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="mcp_integration.html"
+                          title="next chapter">MCP Server Integration Guide</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/user_guide/api_migration.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="mcp_integration.html" title="MCP Server Integration Guide"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="testing_best_practices.html" title="Testing Best Practices"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">quActuary v0.0.7 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >User Guide</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">API Migration Guide</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2025, Alex Filiakov, ACAS.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    </div>
+  </body>
+</html>

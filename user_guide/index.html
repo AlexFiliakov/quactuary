@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>User Guide &#8212; quActuary v0.0.7 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/nature.css?v=279e0f84" />
+    <script src="../_static/documentation_options.js?v=401b779c"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="canonical" href="https://docs.quactuary.com/user_guide/index.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Optimization Overview" href="optimization_overview.html" />
+    <link rel="prev" title="quActuary Documentation" href="../index.html" />
+ 
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-2TGPCH7PBM"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag() { dataLayer.push(arguments); }
+  gtag('js', new Date());
+  gtag('config', 'G-2TGPCH7PBM');
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="optimization_overview.html" title="Optimization Overview"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../index.html" title="quActuary Documentation"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">quActuary v0.0.7 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">User Guide</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="user-guide">
+<h1>User Guide<a class="headerlink" href="#user-guide" title="Link to this heading">¶</a></h1>
+<p>This guide provides detailed information on using the quactuary package effectively.</p>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="optimization_overview.html">Optimization Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="optimization_overview.html#quick-decision-guide">Quick Decision Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="optimization_overview.html#available-optimizations">Available Optimizations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="optimization_overview.html#performance-vs-accuracy-trade-offs">Performance vs Accuracy Trade-offs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="optimization_overview.html#configuration-examples">Configuration Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="optimization_overview.html#industry-specific-use-cases">Industry-Specific Use Cases</a></li>
+<li class="toctree-l2"><a class="reference internal" href="optimization_overview.html#next-steps">Next Steps</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="quick_start.html">Optimization Quick Start</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="quick_start.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quick_start.html#basic-usage">Basic Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quick_start.html#common-scenarios">Common Scenarios</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quick_start.html#monitoring-performance">Monitoring Performance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quick_start.html#best-practices">Best Practices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quick_start.html#common-issues">Common Issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quick_start.html#next-steps">Next Steps</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="configuration_guide.html">Optimization Configuration Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="configuration_guide.html#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration_guide.html#core-parameters">Core Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration_guide.html#jit-compilation-parameters">JIT Compilation Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration_guide.html#parallel-processing-parameters">Parallel Processing Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration_guide.html#memory-management-parameters">Memory Management Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration_guide.html#vectorization-parameters">Vectorization Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration_guide.html#quasi-monte-carlo-parameters">Quasi-Monte Carlo Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration_guide.html#user-interface-parameters">User Interface Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration_guide.html#configuration-presets">Configuration Presets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration_guide.html#environment-variables">Environment Variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration_guide.html#advanced-configuration">Advanced Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration_guide.html#next-steps">Next Steps</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="best_practices.html">Optimization Best Practices</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="best_practices.html#general-principles">General Principles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="best_practices.html#jit-compilation-best-practices">JIT Compilation Best Practices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="best_practices.html#parallel-processing-best-practices">Parallel Processing Best Practices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="best_practices.html#memory-management-best-practices">Memory Management Best Practices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="best_practices.html#qmc-best-practices">QMC Best Practices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="best_practices.html#production-deployment">Production Deployment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="best_practices.html#next-steps">Next Steps</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="numerical_stability.html">Numerical Stability Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="numerical_stability.html#why-numerical-stability-matters">Why Numerical Stability Matters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="numerical_stability.html#using-the-numerical-utilities">Using the Numerical Utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="numerical_stability.html#best-practices-for-specific-calculations">Best Practices for Specific Calculations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="numerical_stability.html#example-stable-tweedie-implementation">Example: Stable Tweedie Implementation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="numerical_stability.html#common-pitfalls-to-avoid">Common Pitfalls to Avoid</a></li>
+<li class="toctree-l2"><a class="reference internal" href="numerical_stability.html#testing-for-numerical-stability">Testing for Numerical Stability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="numerical_stability.html#conclusion">Conclusion</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="distribution_parameters.html">Distribution Parameter Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="distribution_parameters.html#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="distribution_parameters.html#parameter-naming-by-distribution-type">Parameter Naming by Distribution Type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="distribution_parameters.html#migration-guide">Migration Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="distribution_parameters.html#best-practices">Best Practices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="distribution_parameters.html#examples">Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="distribution_parameters.html#see-also">See Also</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="optimization_config.html">Optimization Configuration Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="optimization_config.html#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="optimization_config.html#quick-start">Quick Start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="optimization_config.html#configuration-options">Configuration Options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="optimization_config.html#how-auto-optimization-works">How Auto-Optimization Works</a></li>
+<li class="toctree-l2"><a class="reference internal" href="optimization_config.html#common-optimization-combinations">Common Optimization Combinations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="optimization_config.html#advanced-usage">Advanced Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="optimization_config.html#performance-guidelines">Performance Guidelines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="optimization_config.html#troubleshooting">Troubleshooting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="optimization_config.html#best-practices">Best Practices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="optimization_config.html#examples">Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="optimization_config.html#see-also">See Also</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="testing_best_practices.html">Testing Best Practices</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="testing_best_practices.html#tolerance-guidelines">Tolerance Guidelines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testing_best_practices.html#testing-stochastic-methods">Testing Stochastic Methods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testing_best_practices.html#hardware-dependent-tests">Hardware-Dependent Tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testing_best_practices.html#numerical-accuracy-testing">Numerical Accuracy Testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testing_best_practices.html#integration-test-patterns">Integration Test Patterns</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testing_best_practices.html#common-pitfalls-and-solutions">Common Pitfalls and Solutions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testing_best_practices.html#best-practices-summary">Best Practices Summary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testing_best_practices.html#example-complete-test-module">Example: Complete Test Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testing_best_practices.html#see-also">See Also</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api_migration.html">API Migration Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api_migration.html#distribution-parameter-changes">Distribution Parameter Changes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_migration.html#optimization-api-changes">Optimization API Changes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_migration.html#testing-tolerance-changes">Testing Tolerance Changes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_migration.html#complete-migration-examples">Complete Migration Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_migration.html#automated-migration-script">Automated Migration Script</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_migration.html#troubleshooting">Troubleshooting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_migration.html#version-history">Version History</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="mcp_integration.html">MCP Server Integration Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="mcp_integration.html#what-is-mcp">What is MCP?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mcp_integration.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mcp_integration.html#starting-the-server">Starting the Server</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mcp_integration.html#configuring-claude-desktop">Configuring Claude Desktop</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mcp_integration.html#available-tools">Available Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mcp_integration.html#usage-examples">Usage Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mcp_integration.html#best-practices">Best Practices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mcp_integration.html#troubleshooting">Troubleshooting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mcp_integration.html#advanced-usage">Advanced Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mcp_integration.html#security-considerations">Security Considerations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mcp_integration.html#performance-tips">Performance Tips</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mcp_integration.html#further-resources">Further Resources</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<section id="getting-started">
+<h2>Getting Started<a class="headerlink" href="#getting-started" title="Link to this heading">¶</a></h2>
+<p>The quactuary package provides tools for actuarial loss modeling with both classical and quantum computing backends. Key features include:</p>
+<ul class="simple">
+<li><p>Frequency and severity distributions</p></li>
+<li><p>Compound distribution modeling</p></li>
+<li><p>Portfolio-based pricing</p></li>
+<li><p>Risk measure calculations (VaR, TVaR)</p></li>
+<li><p>Performance optimization (JIT, parallel, QMC)</p></li>
+<li><p>Quantum computing integration</p></li>
+<li><p>MCP Server for LLM integration (Claude, etc.)</p></li>
+</ul>
+</section>
+<section id="performance-optimization">
+<h2>Performance Optimization<a class="headerlink" href="#performance-optimization" title="Link to this heading">¶</a></h2>
+<p>The quactuary package includes comprehensive optimization features to accelerate Monte Carlo simulations:</p>
+<ul class="simple">
+<li><p><strong>Optimization Overview</strong> (<a class="reference internal" href="optimization_overview.html"><span class="doc">Optimization Overview</span></a>) - Understand available optimization strategies and when to use them</p></li>
+<li><p><strong>Quick Start Guide</strong> (<a class="reference internal" href="quick_start.html"><span class="doc">Optimization Quick Start</span></a>) - Get started with optimization in minutes</p></li>
+<li><p><strong>Configuration Guide</strong> (<a class="reference internal" href="configuration_guide.html"><span class="doc">Optimization Configuration Guide</span></a>) - Detailed reference for all optimization parameters</p></li>
+<li><p><strong>Best Practices</strong> (<a class="reference internal" href="best_practices.html"><span class="doc">Optimization Best Practices</span></a>) - Learn from real-world optimization patterns</p></li>
+</ul>
+</section>
+<section id="advanced-topics">
+<h2>Advanced Topics<a class="headerlink" href="#advanced-topics" title="Link to this heading">¶</a></h2>
+<section id="numerical-stability">
+<h3>Numerical Stability<a class="headerlink" href="#numerical-stability" title="Link to this heading">¶</a></h3>
+<p>Working with actuarial calculations often involves extreme values and complex operations. The <a class="reference internal" href="numerical_stability.html"><span class="doc">Numerical Stability Guide</span></a> guide provides best practices for ensuring accurate results even with challenging numerical conditions.</p>
+</section>
+<section id="api-reference">
+<h3>API Reference<a class="headerlink" href="#api-reference" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>Distribution Parameters</strong> (<a class="reference internal" href="distribution_parameters.html"><span class="doc">Distribution Parameter Reference</span></a>) - Complete reference for all distribution parameter names and conventions</p></li>
+<li><p><strong>Optimization Configuration</strong> (<a class="reference internal" href="optimization_config.html"><span class="doc">Optimization Configuration Guide</span></a>) - Guide to using OptimizationConfig for performance tuning</p></li>
+<li><p><strong>API Migration Guide</strong> (<a class="reference internal" href="api_migration.html"><span class="doc">API Migration Guide</span></a>) - Migrate from older versions to the current API</p></li>
+</ul>
+</section>
+<section id="development">
+<h3>Development<a class="headerlink" href="#development" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>Testing Best Practices</strong> (<a class="reference internal" href="testing_best_practices.html"><span class="doc">Testing Best Practices</span></a>) - Write robust tests for stochastic methods and numerical computations</p></li>
+</ul>
+</section>
+<section id="llm-integration">
+<h3>LLM Integration<a class="headerlink" href="#llm-integration" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>MCP Integration Guide</strong> (<a class="reference internal" href="mcp_integration.html"><span class="doc">MCP Server Integration Guide</span></a>) - Use quActuary tools directly in Claude and other LLM assistants via Model Context Protocol</p></li>
+</ul>
+</section>
+</section>
+<section id="basic-usage">
+<h2>Basic Usage<a class="headerlink" href="#basic-usage" title="Link to this heading">¶</a></h2>
+<p>See the main documentation page for basic usage examples. For optimization-specific examples, refer to the <a class="reference internal" href="quick_start.html"><span class="doc">Optimization Quick Start</span></a> guide.</p>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="../index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">User Guide</a><ul>
+<li><a class="reference internal" href="#getting-started">Getting Started</a></li>
+<li><a class="reference internal" href="#performance-optimization">Performance Optimization</a></li>
+<li><a class="reference internal" href="#advanced-topics">Advanced Topics</a><ul>
+<li><a class="reference internal" href="#numerical-stability">Numerical Stability</a></li>
+<li><a class="reference internal" href="#api-reference">API Reference</a></li>
+<li><a class="reference internal" href="#development">Development</a></li>
+<li><a class="reference internal" href="#llm-integration">LLM Integration</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#basic-usage">Basic Usage</a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="../index.html"
+                          title="previous chapter">quActuary Documentation</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="optimization_overview.html"
+                          title="next chapter">Optimization Overview</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/user_guide/index.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="optimization_overview.html" title="Optimization Overview"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../index.html" title="quActuary Documentation"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">quActuary v0.0.7 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">User Guide</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2025, Alex Filiakov, ACAS.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    </div>
+  </body>
+</html>

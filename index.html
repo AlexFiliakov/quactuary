@@ -5,16 +5,16 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>quActuary Documentation &#8212; quActuary v0.0.6 documentation</title>
+    <title>quActuary Documentation &#8212; quActuary v0.0.7 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="_static/nature.css?v=279e0f84" />
-    <script src="_static/documentation_options.js?v=e463f385"></script>
+    <script src="_static/documentation_options.js?v=401b779c"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="canonical" href="https://docs.quactuary.com/index.html" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="quactuary.entities module" href="quactuary.entities.html" />
+    <link rel="next" title="User Guide" href="user_guide/index.html" />
  
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-2TGPCH7PBM"></script>
@@ -33,12 +33,9 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
-          <a href="quactuary.entities.html" title="quactuary.entities module"
+          <a href="user_guide/index.html" title="User Guide"
              accesskey="N">next</a> |</li>
-        <li class="nav-item nav-item-0"><a href="#">quActuary v0.0.6 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="#">quActuary v0.0.7 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">quActuary Documentation</a></li> 
       </ul>
     </div>  
@@ -54,10 +51,12 @@
 <section id="features">
 <h2>Features<a class="headerlink" href="#features" title="Link to this heading">¶</a></h2>
 <ul class="simple">
-<li><p>Extensive frequency distributions: Poisson, Binomial, Negative Binomial, etc.</p></li>
+<li><p>Extensive frequency distributions: Poisson, Binomial, Negative Binomial, Geometric, etc.</p></li>
 <li><p>Support for the generalized Panjer (a, b, k) frequency distribution class.</p></li>
-<li><p>Comprehensive severity distributions: Exponential, Gamma, Lognormal, Pareto, etc.</p></li>
-<li><p>Mixture models and empirical distributions.</p></li>
+<li><p>Comprehensive severity distributions: Exponential, Gamma, Lognormal, Pareto, Continuous Uniform, etc.</p></li>
+<li><p>Mixture models, empirical distributions, and QMC wrappers.</p></li>
+<li><p>Classical and quantum pricing models with backend switching.</p></li>
+<li><p><strong>MCP Server Integration</strong>: Use quActuary tools directly in Claude via Model Context Protocol.</p></li>
 </ul>
 </section>
 <section id="installation">
@@ -65,12 +64,22 @@
 <div class="highlight-powershell notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">quactuary</span>
 </pre></div>
 </div>
+<p>To use the MCP Server integration:</p>
+<div class="highlight-powershell notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">quactuary</span><span class="no">[mcp]</span>
+</pre></div>
+</div>
 </section>
 <section id="getting-started">
 <h2>Getting Started<a class="headerlink" href="#getting-started" title="Link to this heading">¶</a></h2>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">quactuary.distributions.frequency</span><span class="w"> </span><span class="kn">import</span> <span class="n">Poisson</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">quactuary</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">qa</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">quactuary.book</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">book</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">date</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">quactuary.book</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+   <span class="n">LOB</span><span class="p">,</span> <span class="n">PolicyTerms</span><span class="p">,</span> <span class="n">Inforce</span><span class="p">,</span> <span class="n">Portfolio</span><span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">quactuary.distributions.frequency</span><span class="w"> </span><span class="kn">import</span> <span class="n">Poisson</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">quactuary.distributions.severity</span><span class="w"> </span><span class="kn">import</span> <span class="n">Exponential</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">quactuary.pricing</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExcessLossModel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">quactuary.pricing</span><span class="w"> </span><span class="kn">import</span> <span class="n">PricingModel</span>
 
 <span class="c1"># Frequency model example</span>
 <span class="n">freq</span> <span class="o">=</span> <span class="n">Poisson</span><span class="p">(</span><span class="n">mu</span><span class="o">=</span><span class="mf">3.5</span><span class="p">)</span>
@@ -80,63 +89,168 @@
 <span class="n">sev</span> <span class="o">=</span> <span class="n">Exponential</span><span class="p">(</span><span class="n">scale</span><span class="o">=</span><span class="mf">1000.0</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">sev</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="mf">500.0</span><span class="p">))</span>
 
-<span class="c1"># Pricing model example (requires valid Inforce data)</span>
-<span class="c1"># pricing = ExcessLossModel(inforce, deductible=1000, limit=10000)</span>
-<span class="c1"># result = pricing.compute_excess_loss()</span>
+<span class="c1">### Classical pricing model example ###</span>
+
+<span class="c1"># Define the policy terms</span>
+<span class="n">glpl_policy</span> <span class="o">=</span> <span class="n">PolicyTerms</span><span class="p">(</span>
+   <span class="n">effective_date</span><span class="o">=</span><span class="n">date</span><span class="p">(</span><span class="mi">2026</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+   <span class="n">expiration_date</span><span class="o">=</span><span class="n">date</span><span class="p">(</span><span class="mi">2027</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+   <span class="n">lob</span><span class="o">=</span><span class="n">LOB</span><span class="o">.</span><span class="n">GLPL</span><span class="p">,</span>
+   <span class="n">exposure_base</span><span class="o">=</span><span class="n">book</span><span class="o">.</span><span class="n">SALES</span><span class="p">,</span>
+   <span class="n">exposure_amount</span><span class="o">=</span><span class="mi">10_000_000_000</span><span class="p">,</span>
+   <span class="n">retention_type</span><span class="o">=</span><span class="s2">&quot;deductible&quot;</span><span class="p">,</span>
+   <span class="n">per_occ_retention</span><span class="o">=</span><span class="mi">1_000_000</span><span class="p">,</span>
+   <span class="n">coverage</span><span class="o">=</span><span class="s2">&quot;occ&quot;</span>
+<span class="p">)</span>
+
+<span class="c1"># Define the inforce block model</span>
+<span class="n">glpl_inforce</span> <span class="o">=</span> <span class="n">Inforce</span><span class="p">(</span>
+   <span class="n">n_policies</span><span class="o">=</span><span class="mi">700</span><span class="p">,</span>
+   <span class="n">terms</span><span class="o">=</span><span class="n">glpl_policy</span><span class="p">,</span>
+   <span class="n">frequency</span><span class="o">=</span><span class="n">freq</span><span class="p">,</span>
+   <span class="n">severity</span><span class="o">=</span><span class="n">sev</span><span class="p">,</span>
+   <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;GLPL 2026 Bucket&quot;</span>
+<span class="p">)</span>
+
+<span class="n">portfolio</span> <span class="o">=</span> <span class="n">Portfolio</span><span class="p">(</span><span class="n">glpl_inforce</span><span class="p">)</span>
+
+<span class="c1"># Initialize the pricing model</span>
+<span class="n">pricing</span> <span class="o">=</span> <span class="n">PricingModel</span><span class="p">(</span><span class="n">portfolio</span><span class="p">)</span>
+
+<span class="c1"># Run the classical simulation</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">pricing</span><span class="o">.</span><span class="n">simulate</span><span class="p">()</span>
+<span class="n">result</span><span class="o">.</span><span class="n">estimates</span>
+
+<span class="c1">### Output: ###</span>
+<span class="c1"># 0.18495897346170082</span>
+<span class="c1"># 0.0006065306597126335</span>
+<span class="c1"># {&#39;mean&#39;: np.float64(2449951.874110688),</span>
+<span class="c1">#  &#39;variance&#39;: np.float64(4860457942.058481),</span>
+<span class="c1">#  &#39;VaR&#39;: 2565751.9589995327,</span>
+<span class="c1">#  &#39;TVaR&#39;: 2596372.4576630797}</span>
 </pre></div>
 </div>
 </section>
-<section id="actuarial-modules">
-<h2>Actuarial Modules<a class="headerlink" href="#actuarial-modules" title="Link to this heading">¶</a></h2>
+<section id="documentation">
+<h2>Documentation<a class="headerlink" href="#documentation" title="Link to this heading">¶</a></h2>
 <div class="toctree-wrapper compound">
-<p class="caption" role="heading"><span class="caption-text">Actuarial Modules:</span></p>
+<p class="caption" role="heading"><span class="caption-text">User Guide:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="quactuary.entities.html">quactuary.entities module</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="quactuary.entities.html#quactuary.entities.Inforce"><code class="docutils literal notranslate"><span class="pre">Inforce</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="quactuary.entities.html#quactuary.entities.PolicyTerms"><code class="docutils literal notranslate"><span class="pre">PolicyTerms</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="quactuary.entities.html#quactuary.entities.Portfolio"><code class="docutils literal notranslate"><span class="pre">Portfolio</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_guide/index.html">User Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/optimization_overview.html">Optimization Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/quick_start.html">Optimization Quick Start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/configuration_guide.html">Optimization Configuration Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/best_practices.html">Optimization Best Practices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/numerical_stability.html">Numerical Stability Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/distribution_parameters.html">Distribution Parameter Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/optimization_config.html">Optimization Configuration Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/testing_best_practices.html">Testing Best Practices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/api_migration.html">API Migration Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/mcp_integration.html">MCP Server Integration Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/index.html#getting-started">Getting Started</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/index.html#performance-optimization">Performance Optimization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/index.html#advanced-topics">Advanced Topics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/index.html#basic-usage">Basic Usage</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="quactuary.pricing.html">quactuary.pricing module</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="quactuary.pricing.html#quactuary.pricing.ActuarialModel"><code class="docutils literal notranslate"><span class="pre">ActuarialModel</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="quactuary.pricing.html#quactuary.pricing.ExcessLossModel"><code class="docutils literal notranslate"><span class="pre">ExcessLossModel</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="quactuary.pricing.html#quactuary.pricing.RiskMeasureModel"><code class="docutils literal notranslate"><span class="pre">RiskMeasureModel</span></code></a></li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">API Reference:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="quactuary.html">quactuary package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="quactuary.html#subpackages">Subpackages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quactuary.html#quick-start">Quick Start</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="quactuary.entities.html">quactuary.book module (entities)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quactuary.backend.html">quactuary.backend module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quactuary.pricing.html">quactuary.pricing module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_reference/pricing_model.html">PricingModel API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api_reference/pricing_model.html#class-overview">Class Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference/pricing_model.html#core-methods">Core Methods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference/pricing_model.html#advanced-usage">Advanced Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference/pricing_model.html#error-handling">Error Handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_reference/pricing_model.html#see-also">See Also</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="quactuary.quantum.html">quactuary.quantum module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quactuary.distributions.html">quactuary.distributions package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="quactuary.distributions.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="quactuary.distributions.html#module-quactuary.distributions.frequency">quactuary.distributions.frequency module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="quactuary.distributions.html#module-quactuary.distributions.severity">quactuary.distributions.severity module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="quactuary.distributions.html#module-quactuary.distributions">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quactuary.distributions.html#module-contents">Module contents</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="quactuary.quantum.html">quactuary.quantum module</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="quactuary.quantum.html#quactuary.quantum.QuantumModelMixin"><code class="docutils literal notranslate"><span class="pre">QuantumModelMixin</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="quactuary.quantum.html#quactuary.quantum.QuantumResult"><code class="docutils literal notranslate"><span class="pre">QuantumResult</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="quactuary.quantum.html#quactuary.quantum.__init__"><code class="docutils literal notranslate"><span class="pre">__init__()</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="quactuary.mcp.html">quactuary.mcp package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="quactuary.mcp.html#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quactuary.mcp.html#usage">Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quactuary.mcp.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quactuary.mcp.html#tool-categories">Tool Categories</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quactuary.mcp.html#examples">Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quactuary.mcp.html#module-contents">Module Contents</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="quactuary.backend.html">quactuary.backend module</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="quactuary.backend.html#quactuary.backend.BackendManager"><code class="docutils literal notranslate"><span class="pre">BackendManager</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="quactuary.backend.html#quactuary.backend.get_backend"><code class="docutils literal notranslate"><span class="pre">get_backend()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="quactuary.backend.html#quactuary.backend.set_backend"><code class="docutils literal notranslate"><span class="pre">set_backend()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="quactuary.backend.html#quactuary.backend.use_backend"><code class="docutils literal notranslate"><span class="pre">use_backend()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="quactuary.utils.html">quactuary.utils module</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="quactuary.memory_management.html">quactuary.memory_management module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quactuary.parallel_processing.html">quactuary.parallel_processing module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quactuary.vectorized_simulation.html">quactuary.vectorized_simulation module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quactuary.utils.html">quactuary.utils package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="quactuary.utils.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="quactuary.utils.html#module-quactuary.utils.validation">quactuary.utils.validation module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="quactuary.utils.html#module-0">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quactuary.utils.html#module-contents">Module contents</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="quactuary.future.html">quactuary.future package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="quactuary.future.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="quactuary.future.html#module-quactuary.future.dependence">quactuary.future.dependence module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="quactuary.future.html#module-quactuary.future.life">quactuary.future.life module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="quactuary.future.html#module-quactuary.future.machine_learning">quactuary.future.machine_learning module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="quactuary.future.html#module-quactuary.future.portfolio_optimization">quactuary.future.portfolio_optimization module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="quactuary.future.html#module-quactuary.future.reserving">quactuary.future.reserving module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="quactuary.future.html#module-quactuary.future">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quactuary.future.html#module-contents">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Performance:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="performance/benchmarks.html">Performance Benchmarks</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="performance/benchmarks.html#benchmarking-standards">Benchmarking Standards</a></li>
+<li class="toctree-l2"><a class="reference internal" href="performance/benchmarks.html#optimization-impact-analysis">Optimization Impact Analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="performance/benchmarks.html#individual-optimization-analysis">Individual Optimization Analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="performance/benchmarks.html#qmc-convergence-analysis">QMC Convergence Analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="performance/benchmarks.html#real-world-case-studies">Real-World Case Studies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="performance/benchmarks.html#platform-comparisons">Platform Comparisons</a></li>
+<li class="toctree-l2"><a class="reference internal" href="performance/benchmarks.html#performance-regression-testing">Performance Regression Testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="performance/benchmarks.html#reproducibility-guide">Reproducibility Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="performance/benchmarks.html#performance-tips">Performance Tips</a></li>
+<li class="toctree-l2"><a class="reference internal" href="performance/benchmarks.html#next-steps">Next Steps</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="performance/tuning_guide.html">Advanced Performance Tuning</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="performance/tuning_guide.html#hardware-optimization">Hardware Optimization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="performance/tuning_guide.html#jit-optimization-techniques">JIT Optimization Techniques</a></li>
+<li class="toctree-l2"><a class="reference internal" href="performance/tuning_guide.html#parallel-processing-optimization">Parallel Processing Optimization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="performance/tuning_guide.html#memory-optimization-strategies">Memory Optimization Strategies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="performance/tuning_guide.html#algorithm-level-optimizations">Algorithm-Level Optimizations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="performance/tuning_guide.html#monitoring-and-profiling">Monitoring and Profiling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="performance/tuning_guide.html#configuration-optimization">Configuration Optimization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="performance/tuning_guide.html#next-steps">Next Steps</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Development:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="development/index.html">Development Guidelines</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="development/contributing.html">Contributing to quactuary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="development/setting_up_environment.html">Setting Up Your Environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="development/code_standards.html">Code Standards</a></li>
+<li class="toctree-l2"><a class="reference internal" href="development/testing_guidelines.html">Testing Guidelines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="development/performance_testing.html">Performance Testing Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="development/documentation_guidelines.html">Documentation Guidelines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="development/mcp_development.html">MCP Tool Development</a></li>
+<li class="toctree-l2"><a class="reference internal" href="development/submitting_changes.html">Submitting Changes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="development/issue_reporting.html">Issue Reporting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="development/community_guidelines.html">Community Guidelines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="development/index.html#quick-start-for-contributors">Quick Start for Contributors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="development/index.html#getting-help">Getting Help</a></li>
+<li class="toctree-l2"><a class="reference internal" href="development/index.html#types-of-contributions-we-welcome">Types of Contributions We Welcome</a></li>
+<li class="toctree-l2"><a class="reference internal" href="development/index.html#recognition">Recognition</a></li>
 </ul>
 </li>
 </ul>
@@ -166,7 +280,9 @@
 <li><a class="reference internal" href="#features">Features</a></li>
 <li><a class="reference internal" href="#installation">Installation</a></li>
 <li><a class="reference internal" href="#getting-started">Getting Started</a></li>
-<li><a class="reference internal" href="#actuarial-modules">Actuarial Modules</a></li>
+<li><a class="reference internal" href="#documentation">Documentation</a><ul>
+</ul>
+</li>
 <li><a class="reference internal" href="#indices-and-tables">Indices and Tables</a></li>
 </ul>
 </li>
@@ -175,8 +291,8 @@
   </div>
   <div>
     <h4>Next topic</h4>
-    <p class="topless"><a href="quactuary.entities.html"
-                          title="next chapter">quactuary.entities module</a></p>
+    <p class="topless"><a href="user_guide/index.html"
+                          title="next chapter">User Guide</a></p>
   </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
@@ -206,12 +322,9 @@
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
-          <a href="quactuary.entities.html" title="quactuary.entities module"
+          <a href="user_guide/index.html" title="User Guide"
              >next</a> |</li>
-        <li class="nav-item nav-item-0"><a href="#">quActuary v0.0.6 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="#">quActuary v0.0.7 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">quActuary Documentation</a></li> 
       </ul>
     </div>

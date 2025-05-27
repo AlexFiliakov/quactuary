@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>quactuary.mcp package &#8212; quActuary v0.0.7 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="_static/nature.css?v=279e0f84" />
+    <script src="_static/documentation_options.js?v=401b779c"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="canonical" href="https://docs.quactuary.com/quactuary.mcp.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="quactuary.utils package" href="quactuary.utils.html" />
+    <link rel="prev" title="quactuary.future package" href="quactuary.future.html" />
+ 
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-2TGPCH7PBM"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag() { dataLayer.push(arguments); }
+  gtag('js', new Date());
+  gtag('config', 'G-2TGPCH7PBM');
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="quactuary.utils.html" title="quactuary.utils package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="quactuary.future.html" title="quactuary.future package"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">quActuary v0.0.7 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="quactuary.html" accesskey="U">quactuary package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">quactuary.mcp package</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="quactuary-mcp-package">
+<h1>quactuary.mcp package<a class="headerlink" href="#quactuary-mcp-package" title="Link to this heading">¶</a></h1>
+<p>The quActuary MCP (Model Context Protocol) Server provides integration with Claude and other LLM assistants, exposing actuarial tools through a standardized interface.</p>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">¶</a></h2>
+<p>The MCP server allows you to use quActuary’s actuarial modeling capabilities directly within Claude conversations. It provides tools for:</p>
+<ul class="simple">
+<li><p>Running pricing simulations</p></li>
+<li><p>Working with probability distributions</p></li>
+<li><p>Managing portfolios and policy terms</p></li>
+<li><p>Performing actuarial calculations</p></li>
+</ul>
+</section>
+<section id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Link to this heading">¶</a></h2>
+<section id="starting-the-mcp-server">
+<h3>Starting the MCP Server<a class="headerlink" href="#starting-the-mcp-server" title="Link to this heading">¶</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Using the command-line interface</span>
+quactuary-mcp
+
+<span class="c1"># Or as a Python module</span>
+python<span class="w"> </span>-m<span class="w"> </span>quactuary.mcp.server
+</pre></div>
+</div>
+</section>
+<section id="configuration">
+<h3>Configuration<a class="headerlink" href="#configuration" title="Link to this heading">¶</a></h3>
+<p>The server can be configured in Claude Desktop’s settings:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;mcpServers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;quactuary&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;python&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;args&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;-m&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;quactuary.mcp.server&quot;</span><span class="p">],</span>
+<span class="w">      </span><span class="nt">&quot;env&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">¶</a></h2>
+<section id="quactuary-mcp-server-module">
+<h3>quactuary.mcp.server module<a class="headerlink" href="#quactuary-mcp-server-module" title="Link to this heading">¶</a></h3>
+</section>
+<section id="quactuary-mcp-tools-module">
+<h3>quactuary.mcp.tools module<a class="headerlink" href="#quactuary-mcp-tools-module" title="Link to this heading">¶</a></h3>
+</section>
+<section id="quactuary-mcp-resources-module">
+<h3>quactuary.mcp.resources module<a class="headerlink" href="#quactuary-mcp-resources-module" title="Link to this heading">¶</a></h3>
+</section>
+<section id="quactuary-mcp-prompts-module">
+<h3>quactuary.mcp.prompts module<a class="headerlink" href="#quactuary-mcp-prompts-module" title="Link to this heading">¶</a></h3>
+</section>
+<section id="quactuary-mcp-categories-module">
+<h3>quactuary.mcp.categories module<a class="headerlink" href="#quactuary-mcp-categories-module" title="Link to this heading">¶</a></h3>
+</section>
+<section id="quactuary-mcp-formats-module">
+<h3>quactuary.mcp.formats module<a class="headerlink" href="#quactuary-mcp-formats-module" title="Link to this heading">¶</a></h3>
+</section>
+<section id="quactuary-mcp-config-module">
+<h3>quactuary.mcp.config module<a class="headerlink" href="#quactuary-mcp-config-module" title="Link to this heading">¶</a></h3>
+</section>
+<section id="quactuary-mcp-base-module">
+<h3>quactuary.mcp.base module<a class="headerlink" href="#quactuary-mcp-base-module" title="Link to this heading">¶</a></h3>
+</section>
+</section>
+<section id="tool-categories">
+<h2>Tool Categories<a class="headerlink" href="#tool-categories" title="Link to this heading">¶</a></h2>
+<p>The MCP server organizes tools into the following categories:</p>
+<dl class="simple">
+<dt><strong>Pricing Tools</strong></dt><dd><ul class="simple">
+<li><p>run_pricing_simulation: Execute pricing model simulations</p></li>
+<li><p>calculate_premium: Calculate premiums for policies</p></li>
+<li><p>estimate_reserves: Estimate reserves for portfolios</p></li>
+</ul>
+</dd>
+<dt><strong>Distribution Tools</strong></dt><dd><ul class="simple">
+<li><p>create_distribution: Create frequency or severity distributions</p></li>
+<li><p>fit_distribution: Fit distributions to data</p></li>
+<li><p>sample_distribution: Generate samples from distributions</p></li>
+</ul>
+</dd>
+<dt><strong>Portfolio Tools</strong></dt><dd><ul class="simple">
+<li><p>create_portfolio: Build insurance portfolios</p></li>
+<li><p>analyze_portfolio: Analyze portfolio metrics</p></li>
+<li><p>optimize_portfolio: Optimize portfolio allocations</p></li>
+</ul>
+</dd>
+<dt><strong>Utility Tools</strong></dt><dd><ul class="simple">
+<li><p>calculate_metrics: Compute actuarial metrics</p></li>
+<li><p>generate_reports: Generate actuarial reports</p></li>
+<li><p>validate_inputs: Validate input parameters</p></li>
+</ul>
+</dd>
+</dl>
+</section>
+<section id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Link to this heading">¶</a></h2>
+<section id="using-mcp-tools-in-claude">
+<h3>Using MCP Tools in Claude<a class="headerlink" href="#using-mcp-tools-in-claude" title="Link to this heading">¶</a></h3>
+<p>Once the MCP server is running and configured, you can use it in Claude conversations:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>User: Run a pricing simulation for a GL policy with Poisson(3.5) frequency
+      and Exponential(1000) severity, with a $1M deductible.
+
+Claude: I&#39;ll run a pricing simulation for your GL policy using the MCP tools...
+        [Uses run_pricing_simulation tool]
+</pre></div>
+</div>
+</section>
+<section id="creating-custom-tools">
+<h3>Creating Custom Tools<a class="headerlink" href="#creating-custom-tools" title="Link to this heading">¶</a></h3>
+<p>You can extend the MCP server with custom tools:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">quactuary.mcp.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">QuactuaryTool</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">quactuary.mcp.categories</span><span class="w"> </span><span class="kn">import</span> <span class="n">ToolCategory</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">CustomActuarialTool</span><span class="p">(</span><span class="n">QuactuaryTool</span><span class="p">):</span>
+    <span class="n">category</span> <span class="o">=</span> <span class="n">ToolCategory</span><span class="o">.</span><span class="n">UTILITIES</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+        <span class="c1"># Your custom implementation</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;result&quot;</span><span class="p">:</span> <span class="s2">&quot;Custom calculation&quot;</span><span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">¶</a></h2>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">quactuary.mcp package</a><ul>
+<li><a class="reference internal" href="#overview">Overview</a></li>
+<li><a class="reference internal" href="#usage">Usage</a><ul>
+<li><a class="reference internal" href="#starting-the-mcp-server">Starting the MCP Server</a></li>
+<li><a class="reference internal" href="#configuration">Configuration</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#submodules">Submodules</a><ul>
+<li><a class="reference internal" href="#quactuary-mcp-server-module">quactuary.mcp.server module</a></li>
+<li><a class="reference internal" href="#quactuary-mcp-tools-module">quactuary.mcp.tools module</a></li>
+<li><a class="reference internal" href="#quactuary-mcp-resources-module">quactuary.mcp.resources module</a></li>
+<li><a class="reference internal" href="#quactuary-mcp-prompts-module">quactuary.mcp.prompts module</a></li>
+<li><a class="reference internal" href="#quactuary-mcp-categories-module">quactuary.mcp.categories module</a></li>
+<li><a class="reference internal" href="#quactuary-mcp-formats-module">quactuary.mcp.formats module</a></li>
+<li><a class="reference internal" href="#quactuary-mcp-config-module">quactuary.mcp.config module</a></li>
+<li><a class="reference internal" href="#quactuary-mcp-base-module">quactuary.mcp.base module</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#tool-categories">Tool Categories</a></li>
+<li><a class="reference internal" href="#examples">Examples</a><ul>
+<li><a class="reference internal" href="#using-mcp-tools-in-claude">Using MCP Tools in Claude</a></li>
+<li><a class="reference internal" href="#creating-custom-tools">Creating Custom Tools</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-contents">Module Contents</a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="quactuary.future.html"
+                          title="previous chapter">quactuary.future package</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="quactuary.utils.html"
+                          title="next chapter">quactuary.utils package</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/quactuary.mcp.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="quactuary.utils.html" title="quactuary.utils package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="quactuary.future.html" title="quactuary.future package"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">quActuary v0.0.7 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="quactuary.html" >quactuary package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">quactuary.mcp package</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2025, Alex Filiakov, ACAS.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    </div>
+  </body>
+</html>

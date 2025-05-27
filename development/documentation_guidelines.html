@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Documentation Guidelines &#8212; quActuary v0.0.7 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/nature.css?v=279e0f84" />
+    <script src="../_static/documentation_options.js?v=401b779c"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="canonical" href="https://docs.quactuary.com/development/documentation_guidelines.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="MCP Tool Development" href="mcp_development.html" />
+    <link rel="prev" title="Performance Testing Guide" href="performance_testing.html" />
+ 
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-2TGPCH7PBM"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag() { dataLayer.push(arguments); }
+  gtag('js', new Date());
+  gtag('config', 'G-2TGPCH7PBM');
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="mcp_development.html" title="MCP Tool Development"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="performance_testing.html" title="Performance Testing Guide"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">quActuary v0.0.7 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Development Guidelines</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Documentation Guidelines</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="documentation-guidelines">
+<span id="id1"></span><h1>Documentation Guidelines<a class="headerlink" href="#documentation-guidelines" title="Link to this heading">¶</a></h1>
+<p>Good documentation is essential for making quactuary accessible and useful to both users and contributors. This guide covers our documentation standards, tools, and best practices.</p>
+<nav class="contents local" id="table-of-contents">
+<p class="topic-title">Table of Contents</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#documentation-philosophy" id="id2">Documentation Philosophy</a></p></li>
+<li><p><a class="reference internal" href="#types-of-documentation" id="id3">Types of Documentation</a></p></li>
+<li><p><a class="reference internal" href="#docstring-standards" id="id4">Docstring Standards</a></p>
+<ul>
+<li><p><a class="reference internal" href="#basic-function-docstring" id="id5">Basic Function Docstring</a></p></li>
+<li><p><a class="reference internal" href="#class-docstring" id="id6">Class Docstring</a></p></li>
+<li><p><a class="reference internal" href="#module-docstring" id="id7">Module Docstring</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#docstring-elements" id="id8">Docstring Elements</a></p>
+<ul>
+<li><p><a class="reference internal" href="#required-elements" id="id9">Required Elements</a></p></li>
+<li><p><a class="reference internal" href="#optional-elements" id="id10">Optional Elements</a></p></li>
+<li><p><a class="reference internal" href="#mathematical-documentation" id="id11">Mathematical Documentation</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#examples-in-docstrings" id="id12">Examples in Docstrings</a></p>
+<ul>
+<li><p><a class="reference internal" href="#good-examples" id="id13">Good Examples</a></p></li>
+<li><p><a class="reference internal" href="#bad-examples" id="id14">Bad Examples</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#user-guide-documentation" id="id15">User Guide Documentation</a></p>
+<ul>
+<li><p><a class="reference internal" href="#structure" id="id16">Structure</a></p></li>
+<li><p><a class="reference internal" href="#example-user-guide-section" id="id17">Example User Guide Section</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#jupyter-notebook-documentation" id="id18">Jupyter Notebook Documentation</a></p>
+<ul>
+<li><p><a class="reference internal" href="#notebook-guidelines" id="id19">Notebook Guidelines</a></p></li>
+<li><p><a class="reference internal" href="#example-notebook-structure" id="id20">Example Notebook Structure</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#api-reference-documentation" id="id21">API Reference Documentation</a></p>
+<ul>
+<li><p><a class="reference internal" href="#configuration" id="id22">Configuration</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#building-documentation" id="id23">Building Documentation</a></p>
+<ul>
+<li><p><a class="reference internal" href="#local-building" id="id24">Local Building</a></p></li>
+<li><p><a class="reference internal" href="#continuous-integration" id="id25">Continuous Integration</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#documentation-standards" id="id26">Documentation Standards</a></p>
+<ul>
+<li><p><a class="reference internal" href="#writing-style" id="id27">Writing Style</a></p></li>
+<li><p><a class="reference internal" href="#formatting" id="id28">Formatting</a></p></li>
+<li><p><a class="reference internal" href="#cross-references" id="id29">Cross-References</a></p></li>
+<li><p><a class="reference internal" href="#external-links" id="id30">External Links</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#documentation-maintenance" id="id31">Documentation Maintenance</a></p>
+<ul>
+<li><p><a class="reference internal" href="#keeping-docs-updated" id="id32">Keeping Docs Updated</a></p></li>
+<li><p><a class="reference internal" href="#review-process" id="id33">Review Process</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#common-documentation-issues" id="id34">Common Documentation Issues</a></p>
+<ul>
+<li><p><a class="reference internal" href="#issues-to-avoid" id="id35">Issues to Avoid</a></p></li>
+<li><p><a class="reference internal" href="#quality-checklist" id="id36">Quality Checklist</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#tools-and-resources" id="id37">Tools and Resources</a></p>
+<ul>
+<li><p><a class="reference internal" href="#documentation-tools" id="id38">Documentation Tools</a></p></li>
+<li><p><a class="reference internal" href="#writing-resources" id="id39">Writing Resources</a></p></li>
+</ul>
+</li>
+</ul>
+</nav>
+<section id="documentation-philosophy">
+<h2><a class="toc-backref" href="#id2" role="doc-backlink">Documentation Philosophy</a><a class="headerlink" href="#documentation-philosophy" title="Link to this heading">¶</a></h2>
+<p>We believe documentation should be:</p>
+<ul class="simple">
+<li><p><strong>User-focused</strong>: Written from the user’s perspective with clear use cases</p></li>
+<li><p><strong>Example-driven</strong>: Include practical examples that users can run</p></li>
+<li><p><strong>Comprehensive</strong>: Cover both basic usage and advanced scenarios</p></li>
+<li><p><strong>Maintainable</strong>: Easy to keep in sync with code changes</p></li>
+<li><p><strong>Accessible</strong>: Clear language that doesn’t assume deep domain knowledge</p></li>
+</ul>
+</section>
+<section id="types-of-documentation">
+<h2><a class="toc-backref" href="#id3" role="doc-backlink">Types of Documentation</a><a class="headerlink" href="#types-of-documentation" title="Link to this heading">¶</a></h2>
+<p>We maintain several types of documentation:</p>
+<dl class="simple">
+<dt><strong>API Documentation</strong></dt><dd><p>Docstrings in code that document individual functions, classes, and modules</p>
+</dd>
+<dt><strong>User Guide</strong></dt><dd><p>Tutorial-style documentation that walks users through common tasks</p>
+</dd>
+<dt><strong>Examples</strong></dt><dd><p>Jupyter notebooks demonstrating real-world usage scenarios</p>
+</dd>
+<dt><strong>Developer Documentation</strong></dt><dd><p>This section - guides for contributors and maintainers</p>
+</dd>
+<dt><strong>Reference Documentation</strong></dt><dd><p>Comprehensive API reference generated from docstrings</p>
+</dd>
+</dl>
+</section>
+<section id="docstring-standards">
+<h2><a class="toc-backref" href="#id4" role="doc-backlink">Docstring Standards</a><a class="headerlink" href="#docstring-standards" title="Link to this heading">¶</a></h2>
+<p>We use <a class="reference external" href="https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings">Google docstring format</a> for all code documentation.</p>
+<section id="basic-function-docstring">
+<h3><a class="toc-backref" href="#id5" role="doc-backlink">Basic Function Docstring</a><a class="headerlink" href="#basic-function-docstring" title="Link to this heading">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">calculate_var</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate Value at Risk from loss data.</span>
+
+<span class="sd">    Value at Risk (VaR) represents the loss threshold that will not be</span>
+<span class="sd">    exceeded with a given probability. This function computes VaR using</span>
+<span class="sd">    the empirical quantile method.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        data (np.ndarray): Array of loss values. Must contain at least</span>
+<span class="sd">            one element and all values should be non-negative.</span>
+<span class="sd">        alpha (float): Tail probability for VaR calculation. Must be</span>
+<span class="sd">            between 0 and 1. Default is 0.05 (95% VaR).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        float: Value at Risk at the specified confidence level.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If data is empty or alpha is not in (0, 1).</span>
+<span class="sd">        TypeError: If data cannot be converted to numeric array.</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        Calculate 95% VaR from simulated losses:</span>
+<span class="sd">            &gt;&gt;&gt; losses = np.random.exponential(1000, 10000)</span>
+<span class="sd">            &gt;&gt;&gt; var_95 = calculate_var(losses, alpha=0.05)</span>
+<span class="sd">            &gt;&gt;&gt; print(f&quot;95% VaR: ${var_95:.2f}&quot;)</span>
+
+<span class="sd">        Calculate 99% VaR:</span>
+<span class="sd">            &gt;&gt;&gt; var_99 = calculate_var(losses, alpha=0.01)</span>
+<span class="sd">            &gt;&gt;&gt; print(f&quot;99% VaR: ${var_99:.2f}&quot;)</span>
+
+<span class="sd">    Notes:</span>
+<span class="sd">        - VaR is a quantile-based risk measure</span>
+<span class="sd">        - For heavy-tailed distributions, consider using TVaR instead</span>
+<span class="sd">        - Results depend on the empirical distribution of input data</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="class-docstring">
+<h3><a class="toc-backref" href="#id6" role="doc-backlink">Class Docstring</a><a class="headerlink" href="#class-docstring" title="Link to this heading">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">PricingModel</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Portfolio pricing and risk analysis model.</span>
+
+<span class="sd">    This class provides a unified interface for calculating portfolio risk</span>
+<span class="sd">    measures using various computational backends. It supports classical</span>
+<span class="sd">    Monte Carlo simulation and experimental quantum acceleration.</span>
+
+<span class="sd">    The model uses the strategy pattern to delegate calculations to different</span>
+<span class="sd">    implementations while maintaining a consistent API. This design allows</span>
+<span class="sd">    for runtime backend switching and easy extension with new algorithms.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        portfolio (Portfolio): The insurance portfolio being analyzed.</span>
+<span class="sd">        strategy (PricingStrategy): Current calculation strategy (classical/quantum).</span>
+<span class="sd">        backend_type (str): Type of computational backend (&#39;classical&#39; or &#39;quantum&#39;).</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        Basic portfolio analysis:</span>
+<span class="sd">            &gt;&gt;&gt; from quactuary import PricingModel, Portfolio</span>
+<span class="sd">            &gt;&gt;&gt; portfolio = Portfolio.from_dataframe(policies_df)</span>
+<span class="sd">            &gt;&gt;&gt; model = PricingModel(portfolio)</span>
+<span class="sd">            &gt;&gt;&gt; result = model.simulate(n_sims=10000)</span>
+<span class="sd">            &gt;&gt;&gt; print(f&quot;Expected loss: ${result.estimates[&#39;mean&#39;]:,.2f}&quot;)</span>
+
+<span class="sd">        Using quantum backend:</span>
+<span class="sd">            &gt;&gt;&gt; import quactuary as qa</span>
+<span class="sd">            &gt;&gt;&gt; qa.set_backend(&#39;quantum&#39;, provider=&#39;AerSimulator&#39;)</span>
+<span class="sd">            &gt;&gt;&gt; result = model.simulate(n_sims=1000)  # Quantum calculation</span>
+
+<span class="sd">        Advanced configuration:</span>
+<span class="sd">            &gt;&gt;&gt; from quactuary.pricing_strategies import ClassicalPricingStrategy</span>
+<span class="sd">            &gt;&gt;&gt; strategy = ClassicalPricingStrategy(use_jit=True)</span>
+<span class="sd">            &gt;&gt;&gt; model = PricingModel(portfolio, strategy=strategy)</span>
+
+<span class="sd">    Notes:</span>
+<span class="sd">        - Models are stateless and thread-safe</span>
+<span class="sd">        - Backend switching affects all subsequent calculations</span>
+<span class="sd">        - Quantum features are experimental and under development</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="module-docstring">
+<h3><a class="toc-backref" href="#id7" role="doc-backlink">Module Docstring</a><a class="headerlink" href="#module-docstring" title="Link to this heading">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Portfolio pricing and risk analysis module.</span>
+
+<span class="sd">This module provides the main interface for actuarial pricing calculations</span>
+<span class="sd">in the quactuary framework. It implements both classical Monte Carlo methods</span>
+<span class="sd">and experimental quantum algorithms for computing portfolio risk measures.</span>
+
+<span class="sd">Key Components:</span>
+<span class="sd">    - PricingModel: Main interface for portfolio analysis</span>
+<span class="sd">    - Risk measure calculations (VaR, TVaR, mean, variance)</span>
+<span class="sd">    - Strategy pattern for different computational approaches</span>
+<span class="sd">    - Integration with various probability distributions</span>
+
+<span class="sd">The module supports:</span>
+<span class="sd">    - Classical Monte Carlo simulation</span>
+<span class="sd">    - Quasi-Monte Carlo methods (Sobol, Halton sequences)</span>
+<span class="sd">    - Quantum amplitude estimation (experimental)</span>
+<span class="sd">    - JIT compilation for performance optimization</span>
+
+<span class="sd">Examples:</span>
+<span class="sd">    Basic usage:</span>
+<span class="sd">        &gt;&gt;&gt; from quactuary.pricing import PricingModel</span>
+<span class="sd">        &gt;&gt;&gt; from quactuary.book import Portfolio</span>
+<span class="sd">        &gt;&gt;&gt;</span>
+<span class="sd">        &gt;&gt;&gt; portfolio = Portfolio.from_csv(&quot;policies.csv&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; model = PricingModel(portfolio)</span>
+<span class="sd">        &gt;&gt;&gt; result = model.simulate(n_sims=10000)</span>
+
+<span class="sd">    Advanced risk analysis:</span>
+<span class="sd">        &gt;&gt;&gt; # Calculate multiple risk measures</span>
+<span class="sd">        &gt;&gt;&gt; result = model.simulate(</span>
+<span class="sd">        ...     mean=True,</span>
+<span class="sd">        ...     variance=True,</span>
+<span class="sd">        ...     value_at_risk=True,</span>
+<span class="sd">        ...     tail_value_at_risk=True,</span>
+<span class="sd">        ...     tail_alpha=0.01,  # 99% confidence</span>
+<span class="sd">        ...     n_sims=50000</span>
+<span class="sd">        ... )</span>
+<span class="sd">        &gt;&gt;&gt;</span>
+<span class="sd">        &gt;&gt;&gt; # Access results</span>
+<span class="sd">        &gt;&gt;&gt; print(f&quot;Expected Loss: ${result.estimates[&#39;mean&#39;]:,.2f}&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; print(f&quot;99% VaR: ${result.estimates[&#39;VaR&#39;]:,.2f}&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; print(f&quot;99% TVaR: ${result.estimates[&#39;TVaR&#39;]:,.2f}&quot;)</span>
+
+<span class="sd">See Also:</span>
+<span class="sd">    - :mod:`quactuary.classical`: Classical Monte Carlo implementations</span>
+<span class="sd">    - :mod:`quactuary.quantum`: Quantum algorithm implementations</span>
+<span class="sd">    - :mod:`quactuary.distributions`: Probability distributions</span>
+<span class="sd">    - :mod:`quactuary.book`: Portfolio and policy modeling</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="docstring-elements">
+<h2><a class="toc-backref" href="#id8" role="doc-backlink">Docstring Elements</a><a class="headerlink" href="#docstring-elements" title="Link to this heading">¶</a></h2>
+<section id="required-elements">
+<h3><a class="toc-backref" href="#id9" role="doc-backlink">Required Elements</a><a class="headerlink" href="#required-elements" title="Link to this heading">¶</a></h3>
+<p>All public functions and classes must include:</p>
+<ul class="simple">
+<li><p><strong>Brief description</strong>: One-line summary of purpose</p></li>
+<li><p><strong>Args section</strong>: All parameters with types and descriptions</p></li>
+<li><p><strong>Returns section</strong>: Return value type and description</p></li>
+<li><p><strong>Examples section</strong>: At least one working example</p></li>
+</ul>
+</section>
+<section id="optional-elements">
+<h3><a class="toc-backref" href="#id10" role="doc-backlink">Optional Elements</a><a class="headerlink" href="#optional-elements" title="Link to this heading">¶</a></h3>
+<p>Include when relevant:</p>
+<ul class="simple">
+<li><p><strong>Raises section</strong>: Exceptions that may be raised</p></li>
+<li><p><strong>Notes section</strong>: Additional important information</p></li>
+<li><p><strong>See Also section</strong>: Links to related functions/classes</p></li>
+<li><p><strong>References section</strong>: Academic papers or external resources</p></li>
+</ul>
+</section>
+<section id="mathematical-documentation">
+<h3><a class="toc-backref" href="#id11" role="doc-backlink">Mathematical Documentation</a><a class="headerlink" href="#mathematical-documentation" title="Link to this heading">¶</a></h3>
+<p>For mathematical functions, include formulas:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">tail_value_at_risk</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate Tail Value at Risk (Conditional Value at Risk).</span>
+
+<span class="sd">    TVaR is defined as the expected loss given that the loss exceeds VaR:</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        \\text{TVaR}_{\\alpha} = E[X | X &gt; \\text{VaR}_{\\alpha}]</span>
+
+<span class="sd">    where VaR_α is the Value at Risk at confidence level (1-α).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        data (np.ndarray): Array of loss values.</span>
+<span class="sd">        alpha (float): Tail probability. Default is 0.05.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        float: Tail Value at Risk (also known as Expected Shortfall).</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; losses = np.array([100, 200, 500, 1000, 2000])</span>
+<span class="sd">        &gt;&gt;&gt; tvar = tail_value_at_risk(losses, alpha=0.2)</span>
+<span class="sd">        &gt;&gt;&gt; print(f&quot;TVaR: {tvar}&quot;)</span>
+
+<span class="sd">    References:</span>
+<span class="sd">        Artzner, P., et al. (1999). Coherent measures of risk.</span>
+<span class="sd">        Mathematical Finance, 9(3), 203-228.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="examples-in-docstrings">
+<h2><a class="toc-backref" href="#id12" role="doc-backlink">Examples in Docstrings</a><a class="headerlink" href="#examples-in-docstrings" title="Link to this heading">¶</a></h2>
+<section id="good-examples">
+<h3><a class="toc-backref" href="#id13" role="doc-backlink">Good Examples</a><a class="headerlink" href="#good-examples" title="Link to this heading">¶</a></h3>
+<p>Examples should be:</p>
+<ul class="simple">
+<li><p><strong>Runnable</strong>: Users should be able to copy and execute them</p></li>
+<li><p><strong>Realistic</strong>: Use realistic parameter values and data</p></li>
+<li><p><strong>Progressive</strong>: Start simple, then show more advanced usage</p></li>
+<li><p><strong>Complete</strong>: Include necessary imports and setup</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">create_compound_distribution</span><span class="p">(</span><span class="n">frequency</span><span class="p">,</span> <span class="n">severity</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create a compound distribution from frequency and severity models.</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        Basic compound Poisson-LogNormal:</span>
+<span class="sd">            &gt;&gt;&gt; from quactuary.distributions import Poisson, LogNormal</span>
+<span class="sd">            &gt;&gt;&gt; freq = Poisson(lambda_=50)  # 50 claims per year</span>
+<span class="sd">            &gt;&gt;&gt; sev = LogNormal(mu=8, sigma=1.5)  # ~$3k average severity</span>
+<span class="sd">            &gt;&gt;&gt; compound = create_compound_distribution(freq, sev)</span>
+<span class="sd">            &gt;&gt;&gt; print(f&quot;Expected annual loss: ${compound.mean():,.2f}&quot;)</span>
+
+<span class="sd">        Heavy-tailed severity distribution:</span>
+<span class="sd">            &gt;&gt;&gt; from quactuary.distributions import NegativeBinomial, Pareto</span>
+<span class="sd">            &gt;&gt;&gt; freq = NegativeBinomial(n=10, p=0.8)</span>
+<span class="sd">            &gt;&gt;&gt; sev = Pareto(alpha=1.5, scale=1000)  # Heavy tail</span>
+<span class="sd">            &gt;&gt;&gt; compound = create_compound_distribution(freq, sev)</span>
+<span class="sd">            &gt;&gt;&gt;</span>
+<span class="sd">            &gt;&gt;&gt; # Calculate risk measures</span>
+<span class="sd">            &gt;&gt;&gt; var_99 = compound.ppf(0.99)</span>
+<span class="sd">            &gt;&gt;&gt; print(f&quot;99% VaR: ${var_99:,.2f}&quot;)</span>
+
+<span class="sd">        Using empirical data:</span>
+<span class="sd">            &gt;&gt;&gt; import pandas as pd</span>
+<span class="sd">            &gt;&gt;&gt; claims_data = pd.read_csv(&quot;historical_claims.csv&quot;)</span>
+<span class="sd">            &gt;&gt;&gt; freq = Empirical(claims_data[&#39;claim_counts&#39;])</span>
+<span class="sd">            &gt;&gt;&gt; sev = LogNormal.fit(claims_data[&#39;claim_amounts&#39;])</span>
+<span class="sd">            &gt;&gt;&gt; compound = create_compound_distribution(freq, sev)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="bad-examples">
+<h3><a class="toc-backref" href="#id14" role="doc-backlink">Bad Examples</a><a class="headerlink" href="#bad-examples" title="Link to this heading">¶</a></h3>
+<p>Avoid examples that:</p>
+<ul class="simple">
+<li><p><strong>Don’t run</strong>: Missing imports or undefined variables</p></li>
+<li><p><strong>Are trivial</strong>: <code class="docutils literal notranslate"><span class="pre">&gt;&gt;&gt;</span> <span class="pre">result</span> <span class="pre">=</span> <span class="pre">function(1,</span> <span class="pre">2)</span></code></p></li>
+<li><p><strong>Are unrealistic</strong>: Using toy data that doesn’t reflect real usage</p></li>
+<li><p><strong>Are incomplete</strong>: Not showing how to use the results</p></li>
+</ul>
+</section>
+</section>
+<section id="user-guide-documentation">
+<h2><a class="toc-backref" href="#id15" role="doc-backlink">User Guide Documentation</a><a class="headerlink" href="#user-guide-documentation" title="Link to this heading">¶</a></h2>
+<section id="structure">
+<h3><a class="toc-backref" href="#id16" role="doc-backlink">Structure</a><a class="headerlink" href="#structure" title="Link to this heading">¶</a></h3>
+<p>User guides should follow this structure:</p>
+<ol class="arabic simple">
+<li><p><strong>Overview</strong>: What the guide covers and prerequisites</p></li>
+<li><p><strong>Setup</strong>: Any necessary configuration or imports</p></li>
+<li><p><strong>Basic Usage</strong>: Simple examples to get started</p></li>
+<li><p><strong>Common Patterns</strong>: Typical use cases with explanations</p></li>
+<li><p><strong>Advanced Topics</strong>: More complex scenarios</p></li>
+<li><p><strong>Troubleshooting</strong>: Common issues and solutions</p></li>
+</ol>
+</section>
+<section id="example-user-guide-section">
+<h3><a class="toc-backref" href="#id17" role="doc-backlink">Example User Guide Section</a><a class="headerlink" href="#example-user-guide-section" title="Link to this heading">¶</a></h3>
+<div class="highlight-rst notranslate"><div class="highlight"><pre><span></span><span class="gh">Getting Started with Portfolio Pricing</span>
+<span class="gh">======================================</span>
+
+This guide shows you how to price an insurance portfolio using quactuary.
+We&#39;ll start with basic risk measures and progress to advanced techniques.
+
+<span class="gh">Prerequisites</span>
+<span class="gh">-------------</span>
+
+<span class="m">*</span> Basic understanding of insurance concepts (VaR, deductibles, limits)
+<span class="m">*</span> Familiarity with Python and pandas
+<span class="m">*</span> quactuary installed with: <span class="s">``pip install quactuary``</span>
+
+<span class="gh">Basic Portfolio Analysis</span>
+<span class="gh">------------------------</span>
+
+Let&#39;s start by creating a simple portfolio and calculating risk measures:
+
+<span class="p">..</span> <span class="ow">code-block</span><span class="p">::</span> <span class="k">python</span>
+
+   <span class="kn">import</span><span class="w"> </span><span class="nn">quactuary</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">qa</span>
+   <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+   <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+   <span class="c1"># Create sample policy data</span>
+   <span class="n">policies</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+       <span class="s1">&#39;policy_id&#39;</span><span class="p">:</span> <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">),</span>
+       <span class="s1">&#39;premium&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">5000</span><span class="p">,</span> <span class="mi">1000</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span>
+       <span class="s1">&#39;deductible&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">2500</span><span class="p">,</span> <span class="mi">5000</span><span class="p">],</span> <span class="mi">100</span><span class="p">),</span>
+       <span class="s1">&#39;limit&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="mi">100000</span><span class="p">,</span> <span class="mi">250000</span><span class="p">,</span> <span class="mi">500000</span><span class="p">],</span> <span class="mi">100</span><span class="p">)</span>
+   <span class="p">})</span>
+
+   <span class="c1"># Build portfolio</span>
+   <span class="n">portfolio</span> <span class="o">=</span> <span class="n">qa</span><span class="o">.</span><span class="n">Portfolio</span><span class="o">.</span><span class="n">from_dataframe</span><span class="p">(</span><span class="n">policies</span><span class="p">)</span>
+
+   <span class="c1"># Create pricing model</span>
+   <span class="n">model</span> <span class="o">=</span> <span class="n">qa</span><span class="o">.</span><span class="n">PricingModel</span><span class="p">(</span><span class="n">portfolio</span><span class="p">)</span>
+
+   <span class="c1"># Calculate risk measures</span>
+   <span class="n">result</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">n_sims</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span>
+
+   <span class="c1"># Display results</span>
+   <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Expected Loss: $</span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">estimates</span><span class="p">[</span><span class="s1">&#39;mean&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">,.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+   <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;95% VaR: $</span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">estimates</span><span class="p">[</span><span class="s1">&#39;VaR&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">,.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+   <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;95% TVaR: $</span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">estimates</span><span class="p">[</span><span class="s1">&#39;TVaR&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">,.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+This example creates a portfolio of 100 policies with varying terms and
+calculates key risk measures using Monte Carlo simulation.
+</pre></div>
+</div>
+</section>
+</section>
+<section id="jupyter-notebook-documentation">
+<h2><a class="toc-backref" href="#id18" role="doc-backlink">Jupyter Notebook Documentation</a><a class="headerlink" href="#jupyter-notebook-documentation" title="Link to this heading">¶</a></h2>
+<section id="notebook-guidelines">
+<h3><a class="toc-backref" href="#id19" role="doc-backlink">Notebook Guidelines</a><a class="headerlink" href="#notebook-guidelines" title="Link to this heading">¶</a></h3>
+<p>For tutorial notebooks:</p>
+<ul class="simple">
+<li><p><strong>Clear narrative</strong>: Tell a story that guides users through concepts</p></li>
+<li><p><strong>Runnable code</strong>: All code cells should execute without errors</p></li>
+<li><p><strong>Visualizations</strong>: Include plots and charts to illustrate results</p></li>
+<li><p><strong>Real data</strong>: Use realistic datasets when possible</p></li>
+<li><p><strong>Checkpoints</strong>: Break complex workflows into digestible sections</p></li>
+</ul>
+</section>
+<section id="example-notebook-structure">
+<h3><a class="toc-backref" href="#id20" role="doc-backlink">Example Notebook Structure</a><a class="headerlink" href="#example-notebook-structure" title="Link to this heading">¶</a></h3>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span># Introduction to Portfolio Risk Analysis
+
+## Overview
+This notebook demonstrates how to use quactuary for portfolio risk analysis...
+
+## Setup
+```python
+import quactuary as qa
+import pandas as pd
+import matplotlib.pyplot as plt
+```
+
+## Loading Data
+```python
+# Load historical policy data
+policies = pd.read_csv(&quot;sample_portfolio.csv&quot;)
+policies.head()
+```
+
+## Creating the Portfolio
+```python
+portfolio = qa.Portfolio.from_dataframe(policies)
+print(f&quot;Portfolio contains {len(portfolio)} policies&quot;)
+```
+
+## Risk Analysis
+```python
+model = qa.PricingModel(portfolio)
+result = model.simulate(n_sims=50000)
+```
+
+## Visualizing Results
+```python
+plt.figure(figsize=(10, 6))
+plt.hist(result.samples, bins=50, alpha=0.7)
+plt.xlabel(&quot;Portfolio Loss ($)&quot;)
+plt.ylabel(&quot;Frequency&quot;)
+plt.title(&quot;Distribution of Portfolio Losses&quot;)
+plt.show()
+```
+</pre></div>
+</div>
+</section>
+</section>
+<section id="api-reference-documentation">
+<h2><a class="toc-backref" href="#id21" role="doc-backlink">API Reference Documentation</a><a class="headerlink" href="#api-reference-documentation" title="Link to this heading">¶</a></h2>
+<p>We use Sphinx with autodoc to generate API documentation from docstrings:</p>
+<section id="configuration">
+<h3><a class="toc-backref" href="#id22" role="doc-backlink">Configuration</a><a class="headerlink" href="#configuration" title="Link to this heading">¶</a></h3>
+<p>In <code class="docutils literal notranslate"><span class="pre">docs/source/conf.py</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">extensions</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s1">&#39;sphinx.ext.autodoc&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;sphinx.ext.autosummary&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;sphinx.ext.napoleon&#39;</span><span class="p">,</span>  <span class="c1"># For Google-style docstrings</span>
+    <span class="s1">&#39;sphinx.ext.viewcode&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;sphinx.ext.intersphinx&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;nbsphinx&#39;</span><span class="p">,</span>  <span class="c1"># For Jupyter notebooks</span>
+<span class="p">]</span>
+
+<span class="c1"># Napoleon settings for Google docstrings</span>
+<span class="n">napoleon_google_docstring</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">napoleon_numpy_docstring</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="n">napoleon_include_init_with_doc</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="n">napoleon_include_private_with_doc</span> <span class="o">=</span> <span class="kc">False</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="building-documentation">
+<h2><a class="toc-backref" href="#id23" role="doc-backlink">Building Documentation</a><a class="headerlink" href="#building-documentation" title="Link to this heading">¶</a></h2>
+<section id="local-building">
+<h3><a class="toc-backref" href="#id24" role="doc-backlink">Local Building</a><a class="headerlink" href="#local-building" title="Link to this heading">¶</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Navigate to docs directory</span>
+<span class="nb">cd</span><span class="w"> </span>docs/
+
+<span class="c1"># Build HTML documentation</span>
+make<span class="w"> </span>html
+
+<span class="c1"># View documentation</span>
+open<span class="w"> </span>build/html/index.html
+</pre></div>
+</div>
+</section>
+<section id="continuous-integration">
+<h3><a class="toc-backref" href="#id25" role="doc-backlink">Continuous Integration</a><a class="headerlink" href="#continuous-integration" title="Link to this heading">¶</a></h3>
+<p>Documentation is built automatically on:</p>
+<ul class="simple">
+<li><p>Pull requests (to check for errors)</p></li>
+<li><p>Merges to main branch (published to docs site)</p></li>
+<li><p>Tagged releases (versioned documentation)</p></li>
+</ul>
+</section>
+</section>
+<section id="documentation-standards">
+<h2><a class="toc-backref" href="#id26" role="doc-backlink">Documentation Standards</a><a class="headerlink" href="#documentation-standards" title="Link to this heading">¶</a></h2>
+<section id="writing-style">
+<h3><a class="toc-backref" href="#id27" role="doc-backlink">Writing Style</a><a class="headerlink" href="#writing-style" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>Active voice</strong>: “Calculate the mean” not “The mean is calculated”</p></li>
+<li><p><strong>Present tense</strong>: “Returns the result” not “Will return the result”</p></li>
+<li><p><strong>Clear language</strong>: Avoid jargon, explain technical terms</p></li>
+<li><p><strong>Consistent terminology</strong>: Use the same terms throughout</p></li>
+</ul>
+</section>
+<section id="formatting">
+<h3><a class="toc-backref" href="#id28" role="doc-backlink">Formatting</a><a class="headerlink" href="#formatting" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Use <strong>bold</strong> for UI elements and important concepts</p></li>
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">code</span> <span class="pre">formatting</span></code> for function names, parameters, and code snippets</p></li>
+<li><p>Use <em>italics</em> sparingly for emphasis</p></li>
+<li><p>Include blank lines for readability in long docstrings</p></li>
+</ul>
+</section>
+<section id="cross-references">
+<h3><a class="toc-backref" href="#id29" role="doc-backlink">Cross-References</a><a class="headerlink" href="#cross-references" title="Link to this heading">¶</a></h3>
+<p>Link to related documentation:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Calculate portfolio statistics.</span>
+
+<span class="sd">See Also:</span>
+<span class="sd">    :func:`calculate_var`: For VaR-only calculations</span>
+<span class="sd">    :class:`Portfolio`: Portfolio data structure</span>
+<span class="sd">    :mod:`quactuary.distributions`: Available distributions</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="external-links">
+<h3><a class="toc-backref" href="#id30" role="doc-backlink">External Links</a><a class="headerlink" href="#external-links" title="Link to this heading">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Implement quantum amplitude estimation algorithm.</span>
+
+<span class="sd">References:</span>
+<span class="sd">    Brassard, G., et al. (2002). Quantum amplitude amplification and estimation.</span>
+<span class="sd">    Contemporary Mathematics, 305, 53-74.</span>
+<span class="sd">    https://arxiv.org/abs/quant-ph/0005055</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="documentation-maintenance">
+<h2><a class="toc-backref" href="#id31" role="doc-backlink">Documentation Maintenance</a><a class="headerlink" href="#documentation-maintenance" title="Link to this heading">¶</a></h2>
+<section id="keeping-docs-updated">
+<h3><a class="toc-backref" href="#id32" role="doc-backlink">Keeping Docs Updated</a><a class="headerlink" href="#keeping-docs-updated" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>Update with code changes</strong>: Modify docs when changing APIs</p></li>
+<li><p><strong>Version compatibility</strong>: Note version requirements for features</p></li>
+<li><p><strong>Deprecation warnings</strong>: Document deprecated features clearly</p></li>
+<li><p><strong>Migration guides</strong>: Help users adapt to breaking changes</p></li>
+</ul>
+</section>
+<section id="review-process">
+<h3><a class="toc-backref" href="#id33" role="doc-backlink">Review Process</a><a class="headerlink" href="#review-process" title="Link to this heading">¶</a></h3>
+<p>Documentation changes should be reviewed for:</p>
+<ul class="simple">
+<li><p><strong>Accuracy</strong>: Does it correctly describe the code behavior?</p></li>
+<li><p><strong>Clarity</strong>: Is it easy to understand for the target audience?</p></li>
+<li><p><strong>Completeness</strong>: Are all important aspects covered?</p></li>
+<li><p><strong>Examples</strong>: Do the examples work and illustrate key points?</p></li>
+</ul>
+</section>
+</section>
+<section id="common-documentation-issues">
+<h2><a class="toc-backref" href="#id34" role="doc-backlink">Common Documentation Issues</a><a class="headerlink" href="#common-documentation-issues" title="Link to this heading">¶</a></h2>
+<section id="issues-to-avoid">
+<h3><a class="toc-backref" href="#id35" role="doc-backlink">Issues to Avoid</a><a class="headerlink" href="#issues-to-avoid" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>Outdated examples</strong>: Code that doesn’t work with current version</p></li>
+<li><p><strong>Missing imports</strong>: Examples that can’t be run as-is</p></li>
+<li><p><strong>Unclear parameter descriptions</strong>: Vague or incomplete arg documentation</p></li>
+<li><p><strong>No examples</strong>: Public functions without usage examples</p></li>
+<li><p><strong>Inconsistent formatting</strong>: Mixed docstring styles within the project</p></li>
+</ul>
+</section>
+<section id="quality-checklist">
+<h3><a class="toc-backref" href="#id36" role="doc-backlink">Quality Checklist</a><a class="headerlink" href="#quality-checklist" title="Link to this heading">¶</a></h3>
+<p>Before submitting documentation:</p>
+<ul class="simple">
+<li><p>[ ] All examples are runnable</p></li>
+<li><p>[ ] Docstrings follow Google format</p></li>
+<li><p>[ ] Public functions have examples</p></li>
+<li><p>[ ] Cross-references are working</p></li>
+<li><p>[ ] Spelling and grammar are correct</p></li>
+<li><p>[ ] Mathematical notation is properly formatted</p></li>
+<li><p>[ ] Code formatting is consistent</p></li>
+</ul>
+</section>
+</section>
+<section id="tools-and-resources">
+<h2><a class="toc-backref" href="#id37" role="doc-backlink">Tools and Resources</a><a class="headerlink" href="#tools-and-resources" title="Link to this heading">¶</a></h2>
+<section id="documentation-tools">
+<h3><a class="toc-backref" href="#id38" role="doc-backlink">Documentation Tools</a><a class="headerlink" href="#documentation-tools" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>Sphinx</strong>: Documentation generation framework</p></li>
+<li><p><strong>Napoleon</strong>: Sphinx extension for Google docstrings</p></li>
+<li><p><strong>nbsphinx</strong>: Include Jupyter notebooks in docs</p></li>
+<li><p><strong>autodoc</strong>: Automatic API documentation from docstrings</p></li>
+</ul>
+</section>
+<section id="writing-resources">
+<h3><a class="toc-backref" href="#id39" role="doc-backlink">Writing Resources</a><a class="headerlink" href="#writing-resources" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><a class="reference external" href="https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings">Google Style Guide</a></p></li>
+<li><p><a class="reference external" href="https://www.sphinx-doc.org/">Sphinx Documentation</a></p></li>
+<li><p><a class="reference external" href="https://www.writethedocs.org/">Write the Docs</a></p></li>
+</ul>
+<p>Good documentation is one of the most valuable contributions you can make to quactuary. It helps users get started quickly and makes the project more accessible to everyone!</p>
+</section>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="../index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">Documentation Guidelines</a><ul>
+<li><a class="reference internal" href="#documentation-philosophy">Documentation Philosophy</a></li>
+<li><a class="reference internal" href="#types-of-documentation">Types of Documentation</a></li>
+<li><a class="reference internal" href="#docstring-standards">Docstring Standards</a><ul>
+<li><a class="reference internal" href="#basic-function-docstring">Basic Function Docstring</a></li>
+<li><a class="reference internal" href="#class-docstring">Class Docstring</a></li>
+<li><a class="reference internal" href="#module-docstring">Module Docstring</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#docstring-elements">Docstring Elements</a><ul>
+<li><a class="reference internal" href="#required-elements">Required Elements</a></li>
+<li><a class="reference internal" href="#optional-elements">Optional Elements</a></li>
+<li><a class="reference internal" href="#mathematical-documentation">Mathematical Documentation</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#examples-in-docstrings">Examples in Docstrings</a><ul>
+<li><a class="reference internal" href="#good-examples">Good Examples</a></li>
+<li><a class="reference internal" href="#bad-examples">Bad Examples</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#user-guide-documentation">User Guide Documentation</a><ul>
+<li><a class="reference internal" href="#structure">Structure</a></li>
+<li><a class="reference internal" href="#example-user-guide-section">Example User Guide Section</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#jupyter-notebook-documentation">Jupyter Notebook Documentation</a><ul>
+<li><a class="reference internal" href="#notebook-guidelines">Notebook Guidelines</a></li>
+<li><a class="reference internal" href="#example-notebook-structure">Example Notebook Structure</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#api-reference-documentation">API Reference Documentation</a><ul>
+<li><a class="reference internal" href="#configuration">Configuration</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#building-documentation">Building Documentation</a><ul>
+<li><a class="reference internal" href="#local-building">Local Building</a></li>
+<li><a class="reference internal" href="#continuous-integration">Continuous Integration</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#documentation-standards">Documentation Standards</a><ul>
+<li><a class="reference internal" href="#writing-style">Writing Style</a></li>
+<li><a class="reference internal" href="#formatting">Formatting</a></li>
+<li><a class="reference internal" href="#cross-references">Cross-References</a></li>
+<li><a class="reference internal" href="#external-links">External Links</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#documentation-maintenance">Documentation Maintenance</a><ul>
+<li><a class="reference internal" href="#keeping-docs-updated">Keeping Docs Updated</a></li>
+<li><a class="reference internal" href="#review-process">Review Process</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#common-documentation-issues">Common Documentation Issues</a><ul>
+<li><a class="reference internal" href="#issues-to-avoid">Issues to Avoid</a></li>
+<li><a class="reference internal" href="#quality-checklist">Quality Checklist</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#tools-and-resources">Tools and Resources</a><ul>
+<li><a class="reference internal" href="#documentation-tools">Documentation Tools</a></li>
+<li><a class="reference internal" href="#writing-resources">Writing Resources</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="performance_testing.html"
+                          title="previous chapter">Performance Testing Guide</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="mcp_development.html"
+                          title="next chapter">MCP Tool Development</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/development/documentation_guidelines.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="mcp_development.html" title="MCP Tool Development"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="performance_testing.html" title="Performance Testing Guide"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">quActuary v0.0.7 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Development Guidelines</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Documentation Guidelines</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2025, Alex Filiakov, ACAS.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    </div>
+  </body>
+</html>

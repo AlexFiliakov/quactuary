@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>MCP Server Integration Guide &#8212; quActuary v0.0.7 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/nature.css?v=279e0f84" />
+    <script src="../_static/documentation_options.js?v=401b779c"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="canonical" href="https://docs.quactuary.com/user_guide/mcp_integration.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="quactuary package" href="../quactuary.html" />
+    <link rel="prev" title="API Migration Guide" href="api_migration.html" />
+ 
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-2TGPCH7PBM"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag() { dataLayer.push(arguments); }
+  gtag('js', new Date());
+  gtag('config', 'G-2TGPCH7PBM');
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../quactuary.html" title="quactuary package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="api_migration.html" title="API Migration Guide"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">quActuary v0.0.7 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">User Guide</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">MCP Server Integration Guide</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="mcp-server-integration-guide">
+<h1>MCP Server Integration Guide<a class="headerlink" href="#mcp-server-integration-guide" title="Link to this heading">¶</a></h1>
+<p>The quActuary MCP (Model Context Protocol) Server enables seamless integration with Large Language Model assistants like Claude, providing direct access to actuarial modeling tools through conversational interfaces.</p>
+<section id="what-is-mcp">
+<h2>What is MCP?<a class="headerlink" href="#what-is-mcp" title="Link to this heading">¶</a></h2>
+<p>Model Context Protocol (MCP) is an open standard that enables AI assistants to securely access tools and data sources. The quActuary MCP Server implements this protocol, exposing our actuarial tools in a way that LLMs can understand and use effectively.</p>
+</section>
+<section id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Link to this heading">¶</a></h2>
+<p>To use the MCP Server, install quActuary with the MCP extras:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>quactuary<span class="o">[</span>mcp<span class="o">]</span>
+</pre></div>
+</div>
+<p>This installs the required dependencies including <code class="docutils literal notranslate"><span class="pre">mcp&gt;=0.9.0</span></code> and <code class="docutils literal notranslate"><span class="pre">fastmcp</span></code>.</p>
+</section>
+<section id="starting-the-server">
+<h2>Starting the Server<a class="headerlink" href="#starting-the-server" title="Link to this heading">¶</a></h2>
+<p>There are two ways to start the MCP server:</p>
+<ol class="arabic">
+<li><p><strong>Using the command-line interface:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>quactuary-mcp
+</pre></div>
+</div>
+</li>
+<li><p><strong>As a Python module:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>quactuary.mcp.server
+</pre></div>
+</div>
+</li>
+</ol>
+<p>The server runs on stdio transport by default, making it compatible with Claude Desktop and other MCP clients.</p>
+</section>
+<section id="configuring-claude-desktop">
+<h2>Configuring Claude Desktop<a class="headerlink" href="#configuring-claude-desktop" title="Link to this heading">¶</a></h2>
+<p>To use quActuary in Claude Desktop, add the following to your Claude Desktop configuration file:</p>
+<p><strong>Windows:</strong> <code class="docutils literal notranslate"><span class="pre">%APPDATA%\Claude\claude_desktop_config.json</span></code></p>
+<p><strong>macOS:</strong> <code class="docutils literal notranslate"><span class="pre">~/Library/Application</span> <span class="pre">Support/Claude/claude_desktop_config.json</span></code></p>
+<p><strong>Linux:</strong> <code class="docutils literal notranslate"><span class="pre">~/.config/Claude/claude_desktop_config.json</span></code></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;mcpServers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;quactuary&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;python&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;args&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;-m&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;quactuary.mcp.server&quot;</span><span class="p">],</span>
+<span class="w">      </span><span class="nt">&quot;env&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Alternative configuration using the CLI command:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;mcpServers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;quactuary&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;quactuary-mcp&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;args&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
+<span class="w">      </span><span class="nt">&quot;env&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="available-tools">
+<h2>Available Tools<a class="headerlink" href="#available-tools" title="Link to this heading">¶</a></h2>
+<p>The MCP server provides tools organized into four categories:</p>
+<section id="pricing-tools">
+<h3>Pricing Tools<a class="headerlink" href="#pricing-tools" title="Link to this heading">¶</a></h3>
+<dl>
+<dt><strong>run_pricing_simulation</strong></dt><dd><p>Execute full pricing model simulations with specified parameters.</p>
+<p>Example usage in Claude:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>User: Run a pricing simulation for a GL policy with Poisson(3.5) frequency,
+      Exponential(1000) severity, and $1M deductible.
+</pre></div>
+</div>
+</dd>
+<dt><strong>calculate_premium</strong></dt><dd><p>Calculate premiums for specific policy configurations.</p>
+</dd>
+<dt><strong>estimate_reserves</strong></dt><dd><p>Estimate required reserves for portfolios.</p>
+</dd>
+</dl>
+</section>
+<section id="distribution-tools">
+<h3>Distribution Tools<a class="headerlink" href="#distribution-tools" title="Link to this heading">¶</a></h3>
+<dl>
+<dt><strong>create_distribution</strong></dt><dd><p>Create frequency or severity distributions with specified parameters.</p>
+<p>Example:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>User: Create a compound distribution with NegativeBinomial(10, 0.3) frequency
+      and Gamma(2, 1000) severity.
+</pre></div>
+</div>
+</dd>
+<dt><strong>fit_distribution</strong></dt><dd><p>Fit distributions to empirical data.</p>
+</dd>
+<dt><strong>sample_distribution</strong></dt><dd><p>Generate samples from distributions for analysis.</p>
+</dd>
+</dl>
+</section>
+<section id="portfolio-tools">
+<h3>Portfolio Tools<a class="headerlink" href="#portfolio-tools" title="Link to this heading">¶</a></h3>
+<dl class="simple">
+<dt><strong>create_portfolio</strong></dt><dd><p>Build insurance portfolios from policy specifications.</p>
+</dd>
+<dt><strong>analyze_portfolio</strong></dt><dd><p>Analyze portfolio metrics including risk measures.</p>
+</dd>
+<dt><strong>optimize_portfolio</strong></dt><dd><p>Optimize portfolio allocations and reinsurance structures.</p>
+</dd>
+</dl>
+</section>
+<section id="utility-tools">
+<h3>Utility Tools<a class="headerlink" href="#utility-tools" title="Link to this heading">¶</a></h3>
+<dl class="simple">
+<dt><strong>calculate_metrics</strong></dt><dd><p>Compute various actuarial metrics (VaR, TVaR, etc.).</p>
+</dd>
+<dt><strong>generate_reports</strong></dt><dd><p>Generate formatted actuarial reports.</p>
+</dd>
+<dt><strong>validate_inputs</strong></dt><dd><p>Validate input parameters for actuarial calculations.</p>
+</dd>
+</dl>
+</section>
+</section>
+<section id="usage-examples">
+<h2>Usage Examples<a class="headerlink" href="#usage-examples" title="Link to this heading">¶</a></h2>
+<section id="basic-pricing-simulation">
+<h3>Basic Pricing Simulation<a class="headerlink" href="#basic-pricing-simulation" title="Link to this heading">¶</a></h3>
+<p>In a Claude conversation:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>User: I need to price a general liability policy for a client. The expected
+      claim frequency follows a Poisson distribution with mean 3.5 claims
+      per year. Claim severities are exponentially distributed with mean $1,000.
+      The policy has a $1M per-occurrence deductible. Can you run a simulation?
+
+Claude: I&#39;ll run a pricing simulation for your general liability policy using
+        the specified parameters.
+
+        [Claude uses run_pricing_simulation tool]
+
+        The simulation results show:
+        - Expected annual loss: $2,450,000
+        - 95% VaR: $2,566,000
+        - 95% TVaR: $2,596,000
+</pre></div>
+</div>
+</section>
+<section id="portfolio-analysis">
+<h3>Portfolio Analysis<a class="headerlink" href="#portfolio-analysis" title="Link to this heading">¶</a></h3>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>User: Analyze a portfolio with three lines of business:
+      1. GL: 700 policies, Poisson(3.5), Exponential(1000)
+      2. Auto: 500 policies, NegBinom(10, 0.3), Gamma(2, 500)
+      3. Property: 300 policies, Poisson(1.2), Lognormal(9, 1.5)
+
+Claude: I&#39;ll create and analyze this multi-line portfolio for you.
+
+        [Claude uses create_portfolio and analyze_portfolio tools]
+
+        Portfolio Analysis Results:
+        - Total expected loss: $5,250,000
+        - Portfolio 99% VaR: $5,890,000
+        - Diversification benefit: 12.3%
+</pre></div>
+</div>
+</section>
+<section id="custom-calculations">
+<h3>Custom Calculations<a class="headerlink" href="#custom-calculations" title="Link to this heading">¶</a></h3>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>User: Calculate the limited expected value for a Pareto(3, 5000)
+      distribution with a limit of $10,000.
+
+Claude: I&#39;ll calculate the limited expected value for your Pareto distribution.
+
+        [Claude uses calculate_metrics tool]
+
+        The limited expected value LEV(10,000) = $2,291.67
+</pre></div>
+</div>
+</section>
+</section>
+<section id="best-practices">
+<h2>Best Practices<a class="headerlink" href="#best-practices" title="Link to this heading">¶</a></h2>
+<ol class="arabic simple">
+<li><p><strong>Clear Parameter Specification</strong>
+Always specify distribution parameters clearly. Claude will ask for clarification if parameters are ambiguous.</p></li>
+<li><p><strong>Incremental Analysis</strong>
+Build complex analyses step by step. Start with simple distributions and add complexity.</p></li>
+<li><p><strong>Validation</strong>
+Use the validate_inputs tool to ensure parameters are reasonable before running simulations.</p></li>
+<li><p><strong>Performance Considerations</strong>
+Large simulations may take time. Claude will inform you of expected runtime for complex calculations.</p></li>
+</ol>
+</section>
+<section id="troubleshooting">
+<h2>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Link to this heading">¶</a></h2>
+<section id="server-won-t-start">
+<h3>Server Won’t Start<a class="headerlink" href="#server-won-t-start" title="Link to this heading">¶</a></h3>
+<ol class="arabic">
+<li><p>Ensure MCP dependencies are installed:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>quactuary<span class="o">[</span>mcp<span class="o">]</span>
+</pre></div>
+</div>
+</li>
+<li><p>Check Python version (3.10+ required):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>--version
+</pre></div>
+</div>
+</li>
+<li><p>Verify quactuary is installed:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import quactuary.mcp; print(&#39;MCP module found&#39;)&quot;</span>
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+<section id="claude-can-t-connect">
+<h3>Claude Can’t Connect<a class="headerlink" href="#claude-can-t-connect" title="Link to this heading">¶</a></h3>
+<ol class="arabic simple">
+<li><p>Restart Claude Desktop after updating configuration</p></li>
+<li><p>Check configuration file syntax (must be valid JSON)</p></li>
+<li><p>Ensure no other process is using the MCP server</p></li>
+<li><p>Check Claude Desktop logs for connection errors</p></li>
+</ol>
+</section>
+<section id="tool-errors">
+<h3>Tool Errors<a class="headerlink" href="#tool-errors" title="Link to this heading">¶</a></h3>
+<p>If tools return errors:</p>
+<ol class="arabic simple">
+<li><p>Validate input parameters using the validate_inputs tool</p></li>
+<li><p>Check distribution parameter constraints</p></li>
+<li><p>Ensure sufficient memory for large simulations</p></li>
+<li><p>Review error messages for specific parameter issues</p></li>
+</ol>
+</section>
+</section>
+<section id="advanced-usage">
+<h2>Advanced Usage<a class="headerlink" href="#advanced-usage" title="Link to this heading">¶</a></h2>
+<section id="environment-variables">
+<h3>Environment Variables<a class="headerlink" href="#environment-variables" title="Link to this heading">¶</a></h3>
+<p>You can configure the MCP server using environment variables:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;mcpServers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;quactuary&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;python&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;args&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;-m&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;quactuary.mcp.server&quot;</span><span class="p">],</span>
+<span class="w">      </span><span class="nt">&quot;env&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;QUACTUARY_BACKEND&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;classical&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;QUACTUARY_MAX_WORKERS&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;4&quot;</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="custom-tool-development">
+<h3>Custom Tool Development<a class="headerlink" href="#custom-tool-development" title="Link to this heading">¶</a></h3>
+<p>Extend the MCP server with custom tools by creating a new tool class:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">quactuary.mcp.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">QuactuaryTool</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">quactuary.mcp.categories</span><span class="w"> </span><span class="kn">import</span> <span class="n">ToolCategory</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">CustomRiskTool</span><span class="p">(</span><span class="n">QuactuaryTool</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Custom tool for specialized risk calculations.&quot;&quot;&quot;</span>
+
+    <span class="n">category</span> <span class="o">=</span> <span class="n">ToolCategory</span><span class="o">.</span><span class="n">PRICING</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;calculate_custom_risk&quot;</span>
+    <span class="n">description</span> <span class="o">=</span> <span class="s2">&quot;Calculate custom risk metrics&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+        <span class="c1"># Implementation</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;risk_metric&quot;</span><span class="p">:</span> <span class="n">calculated_value</span><span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="security-considerations">
+<h2>Security Considerations<a class="headerlink" href="#security-considerations" title="Link to this heading">¶</a></h2>
+<p>The MCP server:</p>
+<ul class="simple">
+<li><p>Runs locally on your machine</p></li>
+<li><p>Does not send data to external services</p></li>
+<li><p>Operates within Claude’s security sandbox</p></li>
+<li><p>Only exposes explicitly defined tools</p></li>
+</ul>
+</section>
+<section id="performance-tips">
+<h2>Performance Tips<a class="headerlink" href="#performance-tips" title="Link to this heading">¶</a></h2>
+<ol class="arabic simple">
+<li><p><strong>Use Appropriate Simulation Sizes</strong>
+Start with smaller simulations (10,000 trials) for exploration, then increase for final results.</p></li>
+<li><p><strong>Leverage Caching</strong>
+The server caches distribution objects to improve performance across multiple calculations.</p></li>
+<li><p><strong>Batch Operations</strong>
+When analyzing multiple scenarios, describe them all at once so Claude can optimize the workflow.</p></li>
+</ol>
+</section>
+<section id="further-resources">
+<h2>Further Resources<a class="headerlink" href="#further-resources" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="../quactuary.mcp.html"><span class="doc">quactuary.mcp package</span></a> - MCP API Reference</p></li>
+<li><p><a class="reference external" href="https://modelcontextprotocol.io">MCP Documentation</a> - Official MCP specification</p></li>
+<li><p><a class="reference external" href="https://claude.ai/desktop">Claude Desktop</a> - Download Claude Desktop</p></li>
+<li><p><a class="reference internal" href="index.html"><span class="doc">User Guide</span></a> - General user guide</p></li>
+</ul>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="../index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">MCP Server Integration Guide</a><ul>
+<li><a class="reference internal" href="#what-is-mcp">What is MCP?</a></li>
+<li><a class="reference internal" href="#installation">Installation</a></li>
+<li><a class="reference internal" href="#starting-the-server">Starting the Server</a></li>
+<li><a class="reference internal" href="#configuring-claude-desktop">Configuring Claude Desktop</a></li>
+<li><a class="reference internal" href="#available-tools">Available Tools</a><ul>
+<li><a class="reference internal" href="#pricing-tools">Pricing Tools</a></li>
+<li><a class="reference internal" href="#distribution-tools">Distribution Tools</a></li>
+<li><a class="reference internal" href="#portfolio-tools">Portfolio Tools</a></li>
+<li><a class="reference internal" href="#utility-tools">Utility Tools</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#usage-examples">Usage Examples</a><ul>
+<li><a class="reference internal" href="#basic-pricing-simulation">Basic Pricing Simulation</a></li>
+<li><a class="reference internal" href="#portfolio-analysis">Portfolio Analysis</a></li>
+<li><a class="reference internal" href="#custom-calculations">Custom Calculations</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#best-practices">Best Practices</a></li>
+<li><a class="reference internal" href="#troubleshooting">Troubleshooting</a><ul>
+<li><a class="reference internal" href="#server-won-t-start">Server Won’t Start</a></li>
+<li><a class="reference internal" href="#claude-can-t-connect">Claude Can’t Connect</a></li>
+<li><a class="reference internal" href="#tool-errors">Tool Errors</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#advanced-usage">Advanced Usage</a><ul>
+<li><a class="reference internal" href="#environment-variables">Environment Variables</a></li>
+<li><a class="reference internal" href="#custom-tool-development">Custom Tool Development</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#security-considerations">Security Considerations</a></li>
+<li><a class="reference internal" href="#performance-tips">Performance Tips</a></li>
+<li><a class="reference internal" href="#further-resources">Further Resources</a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="api_migration.html"
+                          title="previous chapter">API Migration Guide</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="../quactuary.html"
+                          title="next chapter">quactuary package</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/user_guide/mcp_integration.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../quactuary.html" title="quactuary package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="api_migration.html" title="API Migration Guide"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">quActuary v0.0.7 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >User Guide</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">MCP Server Integration Guide</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2025, Alex Filiakov, ACAS.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    </div>
+  </body>
+</html>

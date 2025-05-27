@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Numerical Stability Guide &#8212; quActuary v0.0.7 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/nature.css?v=279e0f84" />
+    <script src="../_static/documentation_options.js?v=401b779c"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="canonical" href="https://docs.quactuary.com/user_guide/numerical_stability.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Distribution Parameter Reference" href="distribution_parameters.html" />
+    <link rel="prev" title="Optimization Best Practices" href="best_practices.html" />
+ 
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-2TGPCH7PBM"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag() { dataLayer.push(arguments); }
+  gtag('js', new Date());
+  gtag('config', 'G-2TGPCH7PBM');
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="distribution_parameters.html" title="Distribution Parameter Reference"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="best_practices.html" title="Optimization Best Practices"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">quActuary v0.0.7 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">User Guide</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Numerical Stability Guide</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="numerical-stability-guide">
+<h1>Numerical Stability Guide<a class="headerlink" href="#numerical-stability-guide" title="Link to this heading">¶</a></h1>
+<p>This guide provides best practices for numerical stability in actuarial computations, particularly when working with extreme values, compound distributions, and aggregate loss calculations.</p>
+<section id="why-numerical-stability-matters">
+<h2>Why Numerical Stability Matters<a class="headerlink" href="#why-numerical-stability-matters" title="Link to this heading">¶</a></h2>
+<p>Actuarial calculations often involve:</p>
+<ul class="simple">
+<li><p><strong>Extreme values</strong>: Very large claim amounts or very small probabilities</p></li>
+<li><p><strong>Compound operations</strong>: Products and sums of many terms</p></li>
+<li><p><strong>Log-space calculations</strong>: Working with log-probabilities to avoid underflow</p></li>
+<li><p><strong>Tail calculations</strong>: Computing values in distribution tails where precision matters</p></li>
+</ul>
+<p>Without proper numerical handling, these calculations can lead to:</p>
+<ul class="simple">
+<li><p>Overflow (values too large to represent)</p></li>
+<li><p>Underflow (values rounded to zero)</p></li>
+<li><p>Loss of precision in intermediate calculations</p></li>
+<li><p>Incorrect results that may not be obviously wrong</p></li>
+</ul>
+</section>
+<section id="using-the-numerical-utilities">
+<h2>Using the Numerical Utilities<a class="headerlink" href="#using-the-numerical-utilities" title="Link to this heading">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">quactuary.utils.numerical</span></code> module provides stable implementations of common operations.</p>
+<section id="log-space-operations">
+<h3>Log-Space Operations<a class="headerlink" href="#log-space-operations" title="Link to this heading">¶</a></h3>
+<p>When working with probabilities or likelihood calculations, use log-space operations:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">quactuary.utils.numerical</span><span class="w"> </span><span class="kn">import</span> <span class="n">logsumexp</span><span class="p">,</span> <span class="n">logaddexp</span><span class="p">,</span> <span class="n">stable_log</span>
+
+<span class="c1"># Instead of: sum(exp(log_probs))</span>
+<span class="n">log_probs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="mi">1000</span><span class="p">,</span> <span class="o">-</span><span class="mi">1001</span><span class="p">,</span> <span class="o">-</span><span class="mi">1002</span><span class="p">])</span>
+<span class="n">total_prob</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">logsumexp</span><span class="p">(</span><span class="n">log_probs</span><span class="p">))</span>
+
+<span class="c1"># For pairwise operations</span>
+<span class="n">log_p1</span> <span class="o">=</span> <span class="o">-</span><span class="mi">500</span>
+<span class="n">log_p2</span> <span class="o">=</span> <span class="o">-</span><span class="mi">501</span>
+<span class="n">log_sum</span> <span class="o">=</span> <span class="n">logaddexp</span><span class="p">(</span><span class="n">log_p1</span><span class="p">,</span> <span class="n">log_p2</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="stable-exponentials-and-logarithms">
+<h3>Stable Exponentials and Logarithms<a class="headerlink" href="#stable-exponentials-and-logarithms" title="Link to this heading">¶</a></h3>
+<p>Protect against overflow/underflow in exponential calculations:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">quactuary.utils.numerical</span><span class="w"> </span><span class="kn">import</span> <span class="n">stable_exp</span><span class="p">,</span> <span class="n">stable_log</span>
+
+<span class="c1"># Handles large values gracefully</span>
+<span class="n">large_value</span> <span class="o">=</span> <span class="mi">800</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">stable_exp</span><span class="p">(</span><span class="n">large_value</span><span class="p">)</span>  <span class="c1"># Won&#39;t overflow</span>
+
+<span class="c1"># Handles near-zero values</span>
+<span class="n">small_value</span> <span class="o">=</span> <span class="mf">1e-400</span>
+<span class="n">log_result</span> <span class="o">=</span> <span class="n">stable_log</span><span class="p">(</span><span class="n">small_value</span><span class="p">)</span>  <span class="c1"># Won&#39;t underflow</span>
+</pre></div>
+</div>
+</section>
+<section id="input-validation">
+<h3>Input Validation<a class="headerlink" href="#input-validation" title="Link to this heading">¶</a></h3>
+<p>Validate numerical inputs to catch issues early:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">quactuary.utils.numerical</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_finite</span><span class="p">,</span> <span class="n">clip_to_valid_range</span>
+
+<span class="c1"># Check for NaN/inf values</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">check_finite</span><span class="p">(</span><span class="n">input_array</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;claim amounts&quot;</span><span class="p">)</span>
+
+<span class="c1"># Ensure probabilities are in [0, 1]</span>
+<span class="n">probs</span> <span class="o">=</span> <span class="n">clip_to_valid_range</span><span class="p">(</span><span class="n">raw_probs</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;probabilities&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="detecting-numerical-issues">
+<h3>Detecting Numerical Issues<a class="headerlink" href="#detecting-numerical-issues" title="Link to this heading">¶</a></h3>
+<p>Proactively detect potential numerical problems:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">quactuary.utils.numerical</span><span class="w"> </span><span class="kn">import</span> <span class="n">detect_numerical_issues</span>
+
+<span class="c1"># Check for potential problems</span>
+<span class="n">issues</span> <span class="o">=</span> <span class="n">detect_numerical_issues</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s2">&quot;portfolio losses&quot;</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">issues</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Warning: </span><span class="si">{</span><span class="n">issues</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="best-practices-for-specific-calculations">
+<h2>Best Practices for Specific Calculations<a class="headerlink" href="#best-practices-for-specific-calculations" title="Link to this heading">¶</a></h2>
+<section id="compound-distributions">
+<h3>Compound Distributions<a class="headerlink" href="#compound-distributions" title="Link to this heading">¶</a></h3>
+<p>When implementing compound distributions:</p>
+<ol class="arabic">
+<li><p><strong>Use log-space for probability calculations</strong>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># In Poisson initialization</span>
+<span class="n">p0</span> <span class="o">=</span> <span class="n">stable_exp</span><span class="p">(</span><span class="o">-</span><span class="n">lambda_param</span><span class="p">)</span>  <span class="c1"># Instead of np.exp(-lambda_param)</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Handle extreme parameters</strong>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># For large powers</span>
+<span class="n">p_n</span> <span class="o">=</span> <span class="n">stable_exp</span><span class="p">(</span><span class="n">n</span> <span class="o">*</span> <span class="n">stable_log</span><span class="p">(</span><span class="n">p</span><span class="p">))</span>  <span class="c1"># Instead of p**n</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Normalize carefully</strong>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Convert to log-space for normalization</span>
+<span class="n">log_probs</span> <span class="o">=</span> <span class="n">stable_log</span><span class="p">(</span><span class="n">raw_probs</span><span class="p">)</span>
+<span class="n">normalized</span> <span class="o">=</span> <span class="n">stable_probability_calculation</span><span class="p">(</span><span class="n">log_probs</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+<section id="moment-calculations">
+<h3>Moment Calculations<a class="headerlink" href="#moment-calculations" title="Link to this heading">¶</a></h3>
+<p>For stable moment calculations:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">quactuary.utils.numerical</span><span class="w"> </span><span class="kn">import</span> <span class="n">stable_moment_calculation</span>
+
+<span class="c1"># Calculate moments with numerical stability</span>
+<span class="n">mean</span> <span class="o">=</span> <span class="n">stable_moment_calculation</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">probs</span><span class="p">,</span> <span class="n">moment</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">variance</span> <span class="o">=</span> <span class="n">stable_moment_calculation</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">probs</span><span class="p">,</span> <span class="n">moment</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">central</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># For high moments, use log-space</span>
+<span class="n">fourth_moment</span> <span class="o">=</span> <span class="n">stable_moment_calculation</span><span class="p">(</span>
+    <span class="n">values</span><span class="p">,</span> <span class="n">probs</span><span class="p">,</span> <span class="n">moment</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">log_space</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="aggregate-loss-calculations">
+<h3>Aggregate Loss Calculations<a class="headerlink" href="#aggregate-loss-calculations" title="Link to this heading">¶</a></h3>
+<p>When computing aggregate losses:</p>
+<ol class="arabic simple">
+<li><p><strong>Monitor numerical range</strong>: Check intermediate results for potential issues</p></li>
+<li><p><strong>Use stable summation</strong>: For many terms, consider log-space summation</p></li>
+<li><p><strong>Validate results</strong>: Ensure outputs are within reasonable bounds</p></li>
+</ol>
+</section>
+</section>
+<section id="example-stable-tweedie-implementation">
+<h2>Example: Stable Tweedie Implementation<a class="headerlink" href="#example-stable-tweedie-implementation" title="Link to this heading">¶</a></h2>
+<p>Here’s an example of how the numerical utilities improve the Tweedie distribution implementation:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Before: Manual clipping and direct exp</span>
+<span class="n">log_weight</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">log_term1</span> <span class="o">-</span> <span class="n">log_factorial</span> <span class="o">-</span> <span class="n">log_term3</span><span class="p">,</span> <span class="o">-</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+<span class="n">weight</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">log_weight</span><span class="p">)</span>
+
+<span class="c1"># After: Using stable utilities</span>
+<span class="n">log_weight</span> <span class="o">=</span> <span class="n">log_term1</span> <span class="o">-</span> <span class="n">log_factorial</span> <span class="o">-</span> <span class="n">log_term3</span>
+<span class="n">weight</span> <span class="o">=</span> <span class="n">stable_exp</span><span class="p">(</span><span class="n">log_weight</span><span class="p">)</span>  <span class="c1"># Handles extreme values automatically</span>
+</pre></div>
+</div>
+</section>
+<section id="common-pitfalls-to-avoid">
+<h2>Common Pitfalls to Avoid<a class="headerlink" href="#common-pitfalls-to-avoid" title="Link to this heading">¶</a></h2>
+<ol class="arabic">
+<li><p><strong>Direct exponentiation of large values</strong>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Bad: Can overflow</span>
+<span class="n">p</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">p</span><span class="p">)</span> <span class="o">**</span> <span class="n">n</span>
+
+<span class="c1"># Good: Use log-space</span>
+<span class="n">p</span> <span class="o">=</span> <span class="n">stable_exp</span><span class="p">(</span><span class="n">n</span> <span class="o">*</span> <span class="n">stable_log</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">p</span><span class="p">))</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Log of potentially zero values</strong>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Bad: log(0) is -inf</span>
+<span class="n">log_val</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">probability</span><span class="p">)</span>
+
+<span class="c1"># Good: Protected against zero</span>
+<span class="n">log_val</span> <span class="o">=</span> <span class="n">stable_log</span><span class="p">(</span><span class="n">probability</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Normalization without checking</strong>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Bad: Division without checking</span>
+<span class="n">normalized</span> <span class="o">=</span> <span class="n">values</span> <span class="o">/</span> <span class="n">values</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+
+<span class="c1"># Good: Check for numerical issues</span>
+<span class="k">if</span> <span class="n">detect_numerical_issues</span><span class="p">(</span><span class="n">values</span><span class="p">):</span>
+    <span class="c1"># Use stable normalization</span>
+    <span class="n">log_vals</span> <span class="o">=</span> <span class="n">stable_log</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+    <span class="n">normalized</span> <span class="o">=</span> <span class="n">stable_probability_calculation</span><span class="p">(</span><span class="n">log_vals</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+<section id="testing-for-numerical-stability">
+<h2>Testing for Numerical Stability<a class="headerlink" href="#testing-for-numerical-stability" title="Link to this heading">¶</a></h2>
+<p>When developing new algorithms:</p>
+<ol class="arabic simple">
+<li><p><strong>Test extreme inputs</strong>: Use very large and very small parameter values</p></li>
+<li><p><strong>Check edge cases</strong>: Test with zero, one, and many terms</p></li>
+<li><p><strong>Verify conservation</strong>: Ensure probabilities sum to 1, etc.</p></li>
+<li><p><strong>Compare methods</strong>: Test against known stable implementations</p></li>
+</ol>
+<p>Example test:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">test_extreme_parameters</span><span class="p">():</span>
+    <span class="c1"># Test with extreme lambda</span>
+    <span class="n">lambda_large</span> <span class="o">=</span> <span class="mi">1000</span>
+    <span class="n">p0</span> <span class="o">=</span> <span class="n">stable_exp</span><span class="p">(</span><span class="o">-</span><span class="n">lambda_large</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">p0</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">p0</span> <span class="o">&gt;=</span> <span class="mi">0</span>
+
+    <span class="c1"># Test with many terms</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="mi">10000</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="mf">0.001</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">stable_exp</span><span class="p">(</span><span class="n">n</span> <span class="o">*</span> <span class="n">stable_log</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">p</span><span class="p">))</span>
+    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="conclusion">
+<h2>Conclusion<a class="headerlink" href="#conclusion" title="Link to this heading">¶</a></h2>
+<p>Numerical stability is crucial for accurate actuarial calculations. By using the utilities in <code class="docutils literal notranslate"><span class="pre">quactuary.utils.numerical</span></code> and following these best practices, you can ensure your calculations remain accurate even with extreme values or complex operations.</p>
+<p>Remember:</p>
+<ul class="simple">
+<li><p>Work in log-space when dealing with probabilities</p></li>
+<li><p>Use stable versions of exp and log operations</p></li>
+<li><p>Validate inputs and detect numerical issues early</p></li>
+<li><p>Test with extreme values during development</p></li>
+</ul>
+<p>For more details, see the API documentation for <code class="xref py py-mod docutils literal notranslate"><span class="pre">quactuary.utils.numerical</span></code>.</p>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="../index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">Numerical Stability Guide</a><ul>
+<li><a class="reference internal" href="#why-numerical-stability-matters">Why Numerical Stability Matters</a></li>
+<li><a class="reference internal" href="#using-the-numerical-utilities">Using the Numerical Utilities</a><ul>
+<li><a class="reference internal" href="#log-space-operations">Log-Space Operations</a></li>
+<li><a class="reference internal" href="#stable-exponentials-and-logarithms">Stable Exponentials and Logarithms</a></li>
+<li><a class="reference internal" href="#input-validation">Input Validation</a></li>
+<li><a class="reference internal" href="#detecting-numerical-issues">Detecting Numerical Issues</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#best-practices-for-specific-calculations">Best Practices for Specific Calculations</a><ul>
+<li><a class="reference internal" href="#compound-distributions">Compound Distributions</a></li>
+<li><a class="reference internal" href="#moment-calculations">Moment Calculations</a></li>
+<li><a class="reference internal" href="#aggregate-loss-calculations">Aggregate Loss Calculations</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#example-stable-tweedie-implementation">Example: Stable Tweedie Implementation</a></li>
+<li><a class="reference internal" href="#common-pitfalls-to-avoid">Common Pitfalls to Avoid</a></li>
+<li><a class="reference internal" href="#testing-for-numerical-stability">Testing for Numerical Stability</a></li>
+<li><a class="reference internal" href="#conclusion">Conclusion</a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="best_practices.html"
+                          title="previous chapter">Optimization Best Practices</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="distribution_parameters.html"
+                          title="next chapter">Distribution Parameter Reference</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/user_guide/numerical_stability.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="distribution_parameters.html" title="Distribution Parameter Reference"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="best_practices.html" title="Optimization Best Practices"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">quActuary v0.0.7 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >User Guide</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Numerical Stability Guide</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2025, Alex Filiakov, ACAS.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    </div>
+  </body>
+</html>

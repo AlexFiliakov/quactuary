@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Development Guidelines &#8212; quActuary v0.0.7 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/nature.css?v=279e0f84" />
+    <script src="../_static/documentation_options.js?v=401b779c"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="canonical" href="https://docs.quactuary.com/development/index.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Contributing to quactuary" href="contributing.html" />
+    <link rel="prev" title="Advanced Performance Tuning" href="../performance/tuning_guide.html" />
+ 
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-2TGPCH7PBM"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag() { dataLayer.push(arguments); }
+  gtag('js', new Date());
+  gtag('config', 'G-2TGPCH7PBM');
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="contributing.html" title="Contributing to quactuary"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../performance/tuning_guide.html" title="Advanced Performance Tuning"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">quActuary v0.0.7 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Development Guidelines</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="development-guidelines">
+<span id="development"></span><h1>Development Guidelines<a class="headerlink" href="#development-guidelines" title="Link to this heading">¶</a></h1>
+<p>Welcome to the quactuary development documentation! We’re excited that you’re interested in contributing to the quantum-accelerated actuarial modeling framework. This guide will help you get started with contributing to the project, whether you’re fixing bugs, adding new features, or improving documentation.</p>
+<p>quactuary is an open-source project that welcomes contributions from the community. We believe that diverse perspectives and contributions make the project stronger and more useful for everyone.</p>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Contributing to quactuary</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing to quactuary</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#getting-started">Getting Started</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#finding-something-to-work-on">Finding Something to Work On</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#contribution-workflow">Contribution Workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#pull-request-guidelines">Pull Request Guidelines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#review-process">Review Process</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#common-issues-and-solutions">Common Issues and Solutions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#getting-help">Getting Help</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="setting_up_environment.html">Setting Up Your Environment</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="setting_up_environment.html#prerequisites">Prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="setting_up_environment.html#setting-up-the-repository">Setting Up the Repository</a></li>
+<li class="toctree-l2"><a class="reference internal" href="setting_up_environment.html#python-environment-setup">Python Environment Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="setting_up_environment.html#installing-dependencies">Installing Dependencies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="setting_up_environment.html#verify-installation">Verify Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="setting_up_environment.html#development-tools-setup">Development Tools Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="setting_up_environment.html#ide-editor-setup">IDE/Editor Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="setting_up_environment.html#ide-integration-with-run-dev-py">IDE Integration with run_dev.py</a></li>
+<li class="toctree-l2"><a class="reference internal" href="setting_up_environment.html#docker-environment-optional">Docker Environment (Optional)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="setting_up_environment.html#common-issues-and-solutions">Common Issues and Solutions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="setting_up_environment.html#updating-your-environment">Updating Your Environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="setting_up_environment.html#environment-variables">Environment Variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="setting_up_environment.html#next-steps">Next Steps</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="code_standards.html">Code Standards</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="code_standards.html#style-guide">Style Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="code_standards.html#code-formatting">Code Formatting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="code_standards.html#import-organization">Import Organization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="code_standards.html#naming-conventions">Naming Conventions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="code_standards.html#type-hints">Type Hints</a></li>
+<li class="toctree-l2"><a class="reference internal" href="code_standards.html#documentation-standards">Documentation Standards</a></li>
+<li class="toctree-l2"><a class="reference internal" href="code_standards.html#comments">Comments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="code_standards.html#error-handling">Error Handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="code_standards.html#performance-considerations">Performance Considerations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="code_standards.html#testing-code-quality">Testing Code Quality</a></li>
+<li class="toctree-l2"><a class="reference internal" href="code_standards.html#git-commit-standards">Git Commit Standards</a></li>
+<li class="toctree-l2"><a class="reference internal" href="code_standards.html#code-review-guidelines">Code Review Guidelines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="code_standards.html#common-code-patterns">Common Code Patterns</a></li>
+<li class="toctree-l2"><a class="reference internal" href="code_standards.html#backward-compatibility">Backward Compatibility</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="testing_guidelines.html">Testing Guidelines</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="testing_guidelines.html#testing-philosophy">Testing Philosophy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testing_guidelines.html#testing-framework">Testing Framework</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testing_guidelines.html#test-organization">Test Organization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testing_guidelines.html#types-of-tests">Types of Tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testing_guidelines.html#test-fixtures">Test Fixtures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testing_guidelines.html#parametrized-tests">Parametrized Tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testing_guidelines.html#coverage-requirements">Coverage Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testing_guidelines.html#mock-and-patch">Mock and Patch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testing_guidelines.html#error-and-edge-case-testing">Error and Edge Case Testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testing_guidelines.html#continuous-integration">Continuous Integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testing_guidelines.html#test-markers">Test Markers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testing_guidelines.html#writing-good-tests">Writing Good Tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testing_guidelines.html#common-testing-pitfalls">Common Testing Pitfalls</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testing_guidelines.html#testing-new-features">Testing New Features</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="performance_testing.html">Performance Testing Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="performance_testing.html#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="performance_testing.html#key-components">Key Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="performance_testing.html#writing-performance-tests">Writing Performance Tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="performance_testing.html#managing-baselines">Managing Baselines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="performance_testing.html#ci-cd-integration">CI/CD Integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="performance_testing.html#regression-detection">Regression Detection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="performance_testing.html#best-practices">Best Practices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="performance_testing.html#troubleshooting">Troubleshooting</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="documentation_guidelines.html">Documentation Guidelines</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="documentation_guidelines.html#documentation-philosophy">Documentation Philosophy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="documentation_guidelines.html#types-of-documentation">Types of Documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="documentation_guidelines.html#docstring-standards">Docstring Standards</a></li>
+<li class="toctree-l2"><a class="reference internal" href="documentation_guidelines.html#docstring-elements">Docstring Elements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="documentation_guidelines.html#examples-in-docstrings">Examples in Docstrings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="documentation_guidelines.html#user-guide-documentation">User Guide Documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="documentation_guidelines.html#jupyter-notebook-documentation">Jupyter Notebook Documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="documentation_guidelines.html#api-reference-documentation">API Reference Documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="documentation_guidelines.html#building-documentation">Building Documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="documentation_guidelines.html#documentation-standards">Documentation Standards</a></li>
+<li class="toctree-l2"><a class="reference internal" href="documentation_guidelines.html#documentation-maintenance">Documentation Maintenance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="documentation_guidelines.html#common-documentation-issues">Common Documentation Issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="documentation_guidelines.html#tools-and-resources">Tools and Resources</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="mcp_development.html">MCP Tool Development</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="mcp_development.html#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mcp_development.html#architecture">Architecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mcp_development.html#creating-a-new-tool">Creating a New Tool</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mcp_development.html#best-practices">Best Practices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mcp_development.html#testing-mcp-tools">Testing MCP Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mcp_development.html#performance-considerations">Performance Considerations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mcp_development.html#debugging-tools">Debugging Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mcp_development.html#development-workflow">Development Workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mcp_development.html#next-steps">Next Steps</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="submitting_changes.html">Submitting Changes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="submitting_changes.html#before-you-submit">Before You Submit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="submitting_changes.html#creating-a-pull-request">Creating a Pull Request</a></li>
+<li class="toctree-l2"><a class="reference internal" href="submitting_changes.html#review-process">Review Process</a></li>
+<li class="toctree-l2"><a class="reference internal" href="submitting_changes.html#responding-to-feedback">Responding to Feedback</a></li>
+<li class="toctree-l2"><a class="reference internal" href="submitting_changes.html#common-review-feedback">Common Review Feedback</a></li>
+<li class="toctree-l2"><a class="reference internal" href="submitting_changes.html#advanced-submission-topics">Advanced Submission Topics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="submitting_changes.html#release-process-integration">Release Process Integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="submitting_changes.html#troubleshooting-submissions">Troubleshooting Submissions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="submitting_changes.html#getting-help">Getting Help</a></li>
+<li class="toctree-l2"><a class="reference internal" href="submitting_changes.html#communication-tips">Communication Tips</a></li>
+<li class="toctree-l2"><a class="reference internal" href="submitting_changes.html#success-metrics">Success Metrics</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="issue_reporting.html">Issue Reporting</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="issue_reporting.html#where-to-report-issues">Where to Report Issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="issue_reporting.html#before-creating-an-issue">Before Creating an Issue</a></li>
+<li class="toctree-l2"><a class="reference internal" href="issue_reporting.html#types-of-issues">Types of Issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="issue_reporting.html#writing-effective-issues">Writing Effective Issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="issue_reporting.html#issue-labels-and-categories">Issue Labels and Categories</a></li>
+<li class="toctree-l2"><a class="reference internal" href="issue_reporting.html#special-issue-types">Special Issue Types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="issue_reporting.html#following-up-on-issues">Following Up on Issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="issue_reporting.html#issue-etiquette">Issue Etiquette</a></li>
+<li class="toctree-l2"><a class="reference internal" href="issue_reporting.html#quality-checklist">Quality Checklist</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="community_guidelines.html">Community Guidelines</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="community_guidelines.html#our-values">Our Values</a></li>
+<li class="toctree-l2"><a class="reference internal" href="community_guidelines.html#code-of-conduct">Code of Conduct</a></li>
+<li class="toctree-l2"><a class="reference internal" href="community_guidelines.html#communication-guidelines">Communication Guidelines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="community_guidelines.html#contributing-guidelines">Contributing Guidelines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="community_guidelines.html#recognition-and-credit">Recognition and Credit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="community_guidelines.html#types-of-contributions">Types of Contributions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="community_guidelines.html#decision-making-process">Decision-Making Process</a></li>
+<li class="toctree-l2"><a class="reference internal" href="community_guidelines.html#conflict-resolution">Conflict Resolution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="community_guidelines.html#community-events-and-initiatives">Community Events and Initiatives</a></li>
+<li class="toctree-l2"><a class="reference internal" href="community_guidelines.html#special-programs">Special Programs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="community_guidelines.html#contributing-to-these-guidelines">Contributing to These Guidelines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="community_guidelines.html#feedback-and-questions">Feedback and Questions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="community_guidelines.html#contact-information">Contact Information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="community_guidelines.html#thank-you">Thank You</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<section id="quick-start-for-contributors">
+<h2>Quick Start for Contributors<a class="headerlink" href="#quick-start-for-contributors" title="Link to this heading">¶</a></h2>
+<p>If you’re eager to get started, here’s the quickest path to making your first contribution:</p>
+<ol class="arabic simple">
+<li><p><strong>Browse Issues</strong>: Check out <a class="reference external" href="https://github.com/AlexFiliakov/quactuary/issues">open issues</a> to find something that interests you</p></li>
+<li><p><strong>Fork &amp; Clone</strong>: Fork the repository and clone your fork locally</p></li>
+<li><p><strong>Set Up Environment</strong>: Follow our <a class="reference internal" href="setting_up_environment.html"><span class="doc">Setting Up Your Environment</span></a> guide</p></li>
+<li><p><strong>Make Changes</strong>: Create a feature branch and implement your changes</p></li>
+<li><p><strong>Test</strong>: Ensure your code has ≥90% test coverage with <code class="docutils literal notranslate"><span class="pre">pytest</span> <span class="pre">--cov</span></code></p></li>
+<li><p><strong>Submit</strong>: Open a pull request with a clear description of your changes</p></li>
+</ol>
+</section>
+<section id="getting-help">
+<h2>Getting Help<a class="headerlink" href="#getting-help" title="Link to this heading">¶</a></h2>
+<p>If you need help at any point in the contribution process:</p>
+<ul class="simple">
+<li><p><strong>GitHub Issues</strong>: Ask questions on our <a class="reference external" href="https://github.com/AlexFiliakov/quactuary/issues">issue tracker</a></p></li>
+<li><p><strong>Documentation</strong>: Check our comprehensive docs at <a class="reference external" href="https://docs.quactuary.com">docs.quactuary.com</a></p></li>
+<li><p><strong>Community</strong>: Join discussions in our GitHub repository</p></li>
+</ul>
+<p>We’re here to help make your contribution experience as smooth as possible!</p>
+</section>
+<section id="types-of-contributions-we-welcome">
+<h2>Types of Contributions We Welcome<a class="headerlink" href="#types-of-contributions-we-welcome" title="Link to this heading">¶</a></h2>
+<p>We welcome many different types of contributions:</p>
+<dl class="simple">
+<dt><strong>Code Contributions</strong></dt><dd><ul class="simple">
+<li><p>Bug fixes</p></li>
+<li><p>New features</p></li>
+<li><p>Performance improvements</p></li>
+<li><p>Algorithm implementations</p></li>
+<li><p>Test coverage improvements</p></li>
+<li><p>MCP tool development</p></li>
+</ul>
+</dd>
+<dt><strong>Documentation</strong></dt><dd><ul class="simple">
+<li><p>API documentation improvements</p></li>
+<li><p>Tutorial writing</p></li>
+<li><p>Example notebooks</p></li>
+<li><p>Translation of documentation</p></li>
+</ul>
+</dd>
+<dt><strong>Community</strong></dt><dd><ul class="simple">
+<li><p>Bug reports</p></li>
+<li><p>Feature requests</p></li>
+<li><p>Code reviews</p></li>
+<li><p>Helping other contributors</p></li>
+</ul>
+</dd>
+<dt><strong>Research</strong></dt><dd><ul class="simple">
+<li><p>Quantum algorithm development</p></li>
+<li><p>Actuarial method research</p></li>
+<li><p>Performance benchmarking</p></li>
+<li><p>Mathematical validation</p></li>
+</ul>
+</dd>
+</dl>
+</section>
+<section id="recognition">
+<h2>Recognition<a class="headerlink" href="#recognition" title="Link to this heading">¶</a></h2>
+<p>Contributors are recognized in several ways:</p>
+<ul class="simple">
+<li><p>Contributors list in the repository</p></li>
+<li><p>Acknowledgment in release notes for significant contributions</p></li>
+<li><p>Co-authorship opportunities for research contributions</p></li>
+<li><p>Community recognition and thanks</p></li>
+</ul>
+<p>We value all contributions, from single-line bug fixes to major feature additions!</p>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="../index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">Development Guidelines</a><ul>
+<li><a class="reference internal" href="#quick-start-for-contributors">Quick Start for Contributors</a></li>
+<li><a class="reference internal" href="#getting-help">Getting Help</a></li>
+<li><a class="reference internal" href="#types-of-contributions-we-welcome">Types of Contributions We Welcome</a></li>
+<li><a class="reference internal" href="#recognition">Recognition</a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="../performance/tuning_guide.html"
+                          title="previous chapter">Advanced Performance Tuning</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="contributing.html"
+                          title="next chapter">Contributing to quactuary</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/development/index.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="contributing.html" title="Contributing to quactuary"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../performance/tuning_guide.html" title="Advanced Performance Tuning"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">quActuary v0.0.7 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Development Guidelines</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2025, Alex Filiakov, ACAS.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    </div>
+  </body>
+</html>

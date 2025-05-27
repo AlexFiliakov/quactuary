@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Contributing to quactuary &#8212; quActuary v0.0.7 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/nature.css?v=279e0f84" />
+    <script src="../_static/documentation_options.js?v=401b779c"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="canonical" href="https://docs.quactuary.com/development/contributing.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Setting Up Your Environment" href="setting_up_environment.html" />
+    <link rel="prev" title="Development Guidelines" href="index.html" />
+ 
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-2TGPCH7PBM"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag() { dataLayer.push(arguments); }
+  gtag('js', new Date());
+  gtag('config', 'G-2TGPCH7PBM');
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="setting_up_environment.html" title="Setting Up Your Environment"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Development Guidelines"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">quActuary v0.0.7 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Development Guidelines</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Contributing to quactuary</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="contributing-to-quactuary">
+<span id="contributing"></span><h1>Contributing to quactuary<a class="headerlink" href="#contributing-to-quactuary" title="Link to this heading">¶</a></h1>
+<p>Thank you for your interest in contributing to quactuary! This guide will walk you through the entire process of contributing to the project, from finding something to work on to getting your changes merged.</p>
+<nav class="contents local" id="table-of-contents">
+<p class="topic-title">Table of Contents</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#getting-started" id="id2">Getting Started</a></p>
+<ul>
+<li><p><a class="reference internal" href="#before-you-begin" id="id3">Before You Begin</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#finding-something-to-work-on" id="id4">Finding Something to Work On</a></p>
+<ul>
+<li><p><a class="reference internal" href="#id1" id="id5">Issue Tracker</a></p></li>
+<li><p><a class="reference internal" href="#types-of-contributions" id="id6">Types of Contributions</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#contribution-workflow" id="id7">Contribution Workflow</a></p>
+<ul>
+<li><p><a class="reference internal" href="#step-1-fork-the-repository" id="id8">Step 1: Fork the Repository</a></p></li>
+<li><p><a class="reference internal" href="#step-2-clone-your-fork" id="id9">Step 2: Clone Your Fork</a></p></li>
+<li><p><a class="reference internal" href="#step-3-set-up-development-environment" id="id10">Step 3: Set Up Development Environment</a></p></li>
+<li><p><a class="reference internal" href="#step-4-create-a-feature-branch" id="id11">Step 4: Create a Feature Branch</a></p></li>
+<li><p><a class="reference internal" href="#step-5-make-your-changes" id="id12">Step 5: Make Your Changes</a></p></li>
+<li><p><a class="reference internal" href="#step-6-write-tests" id="id13">Step 6: Write Tests</a></p></li>
+<li><p><a class="reference internal" href="#step-7-commit-your-changes" id="id14">Step 7: Commit Your Changes</a></p></li>
+<li><p><a class="reference internal" href="#step-8-push-and-create-pull-request" id="id15">Step 8: Push and Create Pull Request</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#pull-request-guidelines" id="id16">Pull Request Guidelines</a></p>
+<ul>
+<li><p><a class="reference internal" href="#title-and-description" id="id17"><strong>Title and Description</strong></a></p></li>
+<li><p><a class="reference internal" href="#checklist" id="id18"><strong>Checklist</strong></a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#review-process" id="id19">Review Process</a></p>
+<ul>
+<li><p><a class="reference internal" href="#what-to-expect" id="id20">What to Expect</a></p></li>
+<li><p><a class="reference internal" href="#tips-for-smooth-reviews" id="id21">Tips for Smooth Reviews</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#common-issues-and-solutions" id="id22">Common Issues and Solutions</a></p></li>
+<li><p><a class="reference internal" href="#getting-help" id="id23">Getting Help</a></p></li>
+</ul>
+</nav>
+<section id="getting-started">
+<h2><a class="toc-backref" href="#id2" role="doc-backlink">Getting Started</a><a class="headerlink" href="#getting-started" title="Link to this heading">¶</a></h2>
+<section id="before-you-begin">
+<h3><a class="toc-backref" href="#id3" role="doc-backlink">Before You Begin</a><a class="headerlink" href="#before-you-begin" title="Link to this heading">¶</a></h3>
+<ol class="arabic simple">
+<li><p><strong>Familiarize yourself with quactuary</strong>: Spend some time using the library and reading the documentation</p></li>
+<li><p><strong>Review existing issues</strong>: Check our <a class="reference external" href="https://github.com/AlexFiliakov/quactuary/issues">issue tracker</a> to see what’s already being worked on</p></li>
+<li><p><strong>Join the community</strong>: Follow the repository on GitHub to stay updated with discussions</p></li>
+</ol>
+</section>
+</section>
+<section id="finding-something-to-work-on">
+<h2><a class="toc-backref" href="#id4" role="doc-backlink">Finding Something to Work On</a><a class="headerlink" href="#finding-something-to-work-on" title="Link to this heading">¶</a></h2>
+<section id="id1">
+<h3><a class="toc-backref" href="#id5" role="doc-backlink">Issue Tracker</a><a class="headerlink" href="#id1" title="Link to this heading">¶</a></h3>
+<p>Our <a class="reference external" href="https://github.com/AlexFiliakov/quactuary/issues">GitHub issue tracker</a> is the central place to find work. Issues are labeled to help you find something that matches your interests and skill level:</p>
+<ul class="simple">
+<li><p><strong>good first issue</strong>: Perfect for new contributors</p></li>
+<li><p><strong>help wanted</strong>: We’d especially like community help on these</p></li>
+<li><p><strong>bug</strong>: Something isn’t working correctly</p></li>
+<li><p><strong>enhancement</strong>: New features or improvements</p></li>
+<li><p><strong>documentation</strong>: Improvements to docs, examples, or tutorials</p></li>
+<li><p><strong>quantum</strong>: Related to quantum computing features</p></li>
+<li><p><strong>performance</strong>: Speed or memory optimization opportunities</p></li>
+</ul>
+</section>
+<section id="types-of-contributions">
+<h3><a class="toc-backref" href="#id6" role="doc-backlink">Types of Contributions</a><a class="headerlink" href="#types-of-contributions" title="Link to this heading">¶</a></h3>
+<p><strong>Code Contributions</strong></p>
+<ul class="simple">
+<li><p><strong>Bug fixes</strong>: Fix existing functionality that isn’t working correctly</p></li>
+<li><p><strong>New features</strong>: Add new distributions, algorithms, or capabilities</p></li>
+<li><p><strong>Performance</strong>: Optimize existing code for speed or memory usage</p></li>
+<li><p><strong>Quantum algorithms</strong>: Implement new quantum approaches for actuarial problems</p></li>
+</ul>
+<p><strong>Documentation Contributions</strong></p>
+<ul class="simple">
+<li><p><strong>API documentation</strong>: Improve docstrings and reference material</p></li>
+<li><p><strong>Tutorials</strong>: Write step-by-step guides for common use cases</p></li>
+<li><p><strong>Examples</strong>: Create Jupyter notebooks demonstrating features</p></li>
+<li><p><strong>Theory</strong>: Document the mathematical foundations</p></li>
+</ul>
+<p><strong>Testing Contributions</strong></p>
+<ul class="simple">
+<li><p><strong>Increase coverage</strong>: Add tests for untested code paths</p></li>
+<li><p><strong>Edge cases</strong>: Test boundary conditions and error cases</p></li>
+<li><p><strong>Performance tests</strong>: Benchmark and regression testing</p></li>
+<li><p><strong>Integration tests</strong>: Test component interactions</p></li>
+</ul>
+</section>
+</section>
+<section id="contribution-workflow">
+<h2><a class="toc-backref" href="#id7" role="doc-backlink">Contribution Workflow</a><a class="headerlink" href="#contribution-workflow" title="Link to this heading">¶</a></h2>
+<section id="step-1-fork-the-repository">
+<h3><a class="toc-backref" href="#id8" role="doc-backlink">Step 1: Fork the Repository</a><a class="headerlink" href="#step-1-fork-the-repository" title="Link to this heading">¶</a></h3>
+<ol class="arabic simple">
+<li><p>Navigate to <a class="reference external" href="https://github.com/AlexFiliakov/quactuary">https://github.com/AlexFiliakov/quactuary</a></p></li>
+<li><p>Click the “Fork” button in the top-right corner</p></li>
+<li><p>This creates your own copy of the repository</p></li>
+</ol>
+</section>
+<section id="step-2-clone-your-fork">
+<h3><a class="toc-backref" href="#id9" role="doc-backlink">Step 2: Clone Your Fork</a><a class="headerlink" href="#step-2-clone-your-fork" title="Link to this heading">¶</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Clone your fork</span>
+git<span class="w"> </span>clone<span class="w"> </span>https://github.com/YOUR_USERNAME/quactuary.git
+<span class="nb">cd</span><span class="w"> </span>quactuary
+
+<span class="c1"># Add the original repository as &#39;upstream&#39;</span>
+git<span class="w"> </span>remote<span class="w"> </span>add<span class="w"> </span>upstream<span class="w"> </span>https://github.com/AlexFiliakov/quactuary.git
+</pre></div>
+</div>
+</section>
+<section id="step-3-set-up-development-environment">
+<h3><a class="toc-backref" href="#id10" role="doc-backlink">Step 3: Set Up Development Environment</a><a class="headerlink" href="#step-3-set-up-development-environment" title="Link to this heading">¶</a></h3>
+<p>See our detailed <a class="reference internal" href="setting_up_environment.html"><span class="doc">Setting Up Your Environment</span></a> guide for complete instructions.</p>
+<p>Quick setup:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create virtual environment</span>
+python<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>quactuary-dev
+<span class="nb">source</span><span class="w"> </span>quactuary-dev/bin/activate<span class="w">  </span><span class="c1"># On Windows: quactuary-dev\Scripts\activate</span>
+
+<span class="c1"># Install in development mode</span>
+pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.<span class="o">[</span>dev<span class="o">]</span>
+</pre></div>
+</div>
+</section>
+<section id="step-4-create-a-feature-branch">
+<h3><a class="toc-backref" href="#id11" role="doc-backlink">Step 4: Create a Feature Branch</a><a class="headerlink" href="#step-4-create-a-feature-branch" title="Link to this heading">¶</a></h3>
+<p>Always create a new branch for your work:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Make sure you&#39;re on main and it&#39;s up to date</span>
+git<span class="w"> </span>checkout<span class="w"> </span>main
+git<span class="w"> </span>pull<span class="w"> </span>upstream<span class="w"> </span>main
+
+<span class="c1"># Create and switch to your feature branch</span>
+git<span class="w"> </span>checkout<span class="w"> </span>-b<span class="w"> </span>feature/your-feature-name
+
+<span class="c1"># Or for bug fixes</span>
+git<span class="w"> </span>checkout<span class="w"> </span>-b<span class="w"> </span>bugfix/issue-number-description
+</pre></div>
+</div>
+<p><strong>Branch Naming Conventions:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">feature/description-of-feature</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bugfix/issue-number-brief-description</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">docs/description-of-changes</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">perf/description-of-optimization</span></code></p></li>
+</ul>
+</section>
+<section id="step-5-make-your-changes">
+<h3><a class="toc-backref" href="#id12" role="doc-backlink">Step 5: Make Your Changes</a><a class="headerlink" href="#step-5-make-your-changes" title="Link to this heading">¶</a></h3>
+<p>Follow our <a class="reference internal" href="code_standards.html"><span class="doc">Code Standards</span></a> and <a class="reference internal" href="documentation_guidelines.html"><span class="doc">Documentation Guidelines</span></a> while implementing your changes.</p>
+<p><strong>Key Points:</strong></p>
+<ul class="simple">
+<li><p>Write clean, readable code following PEP 8</p></li>
+<li><p>Add comprehensive docstrings using Google format</p></li>
+<li><p>Include type hints where appropriate</p></li>
+<li><p>Consider performance implications</p></li>
+<li><p>Think about backward compatibility</p></li>
+</ul>
+</section>
+<section id="step-6-write-tests">
+<h3><a class="toc-backref" href="#id13" role="doc-backlink">Step 6: Write Tests</a><a class="headerlink" href="#step-6-write-tests" title="Link to this heading">¶</a></h3>
+<p>All new code must include tests. See our <a class="reference internal" href="testing_guidelines.html"><span class="doc">Testing Guidelines</span></a> for details.</p>
+<p><strong>Requirements:</strong></p>
+<ul class="simple">
+<li><p>≥90% test coverage for new code (aim for higher)</p></li>
+<li><p>Test both happy paths and edge cases</p></li>
+<li><p>Include integration tests for new features</p></li>
+<li><p>Add performance tests for optimizations</p></li>
+</ul>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Run tests with coverage</span>
+pytest<span class="w"> </span>--cov<span class="o">=</span>quactuary<span class="w"> </span>--cov-report<span class="o">=</span>html
+
+<span class="c1"># Check coverage report</span>
+open<span class="w"> </span>htmlcov/index.html
+</pre></div>
+</div>
+</section>
+<section id="step-7-commit-your-changes">
+<h3><a class="toc-backref" href="#id14" role="doc-backlink">Step 7: Commit Your Changes</a><a class="headerlink" href="#step-7-commit-your-changes" title="Link to this heading">¶</a></h3>
+<p>Write clear, descriptive commit messages:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Stage your changes</span>
+git<span class="w"> </span>add<span class="w"> </span>.
+
+<span class="c1"># Commit with a clear message</span>
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;Add feature: quantum amplitude estimation for VaR calculation</span>
+
+<span class="s2">- Implement QAE algorithm for Value at Risk estimation</span>
+<span class="s2">- Add comprehensive tests with 95% coverage</span>
+<span class="s2">- Include performance benchmarks vs classical method</span>
+<span class="s2">- Update documentation with usage examples</span>
+
+<span class="s2">Closes #123&quot;</span>
+</pre></div>
+</div>
+<p><strong>Commit Message Format:</strong></p>
+<ul class="simple">
+<li><p>First line: Concise summary (≤50 characters)</p></li>
+<li><p>Blank line</p></li>
+<li><p>Detailed description if needed</p></li>
+<li><p>Reference related issues</p></li>
+</ul>
+</section>
+<section id="step-8-push-and-create-pull-request">
+<h3><a class="toc-backref" href="#id15" role="doc-backlink">Step 8: Push and Create Pull Request</a><a class="headerlink" href="#step-8-push-and-create-pull-request" title="Link to this heading">¶</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Push your branch to your fork</span>
+git<span class="w"> </span>push<span class="w"> </span>origin<span class="w"> </span>feature/your-feature-name
+</pre></div>
+</div>
+<p>Then create a pull request through GitHub’s web interface.</p>
+</section>
+</section>
+<section id="pull-request-guidelines">
+<h2><a class="toc-backref" href="#id16" role="doc-backlink">Pull Request Guidelines</a><a class="headerlink" href="#pull-request-guidelines" title="Link to this heading">¶</a></h2>
+<p>When creating your pull request:</p>
+<section id="title-and-description">
+<h3><a class="toc-backref" href="#id17" role="doc-backlink"><strong>Title and Description</strong></a><a class="headerlink" href="#title-and-description" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Use a clear, descriptive title</p></li>
+<li><p>Reference any related issues (e.g., “Fixes #123”)</p></li>
+<li><p>Explain what changes you made and why</p></li>
+<li><p>Include any breaking changes or migration notes</p></li>
+</ul>
+</section>
+<section id="checklist">
+<h3><a class="toc-backref" href="#id18" role="doc-backlink"><strong>Checklist</strong></a><a class="headerlink" href="#checklist" title="Link to this heading">¶</a></h3>
+<p>Before submitting, ensure your PR includes:</p>
+<ul class="simple">
+<li><p>[ ] Code follows our style guidelines</p></li>
+<li><p>[ ] All tests pass</p></li>
+<li><p>[ ] New code has ≥90% test coverage</p></li>
+<li><p>[ ] Documentation is updated</p></li>
+<li><p>[ ] CHANGELOG.md is updated (for significant changes)</p></li>
+<li><p>[ ] Type hints are included</p></li>
+<li><p>[ ] Performance impact is considered</p></li>
+</ul>
+<p><strong>Example PR Description:</strong></p>
+<div class="highlight-markdown notranslate"><div class="highlight"><pre><span></span><span class="gu">## Description</span>
+This PR implements quantum amplitude estimation for Value at Risk calculations,
+providing a quadratic speedup over classical Monte Carlo methods for certain
+problem structures.
+
+<span class="gu">## Changes Made</span>
+<span class="k">-</span><span class="w"> </span>Added QAE algorithm implementation in <span class="sb">`quantum.py`</span>
+<span class="k">-</span><span class="w"> </span>Created comprehensive test suite with 95% coverage
+<span class="k">-</span><span class="w"> </span>Added performance benchmarks comparing quantum vs classical
+<span class="k">-</span><span class="w"> </span>Updated documentation with usage examples
+<span class="k">-</span><span class="w"> </span>Added integration with existing VaR calculation pipeline
+
+<span class="gu">## Testing</span>
+<span class="k">-</span><span class="w"> </span>All existing tests pass
+<span class="k">-</span><span class="w"> </span>New tests added for QAE implementation
+<span class="k">-</span><span class="w"> </span>Performance tests validate speedup claims
+<span class="k">-</span><span class="w"> </span>Integration tests ensure compatibility
+
+<span class="gu">## Breaking Changes</span>
+None
+
+<span class="gu">## Related Issues</span>
+Closes <span class="ni">#123</span>
+Addresses <span class="ni">#89</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="review-process">
+<h2><a class="toc-backref" href="#id19" role="doc-backlink">Review Process</a><a class="headerlink" href="#review-process" title="Link to this heading">¶</a></h2>
+<section id="what-to-expect">
+<h3><a class="toc-backref" href="#id20" role="doc-backlink">What to Expect</a><a class="headerlink" href="#what-to-expect" title="Link to this heading">¶</a></h3>
+<ol class="arabic simple">
+<li><p><strong>Automated Checks</strong>: Our CI will run tests and style checks</p></li>
+<li><p><strong>Initial Review</strong>: A maintainer will review within a few days</p></li>
+<li><p><strong>Feedback</strong>: You may receive requests for changes</p></li>
+<li><p><strong>Iteration</strong>: Work together to refine the contribution</p></li>
+<li><p><strong>Approval</strong>: Once ready, your changes will be merged</p></li>
+</ol>
+</section>
+<section id="tips-for-smooth-reviews">
+<h3><a class="toc-backref" href="#id21" role="doc-backlink">Tips for Smooth Reviews</a><a class="headerlink" href="#tips-for-smooth-reviews" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>Respond promptly</strong> to reviewer feedback</p></li>
+<li><p><strong>Ask questions</strong> if feedback isn’t clear</p></li>
+<li><p><strong>Be open</strong> to suggestions and alternative approaches</p></li>
+<li><p><strong>Keep PRs focused</strong> - smaller changes are easier to review</p></li>
+<li><p><strong>Update tests</strong> when making code changes</p></li>
+</ul>
+</section>
+</section>
+<section id="common-issues-and-solutions">
+<h2><a class="toc-backref" href="#id22" role="doc-backlink">Common Issues and Solutions</a><a class="headerlink" href="#common-issues-and-solutions" title="Link to this heading">¶</a></h2>
+<p><strong>Tests Failing</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Run specific test file</span>
+pytest<span class="w"> </span>tests/test_your_feature.py<span class="w"> </span>-v
+
+<span class="c1"># Run with debugging</span>
+pytest<span class="w"> </span>tests/test_your_feature.py<span class="w"> </span>-v<span class="w"> </span>-s<span class="w"> </span>--pdb
+</pre></div>
+</div>
+<p><strong>Coverage Too Low</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># See what lines aren&#39;t covered</span>
+pytest<span class="w"> </span>--cov<span class="o">=</span>quactuary<span class="w"> </span>--cov-report<span class="o">=</span>term-missing
+
+<span class="c1"># Generate HTML report for detailed view</span>
+pytest<span class="w"> </span>--cov<span class="o">=</span>quactuary<span class="w"> </span>--cov-report<span class="o">=</span>html
+</pre></div>
+</div>
+<p><strong>Style Issues</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Auto-format with black</span>
+black<span class="w"> </span>.
+
+<span class="c1"># Check for issues</span>
+flake8<span class="w"> </span>quactuary/
+
+<span class="c1"># Type checking</span>
+mypy<span class="w"> </span>quactuary/
+</pre></div>
+</div>
+<p><strong>Merge Conflicts</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Update your branch with latest main</span>
+git<span class="w"> </span>fetch<span class="w"> </span>upstream
+git<span class="w"> </span>checkout<span class="w"> </span>main
+git<span class="w"> </span>merge<span class="w"> </span>upstream/main
+git<span class="w"> </span>checkout<span class="w"> </span>feature/your-feature-name
+git<span class="w"> </span>merge<span class="w"> </span>main
+
+<span class="c1"># Resolve conflicts and commit</span>
+git<span class="w"> </span>add<span class="w"> </span>.
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;Resolve merge conflicts&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="getting-help">
+<h2><a class="toc-backref" href="#id23" role="doc-backlink">Getting Help</a><a class="headerlink" href="#getting-help" title="Link to this heading">¶</a></h2>
+<p>If you need help at any point:</p>
+<ul class="simple">
+<li><p><strong>Ask on GitHub</strong>: Comment on your PR or issue</p></li>
+<li><p><strong>Check documentation</strong>: Review our development guides</p></li>
+<li><p><strong>Search issues</strong>: Someone may have had the same question</p></li>
+<li><p><strong>Be patient</strong>: Maintainers are volunteers with day jobs</p></li>
+</ul>
+<p>We’re here to help make your contribution successful!</p>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="../index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">Contributing to quactuary</a><ul>
+<li><a class="reference internal" href="#getting-started">Getting Started</a><ul>
+<li><a class="reference internal" href="#before-you-begin">Before You Begin</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#finding-something-to-work-on">Finding Something to Work On</a><ul>
+<li><a class="reference internal" href="#id1">Issue Tracker</a></li>
+<li><a class="reference internal" href="#types-of-contributions">Types of Contributions</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#contribution-workflow">Contribution Workflow</a><ul>
+<li><a class="reference internal" href="#step-1-fork-the-repository">Step 1: Fork the Repository</a></li>
+<li><a class="reference internal" href="#step-2-clone-your-fork">Step 2: Clone Your Fork</a></li>
+<li><a class="reference internal" href="#step-3-set-up-development-environment">Step 3: Set Up Development Environment</a></li>
+<li><a class="reference internal" href="#step-4-create-a-feature-branch">Step 4: Create a Feature Branch</a></li>
+<li><a class="reference internal" href="#step-5-make-your-changes">Step 5: Make Your Changes</a></li>
+<li><a class="reference internal" href="#step-6-write-tests">Step 6: Write Tests</a></li>
+<li><a class="reference internal" href="#step-7-commit-your-changes">Step 7: Commit Your Changes</a></li>
+<li><a class="reference internal" href="#step-8-push-and-create-pull-request">Step 8: Push and Create Pull Request</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#pull-request-guidelines">Pull Request Guidelines</a><ul>
+<li><a class="reference internal" href="#title-and-description"><strong>Title and Description</strong></a></li>
+<li><a class="reference internal" href="#checklist"><strong>Checklist</strong></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#review-process">Review Process</a><ul>
+<li><a class="reference internal" href="#what-to-expect">What to Expect</a></li>
+<li><a class="reference internal" href="#tips-for-smooth-reviews">Tips for Smooth Reviews</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#common-issues-and-solutions">Common Issues and Solutions</a></li>
+<li><a class="reference internal" href="#getting-help">Getting Help</a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="index.html"
+                          title="previous chapter">Development Guidelines</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="setting_up_environment.html"
+                          title="next chapter">Setting Up Your Environment</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/development/contributing.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="setting_up_environment.html" title="Setting Up Your Environment"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Development Guidelines"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">quActuary v0.0.7 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Development Guidelines</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Contributing to quactuary</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2025, Alex Filiakov, ACAS.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    </div>
+  </body>
+</html>

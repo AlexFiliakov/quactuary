@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Performance Testing Guide &#8212; quActuary v0.0.7 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/nature.css?v=279e0f84" />
+    <script src="../_static/documentation_options.js?v=401b779c"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="canonical" href="https://docs.quactuary.com/development/performance_testing.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Documentation Guidelines" href="documentation_guidelines.html" />
+    <link rel="prev" title="Testing Guidelines" href="testing_guidelines.html" />
+ 
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-2TGPCH7PBM"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag() { dataLayer.push(arguments); }
+  gtag('js', new Date());
+  gtag('config', 'G-2TGPCH7PBM');
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="documentation_guidelines.html" title="Documentation Guidelines"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="testing_guidelines.html" title="Testing Guidelines"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">quActuary v0.0.7 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Development Guidelines</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Performance Testing Guide</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="performance-testing-guide">
+<h1>Performance Testing Guide<a class="headerlink" href="#performance-testing-guide" title="Link to this heading">¶</a></h1>
+<p>This guide describes the performance testing infrastructure in quActuary, including
+how to write performance tests, manage baselines, and detect regressions.</p>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">¶</a></h2>
+<p>The quActuary performance testing system provides:</p>
+<ul class="simple">
+<li><p><strong>Adaptive Baselines</strong>: Hardware-aware baseline management that normalizes performance across different environments</p></li>
+<li><p><strong>Regression Detection</strong>: Automatic detection of performance regressions with configurable thresholds</p></li>
+<li><p><strong>CI/CD Integration</strong>: Automated performance testing in pull requests and baseline updates on releases</p></li>
+<li><p><strong>CLI Tools</strong>: Command-line utilities for baseline management and analysis</p></li>
+</ul>
+</section>
+<section id="key-components">
+<h2>Key Components<a class="headerlink" href="#key-components" title="Link to this heading">¶</a></h2>
+<section id="performance-baseline-system">
+<h3>Performance Baseline System<a class="headerlink" href="#performance-baseline-system" title="Link to this heading">¶</a></h3>
+<p>The adaptive baseline system consists of three main classes:</p>
+<ol class="arabic simple">
+<li><p><strong>HardwareProfile</strong>: Captures system characteristics and calculates a performance score</p></li>
+<li><p><strong>PerformanceBaseline</strong>: Stores performance measurements with hardware normalization</p></li>
+<li><p><strong>AdaptiveBaselineManager</strong>: Manages baselines and detects regressions</p></li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">quactuary.performance_baseline</span><span class="w"> </span><span class="kn">import</span> <span class="n">AdaptiveBaselineManager</span>
+
+<span class="c1"># Create baseline manager</span>
+<span class="n">manager</span> <span class="o">=</span> <span class="n">AdaptiveBaselineManager</span><span class="p">()</span>
+
+<span class="c1"># Record a performance measurement</span>
+<span class="n">baseline</span> <span class="o">=</span> <span class="n">manager</span><span class="o">.</span><span class="n">record_performance</span><span class="p">(</span>
+    <span class="n">test_name</span><span class="o">=</span><span class="s2">&quot;my_algorithm&quot;</span><span class="p">,</span>
+    <span class="n">execution_time</span><span class="o">=</span><span class="mf">1.234</span><span class="p">,</span>
+    <span class="n">sample_size</span><span class="o">=</span><span class="mi">10000</span>
+<span class="p">)</span>
+
+<span class="c1"># Check for regression</span>
+<span class="n">is_regression</span><span class="p">,</span> <span class="n">expected_time</span><span class="p">,</span> <span class="n">message</span> <span class="o">=</span> <span class="n">manager</span><span class="o">.</span><span class="n">check_regression</span><span class="p">(</span>
+    <span class="n">test_name</span><span class="o">=</span><span class="s2">&quot;my_algorithm&quot;</span><span class="p">,</span>
+    <span class="n">current_time</span><span class="o">=</span><span class="mf">1.456</span><span class="p">,</span>
+    <span class="n">sample_size</span><span class="o">=</span><span class="mi">10000</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="performance-test-framework">
+<h3>Performance Test Framework<a class="headerlink" href="#performance-test-framework" title="Link to this heading">¶</a></h3>
+<p>The framework provides base classes and decorators for writing performance tests:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">quactuary.performance_testing</span><span class="w"> </span><span class="kn">import</span> <span class="n">PerformanceTestCase</span><span class="p">,</span> <span class="n">performance_test</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestMyAlgorithm</span><span class="p">(</span><span class="n">PerformanceTestCase</span><span class="p">):</span>
+
+    <span class="nd">@performance_test</span><span class="p">(</span><span class="s2">&quot;matrix_multiplication&quot;</span><span class="p">,</span> <span class="n">sample_size</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_matrix_mult_performance</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Your test code here</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">expensive_matrix_operation</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_custom_performance</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Manual performance assertion</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertPerformance</span><span class="p">(</span>
+            <span class="n">test_func</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">my_algorithm</span><span class="p">(</span><span class="n">data</span><span class="p">),</span>
+            <span class="n">test_name</span><span class="o">=</span><span class="s2">&quot;my_algorithm&quot;</span><span class="p">,</span>
+            <span class="n">sample_size</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">),</span>
+            <span class="n">max_time</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>  <span class="c1"># Maximum allowed time</span>
+            <span class="n">check_regression</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="writing-performance-tests">
+<h2>Writing Performance Tests<a class="headerlink" href="#writing-performance-tests" title="Link to this heading">¶</a></h2>
+<section id="basic-performance-test">
+<h3>Basic Performance Test<a class="headerlink" href="#basic-performance-test" title="Link to this heading">¶</a></h3>
+<p>Here’s a simple example of a performance test:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">unittest</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">quactuary.performance_testing</span><span class="w"> </span><span class="kn">import</span> <span class="n">PerformanceTestCase</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">quactuary.pricing</span><span class="w"> </span><span class="kn">import</span> <span class="n">PricingModel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">quactuary.book</span><span class="w"> </span><span class="kn">import</span> <span class="n">Portfolio</span><span class="p">,</span> <span class="n">Inforce</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestPricingPerformance</span><span class="p">(</span><span class="n">PerformanceTestCase</span><span class="p">):</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">setUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Create test portfolio</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">portfolio</span> <span class="o">=</span> <span class="n">create_test_portfolio</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_simulation_performance</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test that simulation meets performance requirements.&quot;&quot;&quot;</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">PricingModel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">portfolio</span><span class="p">)</span>
+
+        <span class="c1"># Define test function</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">run_simulation</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">model</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">n_sims</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span>
+
+        <span class="c1"># Assert performance</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertPerformance</span><span class="p">(</span>
+            <span class="n">test_func</span><span class="o">=</span><span class="n">run_simulation</span><span class="p">,</span>
+            <span class="n">test_name</span><span class="o">=</span><span class="s2">&quot;pricing_simulation_10k&quot;</span><span class="p">,</span>
+            <span class="n">sample_size</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span>
+            <span class="n">check_regression</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="using-the-performance-decorator">
+<h3>Using the Performance Decorator<a class="headerlink" href="#using-the-performance-decorator" title="Link to this heading">¶</a></h3>
+<p>For simpler tests, use the decorator:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@performance_test</span><span class="p">(</span><span class="s2">&quot;fibonacci_recursive&quot;</span><span class="p">,</span> <span class="n">sample_size</span><span class="o">=</span><span class="mi">35</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_fibonacci_performance</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="c1"># This will automatically track performance</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">fibonacci_recursive</span><span class="p">(</span><span class="mi">35</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="mi">9227465</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="hardware-normalization">
+<h3>Hardware Normalization<a class="headerlink" href="#hardware-normalization" title="Link to this heading">¶</a></h3>
+<p>The system automatically normalizes performance based on hardware capabilities:</p>
+<ul class="simple">
+<li><p>CPU count and frequency</p></li>
+<li><p>Available memory</p></li>
+<li><p>Platform characteristics</p></li>
+</ul>
+<p>This allows meaningful comparisons across different environments:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># On a fast machine (performance score 2.0):</span>
+<span class="c1"># Raw time: 1.0s, Normalized time: 0.5s</span>
+
+<span class="c1"># On a slow machine (performance score 0.5):</span>
+<span class="c1"># Raw time: 4.0s, Normalized time: 4.0s</span>
+
+<span class="c1"># Both are considered equivalent performance</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="managing-baselines">
+<h2>Managing Baselines<a class="headerlink" href="#managing-baselines" title="Link to this heading">¶</a></h2>
+<section id="cli-commands">
+<h3>CLI Commands<a class="headerlink" href="#cli-commands" title="Link to this heading">¶</a></h3>
+<p>The performance baseline CLI provides several commands:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Show current hardware profile</span>
+python<span class="w"> </span>-m<span class="w"> </span>quactuary.cli.performance_baseline_cli<span class="w"> </span>show<span class="w"> </span>--hardware
+
+<span class="c1"># Show all baselines</span>
+python<span class="w"> </span>-m<span class="w"> </span>quactuary.cli.performance_baseline_cli<span class="w"> </span>show
+
+<span class="c1"># Update baselines by running benchmarks</span>
+python<span class="w"> </span>-m<span class="w"> </span>quactuary.cli.performance_baseline_cli<span class="w"> </span>update
+
+<span class="c1"># Check for regression</span>
+python<span class="w"> </span>-m<span class="w"> </span>quactuary.cli.performance_baseline_cli<span class="w"> </span>compare<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--test<span class="w"> </span>my_test<span class="w"> </span>--time<span class="w"> </span><span class="m">1</span>.234<span class="w"> </span>--sample-size<span class="w"> </span><span class="m">1000</span>
+
+<span class="c1"># Export baselines for backup</span>
+python<span class="w"> </span>-m<span class="w"> </span>quactuary.cli.performance_baseline_cli<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-o<span class="w"> </span>baselines_backup.json
+
+<span class="c1"># Import baselines</span>
+python<span class="w"> </span>-m<span class="w"> </span>quactuary.cli.performance_baseline_cli<span class="w"> </span>import<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-i<span class="w"> </span>baselines_backup.json
+</pre></div>
+</div>
+</section>
+<section id="baseline-storage">
+<h3>Baseline Storage<a class="headerlink" href="#baseline-storage" title="Link to this heading">¶</a></h3>
+<p>Baselines are stored in JSON format in the <code class="docutils literal notranslate"><span class="pre">performance_baselines/</span></code> directory:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;test_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-05-26T13:00:00&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;hardware_profile&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;cpu_model&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Intel Core i7-9750H&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;cpu_count&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;performance_score&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1.2</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">&quot;raw_time&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1.234</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;normalized_time&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1.028</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;sample_size&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">10000</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="ci-cd-integration">
+<h2>CI/CD Integration<a class="headerlink" href="#ci-cd-integration" title="Link to this heading">¶</a></h2>
+<section id="github-actions-workflow">
+<h3>GitHub Actions Workflow<a class="headerlink" href="#github-actions-workflow" title="Link to this heading">¶</a></h3>
+<p>The repository includes a GitHub Actions workflow that:</p>
+<ol class="arabic simple">
+<li><p>Runs performance tests on pull requests</p></li>
+<li><p>Checks for regressions</p></li>
+<li><p>Updates baselines on merges to main</p></li>
+<li><p>Posts performance reports as PR comments</p></li>
+</ol>
+</section>
+<section id="manual-baseline-updates">
+<h3>Manual Baseline Updates<a class="headerlink" href="#manual-baseline-updates" title="Link to this heading">¶</a></h3>
+<p>To manually update baselines:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Trigger workflow with baseline update</span>
+gh<span class="w"> </span>workflow<span class="w"> </span>run<span class="w"> </span>performance-testing.yml<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-f<span class="w"> </span><span class="nv">update_baselines</span><span class="o">=</span><span class="nb">true</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="regression-detection">
+<h2>Regression Detection<a class="headerlink" href="#regression-detection" title="Link to this heading">¶</a></h2>
+<section id="regression-thresholds">
+<h3>Regression Thresholds<a class="headerlink" href="#regression-thresholds" title="Link to this heading">¶</a></h3>
+<p>The system uses adaptive thresholds for regression detection:</p>
+<ul class="simple">
+<li><p><strong>Default threshold</strong>: 20% slower than baseline</p></li>
+<li><p><strong>Statistical threshold</strong>: baseline + 2 standard deviations</p></li>
+<li><p><strong>Dynamic adjustment</strong>: Uses the larger of the two thresholds</p></li>
+</ul>
+</section>
+<section id="handling-regressions">
+<h3>Handling Regressions<a class="headerlink" href="#handling-regressions" title="Link to this heading">¶</a></h3>
+<p>When a regression is detected:</p>
+<ol class="arabic simple">
+<li><p><strong>In development</strong>: Tests fail with detailed error message</p></li>
+<li><p><strong>In CI (PRs)</strong>: Tests warn but don’t block (configurable)</p></li>
+<li><p><strong>In production</strong>: Baselines are updated after review</p></li>
+</ol>
+<p>Example regression output:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Performance regression detected: 35.2% slower than baseline.
+Expected: 1.234s (normalized), Got: 1.668s (normalized)
+</pre></div>
+</div>
+</section>
+</section>
+<section id="best-practices">
+<h2>Best Practices<a class="headerlink" href="#best-practices" title="Link to this heading">¶</a></h2>
+<ol class="arabic">
+<li><p><strong>Isolate Performance Tests</strong></p>
+<p>Keep performance tests separate from functional tests:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Good: Dedicated performance test file</span>
+<span class="c1"># tests/performance/test_pricing_performance.py</span>
+
+<span class="c1"># Bad: Mixed with unit tests</span>
+<span class="c1"># tests/test_pricing.py</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Use Appropriate Sample Sizes</strong></p>
+<p>Choose sample sizes that provide stable measurements:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Good: Large enough for stable timing</span>
+<span class="nd">@performance_test</span><span class="p">(</span><span class="s2">&quot;algorithm&quot;</span><span class="p">,</span> <span class="n">sample_size</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span>
+
+<span class="c1"># Bad: Too small, high variance</span>
+<span class="nd">@performance_test</span><span class="p">(</span><span class="s2">&quot;algorithm&quot;</span><span class="p">,</span> <span class="n">sample_size</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Include Warm-up Runs</strong></p>
+<p>For JIT-compiled code, include warm-up runs:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">test_jit_performance</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="c1"># Warm up JIT</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
+        <span class="n">jit_function</span><span class="p">(</span><span class="n">small_data</span><span class="p">)</span>
+
+    <span class="c1"># Actual performance test</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">assertPerformance</span><span class="p">(</span>
+        <span class="n">test_func</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">jit_function</span><span class="p">(</span><span class="n">large_data</span><span class="p">),</span>
+        <span class="n">test_name</span><span class="o">=</span><span class="s2">&quot;jit_function&quot;</span><span class="p">,</span>
+        <span class="n">sample_size</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">large_data</span><span class="p">)</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Document Performance Requirements</strong></p>
+<p>Clearly document expected performance characteristics:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">test_real_time_pricing</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Pricing must complete within 100ms for real-time applications.&quot;&quot;&quot;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">assertPerformance</span><span class="p">(</span>
+        <span class="n">test_func</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">model</span><span class="o">.</span><span class="n">price</span><span class="p">(),</span>
+        <span class="n">test_name</span><span class="o">=</span><span class="s2">&quot;real_time_pricing&quot;</span><span class="p">,</span>
+        <span class="n">sample_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">max_time</span><span class="o">=</span><span class="mf">0.1</span>  <span class="c1"># 100ms requirement</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+<section id="troubleshooting">
+<h2>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Link to this heading">¶</a></h2>
+<section id="common-issues">
+<h3>Common Issues<a class="headerlink" href="#common-issues" title="Link to this heading">¶</a></h3>
+<ol class="arabic simple">
+<li><p><strong>High Variance in Measurements</strong></p>
+<ul class="simple">
+<li><p>Increase sample size</p></li>
+<li><p>Add more warm-up runs</p></li>
+<li><p>Check for background processes</p></li>
+</ul>
+</li>
+<li><p><strong>False Positives on CI</strong></p>
+<ul class="simple">
+<li><p>CI servers may have variable performance</p></li>
+<li><p>Adjust regression thresholds for CI</p></li>
+<li><p>Use performance scores for normalization</p></li>
+</ul>
+</li>
+<li><p><strong>Missing Baselines</strong></p>
+<ul class="simple">
+<li><p>Run baseline update command</p></li>
+<li><p>Import baselines from another environment</p></li>
+<li><p>Let tests establish initial baselines</p></li>
+</ul>
+</li>
+</ol>
+</section>
+<section id="debug-output">
+<h3>Debug Output<a class="headerlink" href="#debug-output" title="Link to this heading">¶</a></h3>
+<p>Enable verbose output for debugging:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
+
+<span class="c1"># Run tests with detailed output</span>
+<span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">pytest</span> <span class="n">tests</span><span class="o">/</span><span class="n">performance</span> <span class="o">-</span><span class="n">v</span> <span class="o">-</span><span class="n">s</span>
+</pre></div>
+</div>
+</section>
+<section id="performance-reports">
+<h3>Performance Reports<a class="headerlink" href="#performance-reports" title="Link to this heading">¶</a></h3>
+<p>Generate detailed performance reports:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Generate JSON report</span>
+python<span class="w"> </span>scripts/check_performance_regressions.py<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--output-json<span class="w"> </span>performance_report.json
+
+<span class="c1"># View regression details</span>
+cat<span class="w"> </span>performance_report.json<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.regressions&#39;</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="../index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">Performance Testing Guide</a><ul>
+<li><a class="reference internal" href="#overview">Overview</a></li>
+<li><a class="reference internal" href="#key-components">Key Components</a><ul>
+<li><a class="reference internal" href="#performance-baseline-system">Performance Baseline System</a></li>
+<li><a class="reference internal" href="#performance-test-framework">Performance Test Framework</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#writing-performance-tests">Writing Performance Tests</a><ul>
+<li><a class="reference internal" href="#basic-performance-test">Basic Performance Test</a></li>
+<li><a class="reference internal" href="#using-the-performance-decorator">Using the Performance Decorator</a></li>
+<li><a class="reference internal" href="#hardware-normalization">Hardware Normalization</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#managing-baselines">Managing Baselines</a><ul>
+<li><a class="reference internal" href="#cli-commands">CLI Commands</a></li>
+<li><a class="reference internal" href="#baseline-storage">Baseline Storage</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#ci-cd-integration">CI/CD Integration</a><ul>
+<li><a class="reference internal" href="#github-actions-workflow">GitHub Actions Workflow</a></li>
+<li><a class="reference internal" href="#manual-baseline-updates">Manual Baseline Updates</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#regression-detection">Regression Detection</a><ul>
+<li><a class="reference internal" href="#regression-thresholds">Regression Thresholds</a></li>
+<li><a class="reference internal" href="#handling-regressions">Handling Regressions</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#best-practices">Best Practices</a></li>
+<li><a class="reference internal" href="#troubleshooting">Troubleshooting</a><ul>
+<li><a class="reference internal" href="#common-issues">Common Issues</a></li>
+<li><a class="reference internal" href="#debug-output">Debug Output</a></li>
+<li><a class="reference internal" href="#performance-reports">Performance Reports</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="testing_guidelines.html"
+                          title="previous chapter">Testing Guidelines</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="documentation_guidelines.html"
+                          title="next chapter">Documentation Guidelines</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/development/performance_testing.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="documentation_guidelines.html" title="Documentation Guidelines"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="testing_guidelines.html" title="Testing Guidelines"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">quActuary v0.0.7 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Development Guidelines</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Performance Testing Guide</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2025, Alex Filiakov, ACAS.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    </div>
+  </body>
+</html>

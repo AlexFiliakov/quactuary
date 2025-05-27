@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Code Standards &#8212; quActuary v0.0.7 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/nature.css?v=279e0f84" />
+    <script src="../_static/documentation_options.js?v=401b779c"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="canonical" href="https://docs.quactuary.com/development/code_standards.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Testing Guidelines" href="testing_guidelines.html" />
+    <link rel="prev" title="Setting Up Your Environment" href="setting_up_environment.html" />
+ 
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-2TGPCH7PBM"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag() { dataLayer.push(arguments); }
+  gtag('js', new Date());
+  gtag('config', 'G-2TGPCH7PBM');
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="testing_guidelines.html" title="Testing Guidelines"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="setting_up_environment.html" title="Setting Up Your Environment"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">quActuary v0.0.7 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Development Guidelines</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Code Standards</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="code-standards">
+<span id="id1"></span><h1>Code Standards<a class="headerlink" href="#code-standards" title="Link to this heading">¶</a></h1>
+<p>This document outlines the coding standards and style guidelines for quactuary. Following these standards helps ensure code quality, readability, and maintainability across the project.</p>
+<nav class="contents local" id="table-of-contents">
+<p class="topic-title">Table of Contents</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#style-guide" id="id2">Style Guide</a></p></li>
+<li><p><a class="reference internal" href="#code-formatting" id="id3">Code Formatting</a></p>
+<ul>
+<li><p><a class="reference internal" href="#black-formatter" id="id4">Black Formatter</a></p></li>
+<li><p><a class="reference internal" href="#line-length" id="id5">Line Length</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#import-organization" id="id6">Import Organization</a></p></li>
+<li><p><a class="reference internal" href="#naming-conventions" id="id7">Naming Conventions</a></p>
+<ul>
+<li><p><a class="reference internal" href="#variables-and-functions" id="id8">Variables and Functions</a></p></li>
+<li><p><a class="reference internal" href="#constants" id="id9">Constants</a></p></li>
+<li><p><a class="reference internal" href="#classes" id="id10">Classes</a></p></li>
+<li><p><a class="reference internal" href="#private-methods-and-variables" id="id11">Private Methods and Variables</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#type-hints" id="id12">Type Hints</a></p></li>
+<li><p><a class="reference internal" href="#documentation-standards" id="id13">Documentation Standards</a></p>
+<ul>
+<li><p><a class="reference internal" href="#docstring-format" id="id14">Docstring Format</a></p></li>
+<li><p><a class="reference internal" href="#class-documentation" id="id15">Class Documentation</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#comments" id="id16">Comments</a></p>
+<ul>
+<li><p><a class="reference internal" href="#inline-comments" id="id17">Inline Comments</a></p></li>
+<li><p><a class="reference internal" href="#todo-comments" id="id18">TODO Comments</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#error-handling" id="id19">Error Handling</a></p>
+<ul>
+<li><p><a class="reference internal" href="#exception-handling" id="id20">Exception Handling</a></p></li>
+<li><p><a class="reference internal" href="#custom-exceptions" id="id21">Custom Exceptions</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#performance-considerations" id="id22">Performance Considerations</a></p>
+<ul>
+<li><p><a class="reference internal" href="#efficient-code-patterns" id="id23">Efficient Code Patterns</a></p></li>
+<li><p><a class="reference internal" href="#memory-management" id="id24">Memory Management</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#testing-code-quality" id="id25">Testing Code Quality</a></p>
+<ul>
+<li><p><a class="reference internal" href="#static-analysis" id="id26">Static Analysis</a></p></li>
+<li><p><a class="reference internal" href="#pre-commit-hooks" id="id27">Pre-commit Hooks</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#git-commit-standards" id="id28">Git Commit Standards</a></p>
+<ul>
+<li><p><a class="reference internal" href="#commit-message-format" id="id29">Commit Message Format</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#code-review-guidelines" id="id30">Code Review Guidelines</a></p>
+<ul>
+<li><p><a class="reference internal" href="#for-reviewers" id="id31">For Reviewers</a></p></li>
+<li><p><a class="reference internal" href="#for-authors" id="id32">For Authors</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#common-code-patterns" id="id33">Common Code Patterns</a></p>
+<ul>
+<li><p><a class="reference internal" href="#error-checking" id="id34">Error Checking</a></p></li>
+<li><p><a class="reference internal" href="#caching-results" id="id35">Caching Results</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#backward-compatibility" id="id36">Backward Compatibility</a></p></li>
+</ul>
+</nav>
+<section id="style-guide">
+<h2><a class="toc-backref" href="#id2" role="doc-backlink">Style Guide</a><a class="headerlink" href="#style-guide" title="Link to this heading">¶</a></h2>
+<p>We follow the <a class="reference external" href="https://peps.python.org/pep-0008/">PEP 8 Style Guide for Python Code</a> with some project-specific additions and clarifications.</p>
+</section>
+<section id="code-formatting">
+<h2><a class="toc-backref" href="#id3" role="doc-backlink">Code Formatting</a><a class="headerlink" href="#code-formatting" title="Link to this heading">¶</a></h2>
+<section id="black-formatter">
+<h3><a class="toc-backref" href="#id4" role="doc-backlink">Black Formatter</a><a class="headerlink" href="#black-formatter" title="Link to this heading">¶</a></h3>
+<p>We use <a class="reference external" href="https://black.readthedocs.io/">Black</a> for automatic code formatting:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Format all Python files</span>
+black<span class="w"> </span>.
+
+<span class="c1"># Check formatting without changes</span>
+black<span class="w"> </span>--check<span class="w"> </span>.
+
+<span class="c1"># Format specific file</span>
+black<span class="w"> </span>quactuary/pricing.py
+</pre></div>
+</div>
+<p><strong>Black configuration</strong> (in <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code>):</p>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[tool.black]</span>
+<span class="n">line-length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">88</span>
+<span class="n">target-version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;py38&#39;</span><span class="p">]</span>
+<span class="n">include</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;\.pyi?$&#39;</span>
+<span class="n">extend-exclude</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;&#39;&#39;</span>
+<span class="s1">/(</span>
+<span class="s1">    \.eggs</span>
+<span class="s1">  | \.git</span>
+<span class="s1">  | \.venv</span>
+<span class="s1">  | build</span>
+<span class="s1">  | dist</span>
+<span class="s1">)/</span>
+<span class="s1">&#39;&#39;&#39;</span>
+</pre></div>
+</div>
+</section>
+<section id="line-length">
+<h3><a class="toc-backref" href="#id5" role="doc-backlink">Line Length</a><a class="headerlink" href="#line-length" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>Maximum line length</strong>: 88 characters (Black default)</p></li>
+<li><p><strong>Docstring line length</strong>: 79 characters for readability</p></li>
+<li><p><strong>Comments</strong>: 72 characters for inline comments</p></li>
+</ul>
+</section>
+</section>
+<section id="import-organization">
+<h2><a class="toc-backref" href="#id6" role="doc-backlink">Import Organization</a><a class="headerlink" href="#import-organization" title="Link to this heading">¶</a></h2>
+<p>Organize imports in the following order:</p>
+<ol class="arabic simple">
+<li><p><strong>Standard library imports</strong></p></li>
+<li><p><strong>Third-party imports</strong></p></li>
+<li><p><strong>Local application imports</strong></p></li>
+</ol>
+<p>Use <a class="reference external" href="https://pycqa.github.io/isort/">isort</a> for automatic import sorting:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Sort imports</span>
+isort<span class="w"> </span>.
+
+<span class="c1"># Check import order</span>
+isort<span class="w"> </span>--check-only<span class="w"> </span>.
+</pre></div>
+</div>
+<p><strong>Example import organization:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Standard library</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">List</span>
+
+<span class="c1"># Third-party</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">stats</span>
+
+<span class="c1"># Local imports</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">quactuary.backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">BackendManager</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">quactuary.distributions.frequency</span><span class="w"> </span><span class="kn">import</span> <span class="n">FrequencyModel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">quactuary.utils.validation</span><span class="w"> </span><span class="kn">import</span> <span class="n">validate_positive</span>
+</pre></div>
+</div>
+</section>
+<section id="naming-conventions">
+<h2><a class="toc-backref" href="#id7" role="doc-backlink">Naming Conventions</a><a class="headerlink" href="#naming-conventions" title="Link to this heading">¶</a></h2>
+<section id="variables-and-functions">
+<h3><a class="toc-backref" href="#id8" role="doc-backlink">Variables and Functions</a><a class="headerlink" href="#variables-and-functions" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">snake_case</span></code> for variables and functions</p></li>
+<li><p>Use descriptive names that clearly indicate purpose</p></li>
+<li><p>Avoid abbreviations unless they’re standard in the domain</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Good</span>
+<span class="n">portfolio_mean_loss</span> <span class="o">=</span> <span class="n">calculate_portfolio_statistics</span><span class="p">()</span>
+<span class="n">frequency_distribution</span> <span class="o">=</span> <span class="n">Poisson</span><span class="p">(</span><span class="n">lambda_</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>
+
+<span class="c1"># Avoid</span>
+<span class="n">pml</span> <span class="o">=</span> <span class="n">calc_stats</span><span class="p">()</span>
+<span class="n">freq_dist</span> <span class="o">=</span> <span class="n">Poisson</span><span class="p">(</span><span class="n">lambda_</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="constants">
+<h3><a class="toc-backref" href="#id9" role="doc-backlink">Constants</a><a class="headerlink" href="#constants" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">UPPER_CASE</span></code> for module-level constants</p></li>
+<li><p>Group related constants together</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Good</span>
+<span class="n">DEFAULT_N_SIMULATIONS</span> <span class="o">=</span> <span class="mi">10000</span>
+<span class="n">MAX_QUANTUM_QUBITS</span> <span class="o">=</span> <span class="mi">50</span>
+<span class="n">SUPPORTED_BACKENDS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;classical&#39;</span><span class="p">,</span> <span class="s1">&#39;quantum&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+</section>
+<section id="classes">
+<h3><a class="toc-backref" href="#id10" role="doc-backlink">Classes</a><a class="headerlink" href="#classes" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">PascalCase</span></code> for class names</p></li>
+<li><p>Choose names that clearly indicate the class purpose</p></li>
+<li><p>Prefer composition over inheritance</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Good</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">PricingModel</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Portfolio pricing and risk analysis model.&quot;&quot;&quot;</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">ClassicalPricingStrategy</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Strategy for classical Monte Carlo calculations.&quot;&quot;&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="private-methods-and-variables">
+<h3><a class="toc-backref" href="#id11" role="doc-backlink">Private Methods and Variables</a><a class="headerlink" href="#private-methods-and-variables" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Use single leading underscore for internal use</p></li>
+<li><p>Use double leading underscore only for name mangling when necessary</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">ExampleClass</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">public_attribute</span> <span class="o">=</span> <span class="s2">&quot;visible&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_internal_attribute</span> <span class="o">=</span> <span class="s2">&quot;internal use&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">public_method</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Public interface method.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_internal_method</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_internal_method</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Internal helper method.&quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="type-hints">
+<h2><a class="toc-backref" href="#id12" role="doc-backlink">Type Hints</a><a class="headerlink" href="#type-hints" title="Link to this heading">¶</a></h2>
+<p>Use type hints for all public functions, methods, and class attributes:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Any</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">calculate_statistics</span><span class="p">(</span>
+    <span class="n">portfolio</span><span class="p">:</span> <span class="n">Portfolio</span><span class="p">,</span>
+    <span class="n">n_sims</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10000</span><span class="p">,</span>
+    <span class="n">confidence_level</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.95</span><span class="p">,</span>
+    <span class="n">include_samples</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PricingResult</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate portfolio risk statistics.&quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">PricingModel</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Portfolio pricing model.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">portfolio</span><span class="p">:</span> <span class="n">Portfolio</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">portfolio</span><span class="p">:</span> <span class="n">Portfolio</span> <span class="o">=</span> <span class="n">portfolio</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">results</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">PricingResult</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+</pre></div>
+</div>
+<p><strong>Type hint guidelines:</strong></p>
+<ul class="simple">
+<li><p>Always include return type annotations</p></li>
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">Optional[T]</span></code> instead of <code class="docutils literal notranslate"><span class="pre">Union[T,</span> <span class="pre">None]</span></code></p></li>
+<li><p>Import types from <code class="docutils literal notranslate"><span class="pre">typing</span></code> module</p></li>
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">Any</span></code> sparingly - prefer specific types</p></li>
+</ul>
+</section>
+<section id="documentation-standards">
+<h2><a class="toc-backref" href="#id13" role="doc-backlink">Documentation Standards</a><a class="headerlink" href="#documentation-standards" title="Link to this heading">¶</a></h2>
+<section id="docstring-format">
+<h3><a class="toc-backref" href="#id14" role="doc-backlink">Docstring Format</a><a class="headerlink" href="#docstring-format" title="Link to this heading">¶</a></h3>
+<p>We use <a class="reference external" href="https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings">Google docstring format</a>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">calculate_portfolio_var</span><span class="p">(</span>
+    <span class="n">portfolio</span><span class="p">:</span> <span class="n">Portfolio</span><span class="p">,</span>
+    <span class="n">confidence_level</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.95</span><span class="p">,</span>
+    <span class="n">n_sims</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10000</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate Value at Risk for a portfolio using Monte Carlo simulation.</span>
+
+<span class="sd">    This function estimates the VaR by simulating portfolio losses and</span>
+<span class="sd">    computing the specified quantile. The calculation uses either classical</span>
+<span class="sd">    Monte Carlo or quantum algorithms depending on the current backend.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        portfolio (Portfolio): Portfolio containing policy information and</span>
+<span class="sd">            loss distributions. Must have at least one inforce bucket.</span>
+<span class="sd">        confidence_level (float): Confidence level for VaR calculation.</span>
+<span class="sd">            Must be between 0 and 1. Default is 0.95 (95% VaR).</span>
+<span class="sd">        n_sims (int): Number of Monte Carlo simulations to perform.</span>
+<span class="sd">            Higher values improve accuracy but increase computation time.</span>
+<span class="sd">            Default is 10,000.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        float: Value at Risk at the specified confidence level in the same</span>
+<span class="sd">            currency units as the portfolio.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If confidence_level is not between 0 and 1.</span>
+<span class="sd">        ValueError: If portfolio is empty or invalid.</span>
+<span class="sd">        RuntimeError: If simulation fails to converge.</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        Basic VaR calculation:</span>
+<span class="sd">            &gt;&gt;&gt; portfolio = Portfolio(policies_df)</span>
+<span class="sd">            &gt;&gt;&gt; var_95 = calculate_portfolio_var(portfolio, 0.95)</span>
+<span class="sd">            &gt;&gt;&gt; print(f&quot;95% VaR: ${var_95:,.2f}&quot;)</span>
+
+<span class="sd">        High-precision calculation:</span>
+<span class="sd">            &gt;&gt;&gt; var_99 = calculate_portfolio_var(</span>
+<span class="sd">            ...     portfolio,</span>
+<span class="sd">            ...     confidence_level=0.99,</span>
+<span class="sd">            ...     n_sims=100000</span>
+<span class="sd">            ... )</span>
+
+<span class="sd">    Notes:</span>
+<span class="sd">        - VaR represents the loss threshold that will not be exceeded</span>
+<span class="sd">          with the specified probability</span>
+<span class="sd">        - Uses the current global backend (classical or quantum)</span>
+<span class="sd">        - For quantum calculations, n_sims may be adjusted internally</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+</pre></div>
+</div>
+<p><strong>Docstring sections to include:</strong></p>
+<ul class="simple">
+<li><p><strong>Brief description</strong>: One-line summary</p></li>
+<li><p><strong>Detailed description</strong>: Multi-paragraph explanation if needed</p></li>
+<li><p><strong>Args</strong>: All parameters with types and descriptions</p></li>
+<li><p><strong>Returns</strong>: Return value type and description</p></li>
+<li><p><strong>Raises</strong>: Exceptions that may be raised</p></li>
+<li><p><strong>Examples</strong>: Code examples showing usage</p></li>
+<li><p><strong>Notes</strong>: Additional important information</p></li>
+</ul>
+</section>
+<section id="class-documentation">
+<h3><a class="toc-backref" href="#id15" role="doc-backlink">Class Documentation</a><a class="headerlink" href="#class-documentation" title="Link to this heading">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">PricingModel</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Portfolio pricing and risk analysis model.</span>
+
+<span class="sd">    This class provides a unified interface for calculating portfolio risk</span>
+<span class="sd">    measures using various computational backends. It supports both classical</span>
+<span class="sd">    Monte Carlo simulation and quantum-accelerated algorithms.</span>
+
+<span class="sd">    The model uses a strategy pattern to delegate calculations to different</span>
+<span class="sd">    implementations while maintaining a consistent interface. This allows</span>
+<span class="sd">    for runtime switching between computational approaches.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        portfolio (Portfolio): The portfolio being analyzed.</span>
+<span class="sd">        strategy (PricingStrategy): Current calculation strategy.</span>
+<span class="sd">        backend_type (str): Type of computational backend in use.</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        Basic usage:</span>
+<span class="sd">            &gt;&gt;&gt; portfolio = Portfolio(policies_df)</span>
+<span class="sd">            &gt;&gt;&gt; model = PricingModel(portfolio)</span>
+<span class="sd">            &gt;&gt;&gt; result = model.simulate(n_sims=10000)</span>
+
+<span class="sd">        With custom strategy:</span>
+<span class="sd">            &gt;&gt;&gt; strategy = ClassicalPricingStrategy(use_jit=True)</span>
+<span class="sd">            &gt;&gt;&gt; model = PricingModel(portfolio, strategy=strategy)</span>
+
+<span class="sd">    Notes:</span>
+<span class="sd">        - Strategies can be swapped at runtime</span>
+<span class="sd">        - The model is stateless by design for thread safety</span>
+<span class="sd">        - All monetary values should be in consistent units</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="comments">
+<h2><a class="toc-backref" href="#id16" role="doc-backlink">Comments</a><a class="headerlink" href="#comments" title="Link to this heading">¶</a></h2>
+<section id="inline-comments">
+<h3><a class="toc-backref" href="#id17" role="doc-backlink">Inline Comments</a><a class="headerlink" href="#inline-comments" title="Link to this heading">¶</a></h3>
+<p>Use comments sparingly - prefer self-documenting code:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Good - explains non-obvious business logic</span>
+<span class="n">tail_alpha</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">confidence_level</span>  <span class="c1"># VaR uses tail probability</span>
+
+<span class="c1"># Good - explains complex calculation</span>
+<span class="c1"># Apply Owen scrambling to improve QMC uniformity</span>
+<span class="n">scrambled_points</span> <span class="o">=</span> <span class="n">sobol_generator</span><span class="o">.</span><span class="n">random_scrambled</span><span class="p">()</span>
+
+<span class="c1"># Avoid - states the obvious</span>
+<span class="n">n_sims</span> <span class="o">=</span> <span class="mi">10000</span>  <span class="c1"># Set number of simulations to 10000</span>
+</pre></div>
+</div>
+</section>
+<section id="todo-comments">
+<h3><a class="toc-backref" href="#id18" role="doc-backlink">TODO Comments</a><a class="headerlink" href="#todo-comments" title="Link to this heading">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># TODO(username): Add support for conditional VaR calculation</span>
+<span class="c1"># FIXME: This approximation fails for heavy-tailed distributions</span>
+<span class="c1"># NOTE: This uses a simplified approach - see issue #123</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="error-handling">
+<h2><a class="toc-backref" href="#id19" role="doc-backlink">Error Handling</a><a class="headerlink" href="#error-handling" title="Link to this heading">¶</a></h2>
+<section id="exception-handling">
+<h3><a class="toc-backref" href="#id20" role="doc-backlink">Exception Handling</a><a class="headerlink" href="#exception-handling" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Use specific exception types</p></li>
+<li><p>Provide helpful error messages</p></li>
+<li><p>Include context in error messages</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">validate_portfolio</span><span class="p">(</span><span class="n">portfolio</span><span class="p">:</span> <span class="n">Portfolio</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate portfolio before calculations.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">portfolio</span><span class="o">.</span><span class="n">policies</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;Portfolio must contain at least one policy. &quot;</span>
+            <span class="s2">&quot;Received empty portfolio.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">portfolio</span><span class="o">.</span><span class="n">total_exposure</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Portfolio exposure must be positive. &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;Got </span><span class="si">{</span><span class="n">portfolio</span><span class="o">.</span><span class="n">total_exposure</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="custom-exceptions">
+<h3><a class="toc-backref" href="#id21" role="doc-backlink">Custom Exceptions</a><a class="headerlink" href="#custom-exceptions" title="Link to this heading">¶</a></h3>
+<p>Create specific exception types for domain errors:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">QuactuaryError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base exception for quactuary package.&quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">CalculationError</span><span class="p">(</span><span class="n">QuactuaryError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Raised when numerical calculations fail.&quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">BackendError</span><span class="p">(</span><span class="n">QuactuaryError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Raised when backend operations fail.&quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="performance-considerations">
+<h2><a class="toc-backref" href="#id22" role="doc-backlink">Performance Considerations</a><a class="headerlink" href="#performance-considerations" title="Link to this heading">¶</a></h2>
+<section id="efficient-code-patterns">
+<h3><a class="toc-backref" href="#id23" role="doc-backlink">Efficient Code Patterns</a><a class="headerlink" href="#efficient-code-patterns" title="Link to this heading">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Good - use NumPy operations</span>
+<span class="n">losses</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">frequency_samples</span> <span class="o">*</span> <span class="n">severity_samples</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="c1"># Avoid - Python loops for large arrays</span>
+<span class="n">losses</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">frequency_samples</span><span class="p">)):</span>
+    <span class="n">losses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">frequency_samples</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">severity_samples</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+</pre></div>
+</div>
+</section>
+<section id="memory-management">
+<h3><a class="toc-backref" href="#id24" role="doc-backlink">Memory Management</a><a class="headerlink" href="#memory-management" title="Link to this heading">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Good - process in chunks for large datasets</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">process_large_portfolio</span><span class="p">(</span><span class="n">portfolio</span><span class="p">:</span> <span class="n">Portfolio</span><span class="p">,</span> <span class="n">chunk_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10000</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">portfolio</span><span class="o">.</span><span class="n">iter_chunks</span><span class="p">(</span><span class="n">chunk_size</span><span class="p">):</span>
+        <span class="k">yield</span> <span class="n">process_chunk</span><span class="p">(</span><span class="n">chunk</span><span class="p">)</span>
+
+<span class="c1"># Good - use generators for large sequences</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">simulate_losses</span><span class="p">(</span><span class="n">n_sims</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_sims</span><span class="p">):</span>
+        <span class="k">yield</span> <span class="n">simulate_single_loss</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="testing-code-quality">
+<h2><a class="toc-backref" href="#id25" role="doc-backlink">Testing Code Quality</a><a class="headerlink" href="#testing-code-quality" title="Link to this heading">¶</a></h2>
+<section id="static-analysis">
+<h3><a class="toc-backref" href="#id26" role="doc-backlink">Static Analysis</a><a class="headerlink" href="#static-analysis" title="Link to this heading">¶</a></h3>
+<p>Use these tools to check code quality:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Style checking</span>
+flake8<span class="w"> </span>quactuary/
+
+<span class="c1"># Type checking</span>
+mypy<span class="w"> </span>quactuary/
+
+<span class="c1"># Security scanning</span>
+bandit<span class="w"> </span>-r<span class="w"> </span>quactuary/
+
+<span class="c1"># Complexity analysis</span>
+radon<span class="w"> </span>cc<span class="w"> </span>quactuary/<span class="w"> </span>-a
+</pre></div>
+</div>
+<p>Configuration files for these tools should be in <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code> or dedicated config files.</p>
+</section>
+<section id="pre-commit-hooks">
+<h3><a class="toc-backref" href="#id27" role="doc-backlink">Pre-commit Hooks</a><a class="headerlink" href="#pre-commit-hooks" title="Link to this heading">¶</a></h3>
+<p>Set up pre-commit hooks to automatically check code quality:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install hooks</span>
+pre-commit<span class="w"> </span>install
+
+<span class="c1"># Run on all files</span>
+pre-commit<span class="w"> </span>run<span class="w"> </span>--all-files
+</pre></div>
+</div>
+</section>
+</section>
+<section id="git-commit-standards">
+<h2><a class="toc-backref" href="#id28" role="doc-backlink">Git Commit Standards</a><a class="headerlink" href="#git-commit-standards" title="Link to this heading">¶</a></h2>
+<section id="commit-message-format">
+<h3><a class="toc-backref" href="#id29" role="doc-backlink">Commit Message Format</a><a class="headerlink" href="#commit-message-format" title="Link to this heading">¶</a></h3>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>type(scope): brief description
+
+Longer description explaining what changed and why.
+Include any breaking changes or migration notes.
+
+Closes #123
+Fixes #456
+</pre></div>
+</div>
+<p><strong>Types:</strong>
+* <code class="docutils literal notranslate"><span class="pre">feat</span></code>: New feature
+* <code class="docutils literal notranslate"><span class="pre">fix</span></code>: Bug fix
+* <code class="docutils literal notranslate"><span class="pre">docs</span></code>: Documentation changes
+* <code class="docutils literal notranslate"><span class="pre">style</span></code>: Code style changes (no logic changes)
+* <code class="docutils literal notranslate"><span class="pre">refactor</span></code>: Code refactoring
+* <code class="docutils literal notranslate"><span class="pre">test</span></code>: Adding or updating tests
+* <code class="docutils literal notranslate"><span class="pre">perf</span></code>: Performance improvements</p>
+<p><strong>Examples:</strong></p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>feat(quantum): add quantum amplitude estimation for VaR
+
+Implement QAE algorithm for Value at Risk calculations, providing
+quadratic speedup over classical Monte Carlo for certain problem
+structures. Includes comprehensive test suite and benchmarks.
+
+Closes #123
+</pre></div>
+</div>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>fix(pricing): handle edge case in compound distribution sampling
+
+Fix issue where extremely small frequency parameters caused
+numerical instability in Poisson sampling. Add validation
+and improved error messages.
+
+Fixes #456
+</pre></div>
+</div>
+</section>
+</section>
+<section id="code-review-guidelines">
+<h2><a class="toc-backref" href="#id30" role="doc-backlink">Code Review Guidelines</a><a class="headerlink" href="#code-review-guidelines" title="Link to this heading">¶</a></h2>
+<section id="for-reviewers">
+<h3><a class="toc-backref" href="#id31" role="doc-backlink">For Reviewers</a><a class="headerlink" href="#for-reviewers" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>Focus on correctness</strong>: Does the code do what it’s supposed to do?</p></li>
+<li><p><strong>Check performance</strong>: Are there obvious performance issues?</p></li>
+<li><p><strong>Verify tests</strong>: Is the code adequately tested?</p></li>
+<li><p><strong>Review documentation</strong>: Are docstrings clear and complete?</p></li>
+<li><p><strong>Consider maintainability</strong>: Is the code easy to understand and modify?</p></li>
+</ul>
+</section>
+<section id="for-authors">
+<h3><a class="toc-backref" href="#id32" role="doc-backlink">For Authors</a><a class="headerlink" href="#for-authors" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>Keep PRs focused</strong>: One feature or fix per PR</p></li>
+<li><p><strong>Write clear descriptions</strong>: Explain what changed and why</p></li>
+<li><p><strong>Include tests</strong>: All new code should have tests</p></li>
+<li><p><strong>Update documentation</strong>: Keep docs in sync with code changes</p></li>
+<li><p><strong>Be responsive</strong>: Address review feedback promptly</p></li>
+</ul>
+</section>
+</section>
+<section id="common-code-patterns">
+<h2><a class="toc-backref" href="#id33" role="doc-backlink">Common Code Patterns</a><a class="headerlink" href="#common-code-patterns" title="Link to this heading">¶</a></h2>
+<section id="error-checking">
+<h3><a class="toc-backref" href="#id34" role="doc-backlink">Error Checking</a><a class="headerlink" href="#error-checking" title="Link to this heading">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">calculate_risk_measure</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate risk measure with proper validation.&quot;&quot;&quot;</span>
+    <span class="c1"># Input validation</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Data array cannot be empty&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="mi">0</span> <span class="o">&lt;</span> <span class="n">alpha</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Alpha must be between 0 and 1, got </span><span class="si">{</span><span class="n">alpha</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Calculation</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">alpha</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="caching-results">
+<h3><a class="toc-backref" href="#id35" role="doc-backlink">Caching Results</a><a class="headerlink" href="#caching-results" title="Link to this heading">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">ExpensiveCalculation</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">expensive_method</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Method with caching for expensive calculations.&quot;&quot;&quot;</span>
+        <span class="n">cache_key</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;expensive_</span><span class="si">{</span><span class="n">param</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="k">if</span> <span class="n">cache_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">:</span>
+            <span class="c1"># Perform expensive calculation</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_do_expensive_calculation</span><span class="p">(</span><span class="n">param</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="n">cache_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">result</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">[</span><span class="n">cache_key</span><span class="p">]</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="backward-compatibility">
+<h2><a class="toc-backref" href="#id36" role="doc-backlink">Backward Compatibility</a><a class="headerlink" href="#backward-compatibility" title="Link to this heading">¶</a></h2>
+<p>When making changes:</p>
+<ul class="simple">
+<li><p><strong>Deprecate before removing</strong>: Use <code class="docutils literal notranslate"><span class="pre">warnings.warn</span></code> for deprecated features</p></li>
+<li><p><strong>Maintain API compatibility</strong>: Avoid breaking changes in minor versions</p></li>
+<li><p><strong>Document breaking changes</strong>: Include migration notes in release notes</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">old_function_name</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Deprecated function - use new_function_name instead.&quot;&quot;&quot;</span>
+    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+        <span class="s2">&quot;old_function_name is deprecated and will be removed in v2.0. &quot;</span>
+        <span class="s2">&quot;Use new_function_name instead.&quot;</span><span class="p">,</span>
+        <span class="ne">DeprecationWarning</span><span class="p">,</span>
+        <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">new_function_name</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Following these standards helps ensure that quactuary remains a high-quality, maintainable codebase that’s enjoyable for everyone to work with!</p>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="../index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">Code Standards</a><ul>
+<li><a class="reference internal" href="#style-guide">Style Guide</a></li>
+<li><a class="reference internal" href="#code-formatting">Code Formatting</a><ul>
+<li><a class="reference internal" href="#black-formatter">Black Formatter</a></li>
+<li><a class="reference internal" href="#line-length">Line Length</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#import-organization">Import Organization</a></li>
+<li><a class="reference internal" href="#naming-conventions">Naming Conventions</a><ul>
+<li><a class="reference internal" href="#variables-and-functions">Variables and Functions</a></li>
+<li><a class="reference internal" href="#constants">Constants</a></li>
+<li><a class="reference internal" href="#classes">Classes</a></li>
+<li><a class="reference internal" href="#private-methods-and-variables">Private Methods and Variables</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#type-hints">Type Hints</a></li>
+<li><a class="reference internal" href="#documentation-standards">Documentation Standards</a><ul>
+<li><a class="reference internal" href="#docstring-format">Docstring Format</a></li>
+<li><a class="reference internal" href="#class-documentation">Class Documentation</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#comments">Comments</a><ul>
+<li><a class="reference internal" href="#inline-comments">Inline Comments</a></li>
+<li><a class="reference internal" href="#todo-comments">TODO Comments</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#error-handling">Error Handling</a><ul>
+<li><a class="reference internal" href="#exception-handling">Exception Handling</a></li>
+<li><a class="reference internal" href="#custom-exceptions">Custom Exceptions</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#performance-considerations">Performance Considerations</a><ul>
+<li><a class="reference internal" href="#efficient-code-patterns">Efficient Code Patterns</a></li>
+<li><a class="reference internal" href="#memory-management">Memory Management</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#testing-code-quality">Testing Code Quality</a><ul>
+<li><a class="reference internal" href="#static-analysis">Static Analysis</a></li>
+<li><a class="reference internal" href="#pre-commit-hooks">Pre-commit Hooks</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#git-commit-standards">Git Commit Standards</a><ul>
+<li><a class="reference internal" href="#commit-message-format">Commit Message Format</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#code-review-guidelines">Code Review Guidelines</a><ul>
+<li><a class="reference internal" href="#for-reviewers">For Reviewers</a></li>
+<li><a class="reference internal" href="#for-authors">For Authors</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#common-code-patterns">Common Code Patterns</a><ul>
+<li><a class="reference internal" href="#error-checking">Error Checking</a></li>
+<li><a class="reference internal" href="#caching-results">Caching Results</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#backward-compatibility">Backward Compatibility</a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="setting_up_environment.html"
+                          title="previous chapter">Setting Up Your Environment</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="testing_guidelines.html"
+                          title="next chapter">Testing Guidelines</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/development/code_standards.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="testing_guidelines.html" title="Testing Guidelines"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="setting_up_environment.html" title="Setting Up Your Environment"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">quActuary v0.0.7 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Development Guidelines</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Code Standards</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2025, Alex Filiakov, ACAS.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    </div>
+  </body>
+</html>

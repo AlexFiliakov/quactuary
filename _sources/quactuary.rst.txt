@@ -9,55 +9,37 @@ Subpackages
 
    quactuary.distributions
    quactuary.future
-   quactuary.tests
+   quactuary.mcp
+   quactuary.utils
 
-Submodules
-----------
+Package Overview
+~~~~~~~~~~~~~~~~
 
-quactuary.backend module
-------------------------
+The quactuary package provides a comprehensive framework for quantum-accelerated
+actuarial modeling. For detailed documentation of individual modules, see the
+API reference sections below.
 
-.. automodule:: quactuary.backend
-   :members:
-   :show-inheritance:
-   :undoc-members:
+Key Features:
+    - Classical and quantum-accelerated pricing models
+    - Comprehensive frequency and severity distributions
+    - High-performance parallel and vectorized simulations
+    - Memory-efficient algorithms for large-scale portfolios
+    - Integration with quantum computing frameworks
+    - MCP Server for LLM integration (Claude, etc.)
 
-quactuary.entities module
--------------------------
+Quick Start
+-----------
 
-.. automodule:: quactuary.entities
-   :members:
-   :show-inheritance:
-   :undoc-members:
+The main entry points for users are:
 
-quactuary.pricing module
-------------------------
+* :class:`~quactuary.PricingModel` - For portfolio pricing and risk calculations
+* :class:`~quactuary.Portfolio` - For managing collections of insurance policies  
+* :class:`~quactuary.PolicyTerms` - For defining individual policy characteristics
+* :class:`~quactuary.Inforce` - For grouping policies with similar characteristics
 
-.. automodule:: quactuary.pricing
-   :members:
-   :show-inheritance:
-   :undoc-members:
+For LLM integration:
 
-quactuary.quantum module
-------------------------
+* :mod:`~quactuary.mcp` - MCP Server for using quActuary tools in Claude
+* Run ``quactuary-mcp`` or ``python -m quactuary.mcp.server`` to start the server
 
-.. automodule:: quactuary.quantum
-   :members:
-   :show-inheritance:
-   :undoc-members:
-
-quactuary.utils module
-----------------------
-
-.. automodule:: quactuary.utils
-   :members:
-   :show-inheritance:
-   :undoc-members:
-
-Module contents
----------------
-
-.. automodule:: quactuary
-   :members:
-   :show-inheritance:
-   :undoc-members:
+For more details, see the individual module documentation below.

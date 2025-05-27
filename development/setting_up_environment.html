@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Setting Up Your Environment &#8212; quActuary v0.0.7 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/nature.css?v=279e0f84" />
+    <script src="../_static/documentation_options.js?v=401b779c"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="canonical" href="https://docs.quactuary.com/development/setting_up_environment.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Code Standards" href="code_standards.html" />
+    <link rel="prev" title="Contributing to quactuary" href="contributing.html" />
+ 
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-2TGPCH7PBM"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag() { dataLayer.push(arguments); }
+  gtag('js', new Date());
+  gtag('config', 'G-2TGPCH7PBM');
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="code_standards.html" title="Code Standards"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="contributing.html" title="Contributing to quactuary"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">quActuary v0.0.7 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Development Guidelines</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Setting Up Your Environment</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="setting-up-your-environment">
+<span id="setting-up-environment"></span><h1>Setting Up Your Environment<a class="headerlink" href="#setting-up-your-environment" title="Link to this heading">¶</a></h1>
+<p>This guide will help you set up a development environment for contributing to quactuary. We’ll cover everything from installing Python to running your first tests.</p>
+<nav class="contents local" id="table-of-contents">
+<p class="topic-title">Table of Contents</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#prerequisites" id="id1">Prerequisites</a></p>
+<ul>
+<li><p><a class="reference internal" href="#python-version" id="id2">Python Version</a></p></li>
+<li><p><a class="reference internal" href="#git" id="id3">Git</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#setting-up-the-repository" id="id4">Setting Up the Repository</a></p>
+<ul>
+<li><p><a class="reference internal" href="#fork-and-clone" id="id5">Fork and Clone</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#python-environment-setup" id="id6">Python Environment Setup</a></p>
+<ul>
+<li><p><a class="reference internal" href="#virtual-environment-recommended" id="id7">Virtual Environment (Recommended)</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#installing-dependencies" id="id8">Installing Dependencies</a></p>
+<ul>
+<li><p><a class="reference internal" href="#development-installation" id="id9">Development Installation</a></p></li>
+<li><p><a class="reference internal" href="#manual-installation-alternative" id="id10">Manual Installation (Alternative)</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#verify-installation" id="id11">Verify Installation</a></p>
+<ul>
+<li><p><a class="reference internal" href="#test-basic-functionality" id="id12">Test Basic Functionality</a></p></li>
+<li><p><a class="reference internal" href="#run-test-suite" id="id13">Run Test Suite</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#development-tools-setup" id="id14">Development Tools Setup</a></p>
+<ul>
+<li><p><a class="reference internal" href="#pre-commit-hooks-recommended" id="id15">Pre-commit Hooks (Recommended)</a></p></li>
+<li><p><a class="reference internal" href="#code-formatting" id="id16">Code Formatting</a></p></li>
+<li><p><a class="reference internal" href="#linting" id="id17">Linting</a></p></li>
+<li><p><a class="reference internal" href="#type-checking" id="id18">Type Checking</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#ide-editor-setup" id="id19">IDE/Editor Setup</a></p>
+<ul>
+<li><p><a class="reference internal" href="#vs-code" id="id20">VS Code</a></p></li>
+<li><p><a class="reference internal" href="#pycharm" id="id21">PyCharm</a></p></li>
+<li><p><a class="reference internal" href="#jupyter-notebooks" id="id22">Jupyter Notebooks</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#ide-integration-with-run-dev-py" id="id23">IDE Integration with run_dev.py</a></p>
+<ul>
+<li><p><a class="reference internal" href="#terminal-shell-integration" id="id24">Terminal/Shell Integration</a></p></li>
+<li><p><a class="reference internal" href="#vs-code-integration" id="id25">VS Code Integration</a></p></li>
+<li><p><a class="reference internal" href="#pycharm-integration" id="id26">PyCharm Integration</a></p></li>
+<li><p><a class="reference internal" href="#vim-neovim-integration" id="id27">Vim/Neovim Integration</a></p></li>
+<li><p><a class="reference internal" href="#sublime-text-integration" id="id28">Sublime Text Integration</a></p></li>
+<li><p><a class="reference internal" href="#emacs-integration" id="id29">Emacs Integration</a></p></li>
+<li><p><a class="reference internal" href="#git-hooks-integration" id="id30">Git Hooks Integration</a></p></li>
+<li><p><a class="reference internal" href="#available-run-dev-py-commands" id="id31">Available run_dev.py Commands</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#docker-environment-optional" id="id32">Docker Environment (Optional)</a></p></li>
+<li><p><a class="reference internal" href="#common-issues-and-solutions" id="id33">Common Issues and Solutions</a></p>
+<ul>
+<li><p><a class="reference internal" href="#import-errors" id="id34">Import Errors</a></p></li>
+<li><p><a class="reference internal" href="#test-failures" id="id35">Test Failures</a></p></li>
+<li><p><a class="reference internal" href="#permission-errors" id="id36">Permission Errors</a></p></li>
+<li><p><a class="reference internal" href="#quantum-dependencies" id="id37">Quantum Dependencies</a></p></li>
+<li><p><a class="reference internal" href="#performance-issues" id="id38">Performance Issues</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#updating-your-environment" id="id39">Updating Your Environment</a></p>
+<ul>
+<li><p><a class="reference internal" href="#keeping-dependencies-updated" id="id40">Keeping Dependencies Updated</a></p></li>
+<li><p><a class="reference internal" href="#syncing-with-upstream" id="id41">Syncing with Upstream</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#environment-variables" id="id42">Environment Variables</a></p></li>
+<li><p><a class="reference internal" href="#next-steps" id="id43">Next Steps</a></p></li>
+</ul>
+</nav>
+<section id="prerequisites">
+<h2><a class="toc-backref" href="#id1" role="doc-backlink">Prerequisites</a><a class="headerlink" href="#prerequisites" title="Link to this heading">¶</a></h2>
+<section id="python-version">
+<h3><a class="toc-backref" href="#id2" role="doc-backlink">Python Version</a><a class="headerlink" href="#python-version" title="Link to this heading">¶</a></h3>
+<p>quactuary supports Python 3.8+ (3.8, 3.9, 3.10, 3.11, 3.12). We recommend using the latest stable version for development.</p>
+<p>Check your Python version:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>--version
+</pre></div>
+</div>
+<p>If you need to install or upgrade Python:</p>
+<ul class="simple">
+<li><p><strong>Windows</strong>: Download from <a class="reference external" href="https://www.python.org/downloads/">python.org</a> or use Microsoft Store</p></li>
+<li><p><strong>macOS</strong>: Use <a class="reference external" href="https://brew.sh/">Homebrew</a>: <code class="docutils literal notranslate"><span class="pre">brew</span> <span class="pre">install</span> <span class="pre">python&#64;3.11</span></code></p></li>
+<li><p><strong>Linux</strong>: Use your distribution’s package manager: <code class="docutils literal notranslate"><span class="pre">sudo</span> <span class="pre">apt</span> <span class="pre">install</span> <span class="pre">python3.11</span></code></p></li>
+</ul>
+</section>
+<section id="git">
+<h3><a class="toc-backref" href="#id3" role="doc-backlink">Git</a><a class="headerlink" href="#git" title="Link to this heading">¶</a></h3>
+<p>You’ll need Git for version control:</p>
+<ul class="simple">
+<li><p><strong>Windows</strong>: Download from <a class="reference external" href="https://git-scm.com/">git-scm.com</a> or use GitHub Desktop</p></li>
+<li><p><strong>macOS</strong>: <code class="docutils literal notranslate"><span class="pre">brew</span> <span class="pre">install</span> <span class="pre">git</span></code> or use Xcode Command Line Tools</p></li>
+<li><p><strong>Linux</strong>: <code class="docutils literal notranslate"><span class="pre">sudo</span> <span class="pre">apt</span> <span class="pre">install</span> <span class="pre">git</span></code> (Ubuntu/Debian) or equivalent</p></li>
+</ul>
+<p>Configure Git with your information:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>config<span class="w"> </span>--global<span class="w"> </span>user.name<span class="w"> </span><span class="s2">&quot;Your Name&quot;</span>
+git<span class="w"> </span>config<span class="w"> </span>--global<span class="w"> </span>user.email<span class="w"> </span><span class="s2">&quot;your.email@example.com&quot;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="setting-up-the-repository">
+<h2><a class="toc-backref" href="#id4" role="doc-backlink">Setting Up the Repository</a><a class="headerlink" href="#setting-up-the-repository" title="Link to this heading">¶</a></h2>
+<section id="fork-and-clone">
+<h3><a class="toc-backref" href="#id5" role="doc-backlink">Fork and Clone</a><a class="headerlink" href="#fork-and-clone" title="Link to this heading">¶</a></h3>
+<ol class="arabic simple">
+<li><p><strong>Fork the repository</strong> on GitHub: <a class="reference external" href="https://github.com/AlexFiliakov/quactuary">https://github.com/AlexFiliakov/quactuary</a></p></li>
+<li><p><strong>Clone your fork</strong> locally:</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/YOUR_USERNAME/quactuary.git
+<span class="nb">cd</span><span class="w"> </span>quactuary
+</pre></div>
+</div>
+<ol class="arabic simple" start="3">
+<li><p><strong>Add the upstream remote</strong>:</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>remote<span class="w"> </span>add<span class="w"> </span>upstream<span class="w"> </span>https://github.com/AlexFiliakov/quactuary.git
+</pre></div>
+</div>
+<ol class="arabic simple" start="4">
+<li><p><strong>Verify your remotes</strong>:</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>remote<span class="w"> </span>-v
+<span class="c1"># Should show:</span>
+<span class="c1"># origin    https://github.com/YOUR_USERNAME/quactuary.git (fetch)</span>
+<span class="c1"># origin    https://github.com/YOUR_USERNAME/quactuary.git (push)</span>
+<span class="c1"># upstream  https://github.com/AlexFiliakov/quactuary.git (fetch)</span>
+<span class="c1"># upstream  https://github.com/AlexFiliakov/quactuary.git (push)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="python-environment-setup">
+<h2><a class="toc-backref" href="#id6" role="doc-backlink">Python Environment Setup</a><a class="headerlink" href="#python-environment-setup" title="Link to this heading">¶</a></h2>
+<section id="virtual-environment-recommended">
+<h3><a class="toc-backref" href="#id7" role="doc-backlink">Virtual Environment (Recommended)</a><a class="headerlink" href="#virtual-environment-recommended" title="Link to this heading">¶</a></h3>
+<p>Create an isolated Python environment for quactuary development:</p>
+<p><strong>Using venv (built-in):</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create virtual environment</span>
+python<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>quactuary-dev
+
+<span class="c1"># Activate it</span>
+<span class="c1"># On macOS/Linux:</span>
+<span class="nb">source</span><span class="w"> </span>quactuary-dev/bin/activate
+
+<span class="c1"># On Windows:</span>
+quactuary-dev<span class="se">\S</span>cripts<span class="se">\a</span>ctivate
+
+<span class="c1"># Verify activation (should show your venv path)</span>
+which<span class="w"> </span>python
+</pre></div>
+</div>
+<p><strong>Using conda (if you prefer):</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create environment with specific Python version</span>
+conda<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>quactuary-dev<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.11
+
+<span class="c1"># Activate it</span>
+conda<span class="w"> </span>activate<span class="w"> </span>quactuary-dev
+</pre></div>
+</div>
+</section>
+</section>
+<section id="installing-dependencies">
+<h2><a class="toc-backref" href="#id8" role="doc-backlink">Installing Dependencies</a><a class="headerlink" href="#installing-dependencies" title="Link to this heading">¶</a></h2>
+<section id="development-installation">
+<h3><a class="toc-backref" href="#id9" role="doc-backlink">Development Installation</a><a class="headerlink" href="#development-installation" title="Link to this heading">¶</a></h3>
+<p>Install quactuary in development mode with all dependencies:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Basic development installation</span>
+pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.<span class="o">[</span>dev<span class="o">]</span>
+
+<span class="c1"># Or with quantum support</span>
+pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.<span class="o">[</span>dev,quantum<span class="o">]</span>
+</pre></div>
+</div>
+<p>This installs:</p>
+<ul class="simple">
+<li><p><strong>Core dependencies</strong>: numpy, pandas, scipy</p></li>
+<li><p><strong>Testing tools</strong>: pytest, pytest-cov, pytest-xdist</p></li>
+<li><p><strong>Development tools</strong>: black, flake8, mypy, pre-commit</p></li>
+<li><p><strong>Documentation tools</strong>: sphinx, sphinx-rtd-theme</p></li>
+<li><p><strong>Quantum dependencies</strong> (optional): qiskit, qiskit-aer</p></li>
+</ul>
+</section>
+<section id="manual-installation-alternative">
+<h3><a class="toc-backref" href="#id10" role="doc-backlink">Manual Installation (Alternative)</a><a class="headerlink" href="#manual-installation-alternative" title="Link to this heading">¶</a></h3>
+<p>If you prefer to install components separately:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Core dependencies</span>
+pip<span class="w"> </span>install<span class="w"> </span>numpy<span class="w"> </span>pandas<span class="w"> </span>scipy<span class="w"> </span>matplotlib
+
+<span class="c1"># Testing</span>
+pip<span class="w"> </span>install<span class="w"> </span>pytest<span class="w"> </span>pytest-cov<span class="w"> </span>pytest-xdist
+
+<span class="c1"># Code quality</span>
+pip<span class="w"> </span>install<span class="w"> </span>black<span class="w"> </span>flake8<span class="w"> </span>mypy<span class="w"> </span>pre-commit
+
+<span class="c1"># Documentation</span>
+pip<span class="w"> </span>install<span class="w"> </span>sphinx<span class="w"> </span>sphinx-rtd-theme<span class="w"> </span>nbsphinx
+
+<span class="c1"># Quantum (optional)</span>
+pip<span class="w"> </span>install<span class="w"> </span>qiskit<span class="w"> </span>qiskit-aer
+
+<span class="c1"># Install quactuary in development mode</span>
+pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.
+</pre></div>
+</div>
+</section>
+</section>
+<section id="verify-installation">
+<h2><a class="toc-backref" href="#id11" role="doc-backlink">Verify Installation</a><a class="headerlink" href="#verify-installation" title="Link to this heading">¶</a></h2>
+<section id="test-basic-functionality">
+<h3><a class="toc-backref" href="#id12" role="doc-backlink">Test Basic Functionality</a><a class="headerlink" href="#test-basic-functionality" title="Link to this heading">¶</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Test imports</span>
+python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import quactuary; print(f&#39;quactuary version: {quactuary.__version__}&#39;)&quot;</span>
+
+<span class="c1"># Run quick test</span>
+python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;</span>
+<span class="s2">from quactuary.distributions import Poisson</span>
+<span class="s2">p = Poisson(lambda_=2.0)</span>
+<span class="s2">print(f&#39;Poisson(2.0) mean: {p.pmf(1):.3f}&#39;)</span>
+<span class="s2">&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="run-test-suite">
+<h3><a class="toc-backref" href="#id13" role="doc-backlink">Run Test Suite</a><a class="headerlink" href="#run-test-suite" title="Link to this heading">¶</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Run all tests (may take a few minutes)</span>
+pytest
+
+<span class="c1"># Run with coverage report</span>
+pytest<span class="w"> </span>--cov<span class="o">=</span>quactuary
+
+<span class="c1"># Run specific test file</span>
+pytest<span class="w"> </span>tests/test_pricing.py<span class="w"> </span>-v
+</pre></div>
+</div>
+<p>Expected output should show all tests passing. If you see failures, check that all dependencies are properly installed.</p>
+</section>
+</section>
+<section id="development-tools-setup">
+<h2><a class="toc-backref" href="#id14" role="doc-backlink">Development Tools Setup</a><a class="headerlink" href="#development-tools-setup" title="Link to this heading">¶</a></h2>
+<section id="pre-commit-hooks-recommended">
+<h3><a class="toc-backref" href="#id15" role="doc-backlink">Pre-commit Hooks (Recommended)</a><a class="headerlink" href="#pre-commit-hooks-recommended" title="Link to this heading">¶</a></h3>
+<p>Pre-commit hooks automatically format code and catch issues before you commit:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install pre-commit hooks</span>
+pre-commit<span class="w"> </span>install
+
+<span class="c1"># Test the hooks</span>
+pre-commit<span class="w"> </span>run<span class="w"> </span>--all-files
+</pre></div>
+</div>
+</section>
+<section id="code-formatting">
+<h3><a class="toc-backref" href="#id16" role="doc-backlink">Code Formatting</a><a class="headerlink" href="#code-formatting" title="Link to this heading">¶</a></h3>
+<p>We use <cite>black</cite> for code formatting:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Format all Python files</span>
+black<span class="w"> </span>.
+
+<span class="c1"># Check what would be formatted</span>
+black<span class="w"> </span>--check<span class="w"> </span>.
+</pre></div>
+</div>
+</section>
+<section id="linting">
+<h3><a class="toc-backref" href="#id17" role="doc-backlink">Linting</a><a class="headerlink" href="#linting" title="Link to this heading">¶</a></h3>
+<p>We use <cite>flake8</cite> for style checking:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check code style</span>
+flake8<span class="w"> </span>quactuary/
+
+<span class="c1"># Check specific file</span>
+flake8<span class="w"> </span>quactuary/pricing.py
+</pre></div>
+</div>
+</section>
+<section id="type-checking">
+<h3><a class="toc-backref" href="#id18" role="doc-backlink">Type Checking</a><a class="headerlink" href="#type-checking" title="Link to this heading">¶</a></h3>
+<p>We use <cite>mypy</cite> for static type checking:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Type check the package</span>
+mypy<span class="w"> </span>quactuary/
+
+<span class="c1"># Type check with more detail</span>
+mypy<span class="w"> </span>quactuary/<span class="w"> </span>--strict
+</pre></div>
+</div>
+</section>
+</section>
+<section id="ide-editor-setup">
+<h2><a class="toc-backref" href="#id19" role="doc-backlink">IDE/Editor Setup</a><a class="headerlink" href="#ide-editor-setup" title="Link to this heading">¶</a></h2>
+<section id="vs-code">
+<h3><a class="toc-backref" href="#id20" role="doc-backlink">VS Code</a><a class="headerlink" href="#vs-code" title="Link to this heading">¶</a></h3>
+<p>Recommended extensions:</p>
+<ul class="simple">
+<li><p><strong>Python</strong> (Microsoft): Core Python support</p></li>
+<li><p><strong>Pylance</strong> (Microsoft): Enhanced Python language server</p></li>
+<li><p><strong>Python Docstring Generator</strong>: Auto-generate docstring templates</p></li>
+<li><p><strong>GitLens</strong>: Enhanced Git integration</p></li>
+<li><p><strong>Black Formatter</strong>: Automatic code formatting</p></li>
+</ul>
+<p>Settings (add to <code class="docutils literal notranslate"><span class="pre">.vscode/settings.json</span></code>):</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;python.defaultInterpreterPath&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;./quactuary-dev/bin/python&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;python.formatting.provider&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;python.linting.enabled&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;python.linting.flake8Enabled&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;python.linting.mypyEnabled&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;python.testing.pytestEnabled&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;python.testing.pytestArgs&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;tests/&quot;</span><span class="p">],</span>
+<span class="w">    </span><span class="nt">&quot;editor.formatOnSave&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="pycharm">
+<h3><a class="toc-backref" href="#id21" role="doc-backlink">PyCharm</a><a class="headerlink" href="#pycharm" title="Link to this heading">¶</a></h3>
+<p>Configuration:</p>
+<ol class="arabic simple">
+<li><p><strong>Interpreter</strong>: Set to your virtual environment</p></li>
+<li><p><strong>Code Style</strong>: Set to follow PEP 8</p></li>
+<li><p><strong>Inspections</strong>: Enable type checking and style warnings</p></li>
+<li><p><strong>Testing</strong>: Configure pytest as the default test runner</p></li>
+</ol>
+</section>
+<section id="jupyter-notebooks">
+<h3><a class="toc-backref" href="#id22" role="doc-backlink">Jupyter Notebooks</a><a class="headerlink" href="#jupyter-notebooks" title="Link to this heading">¶</a></h3>
+<p>For working with examples and tutorials:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install Jupyter</span>
+pip<span class="w"> </span>install<span class="w"> </span>jupyter<span class="w"> </span>notebook
+
+<span class="c1"># Start notebook server</span>
+jupyter<span class="w"> </span>notebook
+</pre></div>
+</div>
+</section>
+</section>
+<section id="ide-integration-with-run-dev-py">
+<h2><a class="toc-backref" href="#id23" role="doc-backlink">IDE Integration with run_dev.py</a><a class="headerlink" href="#ide-integration-with-run-dev-py" title="Link to this heading">¶</a></h2>
+<p>The quactuary project includes <code class="docutils literal notranslate"><span class="pre">run_dev.py</span></code>, a centralized development script that integrates with various IDEs and editors.</p>
+<section id="terminal-shell-integration">
+<h3><a class="toc-backref" href="#id24" role="doc-backlink">Terminal/Shell Integration</a><a class="headerlink" href="#terminal-shell-integration" title="Link to this heading">¶</a></h3>
+<p>Enable tab completion for easier command discovery:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># View tab completion setup instructions</span>
+python<span class="w"> </span>run_dev.py<span class="w"> </span>completion
+
+<span class="c1"># For bash users, add to ~/.bashrc:</span>
+<span class="c1"># Follow the bash completion instructions shown</span>
+
+<span class="c1"># For zsh users, add to ~/.zshrc:</span>
+<span class="c1"># Follow the zsh completion instructions shown</span>
+</pre></div>
+</div>
+</section>
+<section id="vs-code-integration">
+<h3><a class="toc-backref" href="#id25" role="doc-backlink">VS Code Integration</a><a class="headerlink" href="#vs-code-integration" title="Link to this heading">¶</a></h3>
+<p>Add these tasks to <code class="docutils literal notranslate"><span class="pre">.vscode/tasks.json</span></code> for quick access:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2.0.0&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;tasks&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;label&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Run Tests&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;shell&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;python run_dev.py test&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;group&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;kind&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;test&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;isDefault&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;label&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Run Tests with Coverage&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;shell&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;python run_dev.py test --coverage&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;group&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;test&quot;</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;label&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Lint Code&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;shell&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;python run_dev.py lint&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;group&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;build&quot;</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;label&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Format Code&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;shell&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;python run_dev.py format&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;group&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;build&quot;</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;label&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Build Docs&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;shell&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;python run_dev.py docs&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;group&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;build&quot;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>You can then run these tasks with <code class="docutils literal notranslate"><span class="pre">Ctrl+Shift+P</span></code> → “Tasks: Run Task”.</p>
+</section>
+<section id="pycharm-integration">
+<h3><a class="toc-backref" href="#id26" role="doc-backlink">PyCharm Integration</a><a class="headerlink" href="#pycharm-integration" title="Link to this heading">¶</a></h3>
+<p>Set up Run Configurations:</p>
+<ol class="arabic simple">
+<li><p><strong>Run Tests</strong>:
+- Script path: <code class="docutils literal notranslate"><span class="pre">run_dev.py</span></code>
+- Parameters: <code class="docutils literal notranslate"><span class="pre">test</span> <span class="pre">--coverage</span></code>
+- Working directory: Project root</p></li>
+<li><p><strong>Lint</strong>:
+- Script path: <code class="docutils literal notranslate"><span class="pre">run_dev.py</span></code>
+- Parameters: <code class="docutils literal notranslate"><span class="pre">lint</span></code>
+- Working directory: Project root</p></li>
+<li><p><strong>Format</strong>:
+- Script path: <code class="docutils literal notranslate"><span class="pre">run_dev.py</span></code>
+- Parameters: <code class="docutils literal notranslate"><span class="pre">format</span></code>
+- Working directory: Project root</p></li>
+</ol>
+<p>You can also add external tools under Settings → Tools → External Tools.</p>
+</section>
+<section id="vim-neovim-integration">
+<h3><a class="toc-backref" href="#id27" role="doc-backlink">Vim/Neovim Integration</a><a class="headerlink" href="#vim-neovim-integration" title="Link to this heading">¶</a></h3>
+<p>Add these commands to your <code class="docutils literal notranslate"><span class="pre">.vimrc</span></code> or <code class="docutils literal notranslate"><span class="pre">init.vim</span></code>:</p>
+<div class="highlight-vim notranslate"><div class="highlight"><pre><span></span><span class="c">&quot; Run tests</span>
+command<span class="p">!</span> QuactuaryTest :<span class="p">!</span>python run_dev.<span class="k">py</span> test
+command<span class="p">!</span> QuactuaryCoverage :<span class="p">!</span>python run_dev.<span class="k">py</span> test <span class="p">--</span>coverage
+
+<span class="c">&quot; Code quality</span>
+command<span class="p">!</span> QuactuaryLint :<span class="p">!</span>python run_dev.<span class="k">py</span> lint
+command<span class="p">!</span> QuactuaryFormat :<span class="p">!</span>python run_dev.<span class="k">py</span> format
+
+<span class="c">&quot; Documentation</span>
+command<span class="p">!</span> QuactuaryDocs :<span class="p">!</span>python run_dev.<span class="k">py</span> docs
+
+<span class="c">&quot; Shortcuts</span>
+<span class="nb">nnoremap</span> <span class="p">&lt;</span>leader<span class="p">&gt;</span>qt :QuactuaryTest<span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> <span class="p">&lt;</span>leader<span class="p">&gt;</span>qc :QuactuaryCoverage<span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> <span class="p">&lt;</span>leader<span class="p">&gt;</span>ql :QuactuaryLint<span class="p">&lt;</span>CR<span class="p">&gt;</span>
+<span class="nb">nnoremap</span> <span class="p">&lt;</span>leader<span class="p">&gt;</span>qf :QuactuaryFormat<span class="p">&lt;</span>CR<span class="p">&gt;</span>
+</pre></div>
+</div>
+</section>
+<section id="sublime-text-integration">
+<h3><a class="toc-backref" href="#id28" role="doc-backlink">Sublime Text Integration</a><a class="headerlink" href="#sublime-text-integration" title="Link to this heading">¶</a></h3>
+<p>Add a build system (Tools → Build System → New Build System):</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;shell_cmd&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;python run_dev.py test&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;working_dir&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;${project_path}&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;variants&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Test with Coverage&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;shell_cmd&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;python run_dev.py test --coverage&quot;</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Lint&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;shell_cmd&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;python run_dev.py lint&quot;</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Format&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;shell_cmd&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;python run_dev.py format&quot;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="emacs-integration">
+<h3><a class="toc-backref" href="#id29" role="doc-backlink">Emacs Integration</a><a class="headerlink" href="#emacs-integration" title="Link to this heading">¶</a></h3>
+<p>Add to your Emacs configuration:</p>
+<div class="highlight-elisp notranslate"><div class="highlight"><pre><span></span><span class="c1">;; Define quactuary development commands</span>
+<span class="p">(</span><span class="nb">defun</span><span class="w"> </span><span class="nv">quactuary-test</span><span class="w"> </span><span class="p">()</span>
+<span class="w">  </span><span class="s">&quot;Run quactuary tests&quot;</span>
+<span class="w">  </span><span class="p">(</span><span class="k">interactive</span><span class="p">)</span>
+<span class="w">  </span><span class="p">(</span><span class="nv">compile</span><span class="w"> </span><span class="s">&quot;python run_dev.py test&quot;</span><span class="p">))</span>
+
+<span class="p">(</span><span class="nb">defun</span><span class="w"> </span><span class="nv">quactuary-coverage</span><span class="w"> </span><span class="p">()</span>
+<span class="w">  </span><span class="s">&quot;Run quactuary tests with coverage&quot;</span>
+<span class="w">  </span><span class="p">(</span><span class="k">interactive</span><span class="p">)</span>
+<span class="w">  </span><span class="p">(</span><span class="nv">compile</span><span class="w"> </span><span class="s">&quot;python run_dev.py test --coverage&quot;</span><span class="p">))</span>
+
+<span class="p">(</span><span class="nb">defun</span><span class="w"> </span><span class="nv">quactuary-lint</span><span class="w"> </span><span class="p">()</span>
+<span class="w">  </span><span class="s">&quot;Lint quactuary code&quot;</span>
+<span class="w">  </span><span class="p">(</span><span class="k">interactive</span><span class="p">)</span>
+<span class="w">  </span><span class="p">(</span><span class="nv">compile</span><span class="w"> </span><span class="s">&quot;python run_dev.py lint&quot;</span><span class="p">))</span>
+
+<span class="p">(</span><span class="nb">defun</span><span class="w"> </span><span class="nv">quactuary-format</span><span class="w"> </span><span class="p">()</span>
+<span class="w">  </span><span class="s">&quot;Format quactuary code&quot;</span>
+<span class="w">  </span><span class="p">(</span><span class="k">interactive</span><span class="p">)</span>
+<span class="w">  </span><span class="p">(</span><span class="nv">shell-command</span><span class="w"> </span><span class="s">&quot;python run_dev.py format&quot;</span><span class="p">))</span>
+
+<span class="c1">;; Key bindings</span>
+<span class="p">(</span><span class="nv">global-set-key</span><span class="w"> </span><span class="p">(</span><span class="nv">kbd</span><span class="w"> </span><span class="s">&quot;C-c q t&quot;</span><span class="p">)</span><span class="w"> </span><span class="ss">&#39;quactuary-test</span><span class="p">)</span>
+<span class="p">(</span><span class="nv">global-set-key</span><span class="w"> </span><span class="p">(</span><span class="nv">kbd</span><span class="w"> </span><span class="s">&quot;C-c q c&quot;</span><span class="p">)</span><span class="w"> </span><span class="ss">&#39;quactuary-coverage</span><span class="p">)</span>
+<span class="p">(</span><span class="nv">global-set-key</span><span class="w"> </span><span class="p">(</span><span class="nv">kbd</span><span class="w"> </span><span class="s">&quot;C-c q l&quot;</span><span class="p">)</span><span class="w"> </span><span class="ss">&#39;quactuary-lint</span><span class="p">)</span>
+<span class="p">(</span><span class="nv">global-set-key</span><span class="w"> </span><span class="p">(</span><span class="nv">kbd</span><span class="w"> </span><span class="s">&quot;C-c q f&quot;</span><span class="p">)</span><span class="w"> </span><span class="ss">&#39;quactuary-format</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="git-hooks-integration">
+<h3><a class="toc-backref" href="#id30" role="doc-backlink">Git Hooks Integration</a><a class="headerlink" href="#git-hooks-integration" title="Link to this heading">¶</a></h3>
+<p>You can integrate <code class="docutils literal notranslate"><span class="pre">run_dev.py</span></code> with Git hooks for automatic quality checks:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># .git/hooks/pre-commit</span>
+<span class="c1">#!/bin/bash</span>
+python<span class="w"> </span>run_dev.py<span class="w"> </span>lint<span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span>
+python<span class="w"> </span>run_dev.py<span class="w"> </span><span class="nb">test</span><span class="w"> </span>--failfast<span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span>
+</pre></div>
+</div>
+<p>Make the hook executable: <code class="docutils literal notranslate"><span class="pre">chmod</span> <span class="pre">+x</span> <span class="pre">.git/hooks/pre-commit</span></code></p>
+</section>
+<section id="available-run-dev-py-commands">
+<h3><a class="toc-backref" href="#id31" role="doc-backlink">Available run_dev.py Commands</a><a class="headerlink" href="#available-run-dev-py-commands" title="Link to this heading">¶</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Core commands</span>
+python<span class="w"> </span>run_dev.py<span class="w"> </span><span class="nb">test</span><span class="w">          </span><span class="c1"># Run tests</span>
+python<span class="w"> </span>run_dev.py<span class="w"> </span>lint<span class="w">          </span><span class="c1"># Run linters</span>
+python<span class="w"> </span>run_dev.py<span class="w"> </span>format<span class="w">        </span><span class="c1"># Auto-format code</span>
+python<span class="w"> </span>run_dev.py<span class="w"> </span>coverage<span class="w">      </span><span class="c1"># Generate coverage report</span>
+python<span class="w"> </span>run_dev.py<span class="w"> </span>docs<span class="w">          </span><span class="c1"># Build documentation</span>
+python<span class="w"> </span>run_dev.py<span class="w"> </span>clean<span class="w">         </span><span class="c1"># Clean build artifacts</span>
+
+<span class="c1"># Utility commands</span>
+python<span class="w"> </span>run_dev.py<span class="w"> </span>profile<span class="w">       </span><span class="c1"># Performance profiling</span>
+python<span class="w"> </span>run_dev.py<span class="w"> </span>setup<span class="w">         </span><span class="c1"># Initial environment setup</span>
+python<span class="w"> </span>run_dev.py<span class="w"> </span>version<span class="w">       </span><span class="c1"># Show version info</span>
+python<span class="w"> </span>run_dev.py<span class="w"> </span>completion<span class="w">    </span><span class="c1"># Tab completion setup</span>
+
+<span class="c1"># Common options</span>
+python<span class="w"> </span>run_dev.py<span class="w"> </span><span class="nb">test</span><span class="w"> </span>--coverage<span class="w"> </span>--verbose
+python<span class="w"> </span>run_dev.py<span class="w"> </span><span class="nb">test</span><span class="w"> </span>--file<span class="w"> </span>tests/test_pricing.py
+python<span class="w"> </span>run_dev.py<span class="w"> </span>docs<span class="w"> </span>--serve<span class="w">  </span><span class="c1"># Build and serve docs locally</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="docker-environment-optional">
+<h2><a class="toc-backref" href="#id32" role="doc-backlink">Docker Environment (Optional)</a><a class="headerlink" href="#docker-environment-optional" title="Link to this heading">¶</a></h2>
+<p>If you prefer using Docker:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Build development image</span>
+docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </span>quactuary-dev<span class="w"> </span>.
+
+<span class="c1"># Run interactive development container</span>
+docker<span class="w"> </span>run<span class="w"> </span>-it<span class="w"> </span>-v<span class="w"> </span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>:/workspace<span class="w"> </span>quactuary-dev<span class="w"> </span>bash
+</pre></div>
+</div>
+</section>
+<section id="common-issues-and-solutions">
+<h2><a class="toc-backref" href="#id33" role="doc-backlink">Common Issues and Solutions</a><a class="headerlink" href="#common-issues-and-solutions" title="Link to this heading">¶</a></h2>
+<section id="import-errors">
+<h3><a class="toc-backref" href="#id34" role="doc-backlink">Import Errors</a><a class="headerlink" href="#import-errors" title="Link to this heading">¶</a></h3>
+<p><strong>Problem</strong>: <code class="docutils literal notranslate"><span class="pre">ModuleNotFoundError</span></code> when importing quactuary</p>
+<p><strong>Solutions</strong>:
+1. Ensure virtual environment is activated
+2. Reinstall in development mode: <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-e</span> <span class="pre">.</span></code>
+3. Check Python path: <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-c</span> <span class="pre">&quot;import</span> <span class="pre">sys;</span> <span class="pre">print(sys.path)&quot;</span></code></p>
+</section>
+<section id="test-failures">
+<h3><a class="toc-backref" href="#id35" role="doc-backlink">Test Failures</a><a class="headerlink" href="#test-failures" title="Link to this heading">¶</a></h3>
+<p><strong>Problem</strong>: Tests fail on clean installation</p>
+<p><strong>Solutions</strong>:
+1. Update dependencies: <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">--upgrade</span> <span class="pre">-e</span> <span class="pre">.[dev]</span></code>
+2. Clear pytest cache: <code class="docutils literal notranslate"><span class="pre">pytest</span> <span class="pre">--cache-clear</span></code>
+3. Check for conflicting packages: <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">list</span> <span class="pre">|</span> <span class="pre">grep</span> <span class="pre">quactuary</span></code></p>
+</section>
+<section id="permission-errors">
+<h3><a class="toc-backref" href="#id36" role="doc-backlink">Permission Errors</a><a class="headerlink" href="#permission-errors" title="Link to this heading">¶</a></h3>
+<p><strong>Problem</strong>: Permission denied when installing packages</p>
+<p><strong>Solutions</strong>:
+1. Use virtual environment (recommended)
+2. Add <code class="docutils literal notranslate"><span class="pre">--user</span></code> flag: <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">--user</span> <span class="pre">-e</span> <span class="pre">.</span></code>
+3. On macOS/Linux, avoid <code class="docutils literal notranslate"><span class="pre">sudo</span> <span class="pre">pip</span></code> (use virtual environment instead)</p>
+</section>
+<section id="quantum-dependencies">
+<h3><a class="toc-backref" href="#id37" role="doc-backlink">Quantum Dependencies</a><a class="headerlink" href="#quantum-dependencies" title="Link to this heading">¶</a></h3>
+<p><strong>Problem</strong>: Qiskit installation fails</p>
+<p><strong>Solutions</strong>:
+1. Try installing without quantum first: <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-e</span> <span class="pre">.[dev]</span></code>
+2. Install Qiskit separately: <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">qiskit</span> <span class="pre">qiskit-aer</span></code>
+3. For M1 Macs, you may need: <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">qiskit</span> <span class="pre">--no-deps</span></code> then install dependencies manually</p>
+</section>
+<section id="performance-issues">
+<h3><a class="toc-backref" href="#id38" role="doc-backlink">Performance Issues</a><a class="headerlink" href="#performance-issues" title="Link to this heading">¶</a></h3>
+<p><strong>Problem</strong>: Tests run very slowly</p>
+<p><strong>Solutions</strong>:
+1. Use parallel testing: <code class="docutils literal notranslate"><span class="pre">pytest</span> <span class="pre">-n</span> <span class="pre">auto</span></code>
+2. Run subset of tests: <code class="docutils literal notranslate"><span class="pre">pytest</span> <span class="pre">tests/test_pricing.py</span></code>
+3. Skip slow tests: <code class="docutils literal notranslate"><span class="pre">pytest</span> <span class="pre">-m</span> <span class="pre">&quot;not</span> <span class="pre">slow&quot;</span></code></p>
+</section>
+</section>
+<section id="updating-your-environment">
+<h2><a class="toc-backref" href="#id39" role="doc-backlink">Updating Your Environment</a><a class="headerlink" href="#updating-your-environment" title="Link to this heading">¶</a></h2>
+<section id="keeping-dependencies-updated">
+<h3><a class="toc-backref" href="#id40" role="doc-backlink">Keeping Dependencies Updated</a><a class="headerlink" href="#keeping-dependencies-updated" title="Link to this heading">¶</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Update all packages</span>
+pip<span class="w"> </span>install<span class="w"> </span>--upgrade<span class="w"> </span>-e<span class="w"> </span>.<span class="o">[</span>dev<span class="o">]</span>
+
+<span class="c1"># Update pre-commit hooks</span>
+pre-commit<span class="w"> </span>autoupdate
+</pre></div>
+</div>
+</section>
+<section id="syncing-with-upstream">
+<h3><a class="toc-backref" href="#id41" role="doc-backlink">Syncing with Upstream</a><a class="headerlink" href="#syncing-with-upstream" title="Link to this heading">¶</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Fetch latest changes from upstream</span>
+git<span class="w"> </span>fetch<span class="w"> </span>upstream
+
+<span class="c1"># Update your main branch</span>
+git<span class="w"> </span>checkout<span class="w"> </span>main
+git<span class="w"> </span>merge<span class="w"> </span>upstream/main
+
+<span class="c1"># Push updates to your fork</span>
+git<span class="w"> </span>push<span class="w"> </span>origin<span class="w"> </span>main
+</pre></div>
+</div>
+</section>
+</section>
+<section id="environment-variables">
+<h2><a class="toc-backref" href="#id42" role="doc-backlink">Environment Variables</a><a class="headerlink" href="#environment-variables" title="Link to this heading">¶</a></h2>
+<p>For quantum development, you may want to set:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># For IBM Quantum access</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">QISKIT_IBM_TOKEN</span><span class="o">=</span><span class="s2">&quot;your_token_here&quot;</span>
+
+<span class="c1"># For development settings</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">QUACTUARY_DEV_MODE</span><span class="o">=</span><span class="m">1</span>
+</pre></div>
+</div>
+<p>Add these to your shell profile (<code class="docutils literal notranslate"><span class="pre">.bashrc</span></code>, <code class="docutils literal notranslate"><span class="pre">.zshrc</span></code>, etc.) to make them persistent.</p>
+</section>
+<section id="next-steps">
+<h2><a class="toc-backref" href="#id43" role="doc-backlink">Next Steps</a><a class="headerlink" href="#next-steps" title="Link to this heading">¶</a></h2>
+<p>Once your environment is set up:</p>
+<ol class="arabic simple">
+<li><p><strong>Read the code standards</strong>: <a class="reference internal" href="code_standards.html"><span class="doc">Code Standards</span></a></p></li>
+<li><p><strong>Understand testing</strong>: <a class="reference internal" href="testing_guidelines.html"><span class="doc">Testing Guidelines</span></a></p></li>
+<li><p><strong>Learn about documentation</strong>: <a class="reference internal" href="documentation_guidelines.html"><span class="doc">Documentation Guidelines</span></a></p></li>
+<li><p><strong>Pick an issue</strong>: Browse <a class="reference external" href="https://github.com/AlexFiliakov/quactuary/issues">GitHub issues</a></p></li>
+<li><p><strong>Make your first contribution</strong>: Follow our <a class="reference internal" href="contributing.html"><span class="doc">Contributing to quactuary</span></a> guide</p></li>
+</ol>
+<p>You’re now ready to contribute to quactuary!</p>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="../index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">Setting Up Your Environment</a><ul>
+<li><a class="reference internal" href="#prerequisites">Prerequisites</a><ul>
+<li><a class="reference internal" href="#python-version">Python Version</a></li>
+<li><a class="reference internal" href="#git">Git</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#setting-up-the-repository">Setting Up the Repository</a><ul>
+<li><a class="reference internal" href="#fork-and-clone">Fork and Clone</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#python-environment-setup">Python Environment Setup</a><ul>
+<li><a class="reference internal" href="#virtual-environment-recommended">Virtual Environment (Recommended)</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#installing-dependencies">Installing Dependencies</a><ul>
+<li><a class="reference internal" href="#development-installation">Development Installation</a></li>
+<li><a class="reference internal" href="#manual-installation-alternative">Manual Installation (Alternative)</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#verify-installation">Verify Installation</a><ul>
+<li><a class="reference internal" href="#test-basic-functionality">Test Basic Functionality</a></li>
+<li><a class="reference internal" href="#run-test-suite">Run Test Suite</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#development-tools-setup">Development Tools Setup</a><ul>
+<li><a class="reference internal" href="#pre-commit-hooks-recommended">Pre-commit Hooks (Recommended)</a></li>
+<li><a class="reference internal" href="#code-formatting">Code Formatting</a></li>
+<li><a class="reference internal" href="#linting">Linting</a></li>
+<li><a class="reference internal" href="#type-checking">Type Checking</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#ide-editor-setup">IDE/Editor Setup</a><ul>
+<li><a class="reference internal" href="#vs-code">VS Code</a></li>
+<li><a class="reference internal" href="#pycharm">PyCharm</a></li>
+<li><a class="reference internal" href="#jupyter-notebooks">Jupyter Notebooks</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#ide-integration-with-run-dev-py">IDE Integration with run_dev.py</a><ul>
+<li><a class="reference internal" href="#terminal-shell-integration">Terminal/Shell Integration</a></li>
+<li><a class="reference internal" href="#vs-code-integration">VS Code Integration</a></li>
+<li><a class="reference internal" href="#pycharm-integration">PyCharm Integration</a></li>
+<li><a class="reference internal" href="#vim-neovim-integration">Vim/Neovim Integration</a></li>
+<li><a class="reference internal" href="#sublime-text-integration">Sublime Text Integration</a></li>
+<li><a class="reference internal" href="#emacs-integration">Emacs Integration</a></li>
+<li><a class="reference internal" href="#git-hooks-integration">Git Hooks Integration</a></li>
+<li><a class="reference internal" href="#available-run-dev-py-commands">Available run_dev.py Commands</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#docker-environment-optional">Docker Environment (Optional)</a></li>
+<li><a class="reference internal" href="#common-issues-and-solutions">Common Issues and Solutions</a><ul>
+<li><a class="reference internal" href="#import-errors">Import Errors</a></li>
+<li><a class="reference internal" href="#test-failures">Test Failures</a></li>
+<li><a class="reference internal" href="#permission-errors">Permission Errors</a></li>
+<li><a class="reference internal" href="#quantum-dependencies">Quantum Dependencies</a></li>
+<li><a class="reference internal" href="#performance-issues">Performance Issues</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#updating-your-environment">Updating Your Environment</a><ul>
+<li><a class="reference internal" href="#keeping-dependencies-updated">Keeping Dependencies Updated</a></li>
+<li><a class="reference internal" href="#syncing-with-upstream">Syncing with Upstream</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#environment-variables">Environment Variables</a></li>
+<li><a class="reference internal" href="#next-steps">Next Steps</a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="contributing.html"
+                          title="previous chapter">Contributing to quactuary</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="code_standards.html"
+                          title="next chapter">Code Standards</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/development/setting_up_environment.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="code_standards.html" title="Code Standards"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="contributing.html" title="Contributing to quactuary"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">quActuary v0.0.7 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Development Guidelines</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Setting Up Your Environment</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2025, Alex Filiakov, ACAS.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>MCP Tool Development &#8212; quActuary v0.0.7 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/nature.css?v=279e0f84" />
+    <script src="../_static/documentation_options.js?v=401b779c"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="canonical" href="https://docs.quactuary.com/development/mcp_development.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Submitting Changes" href="submitting_changes.html" />
+    <link rel="prev" title="Documentation Guidelines" href="documentation_guidelines.html" />
+ 
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-2TGPCH7PBM"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag() { dataLayer.push(arguments); }
+  gtag('js', new Date());
+  gtag('config', 'G-2TGPCH7PBM');
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="submitting_changes.html" title="Submitting Changes"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="documentation_guidelines.html" title="Documentation Guidelines"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">quActuary v0.0.7 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Development Guidelines</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">MCP Tool Development</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="mcp-tool-development">
+<h1>MCP Tool Development<a class="headerlink" href="#mcp-tool-development" title="Link to this heading">¶</a></h1>
+<p>This guide covers developing new tools for the quActuary MCP (Model Context Protocol) Server, which enables LLM assistants like Claude to use actuarial modeling capabilities.</p>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">¶</a></h2>
+<p>The MCP server is built using FastMCP and provides a standardized interface for exposing quActuary functionality to AI assistants. Tools are organized into categories and follow consistent patterns for parameter validation and error handling.</p>
+</section>
+<section id="architecture">
+<h2>Architecture<a class="headerlink" href="#architecture" title="Link to this heading">¶</a></h2>
+<p>The MCP implementation consists of several key components:</p>
+<p><strong>Core Components</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">server.py</span></code> - Main server implementation using FastMCP</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">tools.py</span></code> - Tool implementations</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">base.py</span></code> - Base classes and interfaces</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">categories.py</span></code> - Tool categorization system</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">formats.py</span></code> - Data formatting utilities</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">config.py</span></code> - Configuration management</p></li>
+</ul>
+<p><strong>Tool Categories</strong></p>
+<p>Tools are organized into four categories:</p>
+<ol class="arabic simple">
+<li><p><strong>PRICING</strong> - Pricing simulations and calculations</p></li>
+<li><p><strong>DISTRIBUTIONS</strong> - Distribution creation and manipulation</p></li>
+<li><p><strong>PORTFOLIO</strong> - Portfolio management and analysis</p></li>
+<li><p><strong>UTILITIES</strong> - General utilities and metrics</p></li>
+</ol>
+</section>
+<section id="creating-a-new-tool">
+<h2>Creating a New Tool<a class="headerlink" href="#creating-a-new-tool" title="Link to this heading">¶</a></h2>
+<section id="step-1-define-the-tool-class">
+<h3>Step 1: Define the Tool Class<a class="headerlink" href="#step-1-define-the-tool-class" title="Link to this heading">¶</a></h3>
+<p>Create a new tool by subclassing <code class="docutils literal notranslate"><span class="pre">QuactuaryTool</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">quactuary.mcp.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">QuactuaryTool</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">quactuary.mcp.categories</span><span class="w"> </span><span class="kn">import</span> <span class="n">ToolCategory</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Any</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">CalculateReserveTool</span><span class="p">(</span><span class="n">QuactuaryTool</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate reserve requirements for a portfolio.&quot;&quot;&quot;</span>
+
+    <span class="n">category</span> <span class="o">=</span> <span class="n">ToolCategory</span><span class="o">.</span><span class="n">PRICING</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;calculate_reserve&quot;</span>
+    <span class="n">description</span> <span class="o">=</span> <span class="s2">&quot;Calculate reserve requirements based on confidence level&quot;</span>
+
+    <span class="c1"># Define parameter schema</span>
+    <span class="n">parameters_schema</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;object&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;properties&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;portfolio_id&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;ID of the portfolio&quot;</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;confidence_level&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Confidence level (0-1)&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;minimum&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="s2">&quot;maximum&quot;</span><span class="p">:</span> <span class="mi">1</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;time_horizon&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;integer&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Time horizon in years&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;minimum&quot;</span><span class="p">:</span> <span class="mi">1</span>
+            <span class="p">}</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;required&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;portfolio_id&quot;</span><span class="p">,</span> <span class="s2">&quot;confidence_level&quot;</span><span class="p">]</span>
+    <span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="step-2-implement-the-execute-method">
+<h3>Step 2: Implement the Execute Method<a class="headerlink" href="#step-2-implement-the-execute-method" title="Link to this heading">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Execute the reserve calculation.&quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># Validate parameters</span>
+        <span class="n">portfolio_id</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;portfolio_id&quot;</span><span class="p">]</span>
+        <span class="n">confidence_level</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;confidence_level&quot;</span><span class="p">]</span>
+        <span class="n">time_horizon</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;time_horizon&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># Load portfolio (example)</span>
+        <span class="n">portfolio</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_portfolio</span><span class="p">(</span><span class="n">portfolio_id</span><span class="p">)</span>
+
+        <span class="c1"># Perform calculation</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">quactuary.pricing</span><span class="w"> </span><span class="kn">import</span> <span class="n">PricingModel</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">PricingModel</span><span class="p">(</span><span class="n">portfolio</span><span class="p">)</span>
+
+        <span class="c1"># Run simulation with specified parameters</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span>
+            <span class="n">n_simulations</span><span class="o">=</span><span class="mi">100_000</span><span class="p">,</span>
+            <span class="n">time_horizon</span><span class="o">=</span><span class="n">time_horizon</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Calculate reserve at confidence level</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+        <span class="n">quantile</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">total_losses</span><span class="p">,</span>
+            <span class="n">confidence_level</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;success&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;reserve_amount&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">quantile</span><span class="p">),</span>
+            <span class="s2">&quot;confidence_level&quot;</span><span class="p">:</span> <span class="n">confidence_level</span><span class="p">,</span>
+            <span class="s2">&quot;time_horizon&quot;</span><span class="p">:</span> <span class="n">time_horizon</span><span class="p">,</span>
+            <span class="s2">&quot;expected_loss&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">estimates</span><span class="p">[</span><span class="s2">&quot;mean&quot;</span><span class="p">]),</span>
+            <span class="s2">&quot;portfolio_id&quot;</span><span class="p">:</span> <span class="n">portfolio_id</span>
+        <span class="p">}</span>
+
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">),</span>
+            <span class="s2">&quot;error_type&quot;</span><span class="p">:</span> <span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="step-3-register-the-tool">
+<h3>Step 3: Register the Tool<a class="headerlink" href="#step-3-register-the-tool" title="Link to this heading">¶</a></h3>
+<p>Add your tool to the server in <code class="docutils literal notranslate"><span class="pre">tools.py</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># In tools.py</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.calculate_reserve</span><span class="w"> </span><span class="kn">import</span> <span class="n">CalculateReserveTool</span>
+
+<span class="c1"># Register with the server</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">register_tools</span><span class="p">(</span><span class="n">server</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Register all tools with the MCP server.&quot;&quot;&quot;</span>
+    <span class="n">tools</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="c1"># Existing tools...</span>
+        <span class="n">CalculateReserveTool</span><span class="p">(),</span>
+    <span class="p">]</span>
+
+    <span class="k">for</span> <span class="n">tool</span> <span class="ow">in</span> <span class="n">tools</span><span class="p">:</span>
+        <span class="n">server</span><span class="o">.</span><span class="n">register_tool</span><span class="p">(</span><span class="n">tool</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="best-practices">
+<h2>Best Practices<a class="headerlink" href="#best-practices" title="Link to this heading">¶</a></h2>
+<section id="parameter-validation">
+<h3>Parameter Validation<a class="headerlink" href="#parameter-validation" title="Link to this heading">¶</a></h3>
+<p>Always validate parameters thoroughly:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">validate_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate tool parameters.&quot;&quot;&quot;</span>
+    <span class="c1"># Check required fields</span>
+    <span class="k">if</span> <span class="s2">&quot;portfolio_id&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;portfolio_id is required&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Validate types and ranges</span>
+    <span class="n">confidence</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;confidence_level&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">confidence</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">)):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;confidence_level must be numeric&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">confidence</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;confidence_level must be between 0 and 1&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="error-handling">
+<h3>Error Handling<a class="headerlink" href="#error-handling" title="Link to this heading">¶</a></h3>
+<p>Implement comprehensive error handling:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># Validate first</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">validate_params</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+
+        <span class="c1"># Perform operation</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">perform_calculation</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;success&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;result&quot;</span><span class="p">:</span> <span class="n">result</span>
+        <span class="p">}</span>
+
+    <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="c1"># Parameter validation errors</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">),</span>
+            <span class="s2">&quot;error_type&quot;</span><span class="p">:</span> <span class="s2">&quot;validation_error&quot;</span>
+        <span class="p">}</span>
+
+    <span class="k">except</span> <span class="ne">MemoryError</span><span class="p">:</span>
+        <span class="c1"># Resource limitations</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Insufficient memory for calculation&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;error_type&quot;</span><span class="p">:</span> <span class="s2">&quot;resource_error&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;suggestion&quot;</span><span class="p">:</span> <span class="s2">&quot;Try reducing simulation size&quot;</span>
+        <span class="p">}</span>
+
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="c1"># Unexpected errors</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Tool error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;An unexpected error occurred&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;error_type&quot;</span><span class="p">:</span> <span class="s2">&quot;internal_error&quot;</span>
+        <span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="consistent-output-format">
+<h3>Consistent Output Format<a class="headerlink" href="#consistent-output-format" title="Link to this heading">¶</a></h3>
+<p>Follow consistent patterns for output:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Success response</span>
+<span class="p">{</span>
+    <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;success&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;result&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;primary_metric&quot;</span><span class="p">:</span> <span class="n">value</span><span class="p">,</span>
+        <span class="s2">&quot;secondary_metrics&quot;</span><span class="p">:</span> <span class="p">{</span><span class="o">...</span><span class="p">},</span>
+        <span class="s2">&quot;metadata&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;calculation_time&quot;</span><span class="p">:</span> <span class="mf">1.23</span><span class="p">,</span>
+            <span class="s2">&quot;parameters_used&quot;</span><span class="p">:</span> <span class="p">{</span><span class="o">...</span><span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1"># Error response</span>
+<span class="p">{</span>
+    <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Description of what went wrong&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;error_type&quot;</span><span class="p">:</span> <span class="s2">&quot;category_of_error&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;suggestion&quot;</span><span class="p">:</span> <span class="s2">&quot;How to fix it (optional)&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="documentation">
+<h3>Documentation<a class="headerlink" href="#documentation" title="Link to this heading">¶</a></h3>
+<p>Document your tools thoroughly:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">MyTool</span><span class="p">(</span><span class="n">QuactuaryTool</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;One-line summary of the tool.</span>
+
+<span class="sd">    Detailed description of what the tool does, when to use it,</span>
+<span class="sd">    and any important considerations.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    param1 : type</span>
+<span class="sd">        Description of param1</span>
+<span class="sd">    param2 : type, optional</span>
+<span class="sd">        Description of param2 (default: value)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">        Dictionary containing:</span>
+<span class="sd">        - key1: Description</span>
+<span class="sd">        - key2: Description</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; tool = MyTool()</span>
+<span class="sd">    &gt;&gt;&gt; result = tool.execute({&quot;param1&quot;: value})</span>
+<span class="sd">    &gt;&gt;&gt; print(result[&quot;key1&quot;])</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="testing-mcp-tools">
+<h2>Testing MCP Tools<a class="headerlink" href="#testing-mcp-tools" title="Link to this heading">¶</a></h2>
+<section id="unit-tests">
+<h3>Unit Tests<a class="headerlink" href="#unit-tests" title="Link to this heading">¶</a></h3>
+<p>Write comprehensive unit tests for each tool:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># tests/test_calculate_reserve.py</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">quactuary.mcp.tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">CalculateReserveTool</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestCalculateReserveTool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_method</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tool</span> <span class="o">=</span> <span class="n">CalculateReserveTool</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_valid_calculation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;portfolio_id&quot;</span><span class="p">:</span> <span class="s2">&quot;test_portfolio&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;confidence_level&quot;</span><span class="p">:</span> <span class="mf">0.95</span><span class="p">,</span>
+            <span class="s2">&quot;time_horizon&quot;</span><span class="p">:</span> <span class="mi">1</span>
+        <span class="p">}</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+
+        <span class="k">assert</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;success&quot;</span>
+        <span class="k">assert</span> <span class="s2">&quot;reserve_amount&quot;</span> <span class="ow">in</span> <span class="n">result</span>
+        <span class="k">assert</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;confidence_level&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mf">0.95</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_missing_required_param</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;confidence_level&quot;</span><span class="p">:</span> <span class="mf">0.95</span><span class="p">}</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+
+        <span class="k">assert</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;error&quot;</span>
+        <span class="k">assert</span> <span class="s2">&quot;portfolio_id&quot;</span> <span class="ow">in</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;error&quot;</span><span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_invalid_confidence_level</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;portfolio_id&quot;</span><span class="p">:</span> <span class="s2">&quot;test&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;confidence_level&quot;</span><span class="p">:</span> <span class="mf">1.5</span>
+        <span class="p">}</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+
+        <span class="k">assert</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;error&quot;</span>
+        <span class="k">assert</span> <span class="s2">&quot;confidence_level&quot;</span> <span class="ow">in</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;error&quot;</span><span class="p">]</span>
+</pre></div>
+</div>
+</section>
+<section id="integration-tests">
+<h3>Integration Tests<a class="headerlink" href="#integration-tests" title="Link to this heading">¶</a></h3>
+<p>Test tool integration with the MCP server:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># tests/test_mcp_integration.py</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">quactuary.mcp.server</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_server</span>
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">test_tool_registration</span><span class="p">():</span>
+    <span class="n">server</span> <span class="o">=</span> <span class="n">create_server</span><span class="p">()</span>
+
+    <span class="c1"># Check tool is registered</span>
+    <span class="n">tools</span> <span class="o">=</span> <span class="k">await</span> <span class="n">server</span><span class="o">.</span><span class="n">list_tools</span><span class="p">()</span>
+    <span class="n">tool_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tools</span><span class="p">]</span>
+
+    <span class="k">assert</span> <span class="s2">&quot;calculate_reserve&quot;</span> <span class="ow">in</span> <span class="n">tool_names</span>
+</pre></div>
+</div>
+</section>
+<section id="manual-testing">
+<h3>Manual Testing<a class="headerlink" href="#manual-testing" title="Link to this heading">¶</a></h3>
+<p>Test your tool in Claude Desktop:</p>
+<ol class="arabic">
+<li><p>Start the MCP server with your new tool</p></li>
+<li><p>Open Claude Desktop and ensure it connects</p></li>
+<li><p>Test the tool with various inputs:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>User: Calculate the reserve requirement for portfolio ABC123
+      at 95% confidence level over 2 years.
+</pre></div>
+</div>
+</li>
+<li><p>Verify error handling:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>User: Calculate reserve for portfolio XYZ at 150% confidence.
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+</section>
+<section id="performance-considerations">
+<h2>Performance Considerations<a class="headerlink" href="#performance-considerations" title="Link to this heading">¶</a></h2>
+<section id="memory-management">
+<h3>Memory Management<a class="headerlink" href="#memory-management" title="Link to this heading">¶</a></h3>
+<p>For tools that process large datasets:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+    <span class="c1"># Use context managers for large objects</span>
+    <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_large_dataset</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;dataset_id&quot;</span><span class="p">])</span> <span class="k">as</span> <span class="n">data</span><span class="p">:</span>
+        <span class="c1"># Process in chunks if needed</span>
+        <span class="n">chunk_size</span> <span class="o">=</span> <span class="mi">10000</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="n">chunk_size</span><span class="p">):</span>
+            <span class="n">chunk</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span> <span class="o">+</span> <span class="n">chunk_size</span><span class="p">]</span>
+            <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">process_chunk</span><span class="p">(</span><span class="n">chunk</span><span class="p">))</span>
+
+        <span class="c1"># Aggregate results</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">aggregate_results</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="caching">
+<h3>Caching<a class="headerlink" href="#caching" title="Link to this heading">¶</a></h3>
+<p>Implement caching for expensive operations:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">lru_cache</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">MyTool</span><span class="p">(</span><span class="n">QuactuaryTool</span><span class="p">):</span>
+    <span class="nd">@lru_cache</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_distribution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dist_type</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Cache distribution objects.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">create_distribution</span><span class="p">(</span><span class="n">dist_type</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="async-operations">
+<h3>Async Operations<a class="headerlink" href="#async-operations" title="Link to this heading">¶</a></h3>
+<p>For I/O-bound operations, consider async:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">execute_async</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Async version for I/O operations.&quot;&quot;&quot;</span>
+    <span class="c1"># Async database query</span>
+    <span class="n">portfolio</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_portfolio_async</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span>
+
+    <span class="c1"># Run CPU-bound work in thread pool</span>
+    <span class="n">loop</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">get_event_loop</span><span class="p">()</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">loop</span><span class="o">.</span><span class="n">run_in_executor</span><span class="p">(</span>
+        <span class="kc">None</span><span class="p">,</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">calculate_metrics</span><span class="p">,</span>
+        <span class="n">portfolio</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">result</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="debugging-tools">
+<h2>Debugging Tools<a class="headerlink" href="#debugging-tools" title="Link to this heading">¶</a></h2>
+<section id="logging">
+<h3>Logging<a class="headerlink" href="#logging" title="Link to this heading">¶</a></h3>
+<p>Use structured logging for debugging:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Tool execution started&quot;</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;tool&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+        <span class="s2">&quot;params&quot;</span><span class="p">:</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+    <span class="p">})</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">perform_calculation</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Tool execution completed&quot;</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;tool&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;success&quot;</span>
+        <span class="p">})</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Tool execution failed&quot;</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;tool&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">),</span>
+            <span class="s2">&quot;params&quot;</span><span class="p">:</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+        <span class="p">},</span> <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">raise</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="development-workflow">
+<h2>Development Workflow<a class="headerlink" href="#development-workflow" title="Link to this heading">¶</a></h2>
+<ol class="arabic">
+<li><p><strong>Create Feature Branch</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>checkout<span class="w"> </span>-b<span class="w"> </span>feature/new-mcp-tool
+</pre></div>
+</div>
+</li>
+<li><p><strong>Implement Tool</strong></p>
+<ul class="simple">
+<li><p>Write tool class</p></li>
+<li><p>Add tests</p></li>
+<li><p>Update documentation</p></li>
+</ul>
+</li>
+<li><p><strong>Test Locally</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Run unit tests</span>
+pytest<span class="w"> </span>tests/test_new_tool.py
+
+<span class="c1"># Test with MCP server</span>
+python<span class="w"> </span>-m<span class="w"> </span>quactuary.mcp.server
+</pre></div>
+</div>
+</li>
+<li><p><strong>Test in Claude Desktop</strong></p>
+<ul class="simple">
+<li><p>Configure Claude Desktop</p></li>
+<li><p>Test various scenarios</p></li>
+<li><p>Verify error handling</p></li>
+</ul>
+</li>
+<li><p><strong>Submit PR</strong></p>
+<ul class="simple">
+<li><p>Ensure tests pass</p></li>
+<li><p>Update CHANGELOG</p></li>
+<li><p>Submit pull request</p></li>
+</ul>
+</li>
+</ol>
+</section>
+<section id="next-steps">
+<h2>Next Steps<a class="headerlink" href="#next-steps" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Review existing tools in <code class="docutils literal notranslate"><span class="pre">quactuary/mcp/tools.py</span></code> for examples</p></li>
+<li><p>Check <code class="docutils literal notranslate"><span class="pre">quactuary/mcp/tests/</span></code> for testing patterns</p></li>
+<li><p>Read the FastMCP documentation for advanced features</p></li>
+<li><p>Join discussions on GitHub for tool ideas and feedback</p></li>
+</ul>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="../index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">MCP Tool Development</a><ul>
+<li><a class="reference internal" href="#overview">Overview</a></li>
+<li><a class="reference internal" href="#architecture">Architecture</a></li>
+<li><a class="reference internal" href="#creating-a-new-tool">Creating a New Tool</a><ul>
+<li><a class="reference internal" href="#step-1-define-the-tool-class">Step 1: Define the Tool Class</a></li>
+<li><a class="reference internal" href="#step-2-implement-the-execute-method">Step 2: Implement the Execute Method</a></li>
+<li><a class="reference internal" href="#step-3-register-the-tool">Step 3: Register the Tool</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#best-practices">Best Practices</a><ul>
+<li><a class="reference internal" href="#parameter-validation">Parameter Validation</a></li>
+<li><a class="reference internal" href="#error-handling">Error Handling</a></li>
+<li><a class="reference internal" href="#consistent-output-format">Consistent Output Format</a></li>
+<li><a class="reference internal" href="#documentation">Documentation</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#testing-mcp-tools">Testing MCP Tools</a><ul>
+<li><a class="reference internal" href="#unit-tests">Unit Tests</a></li>
+<li><a class="reference internal" href="#integration-tests">Integration Tests</a></li>
+<li><a class="reference internal" href="#manual-testing">Manual Testing</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#performance-considerations">Performance Considerations</a><ul>
+<li><a class="reference internal" href="#memory-management">Memory Management</a></li>
+<li><a class="reference internal" href="#caching">Caching</a></li>
+<li><a class="reference internal" href="#async-operations">Async Operations</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#debugging-tools">Debugging Tools</a><ul>
+<li><a class="reference internal" href="#logging">Logging</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#development-workflow">Development Workflow</a></li>
+<li><a class="reference internal" href="#next-steps">Next Steps</a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="documentation_guidelines.html"
+                          title="previous chapter">Documentation Guidelines</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="submitting_changes.html"
+                          title="next chapter">Submitting Changes</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/development/mcp_development.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="submitting_changes.html" title="Submitting Changes"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="documentation_guidelines.html" title="Documentation Guidelines"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">quActuary v0.0.7 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Development Guidelines</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">MCP Tool Development</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2025, Alex Filiakov, ACAS.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    </div>
+  </body>
+</html>

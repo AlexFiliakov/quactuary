@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>PricingModel API &#8212; quActuary v0.0.7 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/nature.css?v=279e0f84" />
+    <script src="../_static/documentation_options.js?v=401b779c"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="canonical" href="https://docs.quactuary.com/api_reference/pricing_model.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="quactuary.quantum module" href="../quactuary.quantum.html" />
+    <link rel="prev" title="quactuary.pricing module" href="../quactuary.pricing.html" />
+ 
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-2TGPCH7PBM"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag() { dataLayer.push(arguments); }
+  gtag('js', new Date());
+  gtag('config', 'G-2TGPCH7PBM');
+</script>
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../quactuary.quantum.html" title="quactuary.quantum module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../quactuary.pricing.html" title="quactuary.pricing module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">quActuary v0.0.7 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">PricingModel API</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="pricingmodel-api">
+<span id="api-pricing-model"></span><h1>PricingModel API<a class="headerlink" href="#pricingmodel-api" title="Link to this heading">¶</a></h1>
+<p>The <code class="docutils literal notranslate"><span class="pre">PricingModel</span></code> class is the primary interface for running actuarial simulations
+with optimization features.</p>
+<nav class="contents local" id="table-of-contents">
+<p class="topic-title">Table of Contents</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#class-overview" id="id2">Class Overview</a></p>
+<ul>
+<li><p><a class="reference internal" href="#constructor" id="id3">Constructor</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#core-methods" id="id4">Core Methods</a></p>
+<ul>
+<li><p><a class="reference internal" href="#simulate" id="id5">simulate()</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#advanced-usage" id="id6">Advanced Usage</a></p>
+<ul>
+<li><p><a class="reference internal" href="#custom-optimization-strategies" id="id7">Custom Optimization Strategies</a></p></li>
+<li><p><a class="reference internal" href="#batch-processing" id="id8">Batch Processing</a></p></li>
+<li><p><a class="reference internal" href="#streaming-results" id="id9">Streaming Results</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#error-handling" id="id10">Error Handling</a></p>
+<ul>
+<li><p><a class="reference internal" href="#common-exceptions" id="id11">Common Exceptions</a></p></li>
+<li><p><a class="reference internal" href="#debugging-mode" id="id12">Debugging Mode</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#see-also" id="id13">See Also</a></p></li>
+</ul>
+</nav>
+<section id="class-overview">
+<h2><a class="toc-backref" href="#id2" role="doc-backlink">Class Overview</a><a class="headerlink" href="#class-overview" title="Link to this heading">¶</a></h2>
+<section id="constructor">
+<h3><a class="toc-backref" href="#id3" role="doc-backlink">Constructor</a><a class="headerlink" href="#constructor" title="Link to this heading">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">PricingModel</span><span class="p">(</span>
+    <span class="n">portfolio</span><span class="p">:</span> <span class="n">Portfolio</span><span class="p">,</span>
+    <span class="n">backend</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Backend</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">optimization_selector</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">OptimizationSelector</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Parameters:</strong></p>
+<ul class="simple">
+<li><p><strong>portfolio</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Portfolio</span></code>) - The portfolio of policies to simulate</p></li>
+<li><p><strong>backend</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Backend</span></code>, optional) - Computational backend (classical/quantum). Defaults to current backend setting.</p></li>
+<li><p><strong>optimization_selector</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">OptimizationSelector</span></code>, optional) - ML-based optimization selector. If None, creates default selector.</p></li>
+</ul>
+<p><strong>Example:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">quactuary</span><span class="w"> </span><span class="kn">import</span> <span class="n">PricingModel</span><span class="p">,</span> <span class="n">Portfolio</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">quactuary.optimization</span><span class="w"> </span><span class="kn">import</span> <span class="n">OptimizationSelector</span>
+
+<span class="c1"># Basic usage</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">PricingModel</span><span class="p">(</span><span class="n">portfolio</span><span class="p">)</span>
+
+<span class="c1"># With custom optimization selector</span>
+<span class="n">selector</span> <span class="o">=</span> <span class="n">OptimizationSelector</span><span class="p">(</span><span class="n">model_path</span><span class="o">=</span><span class="s2">&quot;custom_model.pkl&quot;</span><span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">PricingModel</span><span class="p">(</span><span class="n">portfolio</span><span class="p">,</span> <span class="n">optimization_selector</span><span class="o">=</span><span class="n">selector</span><span class="p">)</span>
+
+<span class="c1"># With quantum backend</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">quactuary</span><span class="w"> </span><span class="kn">import</span> <span class="n">set_backend</span>
+<span class="n">set_backend</span><span class="p">(</span><span class="s2">&quot;quantum&quot;</span><span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">PricingModel</span><span class="p">(</span><span class="n">portfolio</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="core-methods">
+<h2><a class="toc-backref" href="#id4" role="doc-backlink">Core Methods</a><a class="headerlink" href="#core-methods" title="Link to this heading">¶</a></h2>
+<section id="simulate">
+<h3><a class="toc-backref" href="#id5" role="doc-backlink">simulate()</a><a class="headerlink" href="#simulate" title="Link to this heading">¶</a></h3>
+<p><strong>Method Signature:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">simulate</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">n_simulations</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10000</span><span class="p">,</span>
+    <span class="n">use_jit</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">parallel</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">max_workers</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">vectorized</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">memory_limit_gb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">use_qmc</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">qmc_engine</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;sobol&#39;</span><span class="p">,</span>
+    <span class="n">qmc_method</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">qmc_scramble</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">qmc_skip</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">qmc_seed</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">progress_bar</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">checkpoint_interval</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">random_state</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">auto_optimize</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">optimization_config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SimulationResults</span>
+</pre></div>
+</div>
+<p><strong>Parameters:</strong></p>
+<table class="docutils align-default" id="id1">
+<caption><span class="caption-text">Simulation Parameters</span><a class="headerlink" href="#id1" title="Link to this table">¶</a></caption>
+<colgroup>
+<col style="width: 20.0%" />
+<col style="width: 15.0%" />
+<col style="width: 65.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">n_simulations</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">int</span></code></p></td>
+<td><p>Number of simulation paths to generate (default: 10,000)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">use_jit</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">bool</span> <span class="pre">|</span> <span class="pre">None</span></code></p></td>
+<td><p>Enable JIT compilation. Auto-detected if None based on portfolio size</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">parallel</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">bool</span> <span class="pre">|</span> <span class="pre">None</span></code></p></td>
+<td><p>Enable parallel processing. Auto-detected if None</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">max_workers</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">int</span> <span class="pre">|</span> <span class="pre">None</span></code></p></td>
+<td><p>Maximum worker processes. Uses CPU count if None</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">vectorized</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">bool</span></code></p></td>
+<td><p>Enable vectorization (default: True, recommended)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">memory_limit_gb</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">float</span> <span class="pre">|</span> <span class="pre">None</span></code></p></td>
+<td><p>Memory limit in GB. Auto-detected if None</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">use_qmc</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">bool</span></code></p></td>
+<td><p>Use quasi-Monte Carlo sequences (default: False)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">qmc_engine</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">str</span></code></p></td>
+<td><p>QMC engine: ‘sobol’, ‘halton’, ‘latin_hypercube’</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">qmc_method</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">str</span> <span class="pre">|</span> <span class="pre">None</span></code></p></td>
+<td><p>QMC generation method (engine-specific)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">qmc_scramble</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">bool</span></code></p></td>
+<td><p>Apply Owen scrambling to QMC sequences (default: True)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">qmc_skip</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">int</span></code></p></td>
+<td><p>Number of initial QMC points to skip (default: 0)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">qmc_seed</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">int</span> <span class="pre">|</span> <span class="pre">None</span></code></p></td>
+<td><p>Seed for QMC scrambling</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">progress_bar</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">bool</span></code></p></td>
+<td><p>Show progress bar during simulation (default: True)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">checkpoint_interval</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">int</span> <span class="pre">|</span> <span class="pre">None</span></code></p></td>
+<td><p>Save progress every N simulations. None disables checkpointing</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">random_state</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">int</span> <span class="pre">|</span> <span class="pre">None</span></code></p></td>
+<td><p>Random seed for reproducibility</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">auto_optimize</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">bool</span></code></p></td>
+<td><p>Enable ML-based automatic optimization selection (default: True)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">optimization_config</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">dict</span> <span class="pre">|</span> <span class="pre">None</span></code></p></td>
+<td><p>Manual optimization configuration overrides</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Returns:</strong></p>
+<ul class="simple">
+<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">SimulationResults</span></code> - Object containing simulation results and metadata</p></li>
+</ul>
+<p><strong>Examples:</strong></p>
+<p>Basic usage with automatic optimization:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">quactuary</span><span class="w"> </span><span class="kn">import</span> <span class="n">PricingModel</span><span class="p">,</span> <span class="n">Portfolio</span>
+
+<span class="c1"># Create portfolio and model</span>
+<span class="n">portfolio</span> <span class="o">=</span> <span class="n">Portfolio</span><span class="p">()</span>
+<span class="c1"># ... add policies to portfolio ...</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">PricingModel</span><span class="p">(</span><span class="n">portfolio</span><span class="p">)</span>
+
+<span class="c1"># Run simulation with automatic optimization</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">n_simulations</span><span class="o">=</span><span class="mi">100_000</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Mean loss: $</span><span class="si">{</span><span class="n">results</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">,.0f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;95% VaR: $</span><span class="si">{</span><span class="n">results</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="mf">0.95</span><span class="p">)</span><span class="si">:</span><span class="s2">,.0f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;99% TVaR: $</span><span class="si">{</span><span class="n">results</span><span class="o">.</span><span class="n">tvar</span><span class="p">(</span><span class="mf">0.99</span><span class="p">)</span><span class="si">:</span><span class="s2">,.0f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Explicit optimization configuration:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># High-performance configuration</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span>
+    <span class="n">n_simulations</span><span class="o">=</span><span class="mi">1_000_000</span><span class="p">,</span>
+    <span class="n">use_jit</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">parallel</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">max_workers</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+    <span class="n">use_qmc</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">qmc_engine</span><span class="o">=</span><span class="s1">&#39;sobol&#39;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Advanced QMC configuration:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Enhanced QMC with scrambling and optimized parameters</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span>
+    <span class="n">n_simulations</span><span class="o">=</span><span class="mi">100_000</span><span class="p">,</span>
+    <span class="n">use_qmc</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">qmc_engine</span><span class="o">=</span><span class="s1">&#39;sobol&#39;</span><span class="p">,</span>
+    <span class="n">qmc_scramble</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>      <span class="c1"># Owen scrambling for better uniformity</span>
+    <span class="n">qmc_skip</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>          <span class="c1"># Skip first 1000 points</span>
+    <span class="n">qmc_seed</span><span class="o">=</span><span class="mi">42</span>             <span class="c1"># Reproducible scrambling</span>
+<span class="p">)</span>
+
+<span class="c1"># Halton sequence for lower dimensions</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span>
+    <span class="n">n_simulations</span><span class="o">=</span><span class="mi">50_000</span><span class="p">,</span>
+    <span class="n">use_qmc</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">qmc_engine</span><span class="o">=</span><span class="s1">&#39;halton&#39;</span><span class="p">,</span>
+    <span class="n">qmc_scramble</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Memory-constrained environment:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Memory-efficient configuration</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span>
+    <span class="n">n_simulations</span><span class="o">=</span><span class="mi">10_000_000</span><span class="p">,</span>
+    <span class="n">memory_limit_gb</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+    <span class="n">checkpoint_interval</span><span class="o">=</span><span class="mi">100_000</span><span class="p">,</span>
+    <span class="n">parallel</span><span class="o">=</span><span class="kc">False</span>  <span class="c1"># Reduce memory usage</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Automatic optimization with ML-based selection:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Let the ML model choose optimal settings</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span>
+    <span class="n">n_simulations</span><span class="o">=</span><span class="mi">500_000</span><span class="p">,</span>
+    <span class="n">auto_optimize</span><span class="o">=</span><span class="kc">True</span>  <span class="c1"># Uses OptimizationSelector</span>
+<span class="p">)</span>
+
+<span class="c1"># View selected optimizations</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Selected strategy: </span><span class="si">{</span><span class="n">results</span><span class="o">.</span><span class="n">optimization_strategy</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;JIT used: </span><span class="si">{</span><span class="n">results</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;use_jit&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Parallel used: </span><span class="si">{</span><span class="n">results</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;parallel&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Manual optimization override:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Override automatic optimization</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span>
+    <span class="n">n_simulations</span><span class="o">=</span><span class="mi">100_000</span><span class="p">,</span>
+    <span class="n">auto_optimize</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">optimization_config</span><span class="o">=</span><span class="p">{</span>
+        <span class="s1">&#39;use_jit&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s1">&#39;parallel&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s1">&#39;max_workers&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+        <span class="s1">&#39;batch_size&#39;</span><span class="p">:</span> <span class="mi">10000</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Auto-Detection Logic:</strong></p>
+<p>The <code class="docutils literal notranslate"><span class="pre">simulate()</span></code> method uses ML-based optimization selection when <code class="docutils literal notranslate"><span class="pre">auto_optimize=True</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># The OptimizationSelector uses a trained model to predict optimal settings</span>
+<span class="c1"># based on portfolio characteristics and system resources</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">select_optimizations</span><span class="p">(</span><span class="n">portfolio</span><span class="p">,</span> <span class="n">n_simulations</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;ML-based optimization selection.&quot;&quot;&quot;</span>
+
+    <span class="c1"># Extract features</span>
+    <span class="n">features</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;n_policies&#39;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">portfolio</span><span class="p">),</span>
+        <span class="s1">&#39;n_simulations&#39;</span><span class="p">:</span> <span class="n">n_simulations</span><span class="p">,</span>
+        <span class="s1">&#39;avg_frequency&#39;</span><span class="p">:</span> <span class="n">portfolio</span><span class="o">.</span><span class="n">average_frequency</span><span class="p">,</span>
+        <span class="s1">&#39;severity_complexity&#39;</span><span class="p">:</span> <span class="n">portfolio</span><span class="o">.</span><span class="n">severity_complexity_score</span><span class="p">,</span>
+        <span class="s1">&#39;has_dependencies&#39;</span><span class="p">:</span> <span class="n">portfolio</span><span class="o">.</span><span class="n">has_correlations</span><span class="p">,</span>
+        <span class="s1">&#39;available_memory_gb&#39;</span><span class="p">:</span> <span class="n">psutil</span><span class="o">.</span><span class="n">virtual_memory</span><span class="p">()</span><span class="o">.</span><span class="n">available</span> <span class="o">/</span> <span class="mf">1e9</span><span class="p">,</span>
+        <span class="s1">&#39;cpu_count&#39;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span>
+    <span class="p">}</span>
+
+    <span class="c1"># ML model predicts optimal strategy</span>
+    <span class="n">strategy</span> <span class="o">=</span> <span class="n">optimization_selector</span><span class="o">.</span><span class="n">predict_strategy</span><span class="p">(</span><span class="n">features</span><span class="p">)</span>
+
+    <span class="c1"># Strategy includes:</span>
+    <span class="c1"># - use_jit: Whether to use JIT compilation</span>
+    <span class="c1"># - parallel: Whether to use parallel processing</span>
+    <span class="c1"># - max_workers: Optimal number of workers</span>
+    <span class="c1"># - batch_size: Optimal batch size for processing</span>
+    <span class="c1"># - use_qmc: Whether QMC would improve convergence</span>
+
+    <span class="k">return</span> <span class="n">strategy</span>
+</pre></div>
+</div>
+<p>For manual control, set <code class="docutils literal notranslate"><span class="pre">auto_optimize=False</span></code> and provide <code class="docutils literal notranslate"><span class="pre">optimization_config</span></code>.</p>
+<p><strong>Performance Considerations:</strong></p>
+<ul class="simple">
+<li><p><strong>JIT Compilation</strong>: First run includes compilation overhead (0.5-2 seconds)</p></li>
+<li><p><strong>Parallel Processing</strong>: Overhead makes it unsuitable for small portfolios (&lt; 50 policies)</p></li>
+<li><p><strong>Memory Management</strong>: Automatic batching when memory limit is approached</p></li>
+<li><p><strong>QMC Convergence</strong>: Often achieves better precision with fewer simulations</p></li>
+<li><p><strong>QMC Scrambling</strong>: Owen scrambling improves uniformity and convergence rates</p></li>
+<li><p><strong>QMC Skip</strong>: Skipping initial points can improve sequence quality for some applications</p></li>
+</ul>
+</section>
+</section>
+<section id="advanced-usage">
+<h2><a class="toc-backref" href="#id6" role="doc-backlink">Advanced Usage</a><a class="headerlink" href="#advanced-usage" title="Link to this heading">¶</a></h2>
+<section id="custom-optimization-strategies">
+<h3><a class="toc-backref" href="#id7" role="doc-backlink">Custom Optimization Strategies</a><a class="headerlink" href="#custom-optimization-strategies" title="Link to this heading">¶</a></h3>
+<p>Implement custom optimization logic:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">CustomPricingModel</span><span class="p">(</span><span class="n">PricingModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Custom model with specialized optimization.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">custom_optimize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_simulations</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Custom optimization based on portfolio characteristics.&quot;&quot;&quot;</span>
+
+        <span class="c1"># Analyze portfolio complexity</span>
+        <span class="n">complexity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">analyze_complexity</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">complexity</span><span class="p">[</span><span class="s1">&#39;has_dependencies&#39;</span><span class="p">]:</span>
+            <span class="c1"># Correlated portfolios benefit from QMC</span>
+            <span class="n">config</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;use_qmc&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                <span class="s1">&#39;qmc_engine&#39;</span><span class="p">:</span> <span class="s1">&#39;sobol&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;use_jit&#39;</span><span class="p">:</span> <span class="kc">True</span>
+            <span class="p">}</span>
+        <span class="k">elif</span> <span class="n">complexity</span><span class="p">[</span><span class="s1">&#39;high_frequency&#39;</span><span class="p">]:</span>
+            <span class="c1"># High-frequency portfolios need parallel processing</span>
+            <span class="n">config</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;parallel&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                <span class="s1">&#39;max_workers&#39;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">(),</span>
+                <span class="s1">&#39;use_jit&#39;</span><span class="p">:</span> <span class="kc">True</span>
+            <span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Simple portfolios use basic optimization</span>
+            <span class="n">config</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;use_jit&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                <span class="s1">&#39;parallel&#39;</span><span class="p">:</span> <span class="kc">False</span>
+            <span class="p">}</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">n_simulations</span><span class="o">=</span><span class="n">n_simulations</span><span class="p">,</span> <span class="o">**</span><span class="n">config</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">analyze_complexity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Analyze portfolio complexity.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s1">&#39;has_dependencies&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">portfolio</span><span class="o">.</span><span class="n">correlation_matrix</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s1">&#39;high_frequency&#39;</span><span class="p">:</span> <span class="nb">any</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">frequency</span> <span class="o">&gt;</span> <span class="mi">10</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">portfolio</span><span class="p">),</span>
+            <span class="s1">&#39;complex_terms&#39;</span><span class="p">:</span> <span class="nb">any</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">has_complex_terms</span><span class="p">()</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">portfolio</span><span class="p">)</span>
+        <span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="batch-processing">
+<h3><a class="toc-backref" href="#id8" role="doc-backlink">Batch Processing</a><a class="headerlink" href="#batch-processing" title="Link to this heading">¶</a></h3>
+<p>Process multiple scenarios efficiently:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">batch_simulate</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">scenarios</span><span class="p">,</span> <span class="n">n_simulations</span><span class="o">=</span><span class="mi">100_000</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Simulate multiple scenarios efficiently.&quot;&quot;&quot;</span>
+
+    <span class="n">results</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="c1"># Warm up JIT compilation once</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">n_simulations</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">use_jit</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">scenario_name</span><span class="p">,</span> <span class="n">scenario_params</span> <span class="ow">in</span> <span class="n">scenarios</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="c1"># Apply scenario parameters</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">apply_scenario</span><span class="p">(</span><span class="n">scenario_params</span><span class="p">)</span>
+
+        <span class="c1"># Run optimized simulation</span>
+        <span class="n">scenario_results</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span>
+            <span class="n">n_simulations</span><span class="o">=</span><span class="n">n_simulations</span><span class="p">,</span>
+            <span class="n">use_jit</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># Already compiled</span>
+            <span class="n">parallel</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+
+        <span class="n">results</span><span class="p">[</span><span class="n">scenario_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">scenario_results</span>
+
+    <span class="k">return</span> <span class="n">results</span>
+
+<span class="c1"># Define scenarios</span>
+<span class="n">scenarios</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;base_case&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;loss_ratio&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">},</span>
+    <span class="s1">&#39;adverse&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;loss_ratio&#39;</span><span class="p">:</span> <span class="mf">1.2</span><span class="p">},</span>
+    <span class="s1">&#39;severe&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;loss_ratio&#39;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1"># Run batch simulation</span>
+<span class="n">batch_results</span> <span class="o">=</span> <span class="n">batch_simulate</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">scenarios</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="streaming-results">
+<h3><a class="toc-backref" href="#id9" role="doc-backlink">Streaming Results</a><a class="headerlink" href="#streaming-results" title="Link to this heading">¶</a></h3>
+<p>Handle very large simulations with streaming:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">streaming_simulate</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">total_simulations</span><span class="p">,</span> <span class="n">chunk_size</span><span class="o">=</span><span class="mi">100_000</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Simulate in chunks and stream results.&quot;&quot;&quot;</span>
+
+    <span class="n">aggregated_stats</span> <span class="o">=</span> <span class="n">SimulationAggregator</span><span class="p">()</span>
+    <span class="n">n_chunks</span> <span class="o">=</span> <span class="p">(</span><span class="n">total_simulations</span> <span class="o">+</span> <span class="n">chunk_size</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">//</span> <span class="n">chunk_size</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_chunks</span><span class="p">):</span>
+        <span class="n">chunk_sims</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">chunk_size</span><span class="p">,</span> <span class="n">total_simulations</span> <span class="o">-</span> <span class="n">i</span> <span class="o">*</span> <span class="n">chunk_size</span><span class="p">)</span>
+
+        <span class="c1"># Simulate chunk</span>
+        <span class="n">chunk_results</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span>
+            <span class="n">n_simulations</span><span class="o">=</span><span class="n">chunk_sims</span><span class="p">,</span>
+            <span class="n">progress_bar</span><span class="o">=</span><span class="kc">False</span>  <span class="c1"># Avoid multiple progress bars</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Update aggregated statistics</span>
+        <span class="n">aggregated_stats</span><span class="o">.</span><span class="n">add_chunk</span><span class="p">(</span><span class="n">chunk_results</span><span class="p">)</span>
+
+        <span class="c1"># Optional: yield intermediate results</span>
+        <span class="k">yield</span> <span class="n">aggregated_stats</span><span class="o">.</span><span class="n">current_stats</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">aggregated_stats</span><span class="o">.</span><span class="n">final_results</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="error-handling">
+<h2><a class="toc-backref" href="#id10" role="doc-backlink">Error Handling</a><a class="headerlink" href="#error-handling" title="Link to this heading">¶</a></h2>
+<section id="common-exceptions">
+<h3><a class="toc-backref" href="#id11" role="doc-backlink">Common Exceptions</a><a class="headerlink" href="#common-exceptions" title="Link to this heading">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">PricingModel</span></code> class raises specific exceptions for different error conditions:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">quactuary.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">PortfolioValidationError</span><span class="p">,</span>
+    <span class="n">MemoryLimitExceededError</span><span class="p">,</span>
+    <span class="n">CompilationError</span><span class="p">,</span>
+    <span class="n">ParallelProcessingError</span>
+<span class="p">)</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">n_simulations</span><span class="o">=</span><span class="mi">1_000_000</span><span class="p">)</span>
+
+<span class="k">except</span> <span class="n">PortfolioValidationError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Portfolio validation failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="c1"># Fix portfolio issues</span>
+
+<span class="k">except</span> <span class="n">MemoryLimitExceededError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Memory limit exceeded: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="c1"># Reduce simulation size or enable memory optimization</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span>
+        <span class="n">n_simulations</span><span class="o">=</span><span class="mi">500_000</span><span class="p">,</span>
+        <span class="n">memory_limit_gb</span><span class="o">=</span><span class="mi">4</span>
+    <span class="p">)</span>
+
+<span class="k">except</span> <span class="n">CompilationError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;JIT compilation failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="c1"># Fallback to non-JIT simulation</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span>
+        <span class="n">n_simulations</span><span class="o">=</span><span class="mi">1_000_000</span><span class="p">,</span>
+        <span class="n">use_jit</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">)</span>
+
+<span class="k">except</span> <span class="n">ParallelProcessingError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Parallel processing failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="c1"># Fallback to single-threaded</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span>
+        <span class="n">n_simulations</span><span class="o">=</span><span class="mi">1_000_000</span><span class="p">,</span>
+        <span class="n">parallel</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="debugging-mode">
+<h3><a class="toc-backref" href="#id12" role="doc-backlink">Debugging Mode</a><a class="headerlink" href="#debugging-mode" title="Link to this heading">¶</a></h3>
+<p>Enable debugging for troubleshooting:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Enable debug mode</span>
+<span class="n">model</span><span class="o">.</span><span class="n">debug</span> <span class="o">=</span> <span class="kc">True</span>
+
+<span class="c1"># Run simulation with detailed logging</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span>
+    <span class="n">n_simulations</span><span class="o">=</span><span class="mi">10_000</span><span class="p">,</span>
+    <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span>  <span class="c1"># Additional parameter for debug output</span>
+<span class="p">)</span>
+
+<span class="c1"># Access debug information</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Optimization decisions:&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">decision</span><span class="p">,</span> <span class="n">reason</span> <span class="ow">in</span> <span class="n">results</span><span class="o">.</span><span class="n">debug_info</span><span class="p">[</span><span class="s1">&#39;optimization_decisions&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">decision</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">reason</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Compilation time: </span><span class="si">{</span><span class="n">results</span><span class="o">.</span><span class="n">debug_info</span><span class="p">[</span><span class="s1">&#39;compilation_time&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">s&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Memory usage: </span><span class="si">{</span><span class="n">results</span><span class="o">.</span><span class="n">debug_info</span><span class="p">[</span><span class="s1">&#39;peak_memory_mb&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">MB&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="see-also">
+<h2><a class="toc-backref" href="#id13" role="doc-backlink">See Also</a><a class="headerlink" href="#see-also" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">SimulationResults</span></code> - Results object returned by <code class="docutils literal notranslate"><span class="pre">simulate()</span></code></p></li>
+<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Portfolio</span></code> - Portfolio construction and management</p></li>
+<li><p><a class="reference internal" href="../user_guide/optimization_overview.html"><span class="doc">Optimization Overview</span></a> - Optimization strategies guide</p></li>
+<li><p><a class="reference internal" href="../user_guide/configuration_guide.html"><span class="doc">Optimization Configuration Guide</span></a> - Detailed parameter reference</p></li>
+<li><p><a class="reference internal" href="../performance/benchmarks.html"><span class="doc">Performance Benchmarks</span></a> - Performance benchmarks</p></li>
+</ul>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="../index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">PricingModel API</a><ul>
+<li><a class="reference internal" href="#class-overview">Class Overview</a><ul>
+<li><a class="reference internal" href="#constructor">Constructor</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#core-methods">Core Methods</a><ul>
+<li><a class="reference internal" href="#simulate">simulate()</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#advanced-usage">Advanced Usage</a><ul>
+<li><a class="reference internal" href="#custom-optimization-strategies">Custom Optimization Strategies</a></li>
+<li><a class="reference internal" href="#batch-processing">Batch Processing</a></li>
+<li><a class="reference internal" href="#streaming-results">Streaming Results</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#error-handling">Error Handling</a><ul>
+<li><a class="reference internal" href="#common-exceptions">Common Exceptions</a></li>
+<li><a class="reference internal" href="#debugging-mode">Debugging Mode</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#see-also">See Also</a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="../quactuary.pricing.html"
+                          title="previous chapter">quactuary.pricing module</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="../quactuary.quantum.html"
+                          title="next chapter">quactuary.quantum module</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/api_reference/pricing_model.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../quactuary.quantum.html" title="quactuary.quantum module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../quactuary.pricing.html" title="quactuary.pricing module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">quActuary v0.0.7 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">PricingModel API</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2025, Alex Filiakov, ACAS.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    </div>
+  </body>
+</html>

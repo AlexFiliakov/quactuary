@@ -6,7 +6,7 @@
     "target_speedup": 2.0,
     "achieved_target": false
   },
-  "last_updated": "2025-05-26T22:52:13.793281",
+  "last_updated": "2025-05-27T10:10:28.718797",
   "speedup_medium_portfolio": {
     "baseline_time": 0.012693643569946289,
     "optimized_time": 0.011760950088500977,
@@ -22,23 +22,23 @@
     "achieved_target": false
   },
   "memory_small_portfolio": {
-    "peak_memory_mb": 303.890625,
-    "rss_mb": 303.890625,
-    "memory_percent": 2.1428772112296945,
+    "peak_memory_mb": 324.68359375,
+    "rss_mb": 324.68359375,
+    "memory_percent": 2.2894983150830504,
     "limit_mb": 1024,
     "within_limit": true
   },
   "memory_medium_portfolio": {
-    "peak_memory_mb": 304.609375,
-    "rss_mb": 304.609375,
-    "memory_percent": 2.147945459042773,
+    "peak_memory_mb": 325.48046875,
+    "rss_mb": 325.48046875,
+    "memory_percent": 2.2951174593975505,
     "limit_mb": 2048,
     "within_limit": true
   },
   "memory_large_portfolio": {
-    "peak_memory_mb": 304.6484375,
-    "rss_mb": 304.6484375,
-    "memory_percent": 2.148220907293484,
+    "peak_memory_mb": 325.48046875,
+    "rss_mb": 325.48046875,
+    "memory_percent": 2.2951174593975505,
     "limit_mb": 4096,
     "within_limit": true
   }

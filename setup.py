@@ -25,6 +25,17 @@ setup(
         ],
         "mcp": [
             "mcp>=0.9.0"
+        ],
+        "quantum": [
+            "qiskit==1.4.2",
+            "qiskit-aer==0.17.0",
+            "qiskit-algorithms==0.3.1",
+            "qiskit-ibm-runtime==0.29.1",
+            "qiskit-qasm3-import==0.5.1"
+        ],
+        "viz": [
+            "matplotlib>=3.5.0",
+            "qiskit[visualization]"
         ]
     },
     entry_points={

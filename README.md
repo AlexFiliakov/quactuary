@@ -307,6 +307,77 @@ Output:
 - **`utilities_validate_data`**: Validate actuarial data formats
 - **`utilities_convert_formats`**: Convert between data representations
 
+## Installation
+
+### Basic Installation
+
+Install quActuary from source:
+
+```bash
+git clone https://github.com/AlexFiliakov/quactuary.git
+cd quactuary
+pip install -e .
+```
+
+### Quantum Computing Setup
+
+quActuary leverages IBM Qiskit v1.4.2 for quantum computing capabilities. To use quantum features:
+
+1. **Install quantum dependencies:**
+   ```bash
+   # Option 1: Install all dependencies including quantum
+   pip install -e .
+   
+   # Option 2: Install quantum extras specifically
+   pip install -e .[quantum]
+   
+   # Option 3: For visualization support
+   pip install -e .[quantum,viz]
+   ```
+
+2. **Verify quantum installation:**
+   ```bash
+   cd quactuary
+   python quactuary/quantum/verify_installation.py
+   ```
+   
+   You should see:
+   ```
+   ✓ Qiskit core imports successful
+   ✓ Basic circuit creation successful
+   ✓ Bell state measurements: {'11 00': ~500, '00 00': ~500}
+   ✓ Qiskit algorithms imports successful
+   ✓ All Qiskit components verified successfully!
+   ```
+
+3. **Test quantum algorithms:**
+   ```python
+   from quactuary.quantum import QuantumPricingModel
+   
+   # Create quantum model
+   model = QuantumPricingModel()
+   
+   # Run quantum excess evaluation (reinsurance pricing)
+   payout, ci_width = model.quantum_excess_evaluation()
+   print(f"Expected payout: {payout:.4f} +/- {ci_width:.4f}")
+   ```
+
+### Quantum Dependencies
+
+The quantum module requires:
+- `qiskit==1.4.2` - Core quantum computing framework
+- `qiskit-aer==0.17.0` - High-performance quantum simulators
+- `qiskit-algorithms==0.3.1` - Quantum algorithms (VQE, QAOA, QAE)
+- `qiskit-ibm-runtime==0.29.1` - IBM Quantum cloud access (optional)
+- `qiskit-qasm3-import==0.5.1` - OpenQASM 3 support
+
+### Notes on Quantum Features
+
+- **Local Development**: All quantum features work with the AerSimulator for local development
+- **IBM Quantum Access**: For real quantum hardware, configure IBM Quantum credentials
+- **Performance**: Quantum algorithms show advantages for specific problem structures
+- **Validation**: Compare quantum results against classical implementations
+
 ## Development
 
 ### Development Environment Setup

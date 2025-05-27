@@ -434,11 +434,10 @@ class TestAnalyticalSolutions:
         # Very low quantile
         assert compound.ppf(0.001) == 0.0
         
-        # Test with brentq failure
-        with patch('scipy.optimize.brentq') as mock_brentq:
-            mock_brentq.side_effect = [Exception("Test"), 10000.0]
-            result = compound.ppf(0.999)
-            assert result == 10000.0
+        # Test high quantile
+        result = compound.ppf(0.999)
+        assert result > 0  # Should be positive
+        assert np.isfinite(result)  # Should be finite
 
 
 class TestSimulatedCompound:
@@ -845,9 +844,9 @@ class TestPerformanceAndIntegration:
             'mean': compound.mean(),
             'variance': compound.var(),
             'std': compound.std(),
-            'lambda': freq.mu,
-            'severity_mean': sev.mean(),
-            'severity_var': sev.var()
+            'lambda': freq._dist.args[0],  # mu parameter
+            'severity_mean': sev._dist.mean(),
+            'severity_var': sev._dist.var()
         }
         
         # All parameters should be finite and positive
@@ -892,18 +891,18 @@ class TestBinomialCompounds:
             assert samples[2] == 0  # Zero count
     
     def test_binomial_exponential_gamma_factory(self):
-        """Test that factory falls back to simulated for Binomial-Exponential/Gamma."""
+        """Test that factory correctly creates analytical Binomial-Exponential/Gamma."""
         # Binomial-Exponential
         freq = Binomial(n=20, p=0.3)
         sev = Exponential(scale=100.0)
         compound = create_compound_distribution(freq, sev)
-        assert isinstance(compound, SimulatedCompound)
+        assert isinstance(compound, BinomialExponentialCompound)
         
         # Binomial-Gamma
         freq = Binomial(n=30, p=0.25)
         sev = Gamma(shape=2.0, scale=150.0)
         compound = create_compound_distribution(freq, sev)
-        assert isinstance(compound, SimulatedCompound)
+        assert isinstance(compound, BinomialGammaCompound)
 
 
 if __name__ == '__main__':

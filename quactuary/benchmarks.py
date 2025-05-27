@@ -23,6 +23,20 @@ from quactuary.distributions.severity import Lognormal, Exponential, Gamma, Pare
 from quactuary.pricing import PricingModel
 from quactuary.pricing_strategies import ClassicalPricingStrategy
 
+
+class NumpyJSONEncoder(json.JSONEncoder):
+    """Custom JSON encoder that handles numpy types."""
+    def default(self, obj):
+        if isinstance(obj, np.bool_):
+            return bool(obj)
+        if isinstance(obj, np.integer):
+            return int(obj)
+        if isinstance(obj, np.floating):
+            return float(obj)
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+        return super().default(obj)
+
 try:
     import memory_profiler
     HAS_MEMORY_PROFILER = True
@@ -367,7 +381,7 @@ class PerformanceBenchmark:
         }
         
         with open(filename, 'w') as f:
-            json.dump(results_data, f, indent=2)
+            json.dump(results_data, f, indent=2, cls=NumpyJSONEncoder)
         
         print(f"\nResults saved to: {filename}")
     

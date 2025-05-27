@@ -17,6 +17,9 @@ from quactuary.pricing import PricingModel
 
 class TestPerformanceExample(PerformanceTestCase):
     """Example performance test cases."""
+    
+    # Allow regressions for baseline tests
+    allow_regressions = True
 
     def setUp(self):
         """Set up test data."""

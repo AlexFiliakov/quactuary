@@ -354,6 +354,11 @@ class PoissonGammaCompound(CompoundDistribution, SeriesExpansionMixin):
         # Gamma stores shape as first argument, scale in kwds
         self.alpha = severity._dist.args[0]
         self.beta = 1.0 / severity._dist.kwds.get('scale', 1.0)
+        
+        # Calculate Tweedie parameters
+        self.p = (self.alpha + 2) / (self.alpha + 1)  # Tweedie power parameter
+        self.mu = self.mean()  # Tweedie mean parameter
+        self.phi = self.lam * self.alpha / (self.beta ** (2 - self.p))  # Dispersion parameter
 
     def mean(self) -> float:
         """E[S] = λ * α / β"""
@@ -896,15 +901,25 @@ class BinomialGammaCompound(CompoundDistribution, SeriesExpansionMixin):
     def cdf(self, x: Union[float, np.ndarray]) -> Union[float, np.ndarray]:
         """CDF of compound Binomial-Gamma."""
         x_array = np.atleast_1d(x)
-        p_zero = (1 - self.p) ** self.n
+        
+        # Handle infinity explicitly
+        result = np.zeros_like(x_array, dtype=float)
+        result[np.isinf(x_array)] = 1.0
+        
+        # Handle finite values
+        finite_mask = np.isfinite(x_array)
+        if np.any(finite_mask):
+            x_finite = x_array[finite_mask]
+            p_zero = (1 - self.p) ** self.n
 
-        result = self._series_cdf(
-            x_array, p_zero,
-            lambda k: stats.binom.pmf(k, self.n, self.p),
-            lambda x_pos, k: stats.gamma.cdf(
-                x_pos, a=k * self.alpha, scale=1/self.beta),
-            k_max=self.n
-        )
+            finite_result = self._series_cdf(
+                x_finite, p_zero,
+                lambda k: stats.binom.pmf(k, self.n, self.p),
+                lambda x_pos, k: stats.gamma.cdf(
+                    x_pos, a=k * self.alpha, scale=1/self.beta),
+                k_max=self.n
+            )
+            result[finite_mask] = finite_result
 
         return result[0] if np.isscalar(x) else result
 
@@ -951,6 +966,27 @@ class BinomialLognormalCompound(CompoundDistribution):
         self.sigma = severity._dist.args[0] if severity._dist.args else 1.0
         self.scale = severity._dist.kwds.get('scale', 1.0)
         self.mu = np.log(self.scale)
+        self._approx_params = None
+        
+    def _get_approx_params(self):
+        """Calculate Fenton-Wilkinson approximation parameters."""
+        if self._approx_params is None:
+            # For Binomial-Lognormal, use method of moments
+            mean_sev = np.exp(self.mu + self.sigma**2 / 2)
+            var_sev = (np.exp(self.sigma**2) - 1) * mean_sev**2
+            
+            # Compound moments
+            mean_compound = self.n * self.p * mean_sev
+            var_compound = self.n * self.p * (var_sev + (1 - self.p) * mean_sev**2)
+            
+            # Lognormal approximation parameters
+            cv_squared = var_compound / (mean_compound**2)
+            sigma_approx = np.sqrt(np.log(1 + cv_squared))
+            mu_approx = np.log(mean_compound) - sigma_approx**2 / 2
+            
+            self._approx_params = (mu_approx, sigma_approx)
+        
+        return self._approx_params
 
     def mean(self) -> float:
         """E[S] = n * p * E[X]"""
@@ -1013,29 +1049,38 @@ class BinomialLognormalCompound(CompoundDistribution):
         x_array = np.atleast_1d(x)
         result = np.zeros_like(x_array, dtype=float)
 
-        # Handle negative values
+        # Handle special cases
         result[x_array < 0] = 0.0
+        result[np.isinf(x_array)] = 1.0
 
-        # Probability of zero claims
-        p_zero = (1 - self.p) ** self.n
-        result[x_array >= 0] = p_zero
+        # Handle finite non-negative values
+        finite_mask = np.isfinite(x_array) & (x_array >= 0)
+        if np.any(finite_mask):
+            x_finite = x_array[finite_mask]
+            
+            # Probability of zero claims
+            p_zero = (1 - self.p) ** self.n
+            result[finite_mask] = p_zero
 
-        # For positive values
-        pos_mask = x_array > 0
-        if np.any(pos_mask):
-            x_pos = x_array[pos_mask]
+            # For positive values
+            pos_mask = x_finite > 0
+            if np.any(pos_mask):
+                x_pos = x_finite[pos_mask]
+                pos_result = np.zeros_like(x_pos)
 
-            for k in range(1, self.n + 1):
-                p_k = stats.binom.pmf(k, self.n, self.p)
-                mu_k, sigma_k = self._fenton_wilkinson_params(k)
+                for k in range(1, self.n + 1):
+                    p_k = stats.binom.pmf(k, self.n, self.p)
+                    mu_k, sigma_k = self._fenton_wilkinson_params(k)
 
-                if mu_k is not None:
-                    lognorm_cdf = stats.lognorm.cdf(
-                        x_pos, s=sigma_k, scale=np.exp(mu_k))
-                    result[pos_mask] += p_k * lognorm_cdf
+                    if mu_k is not None:
+                        lognorm_cdf = stats.lognorm.cdf(
+                            x_pos, s=sigma_k, scale=np.exp(mu_k))
+                        pos_result += p_k * lognorm_cdf
 
-                if p_k < 1e-10:
-                    break
+                    if p_k < 1e-10:
+                        break
+                
+                result[finite_mask & (x_array > 0)] = p_zero + pos_result
 
         return result[0] if np.isscalar(x) else result
 
@@ -1141,3 +1186,50 @@ class PanjerBinomialRecursion:
                     g[s] += coeff * self.severity_pmf[x] * g[s - x]
 
         return g
+
+
+def create_compound_distribution(frequency: FrequencyModel, severity: SeverityModel) -> CompoundDistribution:
+    """
+    Factory function to create appropriate compound distribution.
+    
+    Automatically selects the optimal implementation based on the frequency
+    and severity distribution types. Returns analytical solutions when available,
+    otherwise falls back to simulation.
+    
+    Args:
+        frequency: Frequency distribution (claim counts)
+        severity: Severity distribution (claim amounts)
+        
+    Returns:
+        CompoundDistribution instance
+        
+    Examples:
+        >>> freq = Poisson(mu=10)
+        >>> sev = Exponential(scale=1000)
+        >>> compound = create_compound_distribution(freq, sev)
+        >>> # Automatically uses PoissonExponentialCompound (analytical)
+    """
+    # Map distribution types to their optimal compound implementations
+    freq_type = type(frequency).__name__
+    sev_type = type(severity).__name__
+    
+    # Check for analytical solutions first
+    if freq_type == 'Poisson':
+        if sev_type == 'Exponential':
+            return PoissonExponentialCompound(frequency, severity)
+        elif sev_type == 'Gamma':
+            return PoissonGammaCompound(frequency, severity)
+    elif freq_type == 'Geometric' and sev_type == 'Exponential':
+        return GeometricExponentialCompound(frequency, severity)
+    elif freq_type == 'NegativeBinomial' and sev_type == 'Gamma':
+        return NegativeBinomialGammaCompound(frequency, severity)
+    elif freq_type == 'Binomial':
+        if sev_type == 'Exponential':
+            return BinomialExponentialCompound(frequency, severity)
+        elif sev_type == 'Gamma':
+            return BinomialGammaCompound(frequency, severity)
+        elif sev_type == 'Lognormal':
+            return BinomialLognormalCompound(frequency, severity)
+    
+    # Default to simulation
+    return SimulatedCompound(frequency, severity)

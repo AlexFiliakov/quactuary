@@ -1,15 +1,15 @@
 {"header" : {
   "cloc_url"           : "github.com/AlDanial/cloc",
   "cloc_version"       : "1.98",
-  "elapsed_seconds"    : 0.183578968048096,
-  "n_files"            : 121,
-  "n_lines"            : 40134,
-  "files_per_second"   : 659.116898229319,
-  "lines_per_second"   : 218619.814822607},
+  "elapsed_seconds"    : 0.225167989730835,
+  "n_files"            : 146,
+  "n_lines"            : 50373,
+  "files_per_second"   : 648.404776249625,
+  "lines_per_second"   : 223712.971191934},
 "./performance_baselines/baselines.json" :{
   "blank": 0,
   "comment": 0,
-  "code": 1081,
+  "code": 1234,
   "language": "JSON"},
 "./quactuary/distributions/compound.py" :{
   "blank": 260,
@@ -21,11 +21,31 @@
   "comment": 965,
   "code": 672,
   "language": "Jupyter Notebook"},
+"./examples/demo_quantum_actuarial_workflows.ipynb" :{
+  "blank": 0,
+  "comment": 465,
+  "code": 602,
+  "language": "Jupyter Notebook"},
 "./quactuary/benchmarks/qmc_stress_test.py" :{
   "blank": 104,
   "comment": 59,
   "code": 540,
   "language": "Python"},
+"./examples/demo_quantum_algorithms_framework.ipynb" :{
+  "blank": 0,
+  "comment": 427,
+  "code": 497,
+  "language": "Jupyter Notebook"},
+"./examples/demo_quantum_optimization_utilities.ipynb" :{
+  "blank": 0,
+  "comment": 467,
+  "code": 467,
+  "language": "Jupyter Notebook"},
+"./examples/demo_qae_simulation.ipynb" :{
+  "blank": 0,
+  "comment": 552,
+  "code": 445,
+  "language": "Jupyter Notebook"},
 "./quactuary/optimization_selector.py" :{
   "blank": 143,
   "comment": 186,
@@ -66,6 +86,16 @@
   "comment": 86,
   "code": 370,
   "language": "Python"},
+"./quactuary/quantum_pricing.py" :{
+  "blank": 181,
+  "comment": 631,
+  "code": 351,
+  "language": "Python"},
+"./examples/demo_quantum_state_preparation.ipynb" :{
+  "blank": 0,
+  "comment": 383,
+  "code": 349,
+  "language": "Jupyter Notebook"},
 "./quactuary/distributions/zero_inflated.py" :{
   "blank": 141,
   "comment": 179,
@@ -181,10 +211,20 @@
   "comment": 253,
   "code": 192,
   "language": "reStructuredText"},
+"./examples/demo_quantum_circuit_building.ipynb" :{
+  "blank": 0,
+  "comment": 348,
+  "code": 190,
+  "language": "Jupyter Notebook"},
 "./quactuary/vectorized_simulation.py" :{
   "blank": 67,
   "comment": 98,
   "code": 185,
+  "language": "Python"},
+"./quactuary/quantum_algorithms/utils/optimization.py" :{
+  "blank": 80,
+  "comment": 104,
+  "code": 182,
   "language": "Python"},
 "./examples/extended_distributions_examples.ipynb" :{
   "blank": 0,
@@ -205,6 +245,16 @@
   "blank": 80,
   "comment": 379,
   "code": 177,
+  "language": "Python"},
+"./examples/qae_visualization.py" :{
+  "blank": 37,
+  "comment": 25,
+  "code": 155,
+  "language": "Python"},
+"./examples/qae_demo_example.py" :{
+  "blank": 44,
+  "comment": 32,
+  "code": 153,
   "language": "Python"},
 "./docs/source/user_guide/mcp_integration.rst" :{
   "blank": 113,
@@ -231,10 +281,25 @@
   "comment": 117,
   "code": 134,
   "language": "reStructuredText"},
+"./quactuary/quantum_algorithms/circuits/templates.py" :{
+  "blank": 78,
+  "comment": 111,
+  "code": 134,
+  "language": "Python"},
 "./scripts/check_performance_regressions.py" :{
   "blank": 33,
   "comment": 28,
   "code": 133,
+  "language": "Python"},
+"./quactuary/quantum_algorithms/state_preparation/probability_loader.py" :{
+  "blank": 54,
+  "comment": 132,
+  "code": 129,
+  "language": "Python"},
+"./quactuary/quantum_algorithms/algorithms/base_algorithm.py" :{
+  "blank": 65,
+  "comment": 115,
+  "code": 126,
   "language": "Python"},
 "./quactuary/sobol.py" :{
   "blank": 50,
@@ -245,6 +310,16 @@
   "blank": 43,
   "comment": 124,
   "code": 122,
+  "language": "Python"},
+"./examples/demo_front_page_examples.ipynb" :{
+  "blank": 0,
+  "comment": 162,
+  "code": 119,
+  "language": "Jupyter Notebook"},
+"./quactuary/quantum_algorithms/utils/validation.py" :{
+  "blank": 52,
+  "comment": 79,
+  "code": 118,
   "language": "Python"},
 "./docs/source/user_guide/configuration_guide.rst" :{
   "blank": 150,
@@ -277,7 +352,7 @@
   "code": 111,
   "language": "Python"},
 "./quactuary/mcp/base.py" :{
-  "blank": 39,
+  "blank": 41,
   "comment": 45,
   "code": 110,
   "language": "Python"},
@@ -316,6 +391,11 @@
   "comment": 417,
   "code": 98,
   "language": "reStructuredText"},
+"./quactuary/quantum_algorithms/quantum_types.py" :{
+  "blank": 75,
+  "comment": 221,
+  "code": 98,
+  "language": "Python"},
 "./quactuary/backend.py" :{
   "blank": 60,
   "comment": 179,
@@ -336,6 +416,16 @@
   "comment": 16,
   "code": 89,
   "language": "Python"},
+"./quactuary/quantum_algorithms/circuits/builders.py" :{
+  "blank": 60,
+  "comment": 107,
+  "code": 88,
+  "language": "Python"},
+"./quactuary/quantum_algorithms/state_preparation/amplitude_encoding.py" :{
+  "blank": 50,
+  "comment": 105,
+  "code": 83,
+  "language": "Python"},
 "./quactuary/distributions/__init__.py" :{
   "blank": 15,
   "comment": 107,
@@ -346,9 +436,19 @@
   "comment": 239,
   "code": 79,
   "language": "Jupyter Notebook"},
+"./quactuary/quantum_algorithms/base_quantum.py" :{
+  "blank": 104,
+  "comment": 487,
+  "code": 75,
+  "language": "Python"},
 "./quactuary/distributions/qmc_base.py" :{
   "blank": 39,
   "comment": 76,
+  "code": 74,
+  "language": "Python"},
+"./quactuary/quantum_algorithms/state_preparation/validation.py" :{
+  "blank": 52,
+  "comment": 112,
   "code": 74,
   "language": "Python"},
 "./docs/source/user_guide/api_migration.rst" :{
@@ -401,10 +501,10 @@
   "comment": 14,
   "code": 54,
   "language": "reStructuredText"},
-"./quactuary/quantum.py" :{
-  "blank": 62,
-  "comment": 260,
-  "code": 52,
+"./setup.py" :{
+  "blank": 2,
+  "comment": 0,
+  "code": 47,
   "language": "Python"},
 "./quactuary/future/__init__.py" :{
   "blank": 24,
@@ -420,16 +520,6 @@
   "blank": 15,
   "comment": 17,
   "code": 37,
-  "language": "Python"},
-"./examples/front_page_examples.ipynb" :{
-  "blank": 0,
-  "comment": 131,
-  "code": 36,
-  "language": "Jupyter Notebook"},
-"./setup.py" :{
-  "blank": 2,
-  "comment": 0,
-  "code": 36,
   "language": "Python"},
 "./quactuary/utils/__init__.py" :{
   "blank": 8,
@@ -456,6 +546,11 @@
   "comment": 6,
   "code": 27,
   "language": "reStructuredText"},
+"./quactuary/quantum_algorithms/verify_installation.py" :{
+  "blank": 6,
+  "comment": 4,
+  "code": 27,
+  "language": "Python"},
 "./docs/make.bat" :{
   "blank": 8,
   "comment": 1,
@@ -466,6 +561,11 @@
   "comment": 0,
   "code": 26,
   "language": "INI"},
+"./quactuary/quantum_algorithms/state_preparation/__init__.py" :{
+  "blank": 8,
+  "comment": 28,
+  "code": 26,
+  "language": "Python"},
 "./quactuary/utils/validation.py" :{
   "blank": 37,
   "comment": 100,
@@ -506,9 +606,14 @@
   "comment": 0,
   "code": 21,
   "language": "Text"},
+"./coverage_report.txt" :{
+  "blank": 2,
+  "comment": 0,
+  "code": 20,
+  "language": "Text"},
 "./quactuary/__init__.py" :{
-  "blank": 18,
-  "comment": 82,
+  "blank": 19,
+  "comment": 95,
   "code": 20,
   "language": "Python"},
 "./docs/source/quactuary.utils.rst" :{
@@ -546,6 +651,11 @@
   "comment": 5,
   "code": 4,
   "language": "reStructuredText"},
+"./quactuary/quantum_algorithms/__init__.py" :{
+  "blank": 5,
+  "comment": 11,
+  "code": 4,
+  "language": "Python"},
 "./docs/source/quactuary.backend.rst" :{
   "blank": 2,
   "comment": 5,
@@ -566,7 +676,7 @@
   "comment": 4,
   "code": 3,
   "language": "reStructuredText"},
-"./docs/source/quactuary.quantum.rst" :{
+"./docs/source/quactuary.quantum_pricing.rst" :{
   "blank": 2,
   "comment": 4,
   "code": 3,
@@ -581,6 +691,21 @@
   "comment": 0,
   "code": 1,
   "language": "JSON"},
+"./quactuary/quantum_algorithms/algorithms/__init__.py" :{
+  "blank": 2,
+  "comment": 6,
+  "code": 1,
+  "language": "Python"},
+"./quactuary/quantum_algorithms/circuits/__init__.py" :{
+  "blank": 2,
+  "comment": 6,
+  "code": 1,
+  "language": "Python"},
+"./quactuary/quantum_algorithms/utils/__init__.py" :{
+  "blank": 2,
+  "comment": 6,
+  "code": 1,
+  "language": "Python"},
 "./quactuary/cli/__init__.py" :{
   "blank": 0,
   "comment": 1,
@@ -612,7 +737,7 @@
   "code": 0,
   "language": "Python"},
 "SUM": {
-  "blank": 6867,
-  "comment": 16043,
-  "code": 17224,
-  "nFiles": 121} }
+  "blank": 7767,
+  "comment": 20791,
+  "code": 21815,
+  "nFiles": 146} }

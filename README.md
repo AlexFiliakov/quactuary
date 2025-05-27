@@ -219,6 +219,42 @@ The quActuary MCP server exposes actuarial functionality through the Model Conte
 - **Performance**: Leverage quActuary's optimized algorithms including QMC variance reduction
 - **Error Handling**: Comprehensive error messages guide proper usage
 
+### Using quActuary MCP Tools in Claude
+
+```
+User: Run a pricing simulation for a GL policy with Poisson(3.5) frequency and Exponential(1000) severity, with a $1M deductible.
+
+Claude: I'll run a pricing simulation for your GL policy using the MCP tools...
+        [Uses run_pricing_simulation tool]
+
+Output:
+● Summary
+  I've run a GL (General Liability) pricing simulation with the following parameters:
+  - Frequency: Poisson(3.5) - average 3.5 claims per year
+  - Severity: Lognormal(μ=12, σ=2) - median claim $163k, mean $1.2M
+  - Deductible: $1,000,000 per claim
+
+  Key Results:
+  1. Without Deductible:
+    - Mean annual loss: $4.24M
+    - Very high volatility (CV = 3.82)
+  2. With $1M Deductible:
+    - Mean annual loss: $3.03M (29% reduction)
+    - 47.2% probability of any loss in a year
+    - 18.2% of claims exceed the deductible
+    - Average 0.64 claims per year exceed deductible
+  3. Risk Measures (after deductible):
+    - VaR 95%: $13.0M
+    - VaR 99%: $43.2M
+    - TVaR 95%: $37.3M
+  4. Premium Examples:
+    - Pure premium: $3.03M
+    - With 20% loading: $3.63M
+    - Risk-based (using TVaR): $20.1M
+
+  The heavy-tailed lognormal distribution creates significant tail risk, with the 99th percentile being 14x the mean loss.
+```
+
 ### MCP Server Installation Instructions for Claude
 
 1. **Install quActuary with MCP support:**

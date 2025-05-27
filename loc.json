@@ -1,11 +1,11 @@
 {"header" : {
   "cloc_url"           : "github.com/AlDanial/cloc",
   "cloc_version"       : "1.98",
-  "elapsed_seconds"    : 0.194588899612427,
-  "n_files"            : 120,
-  "n_lines"            : 38940,
-  "files_per_second"   : 616.684714487879,
-  "lines_per_second"   : 200114.189851317},
+  "elapsed_seconds"    : 0.186655044555664,
+  "n_files"            : 121,
+  "n_lines"            : 40134,
+  "files_per_second"   : 648.25464689713,
+  "lines_per_second"   : 215016.958665863},
 "./performance_baselines/baselines.json" :{
   "blank": 0,
   "comment": 0,
@@ -51,6 +51,11 @@
   "comment": 327,
   "code": 385,
   "language": "Python"},
+"./examples/pilot_quantum_excess_evaluation_algorithm.ipynb" :{
+  "blank": 0,
+  "comment": 817,
+  "code": 377,
+  "language": "Jupyter Notebook"},
 "./quactuary/benchmarks.py" :{
   "blank": 79,
   "comment": 46,
@@ -608,6 +613,6 @@
   "language": "Python"},
 "SUM": {
   "blank": 6867,
-  "comment": 15226,
-  "code": 16847,
-  "nFiles": 120} }
+  "comment": 16043,
+  "code": 17224,
+  "nFiles": 121} }

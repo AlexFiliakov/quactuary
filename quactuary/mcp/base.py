@@ -34,15 +34,17 @@ class MCPTool(ABC):
         """Get parameter definitions for the tool.
         
         Returns:
-            Dict mapping parameter names to their specifications:
-            {
-                "param_name": {
-                    "type": "string|number|boolean|object|array",
-                    "description": "Parameter description",
-                    "required": True/False,
-                    "default": <default_value> (optional)
+            Dict mapping parameter names to their specifications::
+            
+                {
+                    "param_name": {
+                        "type": "string|number|boolean|object|array",
+                        "description": "Parameter description",
+                        "required": True/False,
+                        "default": <default_value> (optional)
+                    }
                 }
-            }
+        
         """
         pass
     

@@ -1,15 +1,20 @@
 {"header" : {
   "cloc_url"           : "github.com/AlDanial/cloc",
   "cloc_version"       : "1.98",
-  "elapsed_seconds"    : 0.150084018707275,
-  "n_files"            : 96,
-  "n_lines"            : 31702,
-  "files_per_second"   : 639.641720863291,
-  "lines_per_second"   : 211228.352445917},
+  "elapsed_seconds"    : 0.179988145828247,
+  "n_files"            : 120,
+  "n_lines"            : 38921,
+  "files_per_second"   : 666.710573898069,
+  "lines_per_second"   : 216242.01872239},
+"./performance_baselines/baselines.json" :{
+  "blank": 0,
+  "comment": 0,
+  "code": 1081,
+  "language": "JSON"},
 "./quactuary/distributions/compound.py" :{
-  "blank": 242,
-  "comment": 215,
-  "code": 686,
+  "blank": 260,
+  "comment": 242,
+  "code": 733,
   "language": "Python"},
 "./examples/performance_benchmarks_vs_scipy_numpy.ipynb" :{
   "blank": 0,
@@ -41,15 +46,30 @@
   "comment": 452,
   "code": 389,
   "language": "Python"},
+"./quactuary/distributions/mixed_poisson.py" :{
+  "blank": 162,
+  "comment": 327,
+  "code": 385,
+  "language": "Python"},
+"./quactuary/benchmarks.py" :{
+  "blank": 79,
+  "comment": 46,
+  "code": 373,
+  "language": "Python"},
 "./quactuary/parallel_error_handling.py" :{
   "blank": 107,
   "comment": 86,
   "code": 370,
   "language": "Python"},
-"./quactuary/benchmarks.py" :{
-  "blank": 77,
-  "comment": 45,
-  "code": 362,
+"./quactuary/distributions/zero_inflated.py" :{
+  "blank": 141,
+  "comment": 179,
+  "code": 321,
+  "language": "Python"},
+"./quactuary/distributions/edgeworth.py" :{
+  "blank": 102,
+  "comment": 195,
+  "code": 320,
   "language": "Python"},
 "./quactuary/distributions/severity.py" :{
   "blank": 223,
@@ -66,10 +86,10 @@
   "comment": 35,
   "code": 300,
   "language": "Python"},
-"./quactuary/distributions/mixed_poisson.py" :{
-  "blank": 104,
-  "comment": 152,
-  "code": 256,
+"./quactuary/performance_baseline.py" :{
+  "blank": 69,
+  "comment": 81,
+  "code": 261,
   "language": "Python"},
 "./docs/source/development/community_guidelines.rst" :{
   "blank": 114,
@@ -101,6 +121,11 @@
   "comment": 119,
   "code": 232,
   "language": "Python"},
+"./quactuary/mcp/tools.py" :{
+  "blank": 44,
+  "comment": 41,
+  "code": 229,
+  "language": "Python"},
 "./quactuary/work_distribution.py" :{
   "blank": 79,
   "comment": 89,
@@ -126,11 +151,6 @@
   "comment": 128,
   "code": 213,
   "language": "Python"},
-"./quactuary/distributions/zero_inflated.py" :{
-  "blank": 102,
-  "comment": 135,
-  "code": 208,
-  "language": "Python"},
 "./quactuary/utils/numerical.py" :{
   "blank": 103,
   "comment": 185,
@@ -141,12 +161,12 @@
   "comment": 0,
   "code": 203,
   "language": "JSON"},
-"./quactuary/distributions/edgeworth.py" :{
-  "blank": 88,
-  "comment": 146,
-  "code": 199,
+"./quactuary/cli/performance_baseline_cli.py" :{
+  "blank": 61,
+  "comment": 51,
+  "code": 203,
   "language": "Python"},
-"./usage/Sobol Sequence Example.ipynb" :{
+"./examples/sobol_sequence_example.ipynb" :{
   "blank": 0,
   "comment": 254,
   "code": 196,
@@ -161,7 +181,7 @@
   "comment": 98,
   "code": 185,
   "language": "Python"},
-"./usage/Extended_Distributions_Examples.ipynb" :{
+"./examples/extended_distributions_examples.ipynb" :{
   "blank": 0,
   "comment": 284,
   "code": 180,
@@ -171,11 +191,21 @@
   "comment": 269,
   "code": 177,
   "language": "reStructuredText"},
+"./quactuary/performance_testing.py" :{
+  "blank": 47,
+  "comment": 75,
+  "code": 177,
+  "language": "Python"},
 "./quactuary/pricing.py" :{
   "blank": 80,
   "comment": 379,
   "code": 177,
   "language": "Python"},
+"./docs/source/user_guide/mcp_integration.rst" :{
+  "blank": 113,
+  "comment": 75,
+  "code": 145,
+  "language": "reStructuredText"},
 "./docs/source/development/code_standards.rst" :{
   "blank": 168,
   "comment": 277,
@@ -191,6 +221,16 @@
   "comment": 90,
   "code": 139,
   "language": "reStructuredText"},
+"./docs/source/development/performance_testing.rst" :{
+  "blank": 112,
+  "comment": 117,
+  "code": 134,
+  "language": "reStructuredText"},
+"./scripts/check_performance_regressions.py" :{
+  "blank": 33,
+  "comment": 28,
+  "code": 133,
+  "language": "Python"},
 "./quactuary/sobol.py" :{
   "blank": 50,
   "comment": 99,
@@ -201,20 +241,40 @@
   "comment": 124,
   "code": 122,
   "language": "Python"},
-"./usage/Front Page Examples.ipynb" :{
-  "blank": 0,
-  "comment": 211,
-  "code": 119,
-  "language": "Jupyter Notebook"},
 "./docs/source/user_guide/configuration_guide.rst" :{
   "blank": 150,
   "comment": 285,
   "code": 114,
   "language": "reStructuredText"},
+"./docs/source/development/mcp_development.rst" :{
+  "blank": 134,
+  "comment": 267,
+  "code": 112,
+  "language": "reStructuredText"},
+"./docs/source/user_guide/optimization_config.rst" :{
+  "blank": 104,
+  "comment": 181,
+  "code": 112,
+  "language": "reStructuredText"},
 "./quactuary/jit_kernels.py" :{
   "blank": 58,
   "comment": 128,
   "code": 112,
+  "language": "Python"},
+"./quactuary/mcp/resources.py" :{
+  "blank": 8,
+  "comment": 5,
+  "code": 112,
+  "language": "Python"},
+"./quactuary/mcp/formats.py" :{
+  "blank": 30,
+  "comment": 22,
+  "code": 111,
+  "language": "Python"},
+"./quactuary/mcp/base.py" :{
+  "blank": 39,
+  "comment": 45,
+  "code": 110,
   "language": "Python"},
 "./examples/optimization_selection_demo.py" :{
   "blank": 33,
@@ -256,26 +316,46 @@
   "comment": 179,
   "code": 97,
   "language": "Python"},
+"./quactuary/mcp/categories.py" :{
+  "blank": 11,
+  "comment": 11,
+  "code": 95,
+  "language": "Python"},
 "./docs/source/user_guide/quick_start.rst" :{
   "blank": 87,
   "comment": 104,
   "code": 90,
   "language": "reStructuredText"},
-"./usage/Portfolio Example.ipynb" :{
-  "blank": 0,
-  "comment": 243,
-  "code": 85,
-  "language": "Jupyter Notebook"},
+"./quactuary/mcp/config.py" :{
+  "blank": 20,
+  "comment": 16,
+  "code": 89,
+  "language": "Python"},
 "./quactuary/distributions/__init__.py" :{
   "blank": 15,
-  "comment": 106,
-  "code": 78,
+  "comment": 107,
+  "code": 80,
   "language": "Python"},
+"./examples/portfolio_example.ipynb" :{
+  "blank": 0,
+  "comment": 239,
+  "code": 79,
+  "language": "Jupyter Notebook"},
 "./quactuary/distributions/qmc_base.py" :{
   "blank": 39,
   "comment": 76,
   "code": 74,
   "language": "Python"},
+"./docs/source/user_guide/api_migration.rst" :{
+  "blank": 91,
+  "comment": 143,
+  "code": 73,
+  "language": "reStructuredText"},
+"./docs/source/user_guide/testing_best_practices.rst" :{
+  "blank": 129,
+  "comment": 293,
+  "code": 72,
+  "language": "reStructuredText"},
 "./docs/source/user_guide/best_practices.rst" :{
   "blank": 149,
   "comment": 376,
@@ -296,15 +376,25 @@
   "comment": 162,
   "code": 66,
   "language": "Python"},
+"./docs/source/api_reference/pricing_model.rst" :{
+  "blank": 124,
+  "comment": 417,
+  "code": 65,
+  "language": "reStructuredText"},
+"./docs/source/quactuary.mcp.rst" :{
+  "blank": 50,
+  "comment": 64,
+  "code": 64,
+  "language": "reStructuredText"},
+"./docs/source/user_guide/distribution_parameters.rst" :{
+  "blank": 52,
+  "comment": 115,
+  "code": 61,
+  "language": "reStructuredText"},
 "./docs/source/development/index.rst" :{
   "blank": 22,
-  "comment": 12,
-  "code": 53,
-  "language": "reStructuredText"},
-"./docs/source/api_reference/pricing_model.rst" :{
-  "blank": 101,
-  "comment": 343,
-  "code": 52,
+  "comment": 14,
+  "code": 54,
   "language": "reStructuredText"},
 "./quactuary/quantum.py" :{
   "blank": 62,
@@ -316,6 +406,26 @@
   "comment": 118,
   "code": 42,
   "language": "Python"},
+"./docs/source/user_guide/index.rst" :{
+  "blank": 20,
+  "comment": 13,
+  "code": 39,
+  "language": "reStructuredText"},
+"./docs/source/conf.py" :{
+  "blank": 15,
+  "comment": 17,
+  "code": 37,
+  "language": "Python"},
+"./examples/front_page_examples.ipynb" :{
+  "blank": 0,
+  "comment": 131,
+  "code": 36,
+  "language": "Jupyter Notebook"},
+"./setup.py" :{
+  "blank": 2,
+  "comment": 0,
+  "code": 36,
+  "language": "Python"},
 "./quactuary/utils/__init__.py" :{
   "blank": 8,
   "comment": 27,
@@ -326,19 +436,14 @@
   "comment": 40,
   "code": 32,
   "language": "reStructuredText"},
-"./docs/source/conf.py" :{
-  "blank": 14,
-  "comment": 16,
-  "code": 30,
-  "language": "Python"},
 "./docs/source/quactuary.future.rst" :{
   "blank": 20,
   "comment": 27,
   "code": 29,
   "language": "reStructuredText"},
-"./docs/source/user_guide/index.rst" :{
-  "blank": 14,
-  "comment": 8,
+"./docs/source/quactuary.rst" :{
+  "blank": 12,
+  "comment": 6,
   "code": 27,
   "language": "reStructuredText"},
 "./docs/make.bat" :{
@@ -346,6 +451,16 @@
   "comment": 1,
   "code": 26,
   "language": "DOS Batch"},
+"./pytest.ini" :{
+  "blank": 0,
+  "comment": 0,
+  "code": 26,
+  "language": "INI"},
+"./quactuary/benchmarks/__init__.py" :{
+  "blank": 7,
+  "comment": 8,
+  "code": 26,
+  "language": "Python"},
 "./quactuary/utils/validation.py" :{
   "blank": 37,
   "comment": 100,
@@ -356,56 +471,46 @@
   "comment": 1,
   "code": 26,
   "language": "Python"},
-"./setup.py" :{
-  "blank": 2,
-  "comment": 0,
-  "code": 25,
-  "language": "Python"},
-"./docs/source/quactuary.rst" :{
-  "blank": 10,
-  "comment": 5,
-  "code": 23,
-  "language": "reStructuredText"},
 "./docs/source/index.rst" :{
-  "blank": 32,
-  "comment": 79,
-  "code": 22,
+  "blank": 35,
+  "comment": 82,
+  "code": 24,
   "language": "reStructuredText"},
+"./pyproject.toml" :{
+  "blank": 3,
+  "comment": 0,
+  "code": 23,
+  "language": "TOML"},
+"./quactuary/mcp/prompts.py" :{
+  "blank": 26,
+  "comment": 81,
+  "code": 22,
+  "language": "Python"},
 "./quactuary/datatypes.py" :{
   "blank": 23,
   "comment": 106,
   "code": 21,
   "language": "Python"},
-"./pyproject.toml" :{
-  "blank": 3,
-  "comment": 0,
-  "code": 20,
-  "language": "TOML"},
-"./pytest.ini" :{
+"./quactuary/mcp/server.py" :{
+  "blank": 9,
+  "comment": 8,
+  "code": 21,
+  "language": "Python"},
+"./requirements-dev.txt" :{
   "blank": 0,
   "comment": 0,
-  "code": 20,
-  "language": "INI"},
+  "code": 21,
+  "language": "Text"},
 "./quactuary/__init__.py" :{
   "blank": 18,
   "comment": 82,
   "code": 20,
   "language": "Python"},
-"./requirements-dev.txt" :{
-  "blank": 0,
-  "comment": 0,
-  "code": 18,
-  "language": "Text"},
 "./docs/source/quactuary.utils.rst" :{
   "blank": 10,
   "comment": 12,
   "code": 16,
   "language": "reStructuredText"},
-"./quactuary/benchmarks/__init__.py" :{
-  "blank": 4,
-  "comment": 5,
-  "code": 12,
-  "language": "Python"},
 "./docs/source/_templates/layout.html" :{
   "blank": 0,
   "comment": 1,
@@ -421,6 +526,16 @@
   "comment": 0,
   "code": 9,
   "language": "Text"},
+"./quactuary/mcp/__init__.py" :{
+  "blank": 4,
+  "comment": 3,
+  "code": 7,
+  "language": "Python"},
+"./bin/bash/install_mcp_server.bat" :{
+  "blank": 0,
+  "comment": 0,
+  "code": 5,
+  "language": "DOS Batch"},
 "./docs/source/quactuary.entities.rst" :{
   "blank": 2,
   "comment": 5,
@@ -461,6 +576,11 @@
   "comment": 0,
   "code": 1,
   "language": "JSON"},
+"./quactuary/cli/__init__.py" :{
+  "blank": 0,
+  "comment": 1,
+  "code": 0,
+  "language": "Python"},
 "./quactuary/future/dependence.py" :{
   "blank": 2,
   "comment": 9,
@@ -487,7 +607,7 @@
   "code": 0,
   "language": "Python"},
 "SUM": {
-  "blank": 5508,
-  "comment": 13200,
-  "code": 12994,
-  "nFiles": 96} }
+  "blank": 6863,
+  "comment": 15225,
+  "code": 16833,
+  "nFiles": 120} }

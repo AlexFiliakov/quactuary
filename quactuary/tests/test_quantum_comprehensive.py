@@ -2,11 +2,11 @@
 
 import pytest
 import numpy as np
-import sys
-sys.path.append('/mnt/c/Users/alexf/OneDrive/Documents/Projects/quActuary/quactuary')
-from quactuary.quantum import QuantumPricingModel
-from quactuary.book import Portfolio
 import pandas as pd
+
+# Import from the renamed quantum_pricing.py module 
+from quactuary.quantum_pricing import QuantumPricingModel
+from quactuary.book import Portfolio
 
 
 class TestQuantumPricingModel:

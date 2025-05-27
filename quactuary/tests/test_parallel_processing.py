@@ -25,11 +25,20 @@ class TestParallelProcessing:
         config = ParallelConfig(n_workers=2, show_progress=False)
         simulator = ParallelSimulator(config)
         
+        # Use a module-level function that can be pickled
+        # or test with fallback_to_serial enabled
+        config_with_fallback = ParallelConfig(
+            n_workers=2, 
+            show_progress=False,
+            fallback_to_serial=True
+        )
+        simulator_with_fallback = ParallelSimulator(config_with_fallback)
+        
         # Simple simulation function
         def simulate_func(n_sims, n_policies):
             return np.random.normal(100, 10, size=n_sims)
         
-        results = simulator.simulate_parallel_multiprocessing(
+        results = simulator_with_fallback.simulate_parallel_multiprocessing(
             simulate_func, 1000, 10
         )
         

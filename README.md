@@ -207,6 +207,70 @@ print(f"Quantum portfolio TVaR: {quantum_TVaR}")
 
 Backends can be called as `ContextManager`s to be used across multiple statements. Again, all quantum circuits are taken care of behind the scenes.
 
+## Model Context Protocol (MCP) Server
+
+The quActuary MCP server exposes actuarial functionality through the Model Context Protocol, enabling Claude Code and other MCP clients to seamlessly integrate advanced actuarial computations into their workflows. This provides a standardized interface for executing simulations, risk calculations, and portfolio analysis without requiring deep knowledge of the underlying implementation.
+
+### Advantages of quActuary MCP
+
+- **Direct Integration**: Access quActuary's full suite of actuarial tools directly in Claude Code
+- **No Code Writing**: Execute complex actuarial calculations through simple commands
+- **Structured I/O**: Automatic validation and formatting of inputs/outputs
+- **Performance**: Leverage quActuary's optimized algorithms including QMC variance reduction
+- **Error Handling**: Comprehensive error messages guide proper usage
+
+### MCP Server Installation Instructions for Claude
+
+1. **Install quActuary with MCP support:**
+   ```bash
+   pip install -e .[mcp]
+   ```
+
+2. **Configure Claude Desktop:**
+   Add the following to your Claude Desktop configuration file:
+   - **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
+   - **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
+   - **Linux**: `~/.config/Claude/claude_desktop_config.json`
+
+   ```json
+   {
+     "mcpServers": {
+       "quactuary": {
+         "command": "python",
+         "args": ["-m", "quactuary.mcp.server"],
+         "env": {}
+       }
+     }
+   }
+   ```
+
+3. **Restart Claude Desktop** to load the MCP server.
+
+### quActuary MCP Server Commands
+
+#### Portfolio Pricing & Risk
+- **`pricing_simulate_portfolio`**: Run Monte Carlo simulations on insurance portfolios
+  - Inputs: portfolio data, number of simulations, tail alpha, QMC option
+  - Returns: mean loss, standard deviation, VaR, TVaR, quantiles
+
+- **`pricing_calculate_var`**: Calculate Value at Risk for loss distributions
+  - Inputs: loss array, confidence level, method (empirical/normal)
+  - Returns: VaR, TVaR, and distribution statistics
+
+#### Portfolio Management
+- **`portfolio_create`**: Create portfolio from policy data
+  - Inputs: array of policies with terms, frequency/severity distributions
+  - Returns: portfolio summary with total exposure and risk metrics
+
+#### Distributions (Coming Soon)
+- **`distributions_fit`**: Fit distributions to historical data
+- **`distributions_sample`**: Generate samples from specified distributions
+- **`distributions_compound`**: Create compound frequency-severity distributions
+
+#### Utilities (Coming Soon)
+- **`utilities_validate_data`**: Validate actuarial data formats
+- **`utilities_convert_formats`**: Convert between data representations
+
 ## Development
 
 ### Development Environment Setup

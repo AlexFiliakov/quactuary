@@ -110,7 +110,7 @@ Documentation
    quactuary.backend
    quactuary.pricing
    api_reference/pricing_model
-   quactuary.quantum
+   quactuary.quantum_pricing
    quactuary.distributions
    quactuary.mcp
    quactuary.memory_management
